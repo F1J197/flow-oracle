@@ -1,23 +1,18 @@
 import { GlassTile } from "@/components/shared/GlassTile";
 import { StableDataDisplay } from "@/components/shared/StableDataDisplay";
 import { useStableData } from "@/hooks/useStableData";
-import { useStaticTileLoading } from "@/hooks/useStaticTileLoading";
 import { memo } from "react";
 
 interface PrimaryActionTileProps {
-  loading?: boolean;
+  loading?: boolean; // Ignored for static tile
 }
 
 export const PrimaryActionTile = memo(({ loading = false }: PrimaryActionTileProps) => {
-  const stableLoading = useStaticTileLoading(loading, {
-    debounceMs: 3000, // Extra long debounce for static tiles
-    minLoadingDuration: 800
-  });
-
-  const { value: stableConfidence, isChanging: confidenceChanging } = useStableData(89, {
-    changeThreshold: 0.02, // 2% threshold for confidence changes
-    debounceMs: 5000, // Very slow updates for confidence
-    smoothingFactor: 0.9 // Heavy smoothing
+  // Completely static data - no dependency on external loading states
+  const { value: stableConfidence } = useStableData(89, {
+    changeThreshold: 1.0, // Never change unless manually updated
+    debounceMs: 60000, // 1 minute minimum between changes
+    smoothingFactor: 1.0 // No smoothing - discrete changes only
   });
 
   return (
@@ -26,17 +21,17 @@ export const PrimaryActionTile = memo(({ loading = false }: PrimaryActionTilePro
         value="HOLD POSITIONS"
         size="lg"
         color="lime"
-        loading={stableLoading}
+        loading={false} // Always false - static tile
         stabilityConfig={{
-          changeThreshold: 0.1, // Only change on major updates
-          debounceMs: 4000, // Long debounce for static data
-          smoothingFactor: 0.95 // Maximum smoothing
+          changeThreshold: 1.0, // Never change
+          debounceMs: 300000, // 5 minutes
+          smoothingFactor: 1.0
         }}
       />
       <div className="flex items-center space-x-2 mt-3">
-        <div className="w-2 h-2 bg-neon-lime rounded-full opacity-60 animate-pulse" style={{ animationDuration: '3s' }}></div>
-        <span className={`text-xs text-text-secondary transition-all duration-500 ${confidenceChanging ? 'opacity-80' : 'opacity-100'}`}>
-          Confidence: {stableConfidence}%
+        <div className="w-2 h-2 bg-neon-lime rounded-full opacity-60" style={{ animation: 'pulse 4s ease-in-out infinite' }}></div>
+        <span className="text-xs text-text-secondary">
+          Confidence: {Math.round(stableConfidence)}%
         </span>
       </div>
       <p className="text-xs text-text-muted mt-2">

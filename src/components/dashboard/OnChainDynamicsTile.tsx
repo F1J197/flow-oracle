@@ -1,23 +1,18 @@
 import { GlassTile } from "@/components/shared/GlassTile";
 import { StableDataDisplay } from "@/components/shared/StableDataDisplay";
 import { useStableData } from "@/hooks/useStableData";
-import { useStaticTileLoading } from "@/hooks/useStaticTileLoading";
 import { memo } from "react";
 
 interface OnChainDynamicsTileProps {
-  loading?: boolean;
+  loading?: boolean; // Ignored for static tile
 }
 
 export const OnChainDynamicsTile = memo(({ loading = false }: OnChainDynamicsTileProps) => {
-  const stableLoading = useStaticTileLoading(loading, {
-    debounceMs: 3000,
-    minLoadingDuration: 800
-  });
-
-  const { value: stableScore, isChanging: scoreChanging } = useStableData(78, {
-    changeThreshold: 0.03, // 3% threshold for score changes
-    debounceMs: 4000, // Slow updates for composite score
-    smoothingFactor: 0.85 // Strong smoothing
+  // Static data - no external dependencies
+  const { value: stableScore } = useStableData(78, {
+    changeThreshold: 1.0, // Never change unless manually updated
+    debounceMs: 60000, // 1 minute minimum
+    smoothingFactor: 1.0 // No smoothing
   });
 
   return (
@@ -28,20 +23,20 @@ export const OnChainDynamicsTile = memo(({ loading = false }: OnChainDynamicsTil
         label="Composite Score"
         size="lg"
         color="teal"
-        loading={stableLoading}
+        loading={false} // Always false - static tile
         stabilityConfig={{
-          changeThreshold: 0.05, // 5% threshold for display changes
-          debounceMs: 4000,
-          smoothingFactor: 0.9
+          changeThreshold: 1.0, // Never change
+          debounceMs: 300000, // 5 minutes
+          smoothingFactor: 1.0
         }}
       />
       <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
         <div className="flex items-center space-x-1">
-          <div className="w-1.5 h-1.5 bg-neon-gold rounded-full opacity-80 transition-opacity duration-1000"></div>
+          <div className="w-1.5 h-1.5 bg-neon-gold rounded-full opacity-80"></div>
           <span className="text-text-muted">MVRV-Z</span>
         </div>
         <div className="flex items-center space-x-1">
-          <div className="w-1.5 h-1.5 bg-neon-lime rounded-full opacity-80 transition-opacity duration-1000"></div>
+          <div className="w-1.5 h-1.5 bg-neon-lime rounded-full opacity-80"></div>
           <span className="text-text-muted">Puell</span>
         </div>
       </div>

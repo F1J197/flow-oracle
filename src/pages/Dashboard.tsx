@@ -31,8 +31,8 @@ export const Dashboard = () => {
       {/* Net Liquidity - Featured Tile */}
       <NetLiquidityTile data={dashboardData.netLiquidity} />
 
-      {/* Primary Action Tile */}
-      <PrimaryActionTile loading={globalLoading} />
+      {/* Primary Action Tile - Completely Static */}
+      <PrimaryActionTile />
 
       {/* Data Integrity */}
       <DashboardTile data={dashboardData.dataIntegrity} />
@@ -40,11 +40,11 @@ export const Dashboard = () => {
       {/* Credit Stress V6 - Enhanced */}
       <CreditStressTile data={dashboardData.creditStressV6} />
 
-      {/* Network Security Valuation */}
-      <NetworkSecurityTile loading={globalLoading} />
+      {/* Network Security Valuation - Completely Static */}
+      <NetworkSecurityTile />
 
-      {/* On-Chain Dynamics */}
-      <OnChainDynamicsTile loading={globalLoading} />
+      {/* On-Chain Dynamics - Completely Static */}
+      <OnChainDynamicsTile />
 
       {/* Enhanced Momentum V6 */}
       <DashboardTile data={dashboardData.enhancedMomentum} />
