@@ -185,7 +185,7 @@ export const Dashboard = () => {
           )}
         </GlassTile>
 
-        {/* Credit Stress */}
+        {/* Credit Stress V6 */}
         <GlassTile 
           title={dashboardData.creditStress.title}
           status={dashboardData.creditStress.status}
@@ -194,24 +194,43 @@ export const Dashboard = () => {
             value={dashboardData.creditStress.primaryMetric}
             size="lg"
             color={dashboardData.creditStress.color}
+            trend={dashboardData.creditStress.trend}
             loading={loading}
           />
+          {dashboardData.creditStress.secondaryMetric && (
+            <Badge 
+              variant="outline" 
+              className={`border-neon-${dashboardData.creditStress.color} text-neon-${dashboardData.creditStress.color} mt-2`}
+            >
+              {dashboardData.creditStress.secondaryMetric}
+            </Badge>
+          )}
           {dashboardData.creditStress.actionText && (
-            <p className="text-xs text-text-muted mt-2">
+            <p className="text-xs text-text-primary font-mono mt-3">
               {dashboardData.creditStress.actionText}
             </p>
           )}
-          {/* Stress meter visualization */}
+          {/* Enhanced stress meter visualization */}
           <div className="mt-3">
             <div className="w-full h-2 bg-noir-border rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-neon-lime via-neon-gold to-neon-orange transition-all duration-500"
-                style={{ width: '15%' }}
+                className={`h-full transition-all duration-500 ${
+                  dashboardData.creditStress.status === 'critical' 
+                    ? 'bg-gradient-to-r from-neon-orange to-neon-fuchsia' 
+                    : dashboardData.creditStress.status === 'warning'
+                    ? 'bg-gradient-to-r from-neon-gold to-neon-orange'
+                    : 'bg-gradient-to-r from-neon-lime to-neon-teal'
+                }`}
+                style={{ 
+                  width: dashboardData.creditStress.status === 'critical' ? '85%' 
+                       : dashboardData.creditStress.status === 'warning' ? '45%' 
+                       : '25%' 
+                }}
               ></div>
             </div>
             <div className="flex justify-between text-xs text-text-muted mt-1">
-              <span>Low</span>
-              <span>Crisis</span>
+              <span>Minimal</span>
+              <span>Extreme</span>
             </div>
           </div>
         </GlassTile>

@@ -22,6 +22,44 @@ export interface CreditData {
   regime: 'QE' | 'QT' | 'neutral';
 }
 
+export interface EnhancedCreditData {
+  // Core spreads
+  highYieldSpread: number;
+  investmentGradeSpread: number;
+  corporateSpread: number;
+  sovereignSpread: number;
+  
+  // Velocity metrics
+  spreadVelocity: number;
+  accelerationRate: number;
+  volatilityIndex: number;
+  
+  // Market structure
+  liquidityScore: number;
+  convexityRisk: number;
+  correlationBreakdown: number;
+  
+  // Regime indicators
+  regime: 'QE_SUPPORTIVE' | 'QT_STRESS' | 'NEUTRAL' | 'CRISIS_MODE';
+  regimeConfidence: number;
+  transitionProbability: number;
+  
+  // Risk metrics
+  stressLevel: 'MINIMAL' | 'MODERATE' | 'ELEVATED' | 'EXTREME';
+  systemicRisk: number;
+  contagionRisk: number;
+  
+  // Technical indicators
+  zScore: number;
+  percentileRank: number;
+  momentumStrength: number;
+  
+  // Metadata
+  lastUpdated: Date;
+  dataQuality: number;
+  sourceCount: number;
+}
+
 export interface ZScoreData {
   value: number;
   percentile: number;

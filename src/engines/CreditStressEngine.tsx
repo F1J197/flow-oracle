@@ -1,54 +1,33 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport } from "@/types/engines";
-import { dataService } from "@/services/dataService";
+import { EnhancedCreditData } from "@/types/data";
+import { creditDataService } from "@/services/creditDataService";
 
 export class CreditStressEngine implements IEngine {
   id = 'credit-stress';
-  name = 'Credit Stress Engine';
+  name = 'Credit Stress Engine V6';
   priority = 2;
   pillar = 1 as const;
 
-  private spread = 239; // basis points
-  private velocity = -2.1; // bps/day
-  private category: 'low' | 'moderate' | 'high' | 'crisis' = 'low';
-  private regime: 'QE' | 'QT' | 'neutral' = 'QE';
-  private highWeek = 567;
-  private lowWeek = 198;
-  private percentileRank = 15;
+  private creditData: EnhancedCreditData | null = null;
+  private alerts: Array<{ severity: 'info' | 'warning' | 'critical'; message: string }> = [];
 
   async execute(): Promise<EngineReport> {
     try {
-      // Fetch credit spread data
-      this.spread = await dataService.fetchFREDData('BAMLH0A0HYM2');
-
-      // Determine category
-      if (this.spread < 300) {
-        this.category = 'low';
-      } else if (this.spread < 500) {
-        this.category = 'moderate';
-      } else if (this.spread < 800) {
-        this.category = 'high';
-      } else {
-        this.category = 'crisis';
-      }
-
-      // Determine regime signal
-      if (this.spread < 400) {
-        this.regime = 'QE';
-      } else if (this.spread > 500) {
-        this.regime = 'QT';
-      } else {
-        this.regime = 'neutral';
-      }
+      // Fetch comprehensive credit data
+      this.creditData = await creditDataService.aggregateCreditData();
+      
+      // Generate alerts based on conditions
+      this.generateAlerts();
+      
+      // Determine overall signal
+      const signal = this.determineOverallSignal();
+      const confidence = this.calculateConfidence();
 
       return {
         success: true,
-        confidence: 0.85,
-        signal: this.regime === 'QE' ? 'bullish' : this.regime === 'QT' ? 'bearish' : 'neutral',
-        data: {
-          spread: this.spread,
-          category: this.category,
-          regime: this.regime
-        },
+        confidence,
+        signal,
+        data: this.creditData,
         lastUpdated: new Date()
       };
     } catch (error) {
@@ -57,70 +36,196 @@ export class CreditStressEngine implements IEngine {
         confidence: 0,
         signal: 'neutral',
         data: null,
-        errors: [error instanceof Error ? error.message : 'Unknown error'],
+        errors: [error instanceof Error ? error.message : 'Credit data aggregation failed'],
         lastUpdated: new Date()
       };
     }
   }
 
+  private generateAlerts(): void {
+    if (!this.creditData) return;
+    
+    this.alerts = [];
+    
+    // Critical alerts
+    if (this.creditData.stressLevel === 'EXTREME') {
+      this.alerts.push({
+        severity: 'critical',
+        message: `EXTREME credit stress detected: HY spread at ${this.creditData.highYieldSpread}bps`
+      });
+    }
+    
+    if (this.creditData.systemicRisk > 80) {
+      this.alerts.push({
+        severity: 'critical',
+        message: `High systemic risk: ${this.creditData.systemicRisk.toFixed(1)}% - Contagion likely`
+      });
+    }
+    
+    // Warning alerts
+    if (this.creditData.liquidityScore < 30) {
+      this.alerts.push({
+        severity: 'warning',
+        message: `Low liquidity conditions: Score ${this.creditData.liquidityScore.toFixed(1)}`
+      });
+    }
+    
+    if (Math.abs(this.creditData.spreadVelocity) > 5) {
+      this.alerts.push({
+        severity: 'warning',
+        message: `Rapid spread movement: ${this.creditData.spreadVelocity.toFixed(1)}% velocity`
+      });
+    }
+    
+    // Info alerts
+    if (this.creditData.correlationBreakdown > 20) {
+      this.alerts.push({
+        severity: 'info',
+        message: `Credit-equity correlation breakdown detected`
+      });
+    }
+  }
+
+  private determineOverallSignal(): 'bullish' | 'bearish' | 'neutral' {
+    if (!this.creditData) return 'neutral';
+    
+    const factors = {
+      regime: this.creditData.regime === 'QE_SUPPORTIVE' ? 2 : 
+              this.creditData.regime === 'CRISIS_MODE' ? -3 : 
+              this.creditData.regime === 'QT_STRESS' ? -1 : 0,
+      stress: this.creditData.stressLevel === 'MINIMAL' ? 1 :
+              this.creditData.stressLevel === 'EXTREME' ? -2 : 0,
+      liquidity: this.creditData.liquidityScore > 70 ? 1 : 
+                 this.creditData.liquidityScore < 30 ? -1 : 0,
+      momentum: this.creditData.spreadVelocity < -2 ? 1 : 
+                this.creditData.spreadVelocity > 3 ? -1 : 0
+    };
+    
+    const totalScore = Object.values(factors).reduce((sum, score) => sum + score, 0);
+    
+    if (totalScore >= 2) return 'bullish';
+    if (totalScore <= -2) return 'bearish';
+    return 'neutral';
+  }
+
+  private calculateConfidence(): number {
+    if (!this.creditData) return 0;
+    
+    const qualityFactor = this.creditData.dataQuality;
+    const sourceFactor = Math.min(1, this.creditData.sourceCount / 5);
+    const regimeFactor = this.creditData.regimeConfidence;
+    
+    return (qualityFactor + sourceFactor + regimeFactor) / 3;
+  }
+
   getDashboardData(): DashboardTileData {
+    if (!this.creditData) {
+      return {
+        title: 'CREDIT STRESS ENGINE V6',
+        primaryMetric: '---',
+        status: 'warning',
+        actionText: 'INITIALIZING',
+        color: 'gold',
+        loading: true
+      };
+    }
+
     const getColor = () => {
-      switch (this.category) {
-        case 'low': return 'lime';
-        case 'moderate': return 'teal';
-        case 'high': return 'gold';
-        case 'crisis': return 'orange';
+      switch (this.creditData!.stressLevel) {
+        case 'MINIMAL': return 'lime';
+        case 'MODERATE': return 'teal';
+        case 'ELEVATED': return 'gold';
+        case 'EXTREME': return 'orange';
+      }
+    };
+
+    const getStatus = () => {
+      switch (this.creditData!.stressLevel) {
+        case 'EXTREME': return 'critical';
+        case 'ELEVATED': return 'warning';
+        default: return 'normal';
       }
     };
 
     const getActionText = () => {
-      switch (this.category) {
-        case 'low': return 'QE SUPPORTIVE';
-        case 'moderate': return 'NEUTRAL CONDITIONS';
-        case 'high': return 'STRESS BUILDING';
-        case 'crisis': return 'CRISIS MODE';
-      }
+      return `${this.creditData!.regime.replace('_', ' ')} • ${this.creditData!.stressLevel}`;
     };
 
     return {
-      title: 'CREDIT STRESS ENGINE',
-      primaryMetric: `${this.spread}bps`,
-      status: this.category === 'crisis' ? 'critical' : this.category === 'high' ? 'warning' : 'normal',
+      title: 'CREDIT STRESS ENGINE V6',
+      primaryMetric: `${this.creditData.highYieldSpread.toFixed(0)}bps`,
+      secondaryMetric: `${this.creditData.spreadVelocity > 0 ? '+' : ''}${this.creditData.spreadVelocity.toFixed(1)}%`,
+      status: getStatus(),
+      trend: this.creditData.spreadVelocity > 1 ? 'up' : this.creditData.spreadVelocity < -1 ? 'down' : 'neutral',
       actionText: getActionText(),
       color: getColor()
     };
   }
 
   getDetailedView(): DetailedEngineView {
+    if (!this.creditData) {
+      return {
+        title: 'CREDIT STRESS ENGINE V6',
+        primarySection: {
+          title: 'INITIALIZING',
+          metrics: {
+            'Status': 'Loading credit data...'
+          }
+        },
+        sections: []
+      };
+    }
+
     return {
-      title: 'CREDIT STRESS ENGINE',
+      title: 'CREDIT STRESS ENGINE V6',
       primarySection: {
-        title: 'CREDIT CONDITIONS',
+        title: 'MARKET REGIME & STRESS ASSESSMENT',
         metrics: {
-          'Current Spread': `${this.spread}bps`,
-          '30-Day Average': '245bps',
-          'Spread Velocity': `${this.velocity}bps/day`,
-          'Regime Signal': `${this.regime.toUpperCase()} SUPPORTIVE`
+          'Current Regime': this.creditData.regime.replace('_', ' '),
+          'Stress Level': this.creditData.stressLevel,
+          'Regime Confidence': `${(this.creditData.regimeConfidence * 100).toFixed(1)}%`,
+          'Transition Risk': `${(this.creditData.transitionProbability * 100).toFixed(1)}%`
         }
       },
       sections: [
         {
-          title: 'HISTORICAL CONTEXT',
+          title: 'SPREAD DYNAMICS',
           metrics: {
-            '52-Week High': `${this.highWeek}bps`,
-            '52-Week Low': `${this.lowWeek}bps`,
-            'Percentile Rank': `${this.percentileRank}th`
+            'High Yield OAS': `${this.creditData.highYieldSpread.toFixed(0)}bps`,
+            'Investment Grade': `${this.creditData.investmentGradeSpread.toFixed(0)}bps`,
+            'Spread Velocity': `${this.creditData.spreadVelocity.toFixed(1)}%`,
+            'Acceleration': `${this.creditData.accelerationRate.toFixed(2)}%/period`
           }
         },
         {
-          title: 'DIVERGENCE ANALYSIS',
+          title: 'RISK METRICS',
           metrics: {
-            'Credit vs Equity': 'ALIGNED',
-            'Credit vs Rates': 'MINOR DIVERGENCE',
-            'Signal Strength': '78%'
+            'Systemic Risk': `${this.creditData.systemicRisk.toFixed(1)}%`,
+            'Contagion Risk': `${this.creditData.contagionRisk.toFixed(1)}%`,
+            'Liquidity Score': `${this.creditData.liquidityScore.toFixed(1)}`,
+            'Volatility Index': `${this.creditData.volatilityIndex.toFixed(1)}`
+          }
+        },
+        {
+          title: 'TECHNICAL ANALYSIS',
+          metrics: {
+            'Z-Score': `${this.creditData.zScore.toFixed(2)}σ`,
+            'Percentile Rank': `${this.creditData.percentileRank.toFixed(0)}th`,
+            'Momentum Strength': `${this.creditData.momentumStrength.toFixed(1)}%`,
+            'Correlation Break': `${this.creditData.correlationBreakdown.toFixed(1)}%`
+          }
+        },
+        {
+          title: 'DATA QUALITY',
+          metrics: {
+            'Data Sources': `${this.creditData.sourceCount}`,
+            'Quality Score': `${(this.creditData.dataQuality * 100).toFixed(1)}%`,
+            'Last Updated': this.creditData.lastUpdated.toLocaleTimeString(),
+            'Coverage': 'Multi-asset'
           }
         }
-      ]
+      ],
+      alerts: this.alerts
     };
   }
 }
