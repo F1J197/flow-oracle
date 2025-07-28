@@ -537,24 +537,8 @@ export class EnhancedMomentumEngine implements IEngine {
   private detectedPatterns: Array<{ pattern: string; confidence: number; significance: string }> = [];
 
   // Public getters for Dashboard access
-  get compositeMomentumData() {
-    return this.compositeMomentum;
-  }
-
-  get multiscaleMomentumData() {
-    return this.multiscaleMomentum;
-  }
-
-  get dynamicOneLinert() {
-    return this.dynamicOneLiner;
-  }
-
   get alertsData() {
     return this.alerts;
-  }
-
-  get patternsData() {
-    return this.detectedPatterns;
   }
 
   async execute(): Promise<EngineReport> {
@@ -825,7 +809,7 @@ export class EnhancedMomentumEngine implements IEngine {
       secondaryMetric: this.compositeMomentum.category,
       status: getStatus(),
       trend: this.compositeMomentum.value > 0 ? 'up' : 'down',
-      actionText: `${this.compositeMomentum.leadTime}w lead`,
+      actionText: this.dynamicOneLiner,
       color: getColor()
     };
   }
@@ -877,5 +861,23 @@ export class EnhancedMomentumEngine implements IEngine {
       ],
       alerts
     };
+  }
+
+  // Public getter for dynamic one-liner
+  getCurrentInsight(): string {
+    return this.dynamicOneLiner;
+  }
+
+  // Public getters for dashboard data access
+  get compositeMomentumData() {
+    return this.compositeMomentum;
+  }
+
+  get multiscaleMomentumData() {
+    return this.multiscaleMomentum;
+  }
+
+  get patternsData() {
+    return this.detectedPatterns;
   }
 }

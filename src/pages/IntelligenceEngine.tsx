@@ -118,7 +118,7 @@ const IntelligenceEngine = () => {
             </div>
             <div className="bg-noir-surface/60 border border-glass-border rounded-lg p-3 mb-4">
               <p className="text-sm text-text-primary font-mono leading-relaxed">
-                {engines.enhancedMomentum.dynamicOneLinert}
+                {engines.enhancedMomentum.getCurrentInsight()}
               </p>
             </div>
             
@@ -382,16 +382,6 @@ const IntelligenceEngine = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-primary">Intelligence Engine</h1>
-        <p className="text-text-secondary">
-          28 Processing Engines • Real-time Analysis • 3-Pillar Architecture
-        </p>
-        <div className="text-sm text-text-secondary">
-          Last Updated: {lastUpdated.toLocaleTimeString()}
-        </div>
-      </div>
 
       {/* Engine Grid - 3x3 Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

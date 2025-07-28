@@ -4,6 +4,7 @@ import { TabNavigation } from "@/components/layout/TabNavigation";
 import { Dashboard } from "./Dashboard";
 import { DataIngestionPanel } from "@/components/data/DataIngestionPanel";
 import IntelligenceEngine from "./IntelligenceEngine";
+import ChartsView from "./ChartsView";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -21,14 +22,7 @@ const Index = () => {
       case 'engines':
         return <IntelligenceEngine />;
       case 'charts':
-        return (
-          <div className="max-w-7xl mx-auto p-6">
-            <div className="glass-tile p-8 text-center">
-              <h2 className="text-2xl font-bold text-primary mb-4">Charts & Indicators</h2>
-              <p className="text-text-secondary">50+ indicators visualization coming soon...</p>
-            </div>
-          </div>
-        );
+        return <ChartsView />;
       default:
         return <Dashboard />;
     }

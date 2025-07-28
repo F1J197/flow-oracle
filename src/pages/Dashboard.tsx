@@ -253,93 +253,35 @@ export const Dashboard = () => {
           </div>
         </GlassTile>
 
-        {/* Enhanced Momentum Engine V6 */}
+        {/* Enhanced Momentum V6 */}
         <GlassTile 
           title={dashboardData.enhancedMomentum.title}
           status={dashboardData.enhancedMomentum.status}
-          size="large"
         >
-          {/* Primary Momentum Score */}
-          <div className="flex items-baseline justify-between mb-3">
-            <DataDisplay
-              value={dashboardData.enhancedMomentum.primaryMetric}
-              size="xl"
-              color={dashboardData.enhancedMomentum.color}
-              trend={dashboardData.enhancedMomentum.trend}
-              loading={loading}
-            />
-            <div className="text-right">
-              <div className="text-xs text-text-secondary uppercase tracking-wider">
-                CONFIDENCE
-              </div>
-              <div className="text-lg font-bold text-neon-lime">
-                {engines.enhancedMomentum.compositeMomentumData?.confidence || 0}%
-              </div>
-            </div>
-          </div>
-
-          {/* Category Badge */}
+          <DataDisplay
+            value={dashboardData.enhancedMomentum.primaryMetric}
+            size="lg"
+            color={dashboardData.enhancedMomentum.color}
+            trend={dashboardData.enhancedMomentum.trend}
+            loading={loading}
+          />
           {dashboardData.enhancedMomentum.secondaryMetric && (
-            <Badge 
-              variant="outline" 
-              className={`border-neon-${dashboardData.enhancedMomentum.color} text-neon-${dashboardData.enhancedMomentum.color} mb-3`}
-            >
+            <Badge variant="outline" className={`border-neon-${dashboardData.enhancedMomentum.color} text-neon-${dashboardData.enhancedMomentum.color} mt-2`}>
               {dashboardData.enhancedMomentum.secondaryMetric}
             </Badge>
           )}
-
-          {/* Dynamic One-Liner Insight */}
-          <div className="bg-noir-surface/60 border border-glass-border rounded-lg p-3 mb-4">
-            <div className="text-xs text-text-secondary uppercase tracking-wider mb-1">
-              LIVE INSIGHT
-            </div>
-            <p className="text-sm text-text-primary font-mono leading-relaxed">
-              {engines.enhancedMomentum.dynamicOneLinert || "Analyzing momentum patterns..."}
-            </p>
-          </div>
-
-          {/* Mini Momentum Visualization */}
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-text-secondary mb-2">
-              <span>2W</span>
-              <span>6W</span>
-              <span>12W</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2 h-8">
-              <div className="bg-noir-border rounded">
-                <div 
-                  className={`h-full bg-neon-${dashboardData.enhancedMomentum.color} rounded transition-all duration-500`}
-                  style={{ 
-                    height: Math.min(100, Math.max(0, 50 + (engines.enhancedMomentum.multiscaleMomentumData?.short?.roc || 0) * 10)) + '%' 
-                  }}
-                ></div>
-              </div>
-              <div className="bg-noir-border rounded">
-                <div 
-                  className={`h-full bg-neon-${dashboardData.enhancedMomentum.color} rounded transition-all duration-500`}
-                  style={{ 
-                    height: Math.min(100, Math.max(0, 50 + (engines.enhancedMomentum.multiscaleMomentumData?.medium?.roc || 0) * 10)) + '%' 
-                  }}
-                ></div>
-              </div>
-              <div className="bg-noir-border rounded">
-                <div 
-                  className={`h-full bg-neon-${dashboardData.enhancedMomentum.color} rounded transition-all duration-500`}
-                  style={{ 
-                    height: Math.min(100, Math.max(0, 50 + (engines.enhancedMomentum.multiscaleMomentumData?.long?.roc || 0) * 10)) + '%' 
-                  }}
-                ></div>
+          
+          {/* Live Insight - Most Important Data Point */}
+          {engines.enhancedMomentum.getCurrentInsight() && (
+            <div className="mt-4 p-3 bg-noir-surface/60 border border-glass-border rounded-lg">
+              <div className="flex items-start space-x-2">
+                <div className="w-1.5 h-1.5 bg-neon-lime rounded-full mt-2 flex-shrink-0 animate-pulse"></div>
+                <p className="text-sm text-text-primary font-mono leading-relaxed">
+                  {engines.enhancedMomentum.getCurrentInsight()}
+                </p>
               </div>
             </div>
-          </div>
-
-          {/* Lead Time Indicator */}
-          <div className="flex items-center justify-between mt-3 text-xs">
-            <span className="text-text-secondary">Lead Time:</span>
-            <span className="text-neon-gold font-mono">
-              {engines.enhancedMomentum.compositeMomentumData?.leadTime || 0}w
-            </span>
-          </div>
+          )}
         </GlassTile>
 
         {/* Enhanced Z-Score Analysis */}
