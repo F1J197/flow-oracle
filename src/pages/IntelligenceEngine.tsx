@@ -53,46 +53,43 @@ const IntelligenceEngine = () => {
   }, [engines]);
 
   const renderEngineView = (engineKey: string, view: DetailedEngineView) => (
-    <GlassTile key={engineKey} title={view.title} className="p-0">
+    <GlassTile key={engineKey} title={view.title} className="p-6">
       <div className="space-y-6">
         {/* Status Badge */}
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center">
+          <div className="text-lg font-semibold text-neon-lime">
+            {view.primarySection.title}
+          </div>
           <Badge variant="outline" className="text-neon-lime border-neon-lime">
             LIVE ⚡
           </Badge>
         </div>
 
-        {/* Primary Section */}
-        <div className="space-y-3">
-          <h4 className="text-sm font-medium text-neon-teal border-b border-neon-teal/30 pb-1">
-            {view.primarySection.title}
-          </h4>
-          <div className="grid grid-cols-2 gap-4">
+        {/* Primary Section - Line by Line */}
+        <div className="border-b border-neon-teal/30 pb-4">
+          <div className="space-y-2 font-mono text-sm">
             {Object.entries(view.primarySection.metrics).map(([key, value]) => (
-              <DataDisplay
-                key={key}
-                label={key}
-                value={value}
-                size="sm"
-              />
+              <div key={key} className="flex justify-between items-center">
+                <span className="text-text-secondary">{key}:</span>
+                <span className="text-text-primary font-medium">{value}</span>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Additional Sections */}
+        {/* Additional Sections - Line by Line */}
         {view.sections.map((section, index) => (
-          <div key={index} className="space-y-3">
-            <h4 className="text-sm font-medium text-text-secondary border-b border-glass-border pb-1">
+          <div key={index} className="border-b border-glass-border pb-4 last:border-b-0">
+            <div className="text-sm font-medium text-neon-teal mb-3 uppercase tracking-wider">
               {section.title}
-            </h4>
-            <div className="grid grid-cols-2 gap-4">
+            </div>
+            <div className="border-b border-text-secondary/20 w-full mb-3"></div>
+            <div className="space-y-2 font-mono text-sm">
               {Object.entries(section.metrics).map(([key, value]) => (
-                <DataDisplay
-                  key={key}
-                  label={key}
-                  value={value}
-                  size="sm"
-                />
+                <div key={key} className="flex justify-between items-center">
+                  <span className="text-text-secondary">{key}:</span>
+                  <span className="text-text-primary font-medium">{value}</span>
+                </div>
               ))}
             </div>
           </div>
