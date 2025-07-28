@@ -4,7 +4,7 @@ import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
-import { PrimaryDealerPositionsEngine } from "@/engines/PrimaryDealerPositionsEngine";
+import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
 import { useEngineTimeout } from "./useEngineTimeout";
 
 export const useEngineManager = () => {
@@ -16,7 +16,7 @@ export const useEngineManager = () => {
     creditStressV6: new CreditStressEngineV6(),
     enhancedZScore: new EnhancedZScoreEngine(),
     enhancedMomentum: new EnhancedMomentumEngine(),
-    primaryDealerPositions: new PrimaryDealerPositionsEngine(),
+    primaryDealerPositions: new PrimaryDealerPositionsEngineV6(),
   });
 
   const initializeEngines = useCallback(async () => {
