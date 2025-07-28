@@ -8,6 +8,7 @@ import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngine } from "@/engines/CreditStressEngine";
 import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
+import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
 import { DetailedEngineView } from "@/types/engines";
 
 const IntelligenceEngine = () => {
@@ -17,6 +18,7 @@ const IntelligenceEngine = () => {
     creditStress: new CreditStressEngine(),
     enhancedZScore: new EnhancedZScoreEngine(),
     enhancedMomentum: new EnhancedMomentumEngine(),
+    primaryDealerPositions: new PrimaryDealerPositionsEngineV6(),
   });
   
   const [engineViews, setEngineViews] = useState<Record<string, DetailedEngineView>>({});
@@ -37,6 +39,7 @@ const IntelligenceEngine = () => {
           engines.creditStress.execute(),
           engines.enhancedZScore.execute(),
           engines.enhancedMomentum.execute(),
+          engines.primaryDealerPositions.execute(),
         ]);
 
         // Get detailed views
@@ -46,6 +49,7 @@ const IntelligenceEngine = () => {
           creditStress: engines.creditStress.getDetailedView(),
           enhancedZScore: engines.enhancedZScore.getDetailedView(),
           enhancedMomentum: engines.enhancedMomentum.getDetailedView(),
+          primaryDealerPositions: engines.primaryDealerPositions.getDetailedView(),
         };
 
         setEngineViews(views);
@@ -132,6 +136,51 @@ const IntelligenceEngine = () => {
                   <div key={idx} className="flex items-center justify-between bg-neon-teal/10 border border-neon-teal/30 rounded px-2 py-1">
                     <span className="text-xs text-neon-teal">{pattern.pattern}</span>
                     <span className="text-xs text-text-primary">{(pattern.confidence * 100).toFixed(0)}%</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Special Primary Dealer Positions Section */}
+        {engineKey === 'primaryDealerPositions' && (
+          <div className="border-t border-neon-teal/30 pt-4 mt-4">
+            <div className="text-sm font-medium text-neon-lime mb-3 uppercase tracking-wider">
+              MARKET MAKING INTELLIGENCE
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="bg-noir-surface/60 border border-glass-border rounded-lg p-3">
+                <div className="text-xs text-text-secondary mb-1">REGIME STATUS</div>
+                <div className="text-lg font-bold text-neon-teal">
+                  {engines.primaryDealerPositions.getCurrentData()?.analytics.regime || 'UNKNOWN'}
+                </div>
+              </div>
+              <div className="bg-noir-surface/60 border border-glass-border rounded-lg p-3">
+                <div className="text-xs text-text-secondary mb-1">FLOW DIRECTION</div>
+                <div className="text-lg font-bold text-neon-lime">
+                  {engines.primaryDealerPositions.getCurrentData()?.analytics.flowDirection || 'NEUTRAL'}
+                </div>
+              </div>
+            </div>
+            
+            {/* Active Alerts */}
+            {engines.primaryDealerPositions.getAlerts().filter(alert => !alert.acknowledged).length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs text-text-secondary uppercase tracking-wider">
+                  ACTIVE ALERTS
+                </div>
+                {engines.primaryDealerPositions.getAlerts().filter(alert => !alert.acknowledged).slice(0, 3).map((alert, idx) => (
+                  <div key={idx} className={`flex items-center justify-between rounded px-2 py-1 ${
+                    alert.severity === 'CRITICAL' ? 'bg-neon-fuchsia/10 border border-neon-fuchsia/30' :
+                    alert.severity === 'WARNING' ? 'bg-neon-gold/10 border border-neon-gold/30' :
+                    'bg-neon-teal/10 border border-neon-teal/30'
+                  }`}>
+                    <span className={`text-xs ${
+                      alert.severity === 'CRITICAL' ? 'text-neon-fuchsia' :
+                      alert.severity === 'WARNING' ? 'text-neon-gold' : 'text-neon-teal'
+                    }`}>{alert.message}</span>
+                    <span className="text-xs text-text-primary">{alert.severity}</span>
                   </div>
                 ))}
               </div>
@@ -407,6 +456,7 @@ const IntelligenceEngine = () => {
             {renderEngineView('creditStress', engineViews.creditStress)}
             {renderEngineView('enhancedZScore', engineViews.enhancedZScore)}
             {renderEngineView('enhancedMomentum', engineViews.enhancedMomentum)}
+            {renderEngineView('primaryDealerPositions', engineViews.primaryDealerPositions)}
             
             {/* Render placeholder engines */}
             {renderPlaceholderEngines()}
@@ -419,7 +469,7 @@ const IntelligenceEngine = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="space-y-1">
             <div className="text-xs text-text-secondary">Active Engines</div>
-            <div className="text-lg font-semibold text-neon-lime">5/28</div>
+            <div className="text-lg font-semibold text-neon-lime">6/28</div>
           </div>
           <div className="space-y-1">
             <div className="text-xs text-text-secondary">Success Rate</div>

@@ -120,6 +120,36 @@ const ChartsView = () => {
         category: 'macro',
         updateFreq: '1h',
         lastUpdate: new Date()
+      },
+      {
+        id: 'primary-dealer-positions',
+        name: 'Primary Dealer Positions',
+        value: '$5.66T',
+        change: 1.8,
+        status: 'bullish',
+        category: 'liquidity',
+        updateFreq: '30s',
+        lastUpdate: new Date()
+      },
+      {
+        id: 'dealer-leverage',
+        name: 'Dealer Leverage Ratio',
+        value: '3.2x',
+        change: -0.1,
+        status: 'bullish',
+        category: 'sentiment',
+        updateFreq: '30s',
+        lastUpdate: new Date()
+      },
+      {
+        id: 'dealer-risk-capacity',
+        name: 'Dealer Risk Capacity',
+        value: '85.6%',
+        change: 2.3,
+        status: 'bullish',
+        category: 'sentiment',
+        updateFreq: '30s',
+        lastUpdate: new Date()
       }
     ];
 
