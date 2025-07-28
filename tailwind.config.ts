@@ -52,15 +52,23 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
+				// Noir & Neon Custom Colors
+				noir: {
+					bg: 'hsl(var(--noir-bg))',
+					surface: 'hsl(var(--noir-surface))',
+					border: 'hsl(var(--noir-border))'
+				},
+				neon: {
+					teal: 'hsl(var(--neon-teal))',
+					orange: 'hsl(var(--neon-orange))',
+					lime: 'hsl(var(--laser-lime))',
+					gold: 'hsl(var(--gold))',
+					fuchsia: 'hsl(var(--fuchsia))'
+				},
+				text: {
+					primary: 'hsl(var(--text-primary))',
+					secondary: 'hsl(var(--text-secondary))',
+					muted: 'hsl(var(--text-muted))'
 				}
 			},
 			borderRadius: {
@@ -84,11 +92,44 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'critical-pulse': {
+					'0%, 100%': {
+						boxShadow: 'var(--shadow-glass)'
+					},
+					'50%': {
+						boxShadow: 'var(--shadow-glass), 0 0 30px hsl(var(--fuchsia) / 0.4)'
+					}
+				},
+				'shimmer': {
+					'0%': {
+						backgroundPosition: '-200% 0'
+					},
+					'100%': {
+						backgroundPosition: '200% 0'
+					}
+				},
+				'gauge-spin': {
+					'0%': {
+						transform: 'rotate(-90deg)'
+					},
+					'100%': {
+						transform: 'rotate(0deg)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'critical-pulse': 'critical-pulse 2s infinite',
+				'shimmer': 'shimmer 1.5s infinite',
+				'gauge-spin': 'gauge-spin 1s ease-out'
+			},
+			fontFamily: {
+				mono: ['Roboto Mono', 'monospace']
+			},
+			backdropBlur: {
+				'glass': '10px'
 			}
 		}
 	},
