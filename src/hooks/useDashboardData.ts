@@ -8,6 +8,7 @@ interface DashboardDataState {
   creditStressV6: DashboardTileData;
   enhancedZScore: DashboardTileData;
   enhancedMomentum: DashboardTileData;
+  primaryDealerPositions: DashboardTileData;
 }
 
 interface EngineManager {
@@ -16,6 +17,7 @@ interface EngineManager {
   creditStressV6: { getDashboardData: () => DashboardTileData };
   enhancedZScore: { getDashboardData: () => DashboardTileData };
   enhancedMomentum: { getDashboardData: () => DashboardTileData };
+  primaryDealerPositions: { getDashboardData: () => DashboardTileData };
 }
 
 export const useDashboardData = (engines: EngineManager) => {
@@ -27,6 +29,7 @@ export const useDashboardData = (engines: EngineManager) => {
     creditStressV6: engines.creditStressV6.getDashboardData(),
     enhancedZScore: engines.enhancedZScore.getDashboardData(),
     enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
+    primaryDealerPositions: engines.primaryDealerPositions.getDashboardData(),
   });
 
   const updateDashboardData = useCallback(() => {
@@ -53,6 +56,10 @@ export const useDashboardData = (engines: EngineManager) => {
       enhancedMomentum: {
         ...engines.enhancedMomentum.getDashboardData(),
         loading: getEngineStatus('enhanced-momentum')?.status === 'loading'
+      },
+      primaryDealerPositions: {
+        ...engines.primaryDealerPositions.getDashboardData(),
+        loading: getEngineStatus('primary-dealer-positions')?.status === 'loading'
       }
     };
 
@@ -62,7 +69,8 @@ export const useDashboardData = (engines: EngineManager) => {
       'net-liquidity': 'netLiquidity',
       'credit-stress': 'creditStressV6',
       'enhanced-zscore': 'enhancedZScore',
-      'enhanced-momentum': 'enhancedMomentum'
+      'enhanced-momentum': 'enhancedMomentum',
+      'primary-dealer-positions': 'primaryDealerPositions'
     } as const;
 
     Object.entries(engineMap).forEach(([engineId, dataKey]) => {

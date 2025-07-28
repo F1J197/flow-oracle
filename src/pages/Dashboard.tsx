@@ -10,6 +10,7 @@ import { NetworkSecurityTile } from "@/components/dashboard/NetworkSecurityTile"
 import { OnChainDynamicsTile } from "@/components/dashboard/OnChainDynamicsTile";
 import { BusinessCycleTile } from "@/components/dashboard/BusinessCycleTile";
 import { TemporalAnalysisTile } from "@/components/dashboard/TemporalAnalysisTile";
+import { PrimaryDealerPositionsTile } from "@/components/dashboard/PrimaryDealerPositionsTile";
 import { SystemStatusFooter } from "@/components/dashboard/SystemStatusFooter";
 
 export const Dashboard = () => {
@@ -50,6 +51,9 @@ export const Dashboard = () => {
 
       {/* Enhanced Z-Score Analysis */}
       <DashboardTile data={dashboardData.enhancedZScore} />
+
+      {/* Primary Dealer Positions */}
+      <PrimaryDealerPositionsTile data={dashboardData.primaryDealerPositions} />
 
       {/* Business Cycle */}
       <BusinessCycleTile loading={loading} />

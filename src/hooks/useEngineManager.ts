@@ -4,6 +4,7 @@ import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
+import { PrimaryDealerPositionsEngine } from "@/engines/PrimaryDealerPositionsEngine";
 import { useEngineTimeout } from "./useEngineTimeout";
 
 export const useEngineManager = () => {
@@ -15,6 +16,7 @@ export const useEngineManager = () => {
     creditStressV6: new CreditStressEngineV6(),
     enhancedZScore: new EnhancedZScoreEngine(),
     enhancedMomentum: new EnhancedMomentumEngine(),
+    primaryDealerPositions: new PrimaryDealerPositionsEngine(),
   });
 
   const initializeEngines = useCallback(async () => {
@@ -43,6 +45,7 @@ export const useEngineManager = () => {
       { id: 'credit-stress', engine: engines.creditStressV6, timeout: 15000, name: 'Credit Stress Engine' },
       { id: 'enhanced-momentum', engine: engines.enhancedMomentum, timeout: 15000, name: 'Enhanced Momentum Engine' },
       { id: 'enhanced-zscore', engine: engines.enhancedZScore, timeout: 30000, name: 'Enhanced Z-Score Engine' },
+      { id: 'primary-dealer-positions', engine: engines.primaryDealerPositions, timeout: 15000, name: 'Primary Dealer Positions Engine' },
     ];
 
     // Set all engines to loading if status callbacks provided
