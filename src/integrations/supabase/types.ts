@@ -96,6 +96,42 @@ export type Database = {
           },
         ]
       }
+      engine_executions: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          engine_id: string
+          error_message: string | null
+          execution_time_ms: number
+          id: string
+          result_data: Json | null
+          signal: string | null
+          success: boolean
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          engine_id: string
+          error_message?: string | null
+          execution_time_ms: number
+          id?: string
+          result_data?: Json | null
+          signal?: string | null
+          success?: boolean
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          engine_id?: string
+          error_message?: string | null
+          execution_time_ms?: number
+          id?: string
+          result_data?: Json | null
+          signal?: string | null
+          success?: boolean
+        }
+        Relationships: []
+      }
       indicators: {
         Row: {
           api_endpoint: string | null
