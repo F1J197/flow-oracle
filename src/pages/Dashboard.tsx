@@ -290,10 +290,9 @@ export const Dashboard = () => {
             </Badge>
           )}
           
-          {/* Live Insight */}
-          {engines.enhancedMomentum.getCurrentInsight() && (
+          {dashboardData.enhancedMomentum.actionText && (
             <p className="text-sm text-text-primary font-mono mt-3">
-              {engines.enhancedMomentum.getCurrentInsight()}
+              {dashboardData.enhancedMomentum.actionText}
             </p>
           )}
         </GlassTile>
