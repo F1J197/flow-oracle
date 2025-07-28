@@ -7,6 +7,7 @@ interface TabNavigationProps {
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', description: 'Executive overview' },
+  { id: 'data', label: 'Data Ingestion', description: 'API feeds & monitoring' },
   { id: 'engines', label: 'Intelligence Engine', description: '28 processing engines' },
   { id: 'charts', label: 'Charts', description: '50+ indicators' }
 ];

@@ -14,7 +14,180 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      data_points: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          id: string
+          indicator_id: string
+          raw_data: Json | null
+          source_hash: string | null
+          timestamp: string
+          value: number
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          indicator_id: string
+          raw_data?: Json | null
+          source_hash?: string | null
+          timestamp: string
+          value: number
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          indicator_id?: string
+          raw_data?: Json | null
+          source_hash?: string | null
+          timestamp?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_points_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "indicators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      data_validations: {
+        Row: {
+          data_point_id: string
+          id: string
+          is_consensus: boolean | null
+          metadata: Json | null
+          validation_source: string
+          validation_timestamp: string
+          validation_value: number
+          variance_pct: number | null
+        }
+        Insert: {
+          data_point_id: string
+          id?: string
+          is_consensus?: boolean | null
+          metadata?: Json | null
+          validation_source: string
+          validation_timestamp?: string
+          validation_value: number
+          variance_pct?: number | null
+        }
+        Update: {
+          data_point_id?: string
+          id?: string
+          is_consensus?: boolean | null
+          metadata?: Json | null
+          validation_source?: string
+          validation_timestamp?: string
+          validation_value?: number
+          variance_pct?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_validations_data_point_id_fkey"
+            columns: ["data_point_id"]
+            isOneToOne: false
+            referencedRelation: "data_points"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      indicators: {
+        Row: {
+          api_endpoint: string | null
+          created_at: string
+          data_source: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          last_updated: string | null
+          metadata: Json | null
+          name: string
+          pillar: number | null
+          priority: number | null
+          symbol: string
+          update_frequency: string | null
+          updated_at: string
+        }
+        Insert: {
+          api_endpoint?: string | null
+          created_at?: string
+          data_source: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_updated?: string | null
+          metadata?: Json | null
+          name: string
+          pillar?: number | null
+          priority?: number | null
+          symbol: string
+          update_frequency?: string | null
+          updated_at?: string
+        }
+        Update: {
+          api_endpoint?: string | null
+          created_at?: string
+          data_source?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_updated?: string | null
+          metadata?: Json | null
+          name?: string
+          pillar?: number | null
+          priority?: number | null
+          symbol?: string
+          update_frequency?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ingestion_logs: {
+        Row: {
+          completed_at: string | null
+          error_message: string | null
+          execution_time_ms: number | null
+          id: string
+          indicator_id: string
+          records_processed: number | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          indicator_id: string
+          records_processed?: number | null
+          started_at?: string
+          status: string
+        }
+        Update: {
+          completed_at?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          indicator_id?: string
+          records_processed?: number | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingestion_logs_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "indicators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

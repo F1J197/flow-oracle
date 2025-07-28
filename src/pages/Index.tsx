@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { TabNavigation } from "@/components/layout/TabNavigation";
 import { Dashboard } from "./Dashboard";
+import { DataIngestionPanel } from "@/components/data/DataIngestionPanel";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -10,6 +11,12 @@ const Index = () => {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard />;
+      case 'data':
+        return (
+          <div className="max-w-7xl mx-auto p-6">
+            <DataIngestionPanel />
+          </div>
+        );
       case 'engines':
         return (
           <div className="max-w-7xl mx-auto p-6">
