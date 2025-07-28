@@ -6,6 +6,7 @@ import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngine } from "@/engines/CreditStressEngine";
 import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
+import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
 import { dataService } from "@/services/dataService";
 
@@ -14,6 +15,7 @@ export const Dashboard = () => {
     dataIntegrity: new DataIntegrityEngine(),
     netLiquidity: new NetLiquidityEngine(),
     creditStress: new CreditStressEngine(),
+    creditStressV6: new CreditStressEngineV6(),
     enhancedZScore: new EnhancedZScoreEngine(),
     enhancedMomentum: new EnhancedMomentumEngine(),
   });
@@ -22,6 +24,7 @@ export const Dashboard = () => {
     dataIntegrity: engines.dataIntegrity.getDashboardData(),
     netLiquidity: engines.netLiquidity.getDashboardData(),
     creditStress: engines.creditStress.getDashboardData(),
+    creditStressV6: engines.creditStressV6.getDashboardData(),
     enhancedZScore: engines.enhancedZScore.getDashboardData(),
     enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
   });
@@ -51,6 +54,7 @@ export const Dashboard = () => {
           engines.dataIntegrity.execute(),
           engines.netLiquidity.execute(),
           engines.creditStress.execute(),
+          engines.creditStressV6.execute(),
           engines.enhancedMomentum.execute(),
           engines.enhancedZScore.execute(),
         ]);
@@ -62,6 +66,7 @@ export const Dashboard = () => {
           dataIntegrity: engines.dataIntegrity.getDashboardData(),
           netLiquidity: engines.netLiquidity.getDashboardData(),
           creditStress: engines.creditStress.getDashboardData(),
+          creditStressV6: engines.creditStressV6.getDashboardData(),
           enhancedZScore: engines.enhancedZScore.getDashboardData(),
           enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
         });
@@ -83,6 +88,7 @@ export const Dashboard = () => {
           engines.dataIntegrity.execute(),
           engines.netLiquidity.execute(),
           engines.creditStress.execute(),
+          engines.creditStressV6.execute(),
           engines.enhancedZScore.execute(),
           engines.enhancedMomentum.execute(),
         ]);
@@ -92,6 +98,7 @@ export const Dashboard = () => {
           dataIntegrity: engines.dataIntegrity.getDashboardData(),
           netLiquidity: engines.netLiquidity.getDashboardData(),
           creditStress: engines.creditStress.getDashboardData(),
+          creditStressV6: engines.creditStressV6.getDashboardData(),
           enhancedZScore: engines.enhancedZScore.getDashboardData(),
           enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
         });
@@ -231,6 +238,58 @@ export const Dashboard = () => {
             <div className="flex justify-between text-xs text-text-muted mt-1">
               <span>Minimal</span>
               <span>Extreme</span>
+            </div>
+          </div>
+        </GlassTile>
+
+        {/* Credit Stress V6 - Enhanced */}
+        <GlassTile 
+          title={dashboardData.creditStressV6.title}
+          status={dashboardData.creditStressV6.status}
+        >
+          <DataDisplay
+            value={dashboardData.creditStressV6.primaryMetric}
+            size="lg"
+            color={dashboardData.creditStressV6.color}
+            trend={dashboardData.creditStressV6.trend}
+            loading={loading}
+          />
+          {dashboardData.creditStressV6.secondaryMetric && (
+            <Badge 
+              variant="outline" 
+              className={`border-neon-${dashboardData.creditStressV6.color} text-neon-${dashboardData.creditStressV6.color} mt-2`}
+            >
+              {dashboardData.creditStressV6.secondaryMetric}
+            </Badge>
+          )}
+          {dashboardData.creditStressV6.actionText && (
+            <p className="text-xs text-text-primary font-mono mt-3">
+              {dashboardData.creditStressV6.actionText}
+            </p>
+          )}
+          {/* Advanced stress visualization */}
+          <div className="mt-3">
+            <div className="w-full h-3 bg-noir-border rounded-full overflow-hidden relative">
+              <div 
+                className={`h-full transition-all duration-700 ${
+                  dashboardData.creditStressV6.status === 'critical' 
+                    ? 'bg-gradient-to-r from-neon-orange via-neon-fuchsia to-red-500' 
+                    : dashboardData.creditStressV6.status === 'warning'
+                    ? 'bg-gradient-to-r from-neon-gold to-neon-orange'
+                    : 'bg-gradient-to-r from-neon-lime to-neon-teal'
+                }`}
+                style={{ 
+                  width: dashboardData.creditStressV6.status === 'critical' ? '90%' 
+                       : dashboardData.creditStressV6.status === 'warning' ? '50%' 
+                       : '30%' 
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+              </div>
+            </div>
+            <div className="flex justify-between text-xs text-text-muted mt-1">
+              <span>QE Supportive</span>
+              <span>Crisis Mode</span>
             </div>
           </div>
         </GlassTile>
