@@ -259,29 +259,86 @@ export const Dashboard = () => {
           status={dashboardData.enhancedMomentum.status}
           size="large"
         >
-          <DataDisplay
-            value={dashboardData.enhancedMomentum.primaryMetric}
-            size="xl"
-            color={dashboardData.enhancedMomentum.color}
-            trend={dashboardData.enhancedMomentum.trend}
-            loading={loading}
-          />
+          {/* Primary Momentum Score */}
+          <div className="flex items-baseline justify-between mb-3">
+            <DataDisplay
+              value={dashboardData.enhancedMomentum.primaryMetric}
+              size="xl"
+              color={dashboardData.enhancedMomentum.color}
+              trend={dashboardData.enhancedMomentum.trend}
+              loading={loading}
+            />
+            <div className="text-right">
+              <div className="text-xs text-text-secondary uppercase tracking-wider">
+                CONFIDENCE
+              </div>
+              <div className="text-lg font-bold text-neon-lime">
+                {engines.enhancedMomentum.compositeMomentumData?.confidence || 0}%
+              </div>
+            </div>
+          </div>
+
+          {/* Category Badge */}
           {dashboardData.enhancedMomentum.secondaryMetric && (
             <Badge 
               variant="outline" 
-              className={`border-neon-${dashboardData.enhancedMomentum.color} text-neon-${dashboardData.enhancedMomentum.color} mt-2`}
+              className={`border-neon-${dashboardData.enhancedMomentum.color} text-neon-${dashboardData.enhancedMomentum.color} mb-3`}
             >
               {dashboardData.enhancedMomentum.secondaryMetric}
             </Badge>
           )}
-          {dashboardData.enhancedMomentum.actionText && (
-            <p className="text-sm text-text-primary mt-3 font-mono">
-              {dashboardData.enhancedMomentum.actionText}
+
+          {/* Dynamic One-Liner Insight */}
+          <div className="bg-noir-surface/60 border border-glass-border rounded-lg p-3 mb-4">
+            <div className="text-xs text-text-secondary uppercase tracking-wider mb-1">
+              LIVE INSIGHT
+            </div>
+            <p className="text-sm text-text-primary font-mono leading-relaxed">
+              {engines.enhancedMomentum.dynamicOneLinert || "Analyzing momentum patterns..."}
             </p>
-          )}
-          <div className="mt-4 h-8 bg-noir-border rounded opacity-30">
-            {/* Mini momentum chart placeholder */}
-            <div className={`h-full bg-gradient-to-r from-transparent via-neon-${dashboardData.enhancedMomentum.color}/30 to-transparent rounded`}></div>
+          </div>
+
+          {/* Mini Momentum Visualization */}
+          <div className="mt-4">
+            <div className="flex justify-between text-xs text-text-secondary mb-2">
+              <span>2W</span>
+              <span>6W</span>
+              <span>12W</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 h-8">
+              <div className="bg-noir-border rounded">
+                <div 
+                  className={`h-full bg-neon-${dashboardData.enhancedMomentum.color} rounded transition-all duration-500`}
+                  style={{ 
+                    height: Math.min(100, Math.max(0, 50 + (engines.enhancedMomentum.multiscaleMomentumData?.short?.roc || 0) * 10)) + '%' 
+                  }}
+                ></div>
+              </div>
+              <div className="bg-noir-border rounded">
+                <div 
+                  className={`h-full bg-neon-${dashboardData.enhancedMomentum.color} rounded transition-all duration-500`}
+                  style={{ 
+                    height: Math.min(100, Math.max(0, 50 + (engines.enhancedMomentum.multiscaleMomentumData?.medium?.roc || 0) * 10)) + '%' 
+                  }}
+                ></div>
+              </div>
+              <div className="bg-noir-border rounded">
+                <div 
+                  className={`h-full bg-neon-${dashboardData.enhancedMomentum.color} rounded transition-all duration-500`}
+                  style={{ 
+                    height: Math.min(100, Math.max(0, 50 + (engines.enhancedMomentum.multiscaleMomentumData?.long?.roc || 0) * 10)) + '%' 
+                  }}
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lead Time Indicator */}
+          <div className="flex items-center justify-between mt-3 text-xs">
+            <span className="text-text-secondary">Lead Time:</span>
+            <span className="text-neon-gold font-mono">
+              {engines.enhancedMomentum.compositeMomentumData?.leadTime || 0}w
+            </span>
           </div>
         </GlassTile>
 

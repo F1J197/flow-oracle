@@ -88,23 +88,56 @@ const IntelligenceEngine = () => {
           </div>
         </div>
 
-        {/* Additional Sections - Line by Line */}
+        {/* Additional Sections - Enhanced Layout */}
         {view.sections.map((section, index) => (
           <div key={index} className="border-b border-glass-border pb-4 last:border-b-0">
-            <div className="text-sm font-medium text-neon-teal mb-3 uppercase tracking-wider">
-              {section.title}
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-medium text-neon-teal uppercase tracking-wider">
+                {section.title}
+              </div>
+              {/* Add mini status indicator for each section */}
+              <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse opacity-60"></div>
             </div>
             <div className="border-b border-text-secondary/20 w-full mb-3"></div>
             <div className="space-y-2 font-mono text-sm">
               {Object.entries(section.metrics).map(([key, value]) => (
-                <div key={key} className="flex justify-between items-center">
-                  <span className="text-text-secondary">{key}:</span>
-                  <span className="text-text-primary font-medium">{value}</span>
+                <div key={key} className="flex justify-between items-center group hover:bg-noir-surface/30 px-2 py-1 rounded transition-colors">
+                  <span className="text-text-secondary group-hover:text-text-primary transition-colors">{key}:</span>
+                  <span className="text-text-primary font-medium group-hover:text-neon-teal transition-colors">{value}</span>
                 </div>
               ))}
             </div>
           </div>
         ))}
+
+        {/* Special Enhanced Momentum Section */}
+        {engineKey === 'enhancedMomentum' && (
+          <div className="border-t border-neon-teal/30 pt-4 mt-4">
+            <div className="text-sm font-medium text-neon-lime mb-3 uppercase tracking-wider">
+              DYNAMIC INSIGHTS
+            </div>
+            <div className="bg-noir-surface/60 border border-glass-border rounded-lg p-3 mb-4">
+              <p className="text-sm text-text-primary font-mono leading-relaxed">
+                {engines.enhancedMomentum.dynamicOneLinert}
+              </p>
+            </div>
+            
+            {/* Pattern Recognition Results */}
+            {engines.enhancedMomentum.patternsData && engines.enhancedMomentum.patternsData.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs text-text-secondary uppercase tracking-wider">
+                  DETECTED PATTERNS
+                </div>
+                {engines.enhancedMomentum.patternsData.map((pattern, idx) => (
+                  <div key={idx} className="flex items-center justify-between bg-neon-teal/10 border border-neon-teal/30 rounded px-2 py-1">
+                    <span className="text-xs text-neon-teal">{pattern.pattern}</span>
+                    <span className="text-xs text-text-primary">{(pattern.confidence * 100).toFixed(0)}%</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Alerts */}
         {view.alerts && view.alerts.length > 0 && (
@@ -134,35 +167,212 @@ const IntelligenceEngine = () => {
 
   const renderPlaceholderEngines = () => {
     const placeholders = [
-      { name: "Regime Detection Engine", status: "development" },
-      { name: "Cross-Asset Correlation", status: "development" },
-      { name: "Temporal Dynamics", status: "development" },
-      { name: "Risk Parity Engine", status: "development" },
+      { 
+        name: "Regime Detection Engine", 
+        status: "development",
+        pillar: "Foundation",
+        priority: "High",
+        description: "Market cycle identification & regime transitions"
+      },
+      { 
+        name: "Cross-Asset Correlation Engine", 
+        status: "development",
+        pillar: "Pillar 2",
+        priority: "Medium",
+        description: "Multi-asset momentum correlation analysis"
+      },
+      { 
+        name: "Temporal Dynamics Engine", 
+        status: "development",
+        pillar: "Pillar 3",
+        priority: "High",
+        description: "Time-series momentum decomposition"
+      },
+      { 
+        name: "Risk Parity Engine", 
+        status: "design",
+        pillar: "Synthesis",
+        priority: "Medium",
+        description: "Risk-adjusted momentum allocation"
+      },
+      { 
+        name: "Options Flow Engine", 
+        status: "design",
+        pillar: "Pillar 2",
+        priority: "Medium",
+        description: "Derivatives positioning momentum"
+      },
+      { 
+        name: "Macro Sentiment Engine", 
+        status: "development",
+        pillar: "Foundation",
+        priority: "High",
+        description: "Policy momentum & central bank signals"
+      },
+      { 
+        name: "Crypto Liquidity Engine", 
+        status: "development",
+        pillar: "Pillar 1",
+        priority: "Medium",
+        description: "Digital asset momentum dynamics"
+      },
+      { 
+        name: "Global Flow Engine", 
+        status: "design",
+        pillar: "Pillar 3",
+        priority: "Low",
+        description: "International capital flow momentum"
+      },
+      { 
+        name: "Volatility Surface Engine", 
+        status: "design",
+        pillar: "Synthesis",
+        priority: "Low",
+        description: "Implied volatility momentum patterns"
+      },
+      { 
+        name: "Positioning Engine", 
+        status: "development",
+        pillar: "Execution",
+        priority: "High",
+        description: "Institutional positioning momentum"
+      },
+      { 
+        name: "Earnings Momentum Engine", 
+        status: "design",
+        pillar: "Pillar 2",
+        priority: "Low",
+        description: "Fundamental earnings momentum"
+      },
+      { 
+        name: "Yield Curve Engine", 
+        status: "development",
+        pillar: "Foundation",
+        priority: "Medium",
+        description: "Interest rate momentum dynamics"
+      },
+      { 
+        name: "Economic Surprise Engine", 
+        status: "design",
+        pillar: "Foundation",
+        priority: "Medium",
+        description: "Data surprise momentum tracking"
+      },
+      { 
+        name: "Technical Pattern Engine", 
+        status: "development",
+        pillar: "Pillar 1",
+        priority: "Low",
+        description: "Chart pattern momentum validation"
+      },
+      { 
+        name: "Seasonality Engine", 
+        status: "design",
+        pillar: "Pillar 3",
+        priority: "Low",
+        description: "Calendar-based momentum effects"
+      },
+      { 
+        name: "News Sentiment Engine", 
+        status: "design",
+        pillar: "Synthesis",
+        priority: "Low",
+        description: "News flow momentum impact"
+      },
+      { 
+        name: "Execution Engine", 
+        status: "development",
+        pillar: "Execution",
+        priority: "Critical",
+        description: "Order flow momentum optimization"
+      },
+      { 
+        name: "Performance Attribution", 
+        status: "development",
+        pillar: "Execution",
+        priority: "High",
+        description: "Momentum strategy performance tracking"
+      },
+      { 
+        name: "Risk Management Engine", 
+        status: "development",
+        pillar: "Execution",
+        priority: "Critical",
+        description: "Momentum-based risk controls"
+      },
+      { 
+        name: "Alpha Generation Engine", 
+        status: "design",
+        pillar: "Synthesis",
+        priority: "High",
+        description: "Pure alpha momentum extraction"
+      },
+      { 
+        name: "Multi-Timeframe Engine", 
+        status: "development",
+        pillar: "Foundation",
+        priority: "Medium",
+        description: "Cross-timeframe momentum synthesis"
+      },
+      { 
+        name: "Machine Learning Engine", 
+        status: "design",
+        pillar: "Synthesis",
+        priority: "Medium",
+        description: "AI-powered momentum prediction"
+      },
+      { 
+        name: "Stress Testing Engine", 
+        status: "design",
+        pillar: "Execution",
+        priority: "High",
+        description: "Momentum strategy stress scenarios"
+      }
     ];
 
     return placeholders.map((engine, index) => (
-      <GlassTile key={index} title={engine.name} className="opacity-60">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-end">
-            <Badge variant="outline" className="text-text-secondary border-text-secondary">
-              {engine.status}
+      <GlassTile key={index} title={engine.name} className="opacity-60 hover:opacity-80 transition-opacity">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Badge 
+              variant="outline" 
+              className={`text-xs ${
+                engine.status === 'development' ? 'text-neon-gold border-neon-gold' :
+                engine.status === 'design' ? 'text-text-secondary border-text-secondary' :
+                'text-neon-teal border-neon-teal'
+              }`}
+            >
+              {engine.status.toUpperCase()}
+            </Badge>
+            <Badge 
+              variant="outline" 
+              className={`text-xs ${
+                engine.priority === 'Critical' ? 'text-neon-orange border-neon-orange' :
+                engine.priority === 'High' ? 'text-neon-gold border-neon-gold' :
+                engine.priority === 'Medium' ? 'text-neon-teal border-neon-teal' :
+                'text-text-secondary border-text-secondary'
+              }`}
+            >
+              {engine.priority}
             </Badge>
           </div>
-          <div className="text-text-secondary">
-            Engine configuration in progress...
+          
+          <div className="text-sm text-text-secondary leading-relaxed">
+            {engine.description}
           </div>
-          <div className="grid grid-cols-3 gap-4 mt-4">
+          
+          <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-glass-border">
             <div className="space-y-1">
               <div className="text-xs text-text-secondary">Status</div>
-              <div className="text-sm">Pending</div>
+              <div className="text-sm text-text-primary capitalize">{engine.status}</div>
             </div>
             <div className="space-y-1">
               <div className="text-xs text-text-secondary">Priority</div>
-              <div className="text-sm">TBD</div>
+              <div className="text-sm text-text-primary">{engine.priority}</div>
             </div>
             <div className="space-y-1">
               <div className="text-xs text-text-secondary">Pillar</div>
-              <div className="text-sm">TBD</div>
+              <div className="text-sm text-text-primary">{engine.pillar}</div>
             </div>
           </div>
         </div>
