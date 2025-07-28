@@ -4,7 +4,7 @@ import { DataDisplay } from "@/components/shared/DataDisplay";
 import { Badge } from "@/components/ui/badge";
 import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
-import { CreditStressEngine } from "@/engines/CreditStressEngine";
+
 import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
 import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
@@ -14,7 +14,6 @@ export const Dashboard = () => {
   const [engines] = useState({
     dataIntegrity: new DataIntegrityEngine(),
     netLiquidity: new NetLiquidityEngine(),
-    creditStress: new CreditStressEngine(),
     creditStressV6: new CreditStressEngineV6(),
     enhancedZScore: new EnhancedZScoreEngine(),
     enhancedMomentum: new EnhancedMomentumEngine(),
@@ -23,7 +22,6 @@ export const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     dataIntegrity: engines.dataIntegrity.getDashboardData(),
     netLiquidity: engines.netLiquidity.getDashboardData(),
-    creditStress: engines.creditStress.getDashboardData(),
     creditStressV6: engines.creditStressV6.getDashboardData(),
     enhancedZScore: engines.enhancedZScore.getDashboardData(),
     enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
@@ -53,7 +51,6 @@ export const Dashboard = () => {
         const reports = await Promise.all([
           engines.dataIntegrity.execute(),
           engines.netLiquidity.execute(),
-          engines.creditStress.execute(),
           engines.creditStressV6.execute(),
           engines.enhancedMomentum.execute(),
           engines.enhancedZScore.execute(),
@@ -65,7 +62,6 @@ export const Dashboard = () => {
         setDashboardData({
           dataIntegrity: engines.dataIntegrity.getDashboardData(),
           netLiquidity: engines.netLiquidity.getDashboardData(),
-          creditStress: engines.creditStress.getDashboardData(),
           creditStressV6: engines.creditStressV6.getDashboardData(),
           enhancedZScore: engines.enhancedZScore.getDashboardData(),
           enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
@@ -87,7 +83,6 @@ export const Dashboard = () => {
         await Promise.all([
           engines.dataIntegrity.execute(),
           engines.netLiquidity.execute(),
-          engines.creditStress.execute(),
           engines.creditStressV6.execute(),
           engines.enhancedZScore.execute(),
           engines.enhancedMomentum.execute(),
@@ -97,7 +92,6 @@ export const Dashboard = () => {
         setDashboardData({
           dataIntegrity: engines.dataIntegrity.getDashboardData(),
           netLiquidity: engines.netLiquidity.getDashboardData(),
-          creditStress: engines.creditStress.getDashboardData(),
           creditStressV6: engines.creditStressV6.getDashboardData(),
           enhancedZScore: engines.enhancedZScore.getDashboardData(),
           enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
@@ -190,56 +184,6 @@ export const Dashboard = () => {
               {dashboardData.dataIntegrity.actionText}
             </p>
           )}
-        </GlassTile>
-
-        {/* Credit Stress V6 */}
-        <GlassTile 
-          title={dashboardData.creditStress.title}
-          status={dashboardData.creditStress.status}
-        >
-          <DataDisplay
-            value={dashboardData.creditStress.primaryMetric}
-            size="lg"
-            color={dashboardData.creditStress.color}
-            trend={dashboardData.creditStress.trend}
-            loading={loading}
-          />
-          {dashboardData.creditStress.secondaryMetric && (
-            <Badge 
-              variant="outline" 
-              className={`border-neon-${dashboardData.creditStress.color} text-neon-${dashboardData.creditStress.color} mt-2`}
-            >
-              {dashboardData.creditStress.secondaryMetric}
-            </Badge>
-          )}
-          {dashboardData.creditStress.actionText && (
-            <p className="text-xs text-text-primary font-mono mt-3">
-              {dashboardData.creditStress.actionText}
-            </p>
-          )}
-          {/* Enhanced stress meter visualization */}
-          <div className="mt-3">
-            <div className="w-full h-2 bg-noir-border rounded-full overflow-hidden">
-              <div 
-                className={`h-full transition-all duration-500 ${
-                  dashboardData.creditStress.status === 'critical' 
-                    ? 'bg-gradient-to-r from-neon-orange to-neon-fuchsia' 
-                    : dashboardData.creditStress.status === 'warning'
-                    ? 'bg-gradient-to-r from-neon-gold to-neon-orange'
-                    : 'bg-gradient-to-r from-neon-lime to-neon-teal'
-                }`}
-                style={{ 
-                  width: dashboardData.creditStress.status === 'critical' ? '85%' 
-                       : dashboardData.creditStress.status === 'warning' ? '45%' 
-                       : '25%' 
-                }}
-              ></div>
-            </div>
-            <div className="flex justify-between text-xs text-text-muted mt-1">
-              <span>Minimal</span>
-              <span>Extreme</span>
-            </div>
-          </div>
         </GlassTile>
 
         {/* Credit Stress V6 - Enhanced */}
