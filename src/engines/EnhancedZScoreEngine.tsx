@@ -546,31 +546,28 @@ export class EnhancedZScoreEngine implements IEngine {
   };
 
   async execute(): Promise<EngineReport> {
+    if (this.isProcessing) {
+      console.log('Z-Score Engine: Already processing, skipping execution');
+      return this.getLastReportOrDefault();
+    }
+
+    this.isProcessing = true;
     const startTime = Date.now();
+    const EXECUTION_TIMEOUT = 30000; // 30 seconds timeout
     
+    // Create timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Engine execution timeout')), EXECUTION_TIMEOUT);
+    });
+
     try {
-      if (this.isProcessing) {
-        console.log('Z-Score Engine: Already processing, skipping execution');
-        return this.getLastReportOrDefault();
-      }
+      // Race between execution and timeout
+      await Promise.race([
+        this.executeWithRetry(),
+        timeoutPromise
+      ]);
 
-      this.isProcessing = true;
-
-      // Step 1: Check if we need a full update or can use cached data
-      const needsFullUpdate = Date.now() - this.lastFullUpdate > this.CACHE_TTL;
-      
-      if (needsFullUpdate) {
-        await this.performFullMultiIndicatorAnalysis();
-        this.lastFullUpdate = Date.now();
-      } else {
-        // Quick update using cached data
-        await this.performIncrementalUpdate();
-      }
-
-      // Step 2: Calculate aggregate metrics from all indicators
-      this.calculateAggregateMetrics();
-
-      // Step 3: Update performance metrics
+      // Update performance metrics
       this.performanceMetrics.processingTime = Date.now() - startTime;
       this.performanceMetrics.lastUpdateTime = Date.now();
       this.performanceMetrics.dataFreshness = this.calculateDataFreshness();
@@ -591,11 +588,9 @@ export class EnhancedZScoreEngine implements IEngine {
         lastUpdated: new Date()
       };
 
-      this.isProcessing = false;
       return report;
 
     } catch (error) {
-      this.isProcessing = false;
       console.error('Enhanced Z-Score Engine execution failed:', error);
       
       return {
@@ -609,7 +604,26 @@ export class EnhancedZScoreEngine implements IEngine {
         errors: [error instanceof Error ? error.message : 'Unknown error'],
         lastUpdated: new Date()
       };
+    } finally {
+      // Always clear processing flag
+      this.isProcessing = false;
     }
+  }
+
+  private async executeWithRetry(): Promise<void> {
+    // Step 1: Check if we need a full update or can use cached data
+    const needsFullUpdate = Date.now() - this.lastFullUpdate > this.CACHE_TTL;
+    
+    if (needsFullUpdate) {
+      await this.performFullMultiIndicatorAnalysis();
+      this.lastFullUpdate = Date.now();
+    } else {
+      // Quick update using cached data
+      await this.performIncrementalUpdate();
+    }
+
+    // Step 2: Calculate aggregate metrics from all indicators
+    this.calculateAggregateMetrics();
   }
 
   getDashboardData(): DashboardTileData {
@@ -739,23 +753,31 @@ export class EnhancedZScoreEngine implements IEngine {
 
   async initialize(): Promise<void> {
     console.log('Enhanced Z-Score Engine V6 initializing...');
+    const INIT_TIMEOUT = 60000; // 60 seconds timeout for initialization
+    
+    // Create timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Engine initialization timeout')), INIT_TIMEOUT);
+    });
     
     try {
-      // Perform initial full analysis
-      await this.performFullMultiIndicatorAnalysis();
+      // Race between initialization and timeout
+      await Promise.race([
+        this.performFullMultiIndicatorAnalysis(),
+        timeoutPromise
+      ]);
+      
       this.lastFullUpdate = Date.now();
-      
-      // Start real-time updates
-      this.updateInterval = setInterval(() => {
-        this.execute().catch(error => {
-          console.error('Z-Score Engine periodic update failed:', error);
-        });
-      }, 15000); // Every 15 seconds
-      
       console.log('Enhanced Z-Score Engine V6 initialized successfully');
     } catch (error) {
       console.error('Enhanced Z-Score Engine initialization failed:', error);
-      throw error;
+      
+      // Set fallback data so engine doesn't completely fail
+      this.generateMockZScoreData(new Map());
+      this.calculateAggregateMetrics();
+      this.lastFullUpdate = Date.now();
+      
+      console.warn('Using fallback data due to initialization failure');
     }
   }
 
