@@ -548,13 +548,23 @@ export class DataIntegrityEngine implements IEngine {
     };
 
     const getInsight = () => {
-      if (this.integrityScore > 99) {
-        return `All ${this.activeSources} sources validated with 99.7% uptime`;
-      } else if (this.integrityScore > 95) {
-        return `${this.anomalies24h} anomalies detected, auto-healing active`;
-      } else {
-        return `Critical: ${this.dataSources.filter(s => s.status === 'failed').length} sources failed`;
+      // Check for critical issues first
+      if (this.activeSources < this.totalSources * 0.8) {
+        return `Multiple source failures: Only ${this.activeSources}/${this.totalSources} sources active`;
       }
+      
+      // Check integrity score threshold
+      if (this.integrityScore < 95) {
+        return `Data integrity score below threshold: ${this.integrityScore.toFixed(2)}%`;
+      }
+      
+      // For degraded state
+      if (this.integrityScore < 99) {
+        return `${this.anomalies24h} anomalies detected, ${this.autoHealed24h} auto-healed`;
+      }
+      
+      // For excellent state
+      return `All ${this.activeSources} sources validated with 99.7% uptime`;
     };
 
     return {
