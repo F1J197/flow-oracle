@@ -1,5 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { rateLimiters } from '../_shared/rate-limiter.ts';
+import { RetryHandler } from '../_shared/retry-logic.ts';
+import { globalAPIQueue } from '../_shared/api-queue.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -148,15 +151,38 @@ serve(async (req) => {
         throw new Error(`Unknown data source: ${source}`);
     }
 
-    console.log(`Fetching data from: ${url}`);
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
-    }
+    // Get appropriate rate limiter and retry handler
+    const rateLimiter = rateLimiters[source];
+    const retryHandler = new RetryHandler();
 
-    data = await response.json();
-    console.log(`Successfully fetched ${source} data`);
+    // Queue the API request with rate limiting and retry logic
+    data = await globalAPIQueue.enqueue(
+      async () => {
+        // Wait for rate limit token
+        await rateLimiter.waitForToken();
+        
+        // Execute with retry logic
+        return await retryHandler.executeWithRetry(async () => {
+          console.log(`Fetching data from: ${url}`);
+          const response = await fetch(url);
+          
+          if (!response.ok) {
+            const error = new Error(`API error: ${response.status} ${response.statusText}`) as any;
+            error.status = response.status;
+            throw error;
+          }
+
+          const result = await response.json();
+          console.log(`Successfully fetched ${source} data`);
+          return result;
+        }, `${source}-${endpoint}`);
+      },
+      {
+        priority: source === 'finnhub' ? 1 : 0, // Higher priority for rate-limited APIs
+        context: `${source}-${endpoint}`,
+        maxRetries: 3
+      }
+    );
 
     return new Response(JSON.stringify({
       success: true,

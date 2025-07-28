@@ -1,6 +1,9 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { rateLimiters } from '../_shared/rate-limiter.ts';
+import { RetryHandler } from '../_shared/retry-logic.ts';
+import { globalAPIQueue } from '../_shared/api-queue.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -73,15 +76,37 @@ serve(async (req) => {
           .select()
           .single();
 
-        // Fetch data from FRED API
+        // Fetch data from FRED API with rate limiting and retry logic
         const fredUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${indicator.api_endpoint}&api_key=${fredApiKey}&file_type=json&limit=100&sort_order=desc`;
         
-        const response = await fetch(fredUrl);
-        if (!response.ok) {
-          throw new Error(`FRED API error: ${response.statusText}`);
-        }
+        const retryHandler = new RetryHandler();
+        const data: FredApiResponse = await globalAPIQueue.enqueue(
+          async () => {
+            // Wait for rate limit token
+            await rateLimiters.fred.waitForToken();
+            
+            // Execute with retry logic
+            return await retryHandler.executeWithRetry(async () => {
+              console.log(`Fetching FRED data for ${indicator.symbol} from: ${fredUrl}`);
+              const response = await fetch(fredUrl);
+              
+              if (!response.ok) {
+                const error = new Error(`FRED API error: ${response.status} ${response.statusText}`) as any;
+                error.status = response.status;
+                throw error;
+              }
 
-        const data: FredApiResponse = await response.json();
+              const result = await response.json();
+              console.log(`Successfully fetched FRED data for ${indicator.symbol}`);
+              return result;
+            }, `fred-${indicator.symbol}`);
+          },
+          {
+            priority: 2, // High priority for FRED data
+            context: `fred-${indicator.symbol}`,
+            maxRetries: 3
+          }
+        );
         let processedCount = 0;
 
         for (const observation of data.observations) {
