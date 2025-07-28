@@ -1,6 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { DashboardTileData } from "@/types/engines";
 import { useEngineStatus } from "./useEngineStatus";
+import { useStaggeredUpdates } from "./useStaggeredUpdates";
 
 interface DashboardDataState {
   dataIntegrity: DashboardTileData;
@@ -22,6 +23,7 @@ interface EngineManager {
 
 export const useDashboardData = (engines: EngineManager) => {
   const { getEngineStatus, getOverallStatus } = useEngineStatus();
+  const lastDataRef = useRef<DashboardDataState | null>(null);
   
   const [dashboardData, setDashboardData] = useState<DashboardDataState>({
     dataIntegrity: engines.dataIntegrity.getDashboardData(),
@@ -32,7 +34,8 @@ export const useDashboardData = (engines: EngineManager) => {
     primaryDealerPositions: engines.primaryDealerPositions.getDashboardData(),
   });
 
-  const updateDashboardData = useCallback(() => {
+  // Staggered update function
+  const performUpdate = useCallback(() => {
     const overallStatus = getOverallStatus();
     
     // Create dashboard data with status-aware loading states
@@ -86,8 +89,50 @@ export const useDashboardData = (engines: EngineManager) => {
       }
     });
 
-    setDashboardData(newData);
+    // Only update if data has meaningfully changed
+    if (!lastDataRef.current || hasSignificantChange(lastDataRef.current, newData)) {
+      setDashboardData(newData);
+      lastDataRef.current = newData;
+    }
   }, [engines, getEngineStatus, getOverallStatus]);
+
+  // Helper function to detect significant changes
+  const hasSignificantChange = (oldData: DashboardDataState, newData: DashboardDataState): boolean => {
+    const keys = Object.keys(oldData) as (keyof DashboardDataState)[];
+    return keys.some(key => {
+      const oldItem = oldData[key];
+      const newItem = newData[key];
+      
+      // Check for status changes
+      if (oldItem.status !== newItem.status) return true;
+      
+      // Check for loading state changes
+      if (oldItem.loading !== newItem.loading) return true;
+      
+      // Check for significant metric changes (if numeric)
+      if (typeof oldItem.primaryMetric === 'string' && typeof newItem.primaryMetric === 'string') {
+        const oldNum = parseFloat(oldItem.primaryMetric.replace(/[^0-9.-]/g, ''));
+        const newNum = parseFloat(newItem.primaryMetric.replace(/[^0-9.-]/g, ''));
+        
+        if (!isNaN(oldNum) && !isNaN(newNum)) {
+          const percentChange = Math.abs((newNum - oldNum) / oldNum);
+          return percentChange > 0.02; // 2% threshold
+        }
+      }
+      
+      return oldItem.primaryMetric !== newItem.primaryMetric;
+    });
+  };
+
+  const { scheduleUpdate } = useStaggeredUpdates(performUpdate, {
+    baseInterval: 5000, // 5 second base interval
+    staggerWindow: 2000, // 2 second stagger window
+    priority: 'medium'
+  });
+
+  const updateDashboardData = useCallback(() => {
+    scheduleUpdate();
+  }, [scheduleUpdate]);
 
   return {
     dashboardData,

@@ -119,18 +119,30 @@
     text-shadow: 0 0 10px hsl(var(--fuchsia) / 0.5);
   }
   
-  /* Critical Alert Pulse */
+  /* Gentle Critical Alert Pulse */
   .critical-pulse {
-    animation: critical-pulse 2s infinite;
+    animation: gentle-pulse 3s infinite ease-in-out;
   }
   
-  /* Loading Shimmer */
+  /* Loading Shimmer - Softer version */
   .shimmer {
     animation: shimmer 1.5s infinite;
     background: linear-gradient(
       90deg,
       hsl(var(--noir-surface)) 0%,
       hsl(var(--noir-border)) 50%,
+      hsl(var(--noir-surface)) 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  /* Gentle Loading Shimmer */
+  .soft-shimmer {
+    animation: soft-shimmer 2.5s infinite ease-in-out;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--noir-surface)) 0%,
+      hsl(var(--noir-border) / 0.5) 50%,
       hsl(var(--noir-surface)) 100%
     );
     background-size: 200% 100%;
@@ -153,12 +165,14 @@
 }
 
 /* Keyframes */
-@keyframes critical-pulse {
+@keyframes gentle-pulse {
   0%, 100% {
     box-shadow: var(--shadow-glass);
+    border-color: hsl(var(--fuchsia) / 0.3);
   }
   50% {
-    box-shadow: var(--shadow-glass), 0 0 30px hsl(var(--fuchsia) / 0.4);
+    box-shadow: var(--shadow-glass), 0 0 20px hsl(var(--fuchsia) / 0.2);
+    border-color: hsl(var(--fuchsia) / 0.6);
   }
 }
 
@@ -168,6 +182,20 @@
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+@keyframes soft-shimmer {
+  0% {
+    background-position: -200% 0;
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    background-position: 200% 0;
+    opacity: 0.6;
   }
 }
 

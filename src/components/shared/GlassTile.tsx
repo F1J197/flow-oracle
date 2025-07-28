@@ -45,8 +45,8 @@ export const GlassTile = ({
         {children}
       </div>
 
-      {/* Subtle glow effect on hover */}
-      <div className="absolute inset-0 opacity-0 hover:opacity-5 transition-opacity duration-300 bg-gradient-to-br from-neon-teal to-neon-lime pointer-events-none"></div>
+      {/* Subtle glow effect on hover - gentler transition */}
+      <div className="absolute inset-0 opacity-0 hover:opacity-3 transition-opacity duration-500 bg-gradient-to-br from-neon-teal to-neon-lime pointer-events-none"></div>
     </div>
   );
 };
