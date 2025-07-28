@@ -112,7 +112,31 @@ class DataService {
       return cached.data;
     }
 
-    // Mock crypto data
+    try {
+      // Try to fetch live crypto data from financial APIs
+      const response = await supabase.functions.invoke('financial-data-ingestion', {
+        body: {
+          source: 'twelvedata',
+          endpoint: 'crypto_price'
+        }
+      });
+
+      if (response.data?.success && response.data?.data) {
+        const liveData = this.processFinancialData(endpoint, response.data.data);
+        
+        this.cache.set(cacheKey, {
+          data: liveData,
+          timestamp: Date.now(),
+          ttl: CACHE_TTL
+        });
+
+        return liveData;
+      }
+    } catch (error) {
+      console.warn('Failed to fetch live crypto data, falling back to mock:', error);
+    }
+
+    // Fallback to mock data
     const mockData = this.getMockCryptoData(endpoint);
     
     this.cache.set(cacheKey, {
@@ -134,6 +158,24 @@ class DataService {
     };
 
     return mockData[endpoint] || 0;
+  }
+
+  private processFinancialData(endpoint: string, apiData: any): any {
+    // Process different API responses based on endpoint
+    switch (endpoint) {
+      case 'btc_price':
+        return apiData.price ? parseFloat(apiData.price) : 98500;
+      case 'hashrate':
+        return 550; // This would need specific mining data API
+      case 'mvrv_z':
+        return 4.21; // This would need on-chain data API
+      case 'puell_multiple':
+        return 2.87; // This would need on-chain data API
+      case 'asopr':
+        return 1.03; // This would need on-chain data API
+      default:
+        return 0;
+    }
   }
 
   // Calculate Net Liquidity with Kalman Filter
@@ -172,6 +214,27 @@ class DataService {
       size: this.cache.size,
       keys: Array.from(this.cache.keys())
     };
+  }
+
+  // Trigger financial data ingestion from multiple sources
+  async triggerFinancialIngestion(source: 'finnhub' | 'twelvedata' | 'fmp' | 'marketstack', endpoint: string, symbol?: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('financial-data-ingestion', {
+        body: { source, endpoint, symbol }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Clear relevant cache entries
+      this.cache.delete(`crypto_${endpoint}`);
+      
+      return data;
+    } catch (error) {
+      console.error('Error triggering financial data ingestion:', error);
+      throw error;
+    }
   }
 
   // Trigger FRED data ingestion

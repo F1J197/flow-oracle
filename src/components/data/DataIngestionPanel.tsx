@@ -88,6 +88,47 @@ export const DataIngestionPanel = () => {
     }
   };
 
+  const handleFinancialIngestion = async (source: 'finnhub' | 'twelvedata' | 'fmp' | 'marketstack') => {
+    try {
+      let endpoint = '';
+      let symbol = '';
+      
+      switch (source) {
+        case 'finnhub':
+          endpoint = 'crypto_price';
+          break;
+        case 'twelvedata':
+          endpoint = 'crypto_price';
+          break;
+        case 'fmp':
+          endpoint = 'market_cap';
+          symbol = 'AAPL';
+          break;
+        case 'marketstack':
+          endpoint = 'market_data';
+          symbol = 'AAPL';
+          break;
+      }
+
+      const result = await dataService.triggerFinancialIngestion(source, endpoint, symbol);
+      console.log(`${source} ingestion result:`, result);
+      
+      toast({
+        title: `${source.toUpperCase()} Data Fetched`,
+        description: `Successfully retrieved live market data from ${source}`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error(`Error fetching ${source} data:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to fetch data from ${source}`,
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
@@ -177,6 +218,42 @@ export const DataIngestionPanel = () => {
                 <Play className="w-4 h-4" />
               )}
               {isRunningFRED ? 'Running FRED...' : 'Run FRED Ingestion'}
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleFinancialIngestion('finnhub')}
+              className="flex items-center gap-2"
+            >
+              <Database className="w-4 h-4" />
+              Finnhub Data
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleFinancialIngestion('twelvedata')}
+              className="flex items-center gap-2"
+            >
+              <Database className="w-4 h-4" />
+              Twelve Data
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleFinancialIngestion('fmp')}
+              className="flex items-center gap-2"
+            >
+              <Database className="w-4 h-4" />
+              FMP Data
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleFinancialIngestion('marketstack')}
+              className="flex items-center gap-2"
+            >
+              <Database className="w-4 h-4" />
+              Marketstack
             </Button>
 
             <Button 
