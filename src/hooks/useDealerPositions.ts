@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DealerPositionData, DealerAlert, DealerInsight } from '@/types/dealerPositions';
+import { PrimaryDealerTileData } from '@/types/primaryDealerTile';
 import { PrimaryDealerPositionsEngineV6 } from '@/engines/PrimaryDealerPositionsEngineV6';
 
 interface UseDealerPositionsReturn {
   data: DealerPositionData | null;
+  tileData: PrimaryDealerTileData | null;
   alerts: DealerAlert[];
   insights: DealerInsight[];
   loading: boolean;
@@ -28,6 +30,7 @@ export const useDealerPositions = (
 ): UseDealerPositionsReturn => {
   const [engine] = useState(() => new PrimaryDealerPositionsEngineV6());
   const [data, setData] = useState<DealerPositionData | null>(null);
+  const [tileData, setTileData] = useState<PrimaryDealerTileData | null>(null);
   const [alerts, setAlerts] = useState<DealerAlert[]>([]);
   const [insights, setInsights] = useState<DealerInsight[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +46,7 @@ export const useDealerPositions = (
       
       if (report.success && report.data) {
         setData(engine.getCurrentData());
+        setTileData(engine.getPrimaryDealerTileData());
         setAlerts(engine.getAlerts());
         setInsights(engine.getInsights());
         setLastUpdate(report.lastUpdated);
@@ -83,6 +87,7 @@ export const useDealerPositions = (
 
   return {
     data,
+    tileData,
     alerts,
     insights,
     loading,

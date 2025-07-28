@@ -1,89 +1,138 @@
 import { GlassTile } from "@/components/shared/GlassTile";
-import { DataDisplay } from "@/components/shared/DataDisplay";
+import { PositionBars } from "@/components/shared/PositionBars";
 import { Badge } from "@/components/ui/badge";
-import { DashboardTileData } from "@/types/engines";
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { useDealerPositions } from "@/hooks/useDealerPositions";
+import { cn } from "@/lib/utils";
 
 interface PrimaryDealerPositionsTileProps {
-  data?: DashboardTileData;
   loading?: boolean;
 }
 
 export const PrimaryDealerPositionsTile = ({ 
-  data, 
   loading = false 
 }: PrimaryDealerPositionsTileProps) => {
-  const { data: v6Data, loading: v6Loading, alerts } = useDealerPositions();
+  const { tileData, loading: v6Loading, alerts } = useDealerPositions();
   
-  // Use V6 data if available, otherwise fall back to provided data
-  const displayData: DashboardTileData = v6Data ? {
-    title: 'PRIMARY DEALER POSITIONS V6',
-    primaryMetric: `$${((v6Data.treasuryPositions.total + v6Data.agencyPositions.total + v6Data.corporatePositions.total + v6Data.internationalPositions.total) / 1000000).toFixed(3)}T`,
-    secondaryMetric: `${v6Data.analytics.regime} | ${v6Data.riskMetrics.riskCapacity.toFixed(1)}% CAPACITY`,
-    status: (v6Data.analytics.regime === 'CRISIS' ? 'critical' : v6Data.riskMetrics.riskCapacity < 60 ? 'warning' : 'normal') as 'normal' | 'warning' | 'critical',
-    trend: (v6Data.analytics.flowDirection === 'ACCUMULATING' ? 'up' : v6Data.analytics.flowDirection === 'DISTRIBUTING' ? 'down' : 'neutral') as 'up' | 'down' | 'neutral',
-    color: (v6Data.analytics.regime === 'EXPANSION' ? 'teal' : v6Data.analytics.regime === 'CONTRACTION' ? 'orange' : v6Data.analytics.regime === 'CRISIS' ? 'fuchsia' : 'gold') as 'teal' | 'orange' | 'lime' | 'gold' | 'fuchsia',
-    actionText: `${v6Data.analytics.regime} POSITIONING`
-  } : data || {
-    title: 'PRIMARY DEALER POSITIONS V6',
-    primaryMetric: '$5.660T',
-    secondaryMetric: 'LOADING...',
-    status: 'normal',
-    trend: 'neutral',
-    color: 'gold',
-    actionText: 'INITIALIZING V6 ENGINE'
+  const isLoading = loading || v6Loading || !tileData;
+  
+  // Fallback data for loading state
+  const fallbackData = {
+    title: 'PRIMARY DEALER POSITIONS',
+    netPosition: '-$310B',
+    direction: 'down' as const,
+    riskAppetite: 'STABLE' as const,
+    signal: 'NEUTRAL' as const,
+    status: 'normal' as const,
+    color: 'gold' as const,
+    positionBars: {
+      grossLong: 5660000,
+      grossShort: 5970000,
+      netPosition: -310000,
+      historicalAverage: 5200000,
+      grossLongPct: 85,
+      grossShortPct: 90,
+      netPositionPct: 25,
+      historicalAvgPct: 80
+    }
   };
 
-  const isLoading = loading || v6Loading;
+  const displayData = tileData || fallbackData;
+
+  const getDirectionIcon = () => {
+    switch (displayData.direction) {
+      case 'up':
+        return <TrendingUp className="w-4 h-4 text-neon-teal" />;
+      case 'down':
+        return <TrendingDown className="w-4 h-4 text-neon-orange" />;
+      default:
+        return <Minus className="w-4 h-4 text-text-secondary" />;
+    }
+  };
+
+  const getPositionColor = () => {
+    const netPos = displayData.positionBars.netPosition;
+    if (netPos > 0) return 'text-neon-teal';
+    if (netPos < 0) return 'text-neon-orange';
+    return 'text-text-secondary';
+  };
+
+  const getRiskAppetiteColor = () => {
+    switch (displayData.riskAppetite) {
+      case 'EXPANDING': return 'text-neon-teal border-neon-teal';
+      case 'CONTRACTING': return 'text-neon-orange border-neon-orange';
+      case 'CRISIS': return 'text-neon-fuchsia border-neon-fuchsia';
+      default: return 'text-neon-gold border-neon-gold';
+    }
+  };
+
+  const getSignalColor = () => {
+    switch (displayData.signal) {
+      case 'BULLISH': return 'text-neon-teal border-neon-teal';
+      case 'BEARISH': return 'text-neon-orange border-neon-orange';
+      default: return 'text-neon-gold border-neon-gold';
+    }
+  };
 
   return (
     <GlassTile 
       title={displayData.title}
       status={displayData.status}
+      size="large"
     >
-      <DataDisplay
-        value={displayData.primaryMetric}
-        size="lg"
-        color={displayData.color}
-        trend={displayData.trend}
-        loading={isLoading}
-      />
-      {displayData.secondaryMetric && (
-        <Badge 
-          variant="outline" 
-          className={`border-neon-${displayData.color} text-neon-${displayData.color} mt-2`}
-        >
-          {displayData.secondaryMetric}
-        </Badge>
-      )}
-      {displayData.actionText && (
-        <p className="text-sm text-text-primary font-mono mt-3">
-          {displayData.actionText}
-        </p>
-      )}
-      
-      {/* V6 Enhancement: Show critical alerts */}
-      {alerts.filter(a => a.severity === 'CRITICAL').length > 0 && (
-        <div className="mt-2">
-          <Badge variant="outline" className="border-neon-fuchsia text-neon-fuchsia animate-pulse">
-            {alerts.filter(a => a.severity === 'CRITICAL').length} CRITICAL ALERT{alerts.filter(a => a.severity === 'CRITICAL').length > 1 ? 'S' : ''}
+      {/* Net Position Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className={cn("text-2xl font-mono font-bold", getPositionColor())}>
+            {isLoading ? '...' : displayData.netPosition}
+          </span>
+          {getDirectionIcon()}
+        </div>
+        <div className="text-right">
+          <div className="text-xs text-text-secondary">RISK APPETITE</div>
+          <Badge variant="outline" className={cn("text-xs", getRiskAppetiteColor())}>
+            {displayData.riskAppetite}
           </Badge>
         </div>
-      )}
-      
-      {/* V6 Enhancement: Real-time metrics */}
-      <div className="flex items-center justify-between mt-3 text-xs">
-        <span className="text-text-secondary">Leverage:</span>
-        <span className="text-neon-lime">
-          {v6Data ? `${v6Data.riskMetrics.leverageRatio.toFixed(2)}x` : '3.2x'}
-        </span>
       </div>
-      {v6Data && (
-        <div className="flex items-center justify-between mt-1 text-xs">
-          <span className="text-text-secondary">Systemic Risk:</span>
-          <span className={`${v6Data.analytics.systemicRisk > 0.7 ? 'text-neon-fuchsia' : 'text-neon-teal'}`}>
-            {(v6Data.analytics.systemicRisk * 100).toFixed(1)}%
-          </span>
+
+      {/* Position Bars Visualization */}
+      {!isLoading && (
+        <div className="mb-4">
+          <PositionBars
+            grossLong={displayData.positionBars.grossLong}
+            grossShort={displayData.positionBars.grossShort}
+            netPosition={displayData.positionBars.netPosition}
+            historicalAverage={displayData.positionBars.historicalAverage}
+            grossLongPct={displayData.positionBars.grossLongPct}
+            grossShortPct={displayData.positionBars.grossShortPct}
+            netPositionPct={displayData.positionBars.netPositionPct}
+            historicalAvgPct={displayData.positionBars.historicalAvgPct}
+          />
+        </div>
+      )}
+
+      {/* Signal Badge */}
+      <div className="flex items-center justify-between">
+        <Badge variant="outline" className={cn("font-mono", getSignalColor())}>
+          {displayData.signal}
+        </Badge>
+        
+        {/* Critical Alerts */}
+        {alerts.filter(a => a.severity === 'CRITICAL').length > 0 && (
+          <Badge variant="outline" className="border-neon-fuchsia text-neon-fuchsia animate-pulse">
+            {alerts.filter(a => a.severity === 'CRITICAL').length} ALERT{alerts.filter(a => a.severity === 'CRITICAL').length > 1 ? 'S' : ''}
+          </Badge>
+        )}
+      </div>
+
+      {/* Loading shimmer */}
+      {isLoading && (
+        <div className="space-y-3 animate-pulse">
+          <div className="h-4 bg-glass-bg rounded"></div>
+          <div className="h-2 bg-glass-bg rounded"></div>
+          <div className="h-2 bg-glass-bg rounded w-3/4"></div>
+          <div className="h-2 bg-glass-bg rounded w-1/2"></div>
         </div>
       )}
     </GlassTile>

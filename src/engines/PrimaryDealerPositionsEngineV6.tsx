@@ -1,6 +1,7 @@
 import { IEngine, EngineReport, DashboardTileData, DetailedEngineView } from '@/types/engines';
 import { DealerPositionsService } from '@/services/dealerPositionsService';
 import { DealerPositionData, DealerRegime, DealerAlert, DealerInsight } from '@/types/dealerPositions';
+import { PrimaryDealerTileData } from '@/types/primaryDealerTile';
 
 export class PrimaryDealerPositionsEngineV6 implements IEngine {
   id = 'primary-dealer-positions-v6';
@@ -139,6 +140,97 @@ export class PrimaryDealerPositionsEngineV6 implements IEngine {
     };
   }
 
+  getPrimaryDealerTileData(): PrimaryDealerTileData {
+    if (!this.currentData) {
+      return this.getFallbackPrimaryDealerTileData();
+    }
+
+    const { riskMetrics, analytics, treasuryPositions, agencyPositions, corporatePositions, metadata } = this.currentData;
+    
+    // Calculate net position (simplified as total - baseline)
+    const totalPositions = this.getTotalPositions();
+    const historicalBaseline = 5200000; // $5.2T baseline
+    const netPosition = totalPositions - historicalBaseline;
+    
+    // Calculate gross positions (simulated)
+    const grossLong = totalPositions * 1.3; // Assume 30% gross exposure
+    const grossShort = grossLong - netPosition;
+    
+    // Calculate percentages for visualization
+    const maxPosition = Math.max(Math.abs(grossLong), Math.abs(grossShort), Math.abs(netPosition), historicalBaseline);
+    const grossLongPct = (Math.abs(grossLong) / maxPosition) * 100;
+    const grossShortPct = (Math.abs(grossShort) / maxPosition) * 100;
+    const netPositionPct = (Math.abs(netPosition) / maxPosition) * 50; // Scale for center display
+    const historicalAvgPct = (historicalBaseline / maxPosition) * 100;
+
+    // Risk appetite mapping
+    const getRiskAppetite = (): 'EXPANDING' | 'CONTRACTING' | 'STABLE' | 'CRISIS' => {
+      switch (analytics.regime) {
+        case 'EXPANSION': return 'EXPANDING';
+        case 'CONTRACTION': return 'CONTRACTING';
+        case 'CRISIS': return 'CRISIS';
+        default: return 'STABLE';
+      }
+    };
+
+    // Signal mapping
+    const getSignal = (): 'BULLISH' | 'BEARISH' | 'NEUTRAL' => {
+      const marketSignal = this.getMarketSignal();
+      switch (marketSignal) {
+        case 'bullish': return 'BULLISH';
+        case 'bearish': return 'BEARISH';
+        default: return 'NEUTRAL';
+      }
+    };
+
+    const getColor = (): 'teal' | 'orange' | 'gold' | 'lime' | 'fuchsia' => {
+      switch (analytics.regime) {
+        case 'EXPANSION': return 'teal';
+        case 'CONTRACTION': return 'orange';
+        case 'CRISIS': return 'fuchsia';
+        case 'TRANSITION': return 'lime';
+        default: return 'gold';
+      }
+    };
+
+    const getStatus = (): 'normal' | 'warning' | 'critical' => {
+      if (analytics.regime === 'CRISIS' || riskMetrics.liquidityStress > 80) return 'critical';
+      if (riskMetrics.riskCapacity < 60 || riskMetrics.leverageRatio > 4.2) return 'warning';
+      return 'normal';
+    };
+
+    const getDirection = (): 'up' | 'down' | 'neutral' => {
+      if (analytics.flowDirection === 'ACCUMULATING') return 'up';
+      if (analytics.flowDirection === 'DISTRIBUTING') return 'down';
+      return 'neutral';
+    };
+
+    return {
+      title: 'PRIMARY DEALER POSITIONS',
+      netPosition: `${netPosition >= 0 ? '+' : ''}$${(netPosition / 1000).toFixed(0)}B`,
+      direction: getDirection(),
+      riskAppetite: getRiskAppetite(),
+      signal: getSignal(),
+      status: getStatus(),
+      color: getColor(),
+      positionBars: {
+        grossLong,
+        grossShort,
+        netPosition,
+        historicalAverage: historicalBaseline,
+        grossLongPct,
+        grossShortPct,
+        netPositionPct,
+        historicalAvgPct
+      },
+      metadata: {
+        lastUpdated: metadata.lastUpdated,
+        confidence: metadata.calculationConfidence,
+        dataQuality: metadata.dataQuality
+      }
+    };
+  }
+
   getDetailedView(): DetailedEngineView {
     if (!this.currentData) {
       return this.getFallbackDetailedView();
@@ -256,6 +348,33 @@ export class PrimaryDealerPositionsEngineV6 implements IEngine {
       color: 'gold',
       actionText: 'DATA UNAVAILABLE',
       loading: false
+    };
+  }
+
+  private getFallbackPrimaryDealerTileData(): PrimaryDealerTileData {
+    return {
+      title: 'PRIMARY DEALER POSITIONS',
+      netPosition: '-$310B',
+      direction: 'neutral',
+      riskAppetite: 'STABLE',
+      signal: 'NEUTRAL',
+      status: 'warning',
+      color: 'gold',
+      positionBars: {
+        grossLong: 5660000,
+        grossShort: 5970000,
+        netPosition: -310000,
+        historicalAverage: 5200000,
+        grossLongPct: 85,
+        grossShortPct: 90,
+        netPositionPct: 25,
+        historicalAvgPct: 80
+      },
+      metadata: {
+        lastUpdated: new Date(),
+        confidence: 0.75,
+        dataQuality: 0.80
+      }
     };
   }
 

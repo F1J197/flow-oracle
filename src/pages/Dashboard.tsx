@@ -53,7 +53,7 @@ export const Dashboard = () => {
       <DashboardTile data={dashboardData.enhancedZScore} />
 
       {/* Primary Dealer Positions */}
-      <PrimaryDealerPositionsTile data={dashboardData.primaryDealerPositions} />
+      <PrimaryDealerPositionsTile />
 
       {/* Business Cycle */}
       <BusinessCycleTile loading={loading} />
