@@ -7,6 +7,7 @@ import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngine } from "@/engines/CreditStressEngine";
 import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
+import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
 import { DetailedEngineView } from "@/types/engines";
 
 const IntelligenceEngine = () => {
@@ -15,6 +16,7 @@ const IntelligenceEngine = () => {
     netLiquidity: new NetLiquidityEngine(),
     creditStress: new CreditStressEngine(),
     enhancedZScore: new EnhancedZScoreEngine(),
+    enhancedMomentum: new EnhancedMomentumEngine(),
   });
   
   const [engineViews, setEngineViews] = useState<Record<string, DetailedEngineView>>({});
@@ -34,6 +36,7 @@ const IntelligenceEngine = () => {
           engines.netLiquidity.execute(),
           engines.creditStress.execute(),
           engines.enhancedZScore.execute(),
+          engines.enhancedMomentum.execute(),
         ]);
 
         // Get detailed views
@@ -42,6 +45,7 @@ const IntelligenceEngine = () => {
           netLiquidity: engines.netLiquidity.getDetailedView(),
           creditStress: engines.creditStress.getDetailedView(),
           enhancedZScore: engines.enhancedZScore.getDetailedView(),
+          enhancedMomentum: engines.enhancedMomentum.getDetailedView(),
         };
 
         setEngineViews(views);
@@ -130,10 +134,10 @@ const IntelligenceEngine = () => {
 
   const renderPlaceholderEngines = () => {
     const placeholders = [
-      { name: "Momentum Engine", status: "development" },
-      { name: "Regime Detection", status: "development" },
-      { name: "Cross-Asset Analysis", status: "development" },
+      { name: "Regime Detection Engine", status: "development" },
+      { name: "Cross-Asset Correlation", status: "development" },
       { name: "Temporal Dynamics", status: "development" },
+      { name: "Risk Parity Engine", status: "development" },
     ];
 
     return placeholders.map((engine, index) => (
@@ -198,9 +202,11 @@ const IntelligenceEngine = () => {
         ) : (
           <>
             {/* Render active engine views */}
-            {Object.entries(engineViews).map(([key, view]) => 
-              renderEngineView(key, view)
-            )}
+            {renderEngineView('dataIntegrity', engineViews.dataIntegrity)}
+            {renderEngineView('netLiquidity', engineViews.netLiquidity)}
+            {renderEngineView('creditStress', engineViews.creditStress)}
+            {renderEngineView('enhancedZScore', engineViews.enhancedZScore)}
+            {renderEngineView('enhancedMomentum', engineViews.enhancedMomentum)}
             
             {/* Render placeholder engines */}
             {renderPlaceholderEngines()}
@@ -213,7 +219,7 @@ const IntelligenceEngine = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="space-y-1">
             <div className="text-xs text-text-secondary">Active Engines</div>
-            <div className="text-lg font-semibold text-neon-lime">4/28</div>
+            <div className="text-lg font-semibold text-neon-lime">5/28</div>
           </div>
           <div className="space-y-1">
             <div className="text-xs text-text-secondary">Success Rate</div>

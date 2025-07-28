@@ -6,6 +6,7 @@ import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngine } from "@/engines/CreditStressEngine";
 import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
+import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
 import { dataService } from "@/services/dataService";
 
 export const Dashboard = () => {
@@ -14,6 +15,7 @@ export const Dashboard = () => {
     netLiquidity: new NetLiquidityEngine(),
     creditStress: new CreditStressEngine(),
     enhancedZScore: new EnhancedZScoreEngine(),
+    enhancedMomentum: new EnhancedMomentumEngine(),
   });
 
   const [dashboardData, setDashboardData] = useState({
@@ -21,6 +23,7 @@ export const Dashboard = () => {
     netLiquidity: engines.netLiquidity.getDashboardData(),
     creditStress: engines.creditStress.getDashboardData(),
     enhancedZScore: engines.enhancedZScore.getDashboardData(),
+    enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
   });
 
   const [loading, setLoading] = useState(true);
@@ -48,6 +51,7 @@ export const Dashboard = () => {
           engines.dataIntegrity.execute(),
           engines.netLiquidity.execute(),
           engines.creditStress.execute(),
+          engines.enhancedMomentum.execute(),
           engines.enhancedZScore.execute(),
         ]);
 
@@ -59,6 +63,7 @@ export const Dashboard = () => {
           netLiquidity: engines.netLiquidity.getDashboardData(),
           creditStress: engines.creditStress.getDashboardData(),
           enhancedZScore: engines.enhancedZScore.getDashboardData(),
+          enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
         });
       } catch (error) {
         console.error('Error during engine initialization/execution:', error);
@@ -79,6 +84,7 @@ export const Dashboard = () => {
           engines.netLiquidity.execute(),
           engines.creditStress.execute(),
           engines.enhancedZScore.execute(),
+          engines.enhancedMomentum.execute(),
         ]);
 
         // Update dashboard data
@@ -87,6 +93,7 @@ export const Dashboard = () => {
           netLiquidity: engines.netLiquidity.getDashboardData(),
           creditStress: engines.creditStress.getDashboardData(),
           enhancedZScore: engines.enhancedZScore.getDashboardData(),
+          enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
         });
       } catch (error) {
         console.error('Error updating dashboard data:', error);
@@ -243,6 +250,38 @@ export const Dashboard = () => {
               <div className="w-1.5 h-1.5 bg-neon-lime rounded-full"></div>
               <span className="text-text-muted">Puell</span>
             </div>
+          </div>
+        </GlassTile>
+
+        {/* Enhanced Momentum Engine V6 */}
+        <GlassTile 
+          title={dashboardData.enhancedMomentum.title}
+          status={dashboardData.enhancedMomentum.status}
+          size="large"
+        >
+          <DataDisplay
+            value={dashboardData.enhancedMomentum.primaryMetric}
+            size="xl"
+            color={dashboardData.enhancedMomentum.color}
+            trend={dashboardData.enhancedMomentum.trend}
+            loading={loading}
+          />
+          {dashboardData.enhancedMomentum.secondaryMetric && (
+            <Badge 
+              variant="outline" 
+              className={`border-neon-${dashboardData.enhancedMomentum.color} text-neon-${dashboardData.enhancedMomentum.color} mt-2`}
+            >
+              {dashboardData.enhancedMomentum.secondaryMetric}
+            </Badge>
+          )}
+          {dashboardData.enhancedMomentum.actionText && (
+            <p className="text-sm text-text-primary mt-3 font-mono">
+              {dashboardData.enhancedMomentum.actionText}
+            </p>
+          )}
+          <div className="mt-4 h-8 bg-noir-border rounded opacity-30">
+            {/* Mini momentum chart placeholder */}
+            <div className={`h-full bg-gradient-to-r from-transparent via-neon-${dashboardData.enhancedMomentum.color}/30 to-transparent rounded`}></div>
           </div>
         </GlassTile>
 
