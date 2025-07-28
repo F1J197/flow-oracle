@@ -271,16 +271,11 @@ export const Dashboard = () => {
             </Badge>
           )}
           
-          {/* Live Insight - Most Important Data Point */}
+          {/* Live Insight */}
           {engines.enhancedMomentum.getCurrentInsight() && (
-            <div className="mt-4 p-3 bg-noir-surface/60 border border-glass-border rounded-lg">
-              <div className="flex items-start space-x-2">
-                <div className="w-1.5 h-1.5 bg-neon-lime rounded-full mt-2 flex-shrink-0 animate-pulse"></div>
-                <p className="text-sm text-text-primary font-mono leading-relaxed">
-                  {engines.enhancedMomentum.getCurrentInsight()}
-                </p>
-              </div>
-            </div>
+            <p className="text-sm text-text-primary font-mono mt-3">
+              {engines.enhancedMomentum.getCurrentInsight()}
+            </p>
           )}
         </GlassTile>
 

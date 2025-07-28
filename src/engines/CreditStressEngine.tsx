@@ -83,7 +83,7 @@ export class CreditStressEngine implements IEngine {
     };
 
     return {
-      title: 'CREDIT STRESS',
+      title: 'CREDIT STRESS ENGINE',
       primaryMetric: `${this.spread}bps`,
       status: this.category === 'crisis' ? 'critical' : this.category === 'high' ? 'warning' : 'normal',
       actionText: getActionText(),

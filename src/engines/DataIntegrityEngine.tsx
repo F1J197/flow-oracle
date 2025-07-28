@@ -66,7 +66,7 @@ export class DataIntegrityEngine implements IEngine {
 
   async execute(): Promise<EngineReport> {
     try {
-      console.log('🔍 Data Integrity Engine: Starting comprehensive validation...');
+      console.log('Data Integrity Engine: Starting comprehensive validation...');
       
       // Step 1: Validate all data sources
       const validationResults = await this.validateAllSources();
@@ -83,7 +83,7 @@ export class DataIntegrityEngine implements IEngine {
       // Step 5: Update internal state
       this.updateInternalState(integrityMetrics, validationResults, manipulationSignals, healingActions);
       
-      console.log(`✅ Data Integrity Score: ${this.integrityScore}%`);
+      console.log(`Data Integrity Score: ${this.integrityScore}%`);
       
       return {
         success: true,
@@ -101,7 +101,7 @@ export class DataIntegrityEngine implements IEngine {
         lastUpdated: new Date()
       };
     } catch (error) {
-      console.error('❌ Data Integrity Engine execution failed:', error);
+      console.error('Data Integrity Engine execution failed:', error);
       return {
         success: false,
         confidence: 0,
@@ -172,14 +172,14 @@ export class DataIntegrityEngine implements IEngine {
           manipulationSignals
         };
 
-        console.log(`📊 ${source.id}: Score ${score}%, Latency ${latency}ms, Anomalies: ${anomalies.length}`);
+        console.log(`${source.id}: Score ${score}%, Latency ${latency}ms, Anomalies: ${anomalies.length}`);
         return result;
 
       } catch (error) {
         source.consecutiveFailures++;
         source.status = 'failed';
         
-        console.error(`❌ Validation failed for ${source.id}:`, error);
+        console.error(`Validation failed for ${source.id}:`, error);
         
         return {
           source: source.id,
@@ -359,7 +359,7 @@ export class DataIntegrityEngine implements IEngine {
       Date.now() - signal.timestamp.getTime() < 24 * 60 * 60 * 1000 // Last 24 hours
     );
     
-    console.log(`🚨 Detected ${allSignals.length} manipulation signals`);
+    console.log(`Detected ${allSignals.length} manipulation signals`);
     return allSignals;
   }
 
@@ -429,7 +429,7 @@ export class DataIntegrityEngine implements IEngine {
     
     this.autoHealed24h = this.healingActions.length;
     
-    console.log(`🔧 Performed ${healingActions.length} healing actions`);
+    console.log(`Performed ${healingActions.length} healing actions`);
     return healingActions;
   }
 
@@ -531,7 +531,7 @@ export class DataIntegrityEngine implements IEngine {
     // Store recent validations for historical analysis
     this.recentValidations = validationResults;
     
-    console.log(`📈 Updated integrity metrics: Score=${this.integrityScore}%, Active=${this.activeSources}/${this.totalSources}, Consensus=${this.consensusLevel}%`);
+    console.log(`Updated integrity metrics: Score=${this.integrityScore}%, Active=${this.activeSources}/${this.totalSources}, Consensus=${this.consensusLevel}%`);
   }
 
   getDashboardData(): DashboardTileData {
@@ -568,7 +568,7 @@ export class DataIntegrityEngine implements IEngine {
     };
 
     return {
-      title: 'DATA INTEGRITY',
+      title: 'DATA INTEGRITY ENGINE',
       primaryMetric: `${this.integrityScore.toFixed(2)}%`,
       secondaryMetric: getStatusText(),
       status: getStatus(),

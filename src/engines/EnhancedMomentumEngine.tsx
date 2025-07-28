@@ -389,15 +389,15 @@ class DynamicInsightsGenerator {
     const acceleration = multiscale.medium.secondDerivative > 0 ? 'accelerating' : 'decelerating';
     
     if (strength > 80) {
-      return `🚀 Extreme ${direction} momentum ${acceleration} - position accordingly`;
+      return `Extreme ${direction} momentum ${acceleration} - position accordingly`;
     } else if (strength > 60) {
-      return `⚡ Strong ${direction} momentum building - ${acceleration} phase`;
+      return `Strong ${direction} momentum building - ${acceleration} phase`;
     } else if (strength > 40) {
-      return `📈 Moderate ${direction} momentum detected - ${acceleration}`;
+      return `Moderate ${direction} momentum detected - ${acceleration}`;
     } else if (strength > 20) {
-      return `🔍 Weak ${direction} signals emerging - ${acceleration}`;
+      return `Weak ${direction} signals emerging - ${acceleration}`;
     } else {
-      return `⚖️ Neutral momentum regime - consolidation phase`;
+      return `Neutral momentum regime - consolidation phase`;
     }
   }
   
@@ -804,7 +804,7 @@ export class EnhancedMomentumEngine implements IEngine {
     };
 
     return {
-      title: 'ENHANCED MOMENTUM V6',
+      title: 'MOMENTUM ENGINE',
       primaryMetric: this.compositeMomentum.value.toFixed(1),
       secondaryMetric: this.compositeMomentum.category,
       status: getStatus(),

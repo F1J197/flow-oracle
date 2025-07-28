@@ -40,7 +40,7 @@ export class NetLiquidityEngine implements IEngine {
     const startTime = Date.now();
     
     try {
-      console.log('🔄 Net Liquidity Engine V6 executing...');
+      console.log('Net Liquidity Engine V6 executing...');
       
       // Phase 1: Data Ingestion with performance tracking
       const fetchStart = Date.now();
@@ -81,8 +81,8 @@ export class NetLiquidityEngine implements IEngine {
       
       this.executionTime = Date.now() - startTime;
       
-      console.log(`✅ Net Liquidity Engine V6 completed in ${this.executionTime}ms`);
-      console.log(`📊 Net Liquidity: $${this.netLiquidity.toFixed(3)}T | Regime: ${this.regime} | Confidence: ${this.confidence}%`);
+      console.log(`Net Liquidity Engine V6 completed in ${this.executionTime}ms`);
+      console.log(`Net Liquidity: $${this.netLiquidity.toFixed(3)}T | Regime: ${this.regime} | Confidence: ${this.confidence}%`);
       
       return {
         success: true,
@@ -108,7 +108,7 @@ export class NetLiquidityEngine implements IEngine {
       
     } catch (error) {
       this.executionTime = Date.now() - startTime;
-      console.error('❌ Net Liquidity Engine V6 execution failed:', error);
+      console.error('Net Liquidity Engine V6 execution failed:', error);
       
       return {
         success: false,
@@ -252,7 +252,7 @@ export class NetLiquidityEngine implements IEngine {
     };
 
     return {
-      title: 'NET LIQUIDITY V6',
+      title: 'NET LIQUIDITY ENGINE',
       primaryMetric: `$${this.netLiquidity.toFixed(3)}T`,
       secondaryMetric: `${this.regime} | ${this.momentum >= 0 ? '+' : ''}${this.momentum.toFixed(2)}%`,
       status: getStatus(),

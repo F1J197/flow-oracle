@@ -355,13 +355,13 @@ class EnhancedZScoreCalculator {
     const extremeHigh = values.filter(v => v > 2).map((v, i) => ({
       indicator: `Indicator ${i + 1}`,
       zScore: v,
-      emoji: v > 3 ? '🔥' : '🟡'
+      emoji: v > 3 ? 'HIGH' : 'MID'
     }));
 
     const extremeLow = values.filter(v => v < -2).map((v, i) => ({
       indicator: `Indicator ${i + 1}`,
       zScore: v,
-      emoji: v < -3 ? '❄️' : '🔵'
+      emoji: v < -3 ? 'LOW' : 'MID'
     }));
 
     const normalCount = values.filter(v => v >= -2 && v <= 2).length;
@@ -617,7 +617,7 @@ export class EnhancedZScoreEngine implements IEngine {
     
     if (loading) {
       return {
-        title: 'Z-SCORE ANALYSIS',
+        title: 'Z-SCORE ENGINE',
         primaryMetric: 'Loading...',
         secondaryMetric: 'Initializing multi-timeframe analysis',
         status: 'normal',
@@ -644,7 +644,7 @@ export class EnhancedZScoreEngine implements IEngine {
     const extremeCount = this.topExtremes.length;
 
     return {
-      title: 'Z-SCORE ANALYSIS',
+      title: 'Z-SCORE ENGINE',
       primaryMetric: formatZScore(this.compositeZScore),
       secondaryMetric: `${successfulIndicators} indicators • ${extremeCount} extremes`,
       status,
@@ -1152,13 +1152,13 @@ export class EnhancedZScoreEngine implements IEngine {
   }
 
   private getZScoreEmoji(zScore: number): string {
-    if (zScore > 3) return '🔥';
-    if (zScore > 2) return '🟡';
-    if (zScore > 1) return '🟢';
-    if (zScore < -3) return '❄️';
-    if (zScore < -2) return '🔵';
-    if (zScore < -1) return '🟦';
-    return '⚪';
+    if (zScore > 3) return 'EXTREME';
+    if (zScore > 2) return 'HIGH';
+    if (zScore > 1) return 'POSITIVE';
+    if (zScore < -3) return 'EXTREME';
+    if (zScore < -2) return 'LOW';
+    if (zScore < -1) return 'NEGATIVE';
+    return 'NEUTRAL';
   }
 
   private calculateDataFreshness(): number {
