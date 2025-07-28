@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngine } from "@/engines/CreditStressEngine";
+import { dataService } from "@/services/dataService";
 
 export const Dashboard = () => {
   const [engines] = useState({
@@ -25,19 +26,31 @@ export const Dashboard = () => {
     const updateData = async () => {
       setLoading(true);
       
-      // Execute engines in parallel
-      await Promise.all([
-        engines.dataIntegrity.execute(),
-        engines.netLiquidity.execute(),
-        engines.creditStress.execute(),
-      ]);
+      try {
+        // First, trigger live data fetch to ensure we have fresh data
+        try {
+          await dataService.triggerLiveDataFetch();
+          console.log('Live data fetch completed');
+        } catch (liveError) {
+          console.warn('Live data fetch failed, using existing data:', liveError);
+        }
 
-      // Update dashboard data
-      setDashboardData({
-        dataIntegrity: engines.dataIntegrity.getDashboardData(),
-        netLiquidity: engines.netLiquidity.getDashboardData(),
-        creditStress: engines.creditStress.getDashboardData(),
-      });
+        // Execute engines in parallel
+        await Promise.all([
+          engines.dataIntegrity.execute(),
+          engines.netLiquidity.execute(),
+          engines.creditStress.execute(),
+        ]);
+
+        // Update dashboard data
+        setDashboardData({
+          dataIntegrity: engines.dataIntegrity.getDashboardData(),
+          netLiquidity: engines.netLiquidity.getDashboardData(),
+          creditStress: engines.creditStress.getDashboardData(),
+        });
+      } catch (error) {
+        console.error('Error updating dashboard data:', error);
+      }
 
       setLoading(false);
     };

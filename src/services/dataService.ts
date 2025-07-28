@@ -34,7 +34,7 @@ interface Indicator {
 class DataService {
   private cache = new Map<string, CachedData>();
 
-  // Fetch latest data from database with fallback to mock data
+  // Fetch latest data with live API integration
   async fetchFREDData(seriesId: string): Promise<number> {
     const cacheKey = `fred_${seriesId}`;
     
@@ -45,7 +45,29 @@ class DataService {
     }
 
     try {
-      // Fetch from database
+      // Try to fetch live data via edge function
+      const { data: liveData, error: liveError } = await supabase.functions.invoke('live-data-fetch', {
+        body: { symbols: [seriesId] }
+      });
+
+      if (!liveError && liveData?.success && liveData.results?.[0]?.success) {
+        const value = liveData.results[0].value;
+        
+        // Cache the result
+        this.cache.set(cacheKey, {
+          data: value,
+          timestamp: Date.now(),
+          ttl: CACHE_TTL
+        });
+
+        return value;
+      }
+    } catch (error) {
+      console.warn(`Live data fetch failed for ${seriesId}, falling back to database:`, error);
+    }
+
+    try {
+      // Fallback to database
       const { data: indicator } = await supabase
         .from('indicators')
         .select('id')
@@ -76,7 +98,7 @@ class DataService {
         }
       }
     } catch (error) {
-      console.warn(`Database fetch failed for ${seriesId}, using fallback:`, error);
+      console.warn(`Database fetch failed for ${seriesId}, using mock data:`, error);
     }
 
     // Fallback to mock data
@@ -265,6 +287,38 @@ class DataService {
       return data;
     } catch (error) {
       console.error('Error triggering FRED ingestion:', error);
+      throw error;
+    }
+  }
+
+  // Trigger live data fetch for all FRED indicators
+  async triggerLiveDataFetch(symbols?: string[]): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('live-data-fetch', {
+        body: { symbols: symbols || ['WALCL', 'WTREGEN', 'RRPONTSYD', 'BAMLH0A0HYM2', 'DGS10'] }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Clear relevant cache entries
+      if (symbols) {
+        symbols.forEach(symbol => {
+          this.cache.delete(`fred_${symbol}`);
+        });
+      } else {
+        // Clear all FRED cache entries
+        for (const key of this.cache.keys()) {
+          if (key.startsWith('fred_')) {
+            this.cache.delete(key);
+          }
+        }
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error triggering live data fetch:', error);
       throw error;
     }
   }
