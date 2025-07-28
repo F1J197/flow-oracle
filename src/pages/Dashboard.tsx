@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngine } from "@/engines/CreditStressEngine";
+import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
 import { dataService } from "@/services/dataService";
 
 export const Dashboard = () => {
@@ -12,12 +13,14 @@ export const Dashboard = () => {
     dataIntegrity: new DataIntegrityEngine(),
     netLiquidity: new NetLiquidityEngine(),
     creditStress: new CreditStressEngine(),
+    enhancedZScore: new EnhancedZScoreEngine(),
   });
 
   const [dashboardData, setDashboardData] = useState({
     dataIntegrity: engines.dataIntegrity.getDashboardData(),
     netLiquidity: engines.netLiquidity.getDashboardData(),
     creditStress: engines.creditStress.getDashboardData(),
+    enhancedZScore: engines.enhancedZScore.getDashboardData(),
   });
 
   const [loading, setLoading] = useState(true);
@@ -40,6 +43,7 @@ export const Dashboard = () => {
           engines.dataIntegrity.execute(),
           engines.netLiquidity.execute(),
           engines.creditStress.execute(),
+          engines.enhancedZScore.execute(),
         ]);
 
         // Update dashboard data
@@ -47,6 +51,7 @@ export const Dashboard = () => {
           dataIntegrity: engines.dataIntegrity.getDashboardData(),
           netLiquidity: engines.netLiquidity.getDashboardData(),
           creditStress: engines.creditStress.getDashboardData(),
+          enhancedZScore: engines.enhancedZScore.getDashboardData(),
         });
       } catch (error) {
         console.error('Error updating dashboard data:', error);
@@ -196,6 +201,49 @@ export const Dashboard = () => {
             <div className="flex items-center space-x-1">
               <div className="w-1.5 h-1.5 bg-neon-lime rounded-full"></div>
               <span className="text-text-muted">Puell</span>
+            </div>
+          </div>
+        </GlassTile>
+
+        {/* Enhanced Z-Score Analysis */}
+        <GlassTile 
+          title={dashboardData.enhancedZScore.title}
+          status={dashboardData.enhancedZScore.status}
+        >
+          <DataDisplay
+            value={dashboardData.enhancedZScore.primaryMetric}
+            label="Composite Z-Score"
+            size="lg"
+            color={dashboardData.enhancedZScore.color}
+            trend={dashboardData.enhancedZScore.trend}
+            loading={loading}
+          />
+          {dashboardData.enhancedZScore.secondaryMetric && (
+            <Badge 
+              variant="outline" 
+              className={`border-neon-${dashboardData.enhancedZScore.color} text-neon-${dashboardData.enhancedZScore.color} mt-2`}
+            >
+              {dashboardData.enhancedZScore.secondaryMetric}
+            </Badge>
+          )}
+          {dashboardData.enhancedZScore.actionText && (
+            <p className="text-xs text-text-muted mt-2">
+              {dashboardData.enhancedZScore.actionText}
+            </p>
+          )}
+          {/* Mini histogram visualization */}
+          <div className="mt-3">
+            <div className="flex items-end space-x-1 h-8">
+              {Array.from({ length: 8 }, (_, i) => (
+                <div 
+                  key={i}
+                  className="flex-1 bg-neon-teal/30 rounded-t"
+                  style={{ 
+                    height: `${Math.random() * 60 + 20}%`,
+                    backgroundColor: i === 5 ? 'rgb(var(--neon-teal))' : 'rgba(var(--neon-teal), 0.3)'
+                  }}
+                ></div>
+              ))}
             </div>
           </div>
         </GlassTile>

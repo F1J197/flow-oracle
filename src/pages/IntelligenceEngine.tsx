@@ -6,6 +6,7 @@ import { dataService } from "@/services/dataService";
 import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngine } from "@/engines/CreditStressEngine";
+import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
 import { DetailedEngineView } from "@/types/engines";
 
 const IntelligenceEngine = () => {
@@ -13,6 +14,7 @@ const IntelligenceEngine = () => {
     dataIntegrity: new DataIntegrityEngine(),
     netLiquidity: new NetLiquidityEngine(),
     creditStress: new CreditStressEngine(),
+    enhancedZScore: new EnhancedZScoreEngine(),
   });
   
   const [engineViews, setEngineViews] = useState<Record<string, DetailedEngineView>>({});
@@ -28,6 +30,7 @@ const IntelligenceEngine = () => {
           engines.dataIntegrity.execute(),
           engines.netLiquidity.execute(),
           engines.creditStress.execute(),
+          engines.enhancedZScore.execute(),
         ]);
 
         // Get detailed views
@@ -35,6 +38,7 @@ const IntelligenceEngine = () => {
           dataIntegrity: engines.dataIntegrity.getDetailedView(),
           netLiquidity: engines.netLiquidity.getDetailedView(),
           creditStress: engines.creditStress.getDetailedView(),
+          enhancedZScore: engines.enhancedZScore.getDetailedView(),
         };
 
         setEngineViews(views);
@@ -123,7 +127,6 @@ const IntelligenceEngine = () => {
 
   const renderPlaceholderEngines = () => {
     const placeholders = [
-      { name: "Z-Score Engine", status: "development" },
       { name: "Momentum Engine", status: "development" },
       { name: "Regime Detection", status: "development" },
       { name: "Cross-Asset Analysis", status: "development" },
@@ -207,7 +210,7 @@ const IntelligenceEngine = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="space-y-1">
             <div className="text-xs text-text-secondary">Active Engines</div>
-            <div className="text-lg font-semibold text-neon-lime">3/28</div>
+            <div className="text-lg font-semibold text-neon-lime">4/28</div>
           </div>
           <div className="space-y-1">
             <div className="text-xs text-text-secondary">Success Rate</div>
