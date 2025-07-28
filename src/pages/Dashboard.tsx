@@ -120,8 +120,13 @@ export const Dashboard = () => {
             color={dashboardData.dataIntegrity.color}
             loading={loading}
           />
+          {dashboardData.dataIntegrity.secondaryMetric && (
+            <p className="text-sm font-medium text-text-secondary mt-1">
+              {dashboardData.dataIntegrity.secondaryMetric}
+            </p>
+          )}
           {dashboardData.dataIntegrity.actionText && (
-            <p className="text-xs text-text-muted mt-2">
+            <p className="text-sm text-text-primary mt-3 font-mono">
               {dashboardData.dataIntegrity.actionText}
             </p>
           )}
