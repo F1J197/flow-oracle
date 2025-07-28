@@ -345,7 +345,7 @@ class EnhancedZScoreCalculator {
     return Math.round(Math.min(100, confidence));
   }
 
-  private analyzeDistribution(allIndicatorZScores: Map<string, number>): DistributionAnalysis {
+  analyzeDistribution(allIndicatorZScores: Map<string, number>): DistributionAnalysis {
     const values = Array.from(allIndicatorZScores.values()).filter(v => !isNaN(v));
 
     // Create histogram bins
@@ -481,7 +481,9 @@ export class EnhancedZScoreEngine implements IEngine {
   private validator = new ZScoreValidator();
   private cache = new Map<string, CachedZScore>();
   private updateInterval: ReturnType<typeof setInterval> | null = null;
-  private readonly CACHE_TTL = 60000; // 1 minute
+  private readonly CACHE_TTL = 300000; // 5 minutes for production
+  private isProcessing = false;
+  private lastFullUpdate = 0;
 
   private config: ZScoreConfig = {
     windows: {
@@ -494,42 +496,82 @@ export class EnhancedZScoreEngine implements IEngine {
     outlierThreshold: 1.5
   };
 
-  // Current state
-  private compositeZScore = 1.785;
-  private regime: 'EXPANSION' | 'CONTRACTION' | 'NEUTRAL' = 'EXPANSION';
-  private confidence = 92;
-  private alignment = 88;
-  private momentum12w = 2.95;
-  private accelerationJerk = 1.26;
-  private marketPhase = 'LATE BULL';
-  private dataPointsAnalyzed = 847;
-  private outliersRemoved = 12;
-  private coverageAnalysis = 97.1;
-  private dataConfidence = 89;
-  private zScore4w = 1.688;
-  private zScore12w = 1.785;
-  private zScore26w = 0.792;
-  private extremeDistribution = {
-    plus2sigma: 25,
-    plus1sigma: 20,
-    minus1sigma: 15,
-    minus2sigma: 20
-  };
-  private topExtremes = [
-    { name: 'Credit Stress OAS', zScore: 3.21, emoji: '🔥' },
-    { name: 'Net Liquidity (Kalman)', zScore: 2.87, emoji: '🔥' },
-    { name: 'On-Chain MVRV', zScore: -2.15, emoji: '❄️' },
-    { name: 'SOFR-FFR Spread', zScore: 2.03, emoji: '🔥' },
-    { name: 'Reverse Repo Balance', zScore: -1.98, emoji: '❄️' }
+  // Core financial indicators for multi-indicator analysis
+  private readonly CORE_INDICATORS = [
+    'DGS10',     // 10-Year Treasury
+    'DGS2',      // 2-Year Treasury
+    'DEXUSEU',   // USD/EUR Exchange Rate
+    'DEXJPUS',   // JPY/USD Exchange Rate
+    'VIXCLS',    // VIX
+    'BAMLH0A0HYM2', // High Yield Corporate Bond Spread
+    'TEDRATE',   // TED Spread
+    'T10Y2Y',    // 10Y-2Y Treasury Spread
+    'DFEDTARU',  // Federal Funds Rate Upper Limit
+    'M2SL'       // M2 Money Supply
   ];
 
+  // Real-time calculation state
+  private multiIndicatorResults = new Map<string, MultiTimeframeZScores>();
+  private compositeZScore = 0;
+  private regime: 'EXPANSION' | 'CONTRACTION' | 'NEUTRAL' = 'NEUTRAL';
+  private confidence = 0;
+  private alignment = 0;
+  private momentum12w = 0;
+  private accelerationJerk = 0;
+  private marketPhase = 'LOADING';
+  private dataPointsAnalyzed = 0;
+  private outliersRemoved = 0;
+  private coverageAnalysis = 0;
+  private dataConfidence = 0;
+  private zScore4w = 0;
+  private zScore12w = 0;
+  private zScore26w = 0;
+  private distributionAnalysis: DistributionAnalysis | null = null;
+  private extremeDistribution = {
+    plus2sigma: 0,
+    plus1sigma: 0,
+    minus1sigma: 0,
+    minus2sigma: 0
+  };
+  private topExtremes: Array<{ name: string; zScore: number; emoji: string; }> = [];
+  private performanceMetrics = {
+    lastUpdateTime: 0,
+    processingTime: 0,
+    successRate: 100,
+    dataFreshness: 0
+  };
+
   async execute(): Promise<EngineReport> {
+    const startTime = Date.now();
+    
     try {
-      // Simulate calculation updates with small variations
-      this.compositeZScore += (Math.random() - 0.5) * 0.1;
-      this.confidence = Math.max(85, Math.min(95, this.confidence + (Math.random() - 0.5) * 2));
+      if (this.isProcessing) {
+        console.log('Z-Score Engine: Already processing, skipping execution');
+        return this.getLastReportOrDefault();
+      }
+
+      this.isProcessing = true;
+
+      // Step 1: Check if we need a full update or can use cached data
+      const needsFullUpdate = Date.now() - this.lastFullUpdate > this.CACHE_TTL;
       
-      return {
+      if (needsFullUpdate) {
+        await this.performFullMultiIndicatorAnalysis();
+        this.lastFullUpdate = Date.now();
+      } else {
+        // Quick update using cached data
+        await this.performIncrementalUpdate();
+      }
+
+      // Step 2: Calculate aggregate metrics from all indicators
+      this.calculateAggregateMetrics();
+
+      // Step 3: Update performance metrics
+      this.performanceMetrics.processingTime = Date.now() - startTime;
+      this.performanceMetrics.lastUpdateTime = Date.now();
+      this.performanceMetrics.dataFreshness = this.calculateDataFreshness();
+
+      const report: EngineReport = {
         success: true,
         confidence: this.confidence / 100,
         signal: this.regime === 'EXPANSION' ? 'bullish' : this.regime === 'CONTRACTION' ? 'bearish' : 'neutral',
@@ -537,16 +579,29 @@ export class EnhancedZScoreEngine implements IEngine {
           compositeZScore: this.compositeZScore,
           regime: this.regime,
           confidence: this.confidence,
-          alignment: this.alignment
+          alignment: this.alignment,
+          multiIndicatorResults: Array.from(this.multiIndicatorResults.entries()),
+          distributionAnalysis: this.distributionAnalysis,
+          performance: this.performanceMetrics
         },
         lastUpdated: new Date()
       };
+
+      this.isProcessing = false;
+      return report;
+
     } catch (error) {
+      this.isProcessing = false;
+      console.error('Enhanced Z-Score Engine execution failed:', error);
+      
       return {
         success: false,
         confidence: 0,
         signal: 'neutral',
-        data: null,
+        data: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+          performance: this.performanceMetrics
+        },
         errors: [error instanceof Error ? error.message : 'Unknown error'],
         lastUpdated: new Date()
       };
@@ -636,32 +691,435 @@ export class EnhancedZScoreEngine implements IEngine {
   }
 
   async initialize(): Promise<void> {
-    console.log('Enhanced Z-Score Engine initialized');
+    console.log('Enhanced Z-Score Engine V6 initializing...');
     
-    // Start real-time updates
-    this.updateInterval = setInterval(() => {
-      this.updateAllZScores();
-    }, 15000); // Every 15 seconds
+    try {
+      // Perform initial full analysis
+      await this.performFullMultiIndicatorAnalysis();
+      this.lastFullUpdate = Date.now();
+      
+      // Start real-time updates
+      this.updateInterval = setInterval(() => {
+        this.execute().catch(error => {
+          console.error('Z-Score Engine periodic update failed:', error);
+        });
+      }, 15000); // Every 15 seconds
+      
+      console.log('Enhanced Z-Score Engine V6 initialized successfully');
+    } catch (error) {
+      console.error('Enhanced Z-Score Engine initialization failed:', error);
+      throw error;
+    }
   }
 
-  private async updateAllZScores(): Promise<void> {
+  // ========== CORE IMPLEMENTATION METHODS ==========
+
+  private getLastReportOrDefault(): EngineReport {
+    return {
+      success: true,
+      confidence: this.confidence / 100,
+      signal: this.regime === 'EXPANSION' ? 'bullish' : this.regime === 'CONTRACTION' ? 'bearish' : 'neutral',
+      data: {
+        compositeZScore: this.compositeZScore,
+        regime: this.regime,
+        confidence: this.confidence,
+        cached: true
+      },
+      lastUpdated: new Date()
+    };
+  }
+
+  private async performFullMultiIndicatorAnalysis(): Promise<void> {
+    console.log('Performing full multi-indicator Z-Score analysis...');
+    const startTime = Date.now();
+    
     try {
-      // Simulate real-time updates with small variations
-      this.compositeZScore += (Math.random() - 0.5) * 0.05;
-      this.confidence = Math.max(85, Math.min(95, this.confidence + (Math.random() - 0.5) * 1));
-      this.alignment = Math.max(80, Math.min(95, this.alignment + (Math.random() - 0.5) * 2));
-      
-      // Update regime based on composite Z-score
-      if (this.compositeZScore > 2) {
-        this.regime = 'EXPANSION';
-      } else if (this.compositeZScore < -2) {
-        this.regime = 'CONTRACTION';
-      } else {
-        this.regime = 'NEUTRAL';
+      let processedCount = 0;
+      let successCount = 0;
+      const allZScores = new Map<string, number>();
+
+      // Process core indicators in parallel batches for performance
+      const batchSize = 3;
+      for (let i = 0; i < this.CORE_INDICATORS.length; i += batchSize) {
+        const batch = this.CORE_INDICATORS.slice(i, i + batchSize);
+        
+        await Promise.all(batch.map(async (indicator) => {
+          try {
+            const result = await this.processIndicator(indicator);
+            if (result) {
+              this.multiIndicatorResults.set(indicator, result);
+              if (result.composite?.value !== undefined) {
+                allZScores.set(indicator, result.composite.value);
+              }
+              successCount++;
+            }
+            processedCount++;
+          } catch (error) {
+            console.error(`Failed to process indicator ${indicator}:`, error);
+            processedCount++;
+          }
+        }));
+
+        // Small delay between batches to avoid overwhelming APIs
+        if (i + batchSize < this.CORE_INDICATORS.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
       }
+
+      // Update analytics metrics
+      this.dataPointsAnalyzed = processedCount;
+      this.coverageAnalysis = (successCount / processedCount) * 100;
+      this.performanceMetrics.successRate = (successCount / processedCount) * 100;
+
+      // Calculate global distribution analysis
+      if (allZScores.size > 0) {
+        this.distributionAnalysis = this.calculator.analyzeDistribution(allZScores);
+        this.updateDistributionMetrics(this.distributionAnalysis);
+        this.updateTopExtremes(allZScores);
+      }
+
+      console.log(`Full analysis completed: ${successCount}/${processedCount} indicators processed in ${Date.now() - startTime}ms`);
+      
     } catch (error) {
-      console.error('Failed to update Z-scores:', error);
+      console.error('Full multi-indicator analysis failed:', error);
+      throw error;
     }
+  }
+
+  private async performIncrementalUpdate(): Promise<void> {
+    console.log('Performing incremental Z-Score update...');
+    
+    try {
+      // Update only the most critical indicators for speed
+      const criticalIndicators = ['DGS10', 'DGS2', 'VIXCLS', 'T10Y2Y'];
+      const allZScores = new Map<string, number>();
+
+      for (const indicator of criticalIndicators) {
+        try {
+          const cached = this.cache.get(indicator);
+          if (cached && Date.now() - cached.timestamp < this.CACHE_TTL / 2) {
+            // Use cached data if recent enough
+            if (cached.zScores.composite?.value !== undefined) {
+              allZScores.set(indicator, cached.zScores.composite.value);
+            }
+          } else {
+            // Update this indicator
+            const result = await this.processIndicator(indicator);
+            if (result && result.composite?.value !== undefined) {
+              allZScores.set(indicator, result.composite.value);
+            }
+          }
+        } catch (error) {
+          console.error(`Incremental update failed for ${indicator}:`, error);
+        }
+      }
+
+      // Merge with existing data
+      for (const [indicator, result] of this.multiIndicatorResults.entries()) {
+        if (!allZScores.has(indicator) && result.composite?.value !== undefined) {
+          allZScores.set(indicator, result.composite.value);
+        }
+      }
+
+      // Update distribution
+      if (allZScores.size > 0) {
+        this.distributionAnalysis = this.calculator.analyzeDistribution(allZScores);
+        this.updateTopExtremes(allZScores);
+      }
+
+    } catch (error) {
+      console.error('Incremental update failed:', error);
+    }
+  }
+
+  private async processIndicator(symbol: string): Promise<MultiTimeframeZScores | null> {
+    try {
+      // Check cache first
+      const cached = this.cache.get(symbol);
+      if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+        return cached.zScores;
+      }
+
+      // Fetch data points from dataService
+      const dataPoints = await dataService.getDataPoints(symbol, 2000); // Get last 2000 points
+      
+      if (!dataPoints || dataPoints.length < 50) {
+        console.warn(`Insufficient data for ${symbol}: ${dataPoints?.length || 0} points`);
+        return null;
+      }
+
+      // Convert to TimeSeriesData format
+      const timeSeriesData: TimeSeriesData[] = dataPoints.map(point => ({
+        timestamp: new Date(point.timestamp).getTime(),
+        value: Number(point.value)
+      })).filter(point => !isNaN(point.value));
+
+      if (timeSeriesData.length < 50) {
+        console.warn(`Insufficient valid data for ${symbol}: ${timeSeriesData.length} points`);
+        return null;
+      }
+
+      // Calculate Z-scores
+      const results = this.calculator.calculateZScores(symbol, timeSeriesData, this.config);
+
+      // Validate results
+      if (results.composite) {
+        const validation = this.validator.validateCalculation({
+          value: results.composite.value,
+          mean: 0,
+          stdDev: 1,
+          skewness: 0,
+          kurtosis: 0,
+          currentValue: results.composite.value,
+          sampleSize: timeSeriesData.length,
+          outlierCount: 0
+        });
+
+        if (!validation.valid) {
+          console.error(`Invalid Z-score for ${symbol}:`, validation.errors);
+          return null;
+        }
+      }
+
+      // Cache the results
+      this.cache.set(symbol, {
+        zScores: results,
+        timestamp: Date.now(),
+        indicator: symbol
+      });
+
+      return results;
+
+    } catch (error) {
+      console.error(`Failed to process indicator ${symbol}:`, error);
+      return null;
+    }
+  }
+
+  private calculateAggregateMetrics(): void {
+    const allCompositeScores = Array.from(this.multiIndicatorResults.values())
+      .map(result => result.composite?.value)
+      .filter(score => score !== undefined && score !== null) as number[];
+
+    if (allCompositeScores.length === 0) {
+      this.compositeZScore = 0;
+      this.confidence = 0;
+      this.alignment = 0;
+      this.regime = 'NEUTRAL';
+      return;
+    }
+
+    // Calculate weighted composite Z-score
+    this.compositeZScore = this.calculateWeightedComposite(allCompositeScores);
+
+    // Calculate confidence based on agreement and data quality
+    this.confidence = this.calculateOverallConfidence();
+
+    // Calculate alignment across timeframes
+    this.alignment = this.calculateCrossIndicatorAlignment();
+
+    // Determine market regime
+    this.regime = this.determineMarketRegime(this.compositeZScore, this.confidence);
+
+    // Update timeframe-specific scores
+    this.updateTimeframeScores();
+
+    // Calculate momentum and acceleration
+    this.calculateMomentumMetrics();
+
+    // Determine market phase
+    this.marketPhase = this.determineMarketPhase();
+  }
+
+  private calculateWeightedComposite(scores: number[]): number {
+    // Weight scores by data quality and importance
+    const weights: Record<string, number> = {
+      'DGS10': 0.15,    // 10-Year Treasury
+      'DGS2': 0.15,     // 2-Year Treasury 
+      'T10Y2Y': 0.15,   // Yield Curve
+      'VIXCLS': 0.12,   // VIX
+      'BAMLH0A0HYM2': 0.12, // Credit Spreads
+      'TEDRATE': 0.08,  // TED Spread
+      'DEXUSEU': 0.06,  // EUR/USD
+      'DEXJPUS': 0.06,  // JPY/USD
+      'DFEDTARU': 0.06, // Fed Funds
+      'M2SL': 0.05      // Money Supply
+    };
+
+    let weightedSum = 0;
+    let totalWeight = 0;
+
+    for (const [indicator, result] of this.multiIndicatorResults.entries()) {
+      const weight = weights[indicator] || 0.01;
+      const score = result.composite?.value;
+      
+      if (score !== undefined && score !== null) {
+        weightedSum += score * weight;
+        totalWeight += weight;
+      }
+    }
+
+    return totalWeight > 0 ? weightedSum / totalWeight : 0;
+  }
+
+  private calculateOverallConfidence(): number {
+    const results = Array.from(this.multiIndicatorResults.values());
+    const confidences = results.map(r => r.composite?.confidence || 0);
+    const dataQuality = this.coverageAnalysis / 100;
+    
+    const avgConfidence = confidences.reduce((a, b) => a + b, 0) / confidences.length || 0;
+    
+    return Math.round(avgConfidence * dataQuality);
+  }
+
+  private calculateCrossIndicatorAlignment(): number {
+    const scores = Array.from(this.multiIndicatorResults.values())
+      .map(result => result.composite?.value)
+      .filter(score => score !== undefined && score !== null) as number[];
+
+    if (scores.length < 2) return 0;
+
+    // Check directional agreement
+    const positive = scores.filter(s => s > 0).length;
+    const negative = scores.filter(s => s < 0).length;
+    const neutral = scores.filter(s => Math.abs(s) < 0.5).length;
+
+    const agreement = Math.max(positive, negative, neutral) / scores.length;
+    
+    // Calculate variance (lower = better alignment)
+    const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const variance = scores.reduce((sum, s) => sum + Math.pow(s - mean, 2), 0) / scores.length;
+    
+    const varianceScore = Math.max(0, 1 - (variance / 4)); // Normalize variance impact
+    
+    return Math.round((agreement * 0.7 + varianceScore * 0.3) * 100);
+  }
+
+  private determineMarketRegime(compositeZ: number, confidence: number): 'EXPANSION' | 'CONTRACTION' | 'NEUTRAL' {
+    if (confidence < 60) return 'NEUTRAL'; // Low confidence = neutral
+    
+    if (compositeZ > 1.5) return 'EXPANSION';
+    if (compositeZ < -1.5) return 'CONTRACTION';
+    return 'NEUTRAL';
+  }
+
+  private updateTimeframeScores(): void {
+    // Calculate average Z-scores across timeframes
+    let shortSum = 0, mediumSum = 0, longSum = 0;
+    let shortCount = 0, mediumCount = 0, longCount = 0;
+
+    for (const result of this.multiIndicatorResults.values()) {
+      if (result.short?.value !== undefined) {
+        shortSum += result.short.value;
+        shortCount++;
+      }
+      if (result.medium?.value !== undefined) {
+        mediumSum += result.medium.value;
+        mediumCount++;
+      }
+      if (result.long?.value !== undefined) {
+        longSum += result.long.value;
+        longCount++;
+      }
+    }
+
+    this.zScore4w = shortCount > 0 ? shortSum / shortCount : 0;
+    this.zScore12w = mediumCount > 0 ? mediumSum / mediumCount : 0;
+    this.zScore26w = longCount > 0 ? longSum / longCount : 0;
+  }
+
+  private calculateMomentumMetrics(): void {
+    // Calculate 12-week momentum as rate of change
+    this.momentum12w = this.zScore12w - this.zScore26w;
+    
+    // Calculate acceleration as momentum change
+    this.accelerationJerk = this.zScore4w - this.zScore12w;
+  }
+
+  private determineMarketPhase(): string {
+    const momentum = this.momentum12w;
+    const acceleration = this.accelerationJerk;
+    const composite = this.compositeZScore;
+
+    if (composite > 2 && momentum > 0 && acceleration > 0) return 'EARLY BULL';
+    if (composite > 1 && momentum > 0 && acceleration < 0) return 'LATE BULL';
+    if (composite < -2 && momentum < 0 && acceleration < 0) return 'EARLY BEAR';
+    if (composite < -1 && momentum < 0 && acceleration > 0) return 'LATE BEAR';
+    if (Math.abs(momentum) < 0.5) return 'CONSOLIDATION';
+    
+    return 'TRANSITION';
+  }
+
+  private updateDistributionMetrics(distribution: DistributionAnalysis): void {
+    const total = distribution.extremeHigh.length + distribution.extremeLow.length + distribution.normalCount;
+    
+    if (total === 0) return;
+
+    this.extremeDistribution = {
+      plus2sigma: Math.round((distribution.extremeHigh.filter(e => e.zScore > 2).length / total) * 100),
+      plus1sigma: Math.round((distribution.extremeHigh.filter(e => e.zScore > 1 && e.zScore <= 2).length / total) * 100),
+      minus1sigma: Math.round((distribution.extremeLow.filter(e => e.zScore < -1 && e.zScore >= -2).length / total) * 100),
+      minus2sigma: Math.round((distribution.extremeLow.filter(e => e.zScore < -2).length / total) * 100)
+    };
+  }
+
+  private updateTopExtremes(allZScores: Map<string, number>): void {
+    const extremes = Array.from(allZScores.entries())
+      .map(([indicator, zScore]) => ({
+        name: this.getIndicatorDisplayName(indicator),
+        zScore,
+        emoji: this.getZScoreEmoji(zScore)
+      }))
+      .filter(e => Math.abs(e.zScore) > 1)
+      .sort((a, b) => Math.abs(b.zScore) - Math.abs(a.zScore))
+      .slice(0, 5);
+
+    this.topExtremes = extremes;
+  }
+
+  private getIndicatorDisplayName(symbol: string): string {
+    const names: Record<string, string> = {
+      'DGS10': '10Y Treasury',
+      'DGS2': '2Y Treasury',
+      'T10Y2Y': 'Yield Curve',
+      'VIXCLS': 'VIX',
+      'BAMLH0A0HYM2': 'Credit Spreads',
+      'TEDRATE': 'TED Spread',
+      'DEXUSEU': 'EUR/USD',
+      'DEXJPUS': 'JPY/USD',
+      'DFEDTARU': 'Fed Funds',
+      'M2SL': 'Money Supply'
+    };
+    
+    return names[symbol] || symbol;
+  }
+
+  private getZScoreEmoji(zScore: number): string {
+    if (zScore > 3) return '🔥';
+    if (zScore > 2) return '🟡';
+    if (zScore > 1) return '🟢';
+    if (zScore < -3) return '❄️';
+    if (zScore < -2) return '🔵';
+    if (zScore < -1) return '🟦';
+    return '⚪';
+  }
+
+  private calculateDataFreshness(): number {
+    const now = Date.now();
+    let totalAge = 0;
+    let count = 0;
+
+    for (const cached of this.cache.values()) {
+      totalAge += now - cached.timestamp;
+      count++;
+    }
+
+    if (count === 0) return 0;
+    
+    const avgAge = totalAge / count;
+    const freshnessScore = Math.max(0, 100 - (avgAge / this.CACHE_TTL) * 100);
+    
+    return Math.round(freshnessScore);
   }
 
   dispose(): void {

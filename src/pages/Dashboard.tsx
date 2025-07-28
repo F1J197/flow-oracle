@@ -26,10 +26,15 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const updateData = async () => {
+    const initializeAndUpdate = async () => {
       setLoading(true);
       
       try {
+        // Initialize Enhanced Z-Score Engine (only one that needs initialization)
+        console.log('Initializing Enhanced Z-Score Engine...');
+        await engines.enhancedZScore.initialize();
+        console.log('All engines initialized');
+
         // First, trigger live data fetch to ensure we have fresh data
         try {
           await dataService.triggerLiveDataFetch();
@@ -39,6 +44,36 @@ export const Dashboard = () => {
         }
 
         // Execute engines in parallel
+        const reports = await Promise.all([
+          engines.dataIntegrity.execute(),
+          engines.netLiquidity.execute(),
+          engines.creditStress.execute(),
+          engines.enhancedZScore.execute(),
+        ]);
+
+        console.log('Engine execution reports:', reports);
+
+        // Update dashboard data
+        setDashboardData({
+          dataIntegrity: engines.dataIntegrity.getDashboardData(),
+          netLiquidity: engines.netLiquidity.getDashboardData(),
+          creditStress: engines.creditStress.getDashboardData(),
+          enhancedZScore: engines.enhancedZScore.getDashboardData(),
+        });
+      } catch (error) {
+        console.error('Error during engine initialization/execution:', error);
+      }
+
+      setLoading(false);
+    };
+
+    const updateData = async () => {
+      if (loading) return; // Skip if already updating
+      
+      setLoading(true);
+      
+      try {
+        // Execute engines in parallel for periodic updates
         await Promise.all([
           engines.dataIntegrity.execute(),
           engines.netLiquidity.execute(),
@@ -60,11 +95,17 @@ export const Dashboard = () => {
       setLoading(false);
     };
 
-    updateData();
+    // Initialize on mount
+    initializeAndUpdate();
     
-    // Update every 30 seconds
+    // Update every 30 seconds after initialization
     const interval = setInterval(updateData, 30000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      // Cleanup engines
+      engines.enhancedZScore.dispose();
+    };
   }, [engines]);
 
   return (

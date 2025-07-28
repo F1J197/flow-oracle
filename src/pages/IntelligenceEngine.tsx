@@ -22,9 +22,12 @@ const IntelligenceEngine = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   useEffect(() => {
-    const fetchEngineData = async () => {
+    const initializeAndFetch = async () => {
       setLoading(true);
       try {
+        // Initialize Enhanced Z-Score Engine
+        await engines.enhancedZScore.initialize();
+        
         // Execute all engines
         await Promise.all([
           engines.dataIntegrity.execute(),
@@ -50,8 +53,8 @@ const IntelligenceEngine = () => {
       }
     };
 
-    fetchEngineData();
-    const interval = setInterval(fetchEngineData, 30000); // Update every 30 seconds
+    initializeAndFetch();
+    const interval = setInterval(initializeAndFetch, 30000); // Update every 30 seconds
 
     return () => clearInterval(interval);
   }, [engines]);
