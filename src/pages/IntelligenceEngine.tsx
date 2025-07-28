@@ -1,0 +1,233 @@
+import { useState, useEffect } from "react";
+import { GlassTile } from "@/components/shared/GlassTile";
+import { DataDisplay } from "@/components/shared/DataDisplay";
+import { Badge } from "@/components/ui/badge";
+import { dataService } from "@/services/dataService";
+import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
+import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
+import { CreditStressEngine } from "@/engines/CreditStressEngine";
+import { DetailedEngineView } from "@/types/engines";
+
+const IntelligenceEngine = () => {
+  const [engines, setEngines] = useState({
+    dataIntegrity: new DataIntegrityEngine(),
+    netLiquidity: new NetLiquidityEngine(),
+    creditStress: new CreditStressEngine(),
+  });
+  
+  const [engineViews, setEngineViews] = useState<Record<string, DetailedEngineView>>({});
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const fetchEngineData = async () => {
+      setLoading(true);
+      try {
+        // Execute all engines
+        await Promise.all([
+          engines.dataIntegrity.execute(),
+          engines.netLiquidity.execute(),
+          engines.creditStress.execute(),
+        ]);
+
+        // Get detailed views
+        const views = {
+          dataIntegrity: engines.dataIntegrity.getDetailedView(),
+          netLiquidity: engines.netLiquidity.getDetailedView(),
+          creditStress: engines.creditStress.getDetailedView(),
+        };
+
+        setEngineViews(views);
+        setLastUpdated(new Date());
+      } catch (error) {
+        console.error('Error fetching engine data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEngineData();
+    const interval = setInterval(fetchEngineData, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [engines]);
+
+  const renderEngineView = (engineKey: string, view: DetailedEngineView) => (
+    <GlassTile key={engineKey} title={view.title} className="p-0">
+      <div className="space-y-6">
+        {/* Status Badge */}
+        <div className="flex justify-end">
+          <Badge variant="outline" className="text-neon-lime border-neon-lime">
+            LIVE ⚡
+          </Badge>
+        </div>
+
+        {/* Primary Section */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-neon-teal border-b border-neon-teal/30 pb-1">
+            {view.primarySection.title}
+          </h4>
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(view.primarySection.metrics).map(([key, value]) => (
+              <DataDisplay
+                key={key}
+                label={key}
+                value={value}
+                size="sm"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Additional Sections */}
+        {view.sections.map((section, index) => (
+          <div key={index} className="space-y-3">
+            <h4 className="text-sm font-medium text-text-secondary border-b border-glass-border pb-1">
+              {section.title}
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              {Object.entries(section.metrics).map(([key, value]) => (
+                <DataDisplay
+                  key={key}
+                  label={key}
+                  value={value}
+                  size="sm"
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* Alerts */}
+        {view.alerts && view.alerts.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-neon-orange border-b border-neon-orange/30 pb-1">
+              Active Alerts
+            </h4>
+            {view.alerts.map((alert, index) => (
+              <div
+                key={index}
+                className={`p-2 rounded border-l-4 text-sm ${
+                  alert.severity === 'critical'
+                    ? 'border-neon-orange bg-neon-orange/10 text-neon-orange'
+                    : alert.severity === 'warning'
+                    ? 'border-neon-gold bg-neon-gold/10 text-neon-gold'
+                    : 'border-neon-teal bg-neon-teal/10 text-neon-teal'
+                }`}
+              >
+                {alert.message}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </GlassTile>
+  );
+
+  const renderPlaceholderEngines = () => {
+    const placeholders = [
+      { name: "Z-Score Engine", status: "development" },
+      { name: "Momentum Engine", status: "development" },
+      { name: "Regime Detection", status: "development" },
+      { name: "Cross-Asset Analysis", status: "development" },
+      { name: "Temporal Dynamics", status: "development" },
+    ];
+
+    return placeholders.map((engine, index) => (
+      <GlassTile key={index} title={engine.name} className="opacity-60">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-end">
+            <Badge variant="outline" className="text-text-secondary border-text-secondary">
+              {engine.status}
+            </Badge>
+          </div>
+          <div className="text-text-secondary">
+            Engine configuration in progress...
+          </div>
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            <div className="space-y-1">
+              <div className="text-xs text-text-secondary">Status</div>
+              <div className="text-sm">Pending</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-xs text-text-secondary">Priority</div>
+              <div className="text-sm">TBD</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-xs text-text-secondary">Pillar</div>
+              <div className="text-sm">TBD</div>
+            </div>
+          </div>
+        </div>
+      </GlassTile>
+    ));
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold text-primary">Intelligence Engine</h1>
+        <p className="text-text-secondary">
+          28 Processing Engines • Real-time Analysis • 3-Pillar Architecture
+        </p>
+        <div className="text-sm text-text-secondary">
+          Last Updated: {lastUpdated.toLocaleTimeString()}
+        </div>
+      </div>
+
+      {/* Engine Grid - 3x3 Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Active Engines */}
+        {loading ? (
+          // Loading state
+          Array.from({ length: 8 }).map((_, index) => (
+            <GlassTile key={index} title="Loading..." className="animate-pulse">
+              <div className="space-y-4">
+                <div className="h-6 bg-glass-bg rounded"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-glass-bg rounded w-3/4"></div>
+                  <div className="h-4 bg-glass-bg rounded w-1/2"></div>
+                </div>
+              </div>
+            </GlassTile>
+          ))
+        ) : (
+          <>
+            {/* Render active engine views */}
+            {Object.entries(engineViews).map(([key, view]) => 
+              renderEngineView(key, view)
+            )}
+            
+            {/* Render placeholder engines */}
+            {renderPlaceholderEngines()}
+          </>
+        )}
+      </div>
+
+      {/* Footer Status */}
+      <div className="mt-8 pt-6 border-t border-glass-border">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div className="space-y-1">
+            <div className="text-xs text-text-secondary">Active Engines</div>
+            <div className="text-lg font-semibold text-neon-lime">3/28</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-xs text-text-secondary">Success Rate</div>
+            <div className="text-lg font-semibold text-neon-teal">97.3%</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-xs text-text-secondary">Avg Latency</div>
+            <div className="text-lg font-semibold text-text-primary">164ms</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-xs text-text-secondary">System Health</div>
+            <div className="text-lg font-semibold text-neon-lime">Optimal</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default IntelligenceEngine;

@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { TabNavigation } from "@/components/layout/TabNavigation";
 import { Dashboard } from "./Dashboard";
 import { DataIngestionPanel } from "@/components/data/DataIngestionPanel";
+import IntelligenceEngine from "./IntelligenceEngine";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -18,14 +19,7 @@ const Index = () => {
           </div>
         );
       case 'engines':
-        return (
-          <div className="max-w-7xl mx-auto p-6">
-            <div className="glass-tile p-8 text-center">
-              <h2 className="text-2xl font-bold text-primary mb-4">Intelligence Engine</h2>
-              <p className="text-text-secondary">28 processing engines coming soon...</p>
-            </div>
-          </div>
-        );
+        return <IntelligenceEngine />;
       case 'charts':
         return (
           <div className="max-w-7xl mx-auto p-6">
