@@ -1,126 +1,45 @@
 import { useEngineManager } from "@/hooks/useEngineManager";
-import { IntelligenceTile } from "@/components/intelligence/IntelligenceTile";
-import { IntelligenceViewData } from "@/types/intelligenceView";
-import { useMemo } from "react";
+import { TerminalEngineView } from "@/components/intelligence/TerminalEngineView";
+import { useState, useEffect } from "react";
+import { DetailedEngineView } from "@/types/engines";
 
 export const IntelligenceEngine = () => {
   const { engines } = useEngineManager();
+  const [engineViews, setEngineViews] = useState<Record<string, DetailedEngineView>>({});
+  const [loading, setLoading] = useState(true);
 
-  // Convert engine data to intelligence view format
-  const intelligenceData = useMemo((): IntelligenceViewData[] => {
-    const createIntelligenceView = (engine: any, engineId: string): IntelligenceViewData => {
+  useEffect(() => {
+    const fetchEngineViews = async () => {
+      setLoading(true);
       try {
-        const dashboardData = engine.getDashboardData();
-        const detailedView = engine.getDetailedView();
-        
-        // Extract key metrics from detailed view
-        const keyMetrics = [];
-        if (detailedView.primarySection?.metrics) {
-          const entries = Object.entries(detailedView.primarySection.metrics).slice(0, 3);
-          keyMetrics.push(...entries.map(([label, value]) => ({
-            label,
-            value,
-            status: 'good' as const
-          })));
-        }
-        
-        // Add secondary metrics if available
-        if (detailedView.sections?.[0]?.metrics) {
-          const entries = Object.entries(detailedView.sections[0].metrics).slice(0, 2);
-          keyMetrics.push(...entries.map(([label, value]) => ({
-            label,
-            value,
-            status: 'good' as const
-          })));
-        }
-
-        // Extract insights
-        const insights: string[] = [];
-        if (dashboardData.actionText) {
-          insights.push(dashboardData.actionText);
-        }
-        if (detailedView.alerts?.length > 0) {
-          insights.push(...detailedView.alerts.map(alert => alert.message));
-        }
-
-        return {
-          title: dashboardData.title,
-          status: dashboardData.status === 'critical' ? 'critical' : 
-                 dashboardData.status === 'warning' ? 'warning' : 'active',
-          primaryMetric: {
-            label: "Primary Metric",
-            value: dashboardData.primaryMetric,
-            color: dashboardData.color || 'teal'
-          },
-          keyMetrics: keyMetrics.slice(0, 4), // Limit to 4 for space
-          insights: insights.slice(0, 2), // Limit insights
-          lastUpdated: new Date()
+        // Get detailed views from existing engines (no execution needed)
+        const views = {
+          dataIntegrity: engines.dataIntegrity.getDetailedView(),
+          netLiquidity: engines.netLiquidity.getDetailedView(),
+          creditStressV6: engines.creditStressV6.getDetailedView(),
+          enhancedZScore: engines.enhancedZScore.getDetailedView(),
+          enhancedMomentum: engines.enhancedMomentum.getDetailedView(),
+          primaryDealerPositions: engines.primaryDealerPositions.getDetailedView(),
         };
+
+        setEngineViews(views);
       } catch (error) {
-        console.warn(`Error creating intelligence view for ${engineId}:`, error);
-        return {
-          title: engine.name || `Engine ${engineId}`,
-          status: 'offline' as const,
-          primaryMetric: {
-            label: "Status",
-            value: "ERROR",
-            color: 'orange'
-          },
-          keyMetrics: [],
-          insights: ["Engine offline or data unavailable"],
-          lastUpdated: new Date()
-        };
+        console.error("Error fetching engine views:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    return [
-      createIntelligenceView(engines.dataIntegrity, 'dataIntegrity'),
-      createIntelligenceView(engines.netLiquidity, 'netLiquidity'),
-      createIntelligenceView(engines.creditStressV6, 'creditStressV6'),
-      createIntelligenceView(engines.enhancedZScore, 'enhancedZScore'),
-      createIntelligenceView(engines.enhancedMomentum, 'enhancedMomentum'),
-      createIntelligenceView(engines.primaryDealerPositions, 'primaryDealerPositions'),
-    ];
+    fetchEngineViews();
   }, [engines]);
 
-  // Create placeholder engines for the remaining 3x3 grid (6 active + 3 placeholders = 9 total)
-  const placeholderEngines: IntelligenceViewData[] = [
-    {
-      title: "REGIME DETECTION ENGINE",
-      status: 'offline',
-      primaryMetric: { label: "Development Status", value: "IN PROGRESS", color: 'gold' },
-      keyMetrics: [
-        { label: "Priority", value: "High" },
-        { label: "Pillar", value: "Foundation" },
-        { label: "ETA", value: "Q2 2024" }
-      ],
-      insights: ["Market regime classification system"],
-      lastUpdated: new Date()
-    },
-    {
-      title: "CROSS-ASSET CORRELATION",
-      status: 'offline',
-      primaryMetric: { label: "Development Status", value: "DESIGN", color: 'orange' },
-      keyMetrics: [
-        { label: "Priority", value: "Medium" },
-        { label: "Pillar", value: "Pillar 2" },
-        { label: "Dependencies", value: "3" }
-      ],
-      insights: ["Multi-asset momentum analysis"],
-      lastUpdated: new Date()
-    },
-    {
-      title: "TEMPORAL DYNAMICS",
-      status: 'offline',
-      primaryMetric: { label: "Development Status", value: "PLANNING", color: 'fuchsia' },
-      keyMetrics: [
-        { label: "Priority", value: "High" },
-        { label: "Pillar", value: "Pillar 3" },
-        { label: "Complexity", value: "High" }
-      ],
-      insights: ["Time-series momentum decomposition"],
-      lastUpdated: new Date()
-    }
+  const activeEngines = [
+    { key: "dataIntegrity", name: "Data Integrity & Self-Healing Engine" },
+    { key: "netLiquidity", name: "Net Liquidity Engine V6" },
+    { key: "creditStressV6", name: "Credit Stress Engine V6" },
+    { key: "enhancedZScore", name: "Enhanced Z-Score Engine" },
+    { key: "enhancedMomentum", name: "Enhanced Momentum Engine" },
+    { key: "primaryDealerPositions", name: "Primary Dealer Positions Engine V6" },
   ];
 
   return (
@@ -128,25 +47,151 @@ export const IntelligenceEngine = () => {
       {/* Header */}
       <div className="mb-8 space-y-2">
         <h1 className="text-3xl font-bold text-neon-teal">Intelligence Engine</h1>
-        <p className="text-text-secondary">28 Processing Engines • Real-time Market Analysis</p>
+        <p className="text-text-secondary font-mono">
+          28 Processing Engines • Real-time Market Analysis
+        </p>
       </div>
 
-      {/* 3x3 Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {/* Active Engines (First 6) */}
-        {intelligenceData.map((data, index) => (
-          <IntelligenceTile key={index} data={data} />
+      {/* 3x3 Engine Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Active Engines */}
+        {activeEngines.map((engine) => (
+          <TerminalEngineView
+            key={engine.key}
+            view={engineViews[engine.key]}
+            loading={loading || !engineViews[engine.key]}
+          />
         ))}
-        
-        {/* Placeholder Engines (Remaining 3) */}
-        {placeholderEngines.map((data, index) => (
-          <IntelligenceTile key={`placeholder-${index}`} data={data} />
-        ))}
+
+        {/* Placeholder Development Engines */}
+        <div className="glass-tile p-6 font-mono text-sm opacity-60">
+          <div className="mb-6">
+            <div className="text-text-secondary text-xs uppercase tracking-wider mb-2">
+              Intelligence Engine View Layout:
+            </div>
+            <div className="text-text-primary font-bold text-sm uppercase mb-1">
+              REGIME DETECTION ENGINE
+            </div>
+            <div className="text-text-secondary">
+              {"=".repeat("REGIME DETECTION ENGINE".length)}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <div className="text-neon-gold font-semibold uppercase text-sm mb-3">
+              DEVELOPMENT STATUS
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Priority:</span>
+                <span className="text-neon-gold">HIGH</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Pillar:</span>
+                <span className="text-text-primary">Foundation</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Status:</span>
+                <span className="text-neon-gold">IN PROGRESS</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-text-muted text-xs italic">
+            Market cycle identification & regime transitions
+          </div>
+        </div>
+
+        <div className="glass-tile p-6 font-mono text-sm opacity-60">
+          <div className="mb-6">
+            <div className="text-text-secondary text-xs uppercase tracking-wider mb-2">
+              Intelligence Engine View Layout:
+            </div>
+            <div className="text-text-primary font-bold text-sm uppercase mb-1">
+              CROSS-ASSET CORRELATION
+            </div>
+            <div className="text-text-secondary">
+              {"=".repeat("CROSS-ASSET CORRELATION".length)}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <div className="text-neon-orange font-semibold uppercase text-sm mb-3">
+              DEVELOPMENT STATUS
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Priority:</span>
+                <span className="text-neon-orange">MEDIUM</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Pillar:</span>
+                <span className="text-text-primary">Pillar 2</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Status:</span>
+                <span className="text-neon-orange">DESIGN</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-text-muted text-xs italic">
+            Multi-asset momentum correlation analysis
+          </div>
+        </div>
+
+        <div className="glass-tile p-6 font-mono text-sm opacity-60">
+          <div className="mb-6">
+            <div className="text-text-secondary text-xs uppercase tracking-wider mb-2">
+              Intelligence Engine View Layout:
+            </div>
+            <div className="text-text-primary font-bold text-sm uppercase mb-1">
+              TEMPORAL DYNAMICS ENGINE
+            </div>
+            <div className="text-text-secondary">
+              {"=".repeat("TEMPORAL DYNAMICS ENGINE".length)}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <div className="text-neon-fuchsia font-semibold uppercase text-sm mb-3">
+              DEVELOPMENT STATUS
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Priority:</span>
+                <span className="text-neon-fuchsia">HIGH</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Pillar:</span>
+                <span className="text-text-primary">Pillar 3</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Status:</span>
+                <span className="text-neon-fuchsia">PLANNING</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-text-muted text-xs italic">
+            Time-series momentum decomposition
+          </div>
+        </div>
       </div>
 
-      {/* Footer Info */}
-      <div className="mt-8 text-center text-sm text-text-muted">
-        <p>6 engines active • 3 in development • Updates every 15 seconds</p>
+      {/* Footer Status */}
+      <div className="mt-8 text-center">
+        <div className="glass-tile p-4 font-mono text-sm">
+          <div className="flex items-center justify-center space-x-8 text-text-secondary">
+            <span className="text-neon-lime">6 ACTIVE ENGINES</span>
+            <span>•</span>
+            <span>3 IN DEVELOPMENT</span>
+            <span>•</span>
+            <span>19 PLANNED</span>
+            <span>•</span>
+            <span className="text-neon-teal">REAL-TIME UPDATES</span>
+          </div>
+        </div>
       </div>
     </div>
   );
