@@ -253,40 +253,21 @@ export const Dashboard = () => {
         >
           <DataDisplay
             value={dashboardData.enhancedZScore.primaryMetric}
-            label="Composite Z-Score"
             size="lg"
             color={dashboardData.enhancedZScore.color}
             trend={dashboardData.enhancedZScore.trend}
             loading={loading}
           />
           {dashboardData.enhancedZScore.secondaryMetric && (
-            <Badge 
-              variant="outline" 
-              className={`border-neon-${dashboardData.enhancedZScore.color} text-neon-${dashboardData.enhancedZScore.color} mt-2`}
-            >
+            <p className="text-sm font-medium text-text-secondary mt-1">
               {dashboardData.enhancedZScore.secondaryMetric}
-            </Badge>
+            </p>
           )}
           {dashboardData.enhancedZScore.actionText && (
-            <p className="text-xs text-text-muted mt-2">
+            <p className="text-sm text-text-primary mt-3 font-mono">
               {dashboardData.enhancedZScore.actionText}
             </p>
           )}
-          {/* Mini histogram visualization */}
-          <div className="mt-3">
-            <div className="flex items-end space-x-1 h-8">
-              {Array.from({ length: 8 }, (_, i) => (
-                <div 
-                  key={i}
-                  className="flex-1 bg-neon-teal/30 rounded-t"
-                  style={{ 
-                    height: `${Math.random() * 60 + 20}%`,
-                    backgroundColor: i === 5 ? 'rgb(var(--neon-teal))' : 'rgba(var(--neon-teal), 0.3)'
-                  }}
-                ></div>
-              ))}
-            </div>
-          </div>
         </GlassTile>
 
         {/* Business Cycle */}

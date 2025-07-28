@@ -1,0 +1,9 @@
+-- Add missing financial indicators for Z-Score Engine (excluding already existing ones)
+INSERT INTO public.indicators (symbol, name, description, data_source, pillar, priority, is_active, metadata) VALUES
+('DGS2', '2-Year Treasury Constant Maturity Rate', 'Daily 2-year Treasury bond yield from Federal Reserve', 'FRED', 2, 8, true, '{"category": "interest_rates", "frequency": "daily", "unit": "percent"}'),
+('T10Y2Y', '10-Year Treasury Constant Maturity Minus 2-Year Treasury Constant Maturity', 'Yield curve spread between 10-year and 2-year Treasury bonds', 'FRED', 2, 9, true, '{"category": "yield_curve", "frequency": "daily", "unit": "percent"}'),
+('VIXCLS', 'CBOE Volatility Index: VIX', 'Market volatility index measuring expected price fluctuations', 'FRED', 3, 7, true, '{"category": "volatility", "frequency": "daily", "unit": "index"}'),
+('DEXJPUS', 'U.S. / Japan Foreign Exchange Rate', 'US Dollar to Japanese Yen exchange rate', 'FRED', 3, 6, true, '{"category": "fx_rates", "frequency": "daily", "unit": "yen_per_dollar"}'),
+('WTREGEN', 'Treasury General Account', 'US Treasury General Account balance at Federal Reserve', 'FRED', 1, 9, true, '{"category": "treasury", "frequency": "daily", "unit": "millions_usd"}'),
+('RRPONTSYD', 'Overnight Reverse Repurchase Agreements: Treasury Securities Sold by the Federal Reserve', 'Federal Reserve reverse repo operations', 'FRED', 1, 8, true, '{"category": "fed_operations", "frequency": "daily", "unit": "millions_usd"}')
+ON CONFLICT (symbol) DO NOTHING;
