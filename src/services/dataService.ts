@@ -217,7 +217,7 @@ class DataService {
   }
 
   // Trigger financial data ingestion from multiple sources
-  async triggerFinancialIngestion(source: 'finnhub' | 'twelvedata' | 'fmp' | 'marketstack', endpoint: string, symbol?: string): Promise<any> {
+  async triggerFinancialIngestion(source: 'finnhub' | 'twelvedata' | 'fmp' | 'marketstack' | 'polygon' | 'coingecko' | 'alphavantage', endpoint: string, symbol?: string): Promise<any> {
     try {
       const { data, error } = await supabase.functions.invoke('financial-data-ingestion', {
         body: { source, endpoint, symbol }

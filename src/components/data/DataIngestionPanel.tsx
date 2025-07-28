@@ -88,7 +88,7 @@ export const DataIngestionPanel = () => {
     }
   };
 
-  const handleFinancialIngestion = async (source: 'finnhub' | 'twelvedata' | 'fmp' | 'marketstack') => {
+  const handleFinancialIngestion = async (source: 'finnhub' | 'twelvedata' | 'fmp' | 'marketstack' | 'polygon' | 'coingecko' | 'alphavantage') => {
     try {
       let endpoint = '';
       let symbol = '';
@@ -107,6 +107,15 @@ export const DataIngestionPanel = () => {
         case 'marketstack':
           endpoint = 'market_data';
           symbol = 'AAPL';
+          break;
+        case 'polygon':
+          endpoint = 'crypto_price';
+          break;
+        case 'coingecko':
+          endpoint = 'crypto_price';
+          break;
+        case 'alphavantage':
+          endpoint = 'crypto_price';
           break;
       }
 
@@ -254,6 +263,33 @@ export const DataIngestionPanel = () => {
             >
               <Database className="w-4 h-4" />
               Marketstack
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleFinancialIngestion('polygon')}
+              className="flex items-center gap-2"
+            >
+              <Database className="w-4 h-4" />
+              Polygon.io
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleFinancialIngestion('coingecko')}
+              className="flex items-center gap-2"
+            >
+              <Database className="w-4 h-4" />
+              CoinGecko
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleFinancialIngestion('alphavantage')}
+              className="flex items-center gap-2"
+            >
+              <Database className="w-4 h-4" />
+              Alpha Vantage
             </Button>
 
             <Button 

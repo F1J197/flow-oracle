@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 interface FinancialDataRequest {
-  source: 'finnhub' | 'twelvedata' | 'fmp' | 'marketstack';
+  source: 'finnhub' | 'twelvedata' | 'fmp' | 'marketstack' | 'polygon' | 'coingecko' | 'alphavantage';
   endpoint: string;
   symbol?: string;
 }
@@ -84,6 +84,63 @@ serve(async (req) => {
             break;
           default:
             throw new Error(`Unknown Marketstack endpoint: ${endpoint}`);
+        }
+        break;
+
+      case 'polygon':
+        apiKey = Deno.env.get('POLYGON_API_KEY');
+        if (!apiKey) throw new Error('POLYGON_API_KEY not found');
+        
+        switch (endpoint) {
+          case 'crypto_price':
+            url = `https://api.polygon.io/v2/aggs/ticker/X:BTCUSD/prev?apikey=${apiKey}`;
+            break;
+          case 'stock_price':
+            url = `https://api.polygon.io/v2/aggs/ticker/${symbol || 'AAPL'}/prev?apikey=${apiKey}`;
+            break;
+          case 'forex_rates':
+            url = `https://api.polygon.io/v2/aggs/ticker/C:EURUSD/prev?apikey=${apiKey}`;
+            break;
+          default:
+            throw new Error(`Unknown Polygon endpoint: ${endpoint}`);
+        }
+        break;
+
+      case 'coingecko':
+        apiKey = Deno.env.get('COINGECKO_API_KEY');
+        if (!apiKey) throw new Error('COINGECKO_API_KEY not found');
+        
+        switch (endpoint) {
+          case 'crypto_price':
+            url = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&x_cg_demo_api_key=${apiKey}`;
+            break;
+          case 'trending':
+            url = `https://api.coingecko.com/api/v3/search/trending?x_cg_demo_api_key=${apiKey}`;
+            break;
+          case 'market_data':
+            url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&x_cg_demo_api_key=${apiKey}`;
+            break;
+          default:
+            throw new Error(`Unknown CoinGecko endpoint: ${endpoint}`);
+        }
+        break;
+
+      case 'alphavantage':
+        apiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
+        if (!apiKey) throw new Error('ALPHA_VANTAGE_API_KEY not found');
+        
+        switch (endpoint) {
+          case 'crypto_price':
+            url = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=USD&apikey=${apiKey}`;
+            break;
+          case 'technical_rsi':
+            url = `https://www.alphavantage.co/query?function=RSI&symbol=${symbol || 'AAPL'}&interval=daily&time_period=14&series_type=close&apikey=${apiKey}`;
+            break;
+          case 'macd':
+            url = `https://www.alphavantage.co/query?function=MACD&symbol=${symbol || 'AAPL'}&interval=daily&series_type=close&apikey=${apiKey}`;
+            break;
+          default:
+            throw new Error(`Unknown Alpha Vantage endpoint: ${endpoint}`);
         }
         break;
 
