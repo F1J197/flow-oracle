@@ -8,64 +8,118 @@ export class NetLiquidityEngine implements IEngine {
   pillar = 1 as const;
 
   // Core data components (in trillions)
-  private walcl = 0;           // Fed Balance Sheet
-  private wtregen = 0;         // Treasury General Account  
-  private rrpontsyd = 0;       // Overnight Reverse Repo
-  private netLiquidity = 0;    // Calculated Net Liquidity
+  private walcl = 6.658;       // Fed Balance Sheet - default value
+  private wtregen = 0.632;     // Treasury General Account - default value  
+  private rrpontsyd = 0;       // Overnight Reverse Repo - default value
+  private netLiquidity = 6.026; // Calculated Net Liquidity - default
   
   // Kalman filter parameters
   private kalmanAlpha = 0.391; // Adaptive coefficient
   private regime: 'QE' | 'QT' | 'TRANSITION' = 'TRANSITION';
   private momentum = 0;
   private confidence = 98;
+  private cache = new Map<string, any>();
+  private readonly CACHE_TTL = 30000; // 30 seconds cache
+
+  private fetchWithTimeout<T>(fn: () => Promise<T>, timeout: number): Promise<T> {
+    return Promise.race([
+      fn(),
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), timeout)
+      )
+    ]);
+  }
+
+  private getCachedData(key: string): any {
+    const cached = this.cache.get(key);
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
+      return cached;
+    }
+    return null;
+  }
+
+  private setCachedData(key: string, data: any): void {
+    this.cache.set(key, { ...data, timestamp: Date.now() });
+  }
+
+  private updateFromCachedData(cached: any): void {
+    this.updateFromData(cached);
+  }
+
+  private updateFromData(data: any): void {
+    this.walcl = data.walcl;
+    this.wtregen = data.wtregen;
+    this.rrpontsyd = data.rrpontsyd;
+    
+    // Calculate net liquidity
+    this.netLiquidity = this.walcl - this.wtregen - this.rrpontsyd;
+    
+    // Regime detection
+    if (this.netLiquidity > 5.5) {
+      this.regime = 'QE';
+    } else if (this.netLiquidity < 4.5) {
+      this.regime = 'QT';
+    } else {
+      this.regime = 'TRANSITION';
+    }
+    
+    // Calculate momentum with some persistence
+    const targetMomentum = (this.netLiquidity - 5.0) * 0.8;
+    this.momentum = this.momentum * 0.7 + targetMomentum * 0.3; // Smooth changes
+  }
+
+  private generateReport(): EngineReport {
+    console.log(`Net Liquidity: $${this.netLiquidity.toFixed(3)}T | Regime: ${this.regime}`);
+    
+    return {
+      success: true,
+      confidence: this.confidence / 100,
+      signal: this.getMarketSignal(),
+      data: {
+        netLiquidity: this.netLiquidity,
+        regime: this.regime,
+        momentum: this.momentum,
+        walcl: this.walcl,
+        wtregen: this.wtregen,
+        rrpontsyd: this.rrpontsyd
+      },
+      lastUpdated: new Date()
+    };
+  }
 
   async execute(): Promise<EngineReport> {
     try {
       console.log('Net Liquidity Engine V6 executing...');
       
-      // Fetch data with fallback values
-      const [walclRaw, wtregenRaw, rrpontsydRaw] = await Promise.all([
-        dataService.fetchFREDData('WALCL').catch(() => 6657715), // Fallback from logs
-        dataService.fetchFREDData('WTREGEN').catch(() => 632000),
-        dataService.fetchFREDData('RRPONTSYD').catch(() => 0)
-      ]);
-      
-      // Convert to trillions for calculation
-      this.walcl = walclRaw / 1000000;
-      this.wtregen = wtregenRaw / 1000000;
-      this.rrpontsyd = rrpontsydRaw / 1000000;
-      
-      // Calculate net liquidity using the formula: WALCL - WTREGEN - RRPONTSYD
-      this.netLiquidity = this.walcl - this.wtregen - this.rrpontsyd;
-      
-      // Simple regime detection
-      if (this.netLiquidity > 5.5) {
-        this.regime = 'QE';
-      } else if (this.netLiquidity < 4.5) {
-        this.regime = 'QT';
-      } else {
-        this.regime = 'TRANSITION';
+      // Use cached data first to avoid slow API calls
+      const cacheKey = 'net-liquidity-data';
+      const cached = this.getCachedData(cacheKey);
+      if (cached) {
+        this.updateFromCachedData(cached);
+        return this.generateReport();
       }
       
-      // Calculate momentum (simplified)
-      this.momentum = Math.random() * 4 - 2; // Mock momentum between -2 and 2
+      // Fetch data with timeout and fallbacks
+      const dataPromises = [
+        this.fetchWithTimeout(() => dataService.fetchFREDData('WALCL'), 3000).catch(() => 6657715),
+        this.fetchWithTimeout(() => dataService.fetchFREDData('WTREGEN'), 3000).catch(() => 632000),
+        this.fetchWithTimeout(() => dataService.fetchFREDData('RRPONTSYD'), 3000).catch(() => 0)
+      ];
       
-      console.log(`Net Liquidity: $${this.netLiquidity.toFixed(3)}T | Regime: ${this.regime}`);
+      const [walclRaw, wtregenRaw, rrpontsydRaw] = await Promise.all(dataPromises);
       
-      return {
-        success: true,
-        confidence: this.confidence / 100,
-        signal: this.getMarketSignal(),
-        data: {
-          netLiquidity: this.netLiquidity,
-          regime: this.regime,
-          momentum: this.momentum,
-          walcl: this.walcl,
-          wtregen: this.wtregen,
-          rrpontsyd: this.rrpontsyd
-        },
-        lastUpdated: new Date()
+      // Convert to trillions and cache the data
+      const liquidityData = {
+        walcl: walclRaw / 1000000,
+        wtregen: wtregenRaw / 1000000,
+        rrpontsyd: rrpontsydRaw / 1000000,
+        timestamp: Date.now()
       };
+      
+      this.setCachedData(cacheKey, liquidityData);
+      this.updateFromData(liquidityData);
+      
+      return this.generateReport();
     } catch (error) {
       console.error('Net Liquidity Engine error:', error);
       return {

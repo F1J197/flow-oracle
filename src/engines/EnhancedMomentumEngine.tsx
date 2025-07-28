@@ -543,68 +543,48 @@ export class EnhancedMomentumEngine implements IEngine {
 
   async execute(): Promise<EngineReport> {
     try {
-      // Phase 1: Data Collection with Robust Fallbacks
-      const indicatorData = await this.fetchMomentumDataWithFallbacks();
-      
-      // Phase 2: Multiscale Momentum Calculation
-      const momentumResults = new Map<string, MultiscaleMomentum>();
-      let validIndicators = 0;
-      
-      for (const [indicator, data] of indicatorData) {
-        if (data.length >= 14) { // Minimum data points for reliable calculation
-          const momentum = this.calculator.calculateMultiscaleMomentum(data, this.config);
-          momentumResults.set(indicator, momentum);
-          validIndicators++;
-        }
+      // Check cache first - use cached data if recent
+      const cacheKey = 'momentum-execution';
+      const cached = this.cache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
+        console.log('Using cached momentum data');
+        return cached.data;
       }
 
-      // Ensure we have minimum data quality
+      // Simplified execution - only use core indicators to reduce load
+      const coreIndicators = ['WALCL', 'WTREGEN', 'DGS2']; // Reduced from 7 to 3
+      const indicatorData = await this.fetchCoreIndicatorData(coreIndicators);
+      
+      // Quick momentum calculation - skip complex derivatives for performance
+      const validIndicators = this.calculateSimplifiedMomentum(indicatorData);
+      
       if (validIndicators === 0) {
-        console.warn('No valid indicators for momentum calculation, using synthetic fallback');
+        console.warn('No valid indicators for momentum calculation, using cached or synthetic fallback');
         this.generateSyntheticMomentum();
-      } else {
-        // Phase 3: Aggregate momentum across all indicators
-        this.multiscaleMomentum = this.aggregateMomentum(momentumResults);
-        
-        // Phase 4: Calculate composite momentum score with regime detection
-        this.compositeMomentum = this.calculator.calculateCompositeMomentumScore(
-          this.multiscaleMomentum,
-          this.config
-        );
-
-        // Phase 5: Generate dynamic insights and one-liners
-        this.dynamicOneLiner = this.insightsGenerator.generateOneLiner(
-          this.compositeMomentum, 
-          this.multiscaleMomentum
-        );
-
-        // Phase 6: Advanced pattern recognition
-        const allHistoricalData = Array.from(indicatorData.values()).flat();
-        this.detectedPatterns = this.patternRecognizer.detectPatterns(
-          this.multiscaleMomentum, 
-          allHistoricalData
-        );
-
-        // Generate enhanced alerts with pattern insights
-        this.alerts = this.generateEnhancedAlerts();
       }
 
-      return {
+      const signal = this.compositeMomentum.value > 20 ? 'bullish' : 
+                      this.compositeMomentum.value < -20 ? 'bearish' : 'neutral';
+      
+      const result: EngineReport = {
         success: true,
         confidence: this.compositeMomentum.confidence / 100,
-        signal: this.compositeMomentum.value > 20 ? 'bullish' : 
-                this.compositeMomentum.value < -20 ? 'bearish' : 'neutral',
+        signal: signal as 'bullish' | 'bearish' | 'neutral',
         data: {
           composite: this.compositeMomentum,
           multiscale: this.multiscaleMomentum,
           alerts: this.alerts,
           dynamicOneLiner: this.dynamicOneLiner,
-          detectedPatterns: this.detectedPatterns,
+          detectedPatterns: [], // Skip pattern recognition for performance
           validIndicators,
-          totalIndicators: this.MOMENTUM_INDICATORS.length
+          totalIndicators: coreIndicators.length
         },
         lastUpdated: new Date()
       };
+
+      // Cache the result
+      this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
 
     } catch (error) {
       console.error('Enhanced Momentum Engine V6 execution failed:', error);
@@ -636,48 +616,99 @@ export class EnhancedMomentumEngine implements IEngine {
     }
   }
 
-  private async fetchMomentumDataWithFallbacks(): Promise<Map<string, TimeSeriesPoint[]>> {
+  private async fetchCoreIndicatorData(indicators: string[]): Promise<Map<string, TimeSeriesPoint[]>> {
     const results = new Map<string, TimeSeriesPoint[]>();
     
-    for (const indicator of this.MOMENTUM_INDICATORS) {
+    // Use parallel fetching with timeout for speed
+    const fetchPromises = indicators.map(async (indicator) => {
       try {
-        // Get recent data points for momentum calculation
-        const dataPoints = await dataService.getDataPoints(indicator, 200);
+        // Check cache first
+        const cacheKey = `indicator-${indicator}`;
+        const cached = this.cache.get(cacheKey);
+        if (cached && (Date.now() - cached.timestamp) < 30000) { // 30 second cache
+          return [indicator, cached.data];
+        }
+
+        // Get limited data points for faster processing
+        const dataPoints = await dataService.getDataPoints(indicator, 50); // Reduced from 200 to 50
         
         const timeSeriesData = dataPoints.map(point => ({
           timestamp: new Date(point.timestamp).getTime(),
           value: point.value
         }));
 
-        results.set(indicator, timeSeriesData);
-        
-        // If insufficient data, try to get live data
-        if (timeSeriesData.length < 14) {
-          console.warn(`Insufficient data for ${indicator} (${timeSeriesData.length} points), attempting live fetch`);
-          try {
-            await dataService.triggerLiveDataFetch([indicator]);
-            // Retry with fresh data
-            const freshDataPoints = await dataService.getDataPoints(indicator, 200);
-            const freshTimeSeriesData = freshDataPoints.map(point => ({
-              timestamp: new Date(point.timestamp).getTime(),
-              value: point.value
-            }));
-            results.set(indicator, freshTimeSeriesData);
-          } catch (liveError) {
-            console.warn(`Live data fetch failed for ${indicator}:`, liveError);
-          }
-        }
+        // Cache the data
+        this.cache.set(cacheKey, { data: timeSeriesData, timestamp: Date.now() });
+        return [indicator, timeSeriesData];
       } catch (error) {
-        console.warn(`Failed to fetch data for ${indicator}:`, error);
-        results.set(indicator, []);
+        console.warn(`Failed to fetch ${indicator}:`, error);
+        return [indicator, []];
+      }
+    });
+
+    const fetchResults = await Promise.allSettled(fetchPromises);
+    
+    for (const result of fetchResults) {
+      if (result.status === 'fulfilled') {
+        const [indicator, data] = result.value;
+        results.set(indicator, data);
       }
     }
 
     return results;
   }
 
+  private calculateSimplifiedMomentum(indicatorData: Map<string, TimeSeriesPoint[]>): number {
+    let validIndicators = 0;
+    
+    // Simplified momentum calculation - just basic rate of change
+    const momentumScores = [];
+    
+    for (const [indicator, data] of indicatorData) {
+      if (data.length >= 10) { // Reduced minimum from 14 to 10
+        const recent = data.slice(-10);
+        const current = recent[recent.length - 1].value;
+        const previous = recent[0].value;
+        const roc = previous !== 0 ? ((current - previous) / previous) * 100 : 0;
+        
+        momentumScores.push(roc);
+        validIndicators++;
+      }
+    }
+
+    if (momentumScores.length > 0) {
+      const avgMomentum = momentumScores.reduce((a, b) => a + b, 0) / momentumScores.length;
+      
+      // Update simplified momentum state
+      this.compositeMomentum = {
+        value: Math.max(-100, Math.min(100, avgMomentum * 10)), // Scale momentum
+        category: avgMomentum > 2 ? 'BUILDING' : avgMomentum > 0 ? 'SLOWING' : 'DECLINING',
+        confidence: Math.min(95, 60 + validIndicators * 10),
+        leadTime: Math.round(Math.abs(avgMomentum) / 2 + 2),
+        regime: avgMomentum > 1 ? 'BULL_ACCEL' : avgMomentum < -1 ? 'BEAR_ACCEL' : 'NEUTRAL'
+      };
+
+      // Simplified multiscale data
+      this.multiscaleMomentum = {
+        short: { roc: avgMomentum, firstDerivative: 0, secondDerivative: 0, jerk: 0 },
+        medium: { roc: avgMomentum * 0.8, firstDerivative: 0, secondDerivative: 0, jerk: 0 },
+        long: { roc: avgMomentum * 0.6, firstDerivative: 0, secondDerivative: 0, jerk: 0 }
+      };
+
+      this.dynamicOneLiner = `${avgMomentum > 0 ? 'Positive' : 'Negative'} momentum detected across ${validIndicators} indicators`;
+      this.alerts = avgMomentum > 5 || avgMomentum < -5 ? [{
+        type: 'EXTREME' as const,
+        severity: 'MEDIUM' as const,
+        message: `Strong ${avgMomentum > 0 ? 'bullish' : 'bearish'} momentum`,
+        indicators: ['SIMPLIFIED_MOMENTUM']
+      }] : [];
+    }
+
+    return validIndicators;
+  }
+
   private async fetchMomentumData(): Promise<Map<string, TimeSeriesPoint[]>> {
-    return this.fetchMomentumDataWithFallbacks();
+    return this.fetchCoreIndicatorData(['WALCL', 'WTREGEN', 'DGS2']);
   }
 
   private generateSyntheticMomentum(): void {
