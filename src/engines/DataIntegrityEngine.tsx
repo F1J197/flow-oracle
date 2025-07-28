@@ -119,11 +119,23 @@ export class DataIntegrityEngine implements IEngine {
       const startTime = Date.now();
       
       try {
-        // Fetch recent data points for this source
+        // First, get the indicator UUID from the symbol
+        const { data: indicator } = await supabase
+          .from('indicators')
+          .select('id')
+          .eq('symbol', source.id)
+          .eq('data_source', 'FRED')
+          .single();
+
+        if (!indicator) {
+          throw new Error(`No indicator found for symbol ${source.id}`);
+        }
+
+        // Fetch recent data points using the UUID
         const { data: dataPoints } = await supabase
           .from('data_points')
           .select('*')
-          .eq('indicator_id', source.id)
+          .eq('indicator_id', indicator.id)
           .order('timestamp', { ascending: false })
           .limit(100);
 
