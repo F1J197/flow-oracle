@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { PremiumLayout } from "@/components/layout/PremiumLayout";
 import { TerminalEngineView } from "@/components/intelligence/TerminalEngineView";
-import { DetailedEngineView } from "@/types/engines";
+import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
+import { useStabilizedEngine } from "@/hooks/useStabilizedEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";
@@ -11,9 +12,6 @@ import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
 import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
 
 export const IntelligenceEngine = () => {
-  const [engineViews, setEngineViews] = useState<Record<string, DetailedEngineView>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Initialize engine instances
   const engines = useMemo(() => ({
@@ -36,52 +34,13 @@ export const IntelligenceEngine = () => {
     { key: "primaryDealerPositions", name: "Primary Dealer Positions Engine V6", engine: engines.primaryDealerPositions },
   ];
 
-  // Load engine data
-  useEffect(() => {
-    const loadEngineData = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const engineData: Record<string, DetailedEngineView> = {};
-        
-        // Load data for each engine
-        await Promise.all(
-          activeEngines.map(async ({ key, engine }) => {
-            try {
-              await engine.execute(); // Execute the engine first
-              engineData[key] = engine.getDetailedView();
-            } catch (engineError) {
-              console.warn(`Failed to load data for engine ${key}:`, engineError);
-              // Use fallback data for failed engines
-              engineData[key] = {
-                title: engine.name,
-                primarySection: {
-                  title: 'Status',
-                  metrics: { 'Status': 'Loading...' }
-                },
-                sections: [],
-                alerts: [{ severity: 'warning', message: 'Engine data temporarily unavailable' }]
-              };
-            }
-          })
-        );
-        
-        setEngineViews(engineData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load engine data');
-        console.error('Engine loading error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadEngineData();
-    
-    // Set up refresh interval for real-time updates
-    const interval = setInterval(loadEngineData, 30000); // Refresh every 30 seconds
-    return () => clearInterval(interval);
-  }, [activeEngines]);
+  // Use stabilized engine hook
+  const { engineViews, loading, error, forceRefresh } = useStabilizedEngine(activeEngines, {
+    refreshInterval: 45000, // Increased from 30s to reduce load
+    maxRetries: 3,
+    cacheTimeout: 300000, // 5 minutes cache
+    debounceMs: 2000 // 2 second debounce
+  });
 
   return (
     <PremiumLayout 
@@ -126,12 +85,14 @@ export const IntelligenceEngine = () => {
 
       {/* Premium Engine Grid */}
       {activeEngines.map(({ key, engine }) => (
-        <div key={key} className="transform transition-all duration-300 hover:scale-105">
-          <TerminalEngineView
-            view={engineViews[key]}
-            loading={loading || !engineViews[key]}
-          />
-        </div>
+        <ErrorBoundary key={key}>
+          <div className="transform transition-all duration-300 hover:scale-105">
+            <TerminalEngineView
+              view={engineViews[key]}
+              loading={loading || !engineViews[key]}
+            />
+          </div>
+        </ErrorBoundary>
       ))}
 
       {/* Development Engines with Premium Styling */}
