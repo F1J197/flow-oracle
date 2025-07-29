@@ -12,12 +12,24 @@ interface StandardDataIntegrityViewProps {
 }
 
 export const StandardDataIntegrityView = ({ loading: externalLoading, className }: StandardDataIntegrityViewProps) => {
-  const { metrics, loading, error, refreshDataIntegrity } = useDataIntegrity({
+  const { 
+    metrics, 
+    intelligenceView, 
+    loading, 
+    error, 
+    refreshDataIntegrity,
+    getIntelligenceView 
+  } = useDataIntegrity({
     autoRefresh: true,
     refreshInterval: 30000
   });
 
   const isLoading = externalLoading || loading;
+
+  // Get real-time data from V6 engine
+  const currentIntelligenceView = useMemo(() => {
+    return getIntelligenceView() || intelligenceView;
+  }, [getIntelligenceView, intelligenceView]);
 
   // Use fallback data if no metrics available
   const data = metrics || {
@@ -108,40 +120,61 @@ export const StandardDataIntegrityView = ({ loading: externalLoading, className 
                 data.integrityScore >= 90 ? 'warning' : 'critical';
 
   return (
-    <EngineLayout title="DATA INTEGRITY ENGINE" status={status} className={className}>
+    <EngineLayout 
+      title={currentIntelligenceView?.title || "DATA INTEGRITY ENGINE"} 
+      status={status} 
+      className={className}
+    >
       <KeyMetrics metrics={keyMetrics} columns={4} />
       
-      <DataSection title="SOURCE STATUS">
-        <DataRow 
-          label="Active Sources" 
-          value={`${data.activeSources}/${data.totalSources}`}
-          status={data.activeSources === data.totalSources ? 'positive' : 'warning'}
-        />
-        <DataRow 
-          label="Last Validation" 
-          value={new Date(data.lastValidation).toLocaleTimeString()}
-          status="neutral"
-        />
-        <DataRow 
-          label="Auto-Healed (24h)" 
-          value={data.autoHealed24h}
-          status={data.autoHealed24h === 0 ? 'positive' : 'neutral'}
-        />
-      </DataSection>
+      {/* Sections from V6 Engine */}
+      {currentIntelligenceView?.sections?.map((section, index) => (
+        <DataSection key={index} title={section.title.toUpperCase()}>
+          {Object.entries(section.data).map(([key, dataItem]) => (
+            <DataRow
+              key={key}
+              label={dataItem.label}
+              value={typeof dataItem.value === 'string' ? dataItem.value : dataItem.value.toString()}
+              status={dataItem.status === 'normal' ? 'positive' : dataItem.status === 'warning' ? 'warning' : dataItem.status === 'critical' ? 'negative' : 'neutral'}
+            />
+          ))}
+        </DataSection>
+      )) || (
+        // Fallback to legacy sections if V6 engine data is not available
+        <>
+          <DataSection title="SOURCE STATUS">
+            <DataRow 
+              label="Active Sources" 
+              value={`${data.activeSources}/${data.totalSources}`}
+              status={data.activeSources === data.totalSources ? 'positive' : 'warning'}
+            />
+            <DataRow 
+              label="Last Validation" 
+              value={new Date(data.lastValidation).toLocaleTimeString()}
+              status="neutral"
+            />
+            <DataRow 
+              label="Auto-Healed (24h)" 
+              value={data.autoHealed24h}
+              status={data.autoHealed24h === 0 ? 'positive' : 'neutral'}
+            />
+          </DataSection>
 
-      <DataSection title="QUALITY METRICS">
-        <DataTable 
-          columns={qualityColumns}
-          data={qualityMetrics}
-        />
-      </DataSection>
+          <DataSection title="QUALITY METRICS">
+            <DataTable 
+              columns={qualityColumns}
+              data={qualityMetrics}
+            />
+          </DataSection>
 
-      <DataSection title="SYSTEM HEALTH">
-        <DataRow label="Overall Status" value={data.systemStatus} status="positive" />
-        <DataRow label="Consensus Level" value={`${data.consensusLevel.toFixed(1)}%`} status="positive" />
-        <DataRow label="Data Integrity" value={`${data.integrityScore.toFixed(1)}%`} status="positive" />
-        <DataRow label="Self-Healing" value="ACTIVE" status="positive" />
-      </DataSection>
+          <DataSection title="SYSTEM HEALTH">
+            <DataRow label="Overall Status" value={data.systemStatus} status="positive" />
+            <DataRow label="Consensus Level" value={`${data.consensusLevel.toFixed(1)}%`} status="positive" />
+            <DataRow label="Data Integrity" value={`${data.integrityScore.toFixed(1)}%`} status="positive" />
+            <DataRow label="Self-Healing" value="ACTIVE" status="positive" />
+          </DataSection>
+        </>
+      )}
     </EngineLayout>
   );
 };

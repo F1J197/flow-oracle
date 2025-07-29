@@ -24,6 +24,7 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
   const { 
     executeEngine, 
     getEngineResult, 
+    getEngine,
     loading, 
     error 
   } = useEngineRegistry({
@@ -46,6 +47,24 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
       console.error('Failed to refresh data integrity:', error);
     }
   }, [executeEngine]);
+
+  // Get dashboard tile directly from V6 engine
+  const getDashboardTile = useCallback(() => {
+    const engine = getEngine(ENGINE_ID);
+    if (engine && 'getDashboardTile' in engine) {
+      return engine.getDashboardTile();
+    }
+    return null;
+  }, [getEngine]);
+
+  // Get intelligence view directly from V6 engine  
+  const getIntelligenceView = useCallback(() => {
+    const engine = getEngine(ENGINE_ID);
+    if (engine && 'getIntelligenceView' in engine) {
+      return engine.getIntelligenceView();
+    }
+    return null;
+  }, [getEngine]);
 
   const processEngineResult = useCallback((result: any) => {
     console.log('Data Integrity: Processing engine result:', result);
@@ -242,6 +261,8 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
     loading,
     error,
     refreshDataIntegrity,
+    getDashboardTile,
+    getIntelligenceView,
     isDataAvailable: !!metrics
   };
 };

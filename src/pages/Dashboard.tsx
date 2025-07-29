@@ -5,6 +5,8 @@ import { PrimaryActionTile } from "@/components/dashboard/PrimaryActionTile";
 import { PrimaryDealerIntelligenceTile } from "@/components/intelligence/PrimaryDealerIntelligenceTile";
 import { SystemStatusFooter } from "@/components/dashboard/SystemStatusFooter";
 import { StaticTileWrapper } from "@/components/dashboard/StaticTileWrapper";
+import { DataIntegrityTile } from "@/components/dashboard/DataIntegrityTile";
+import { useDataIntegrity } from "@/hooks/useDataIntegrity";
 
 export const Dashboard = () => {
   const {
@@ -19,6 +21,12 @@ export const Dashboard = () => {
     autoRefresh: true,
     refreshInterval: 15000
   });
+
+  // Get data integrity tile data from V6 engine
+  const { 
+    getDashboardTile: getDataIntegrityTile, 
+    loading: dataIntegrityLoading 
+  } = useDataIntegrity({ autoRefresh: true });
 
   // Transform tile data to actionable insights
   const createInsightFromTile = (tileData: any, engineName: string) => {
@@ -123,15 +131,21 @@ export const Dashboard = () => {
         </StaticTileWrapper>
       )}
 
-      {dashboardData?.dataIntegrity && (
-        <StaticTileWrapper>
-          <ActionableInsightTile 
-            insight={createInsightFromTile(dashboardData.dataIntegrity, "Data Integrity Engine")}
-            engineName="Data Integrity Engine"
-            loading={loading}
-          />
-        </StaticTileWrapper>
-      )}
+      {/* Data Integrity V6 - Use dedicated tile */}
+      {(() => {
+        const dataIntegrityTileData = getDataIntegrityTile?.();
+        return dataIntegrityTileData ? (
+          <StaticTileWrapper>
+            <DataIntegrityTile
+              data={dataIntegrityTileData}
+              onClick={() => {
+                // Navigate to intelligence engine
+                window.location.href = '/intelligence';
+              }}
+            />
+          </StaticTileWrapper>
+        ) : null;
+      })()}
 
       {/* System Status Footer */}
       <SystemStatusFooter />

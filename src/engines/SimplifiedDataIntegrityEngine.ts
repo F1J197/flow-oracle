@@ -7,9 +7,9 @@ import { ResilientBaseEngine } from "./ResilientBaseEngine";
  */
 export class SimplifiedDataIntegrityEngine extends ResilientBaseEngine {
   readonly category = 'foundation' as const;
-  readonly id = 'data-integrity-v6';
-  readonly name = 'Data Integrity Engine V6';
-  readonly priority = 1;
+  readonly id = 'data-integrity-simplified';
+  readonly name = 'Data Integrity Engine (Simplified)';
+  readonly priority = 2;
   readonly pillar = 1 as const;
 
   // Simplified state tracking
