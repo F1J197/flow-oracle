@@ -9,6 +9,7 @@ interface DashboardDataState {
   enhancedZScore: DashboardTileData;
   enhancedMomentum: DashboardTileData;
   primaryDealerPositions: DashboardTileData;
+  cusipStealthQE: DashboardTileData;
 }
 
 interface EngineManager {
@@ -18,6 +19,7 @@ interface EngineManager {
   enhancedZScore: { getDashboardData: () => DashboardTileData };
   enhancedMomentum: { getDashboardData: () => DashboardTileData };
   primaryDealerPositions: { getDashboardData: () => DashboardTileData };
+  cusipStealthQE: { getDashboardData: () => DashboardTileData };
 }
 
 export const useDashboardData = (engines: EngineManager) => {
@@ -31,6 +33,7 @@ export const useDashboardData = (engines: EngineManager) => {
     enhancedZScore: engines.enhancedZScore.getDashboardData(),
     enhancedMomentum: engines.enhancedMomentum.getDashboardData(),
     primaryDealerPositions: engines.primaryDealerPositions.getDashboardData(),
+    cusipStealthQE: engines.cusipStealthQE.getDashboardData(),
   });
 
   // Staggered update function
@@ -62,6 +65,10 @@ export const useDashboardData = (engines: EngineManager) => {
       primaryDealerPositions: {
         ...engines.primaryDealerPositions.getDashboardData(),
         loading: getEngineStatus('primary-dealer-positions')?.status === 'loading'
+      },
+      cusipStealthQE: {
+        ...engines.cusipStealthQE.getDashboardData(),
+        loading: getEngineStatus('cusip-stealth-qe')?.status === 'loading'
       }
     };
 
@@ -72,7 +79,8 @@ export const useDashboardData = (engines: EngineManager) => {
       'credit-stress': 'creditStressV6',
       'enhanced-zscore': 'enhancedZScore',
       'enhanced-momentum': 'enhancedMomentum',
-      'primary-dealer-positions': 'primaryDealerPositions'
+      'primary-dealer-positions': 'primaryDealerPositions',
+      'cusip-stealth-qe': 'cusipStealthQE'
     } as const;
 
     Object.entries(engineMap).forEach(([engineId, dataKey]) => {

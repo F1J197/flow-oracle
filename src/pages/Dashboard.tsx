@@ -57,6 +57,14 @@ export const Dashboard = () => {
     timeframe: 'SHORT_TERM' as const
   };
 
+  const cusipStealthInsight = engines.cusipStealthQE?.getSingleActionableInsight?.() || {
+    actionText: "CUSIP-level stealth operations under surveillance",
+    signalStrength: 72,
+    marketAction: 'WAIT' as const,
+    confidence: 'HIGH' as const,
+    timeframe: 'IMMEDIATE' as const
+  };
+
   const dataIntegrityInsight = engines.dataIntegrity?.getSingleActionableInsight?.() || {
     actionText: "Data quality is optimal for analysis",
     signalStrength: 95,
@@ -98,6 +106,12 @@ export const Dashboard = () => {
       <ActionableInsightTile 
         insight={dealerInsight}
         engineName="Primary Dealer Positions"
+        loading={loading && overallStatus.successCount === 0}
+      />
+
+      <ActionableInsightTile 
+        insight={cusipStealthInsight}
+        engineName="CUSIP Stealth QE Engine"
         loading={loading && overallStatus.successCount === 0}
       />
 

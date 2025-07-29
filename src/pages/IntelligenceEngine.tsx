@@ -20,6 +20,7 @@ export const IntelligenceEngine = () => {
           enhancedZScore: engines.enhancedZScore.getDetailedView(),
           enhancedMomentum: engines.enhancedMomentum.getDetailedView(),
           primaryDealerPositions: engines.primaryDealerPositions.getDetailedView(),
+          cusipStealthQE: engines.cusipStealthQE.getDetailedView(),
         };
 
         setEngineViews(views);
@@ -37,6 +38,7 @@ export const IntelligenceEngine = () => {
     { key: "dataIntegrity", name: "Data Integrity & Self-Healing Engine" },
     { key: "netLiquidity", name: "Net Liquidity Engine V6" },
     { key: "creditStressV6", name: "Credit Stress Engine V6" },
+    { key: "cusipStealthQE", name: "CUSIP-Level Stealth QE Detection V6" },
     { key: "enhancedZScore", name: "Enhanced Z-Score Engine" },
     { key: "enhancedMomentum", name: "Enhanced Momentum Engine" },
     { key: "primaryDealerPositions", name: "Primary Dealer Positions Engine V6" },
@@ -185,11 +187,11 @@ export const IntelligenceEngine = () => {
       <div className="mt-8 text-center">
         <div className="glass-tile p-4 font-mono text-sm">
           <div className="flex items-center justify-center space-x-8 text-text-secondary">
-            <span className="text-neon-lime">6 ACTIVE ENGINES</span>
+            <span className="text-neon-lime">7 ACTIVE ENGINES</span>
             <span>•</span>
             <span>3 IN DEVELOPMENT</span>
             <span>•</span>
-            <span>19 PLANNED</span>
+            <span>18 PLANNED</span>
             <span>•</span>
             <span className="text-neon-teal">REAL-TIME UPDATES</span>
           </div>
