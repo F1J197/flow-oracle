@@ -27,9 +27,9 @@ const formatValue = (value: string | number): string => {
 const getColorClasses = (color?: string) => {
   switch (color) {
     case 'primary': return 'text-btc-primary';
-    case 'warning': return 'text-btc-light';
-    case 'critical': return 'text-neon-orange';
-    case 'success': return 'text-neon-teal';
+    case 'warning': return 'text-warning';
+    case 'critical': return 'text-critical';
+    case 'success': return 'text-success';
     default: return 'text-text-primary';
   }
 };
@@ -125,8 +125,8 @@ export const ChartTile = ({
                 {metric.change !== undefined && (
                   <span className={cn(
                     "text-xs",
-                    metric.change > 0 && "text-neon-teal",
-                    metric.change < 0 && "text-neon-orange",
+                    metric.change > 0 && "text-success",
+                    metric.change < 0 && "text-critical",
                     metric.change === 0 && "text-text-secondary"
                   )}>
                     {metric.change > 0 ? '+' : ''}{metric.change.toFixed(1)}%

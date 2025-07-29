@@ -80,30 +80,30 @@ const SystemValidation = () => {
             <div className="grid grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <CheckCircle className="w-4 h-4 text-neon-lime" />
+                  <CheckCircle className="w-4 h-4 text-success" />
                 </div>
                 <div className="text-xs text-text-secondary mb-1">OVERALL STATUS</div>
-                <Badge variant="outline" className="border-neon-lime text-neon-lime">
+                <Badge variant="outline" className="border-success text-success">
                   PASSED
                 </Badge>
               </div>
               
               <div className="text-center">
-                <div className="text-xl font-bold text-neon-teal">
+                <div className="text-xl font-bold text-btc-primary">
                   {validationResults.results?.length || 0}
                 </div>
                 <div className="text-xs text-text-secondary">TESTS RUN</div>
               </div>
               
               <div className="text-center">
-                <div className="text-xl font-bold text-neon-lime">
+                <div className="text-xl font-bold text-success">
                   {validationResults.results?.filter((r: any) => r.success).length || 0}
                 </div>
                 <div className="text-xs text-text-secondary">PASSED</div>
               </div>
               
               <div className="text-center">
-                <div className="text-xl font-bold text-neon-orange">
+                <div className="text-xl font-bold text-critical">
                   {validationResults.errors?.length || 0}
                 </div>
                 <div className="text-xs text-text-secondary">ERRORS</div>
@@ -117,48 +117,48 @@ const SystemValidation = () => {
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center">
-                <CheckCircle className="w-8 h-8 text-neon-lime mx-auto mb-2" />
+                <CheckCircle className="w-8 h-8 text-success mx-auto mb-2" />
                 <div className="text-xs text-text-secondary">UNIFIED DATA LAYER</div>
-                <Badge variant="outline" className="border-neon-lime text-neon-lime mt-1">
+                <Badge variant="outline" className="border-success text-success mt-1">
                   COMPLETE
                 </Badge>
               </div>
               
               <div className="text-center">
-                <CheckCircle className="w-8 h-8 text-neon-lime mx-auto mb-2" />
+                <CheckCircle className="w-8 h-8 text-success mx-auto mb-2" />
                 <div className="text-xs text-text-secondary">LEGACY CLEANUP</div>
-                <Badge variant="outline" className="border-neon-lime text-neon-lime mt-1">
+                <Badge variant="outline" className="border-success text-success mt-1">
                   COMPLETE
                 </Badge>
               </div>
               
               <div className="text-center">
-                <CheckCircle className="w-8 h-8 text-neon-lime mx-auto mb-2" />
+                <CheckCircle className="w-8 h-8 text-success mx-auto mb-2" />
                 <div className="text-xs text-text-secondary">ENGINE MIGRATION</div>
-                <Badge variant="outline" className="border-neon-lime text-neon-lime mt-1">
+                <Badge variant="outline" className="border-success text-success mt-1">
                   COMPLETE
                 </Badge>
               </div>
               
               <div className="text-center">
-                <CheckCircle className="w-8 h-8 text-neon-lime mx-auto mb-2" />
+                <CheckCircle className="w-8 h-8 text-success mx-auto mb-2" />
                 <div className="text-xs text-text-secondary">PERFORMANCE</div>
-                <Badge variant="outline" className="border-neon-lime text-neon-lime mt-1">
+                <Badge variant="outline" className="border-success text-success mt-1">
                   OPTIMIZED
                 </Badge>
               </div>
               
               <div className="text-center">
-                <CheckCircle className="w-8 h-8 text-neon-lime mx-auto mb-2" />
+                <CheckCircle className="w-8 h-8 text-success mx-auto mb-2" />
                 <div className="text-xs text-text-secondary">VALIDATION</div>
-                <Badge variant="outline" className="border-neon-lime text-neon-lime mt-1">
+                <Badge variant="outline" className="border-success text-success mt-1">
                   COMPLETE
                 </Badge>
               </div>
             </div>
             
-            <div className="text-center pt-4 border-t border-noir-border">
-              <div className="text-lg font-bold text-neon-lime mb-2">
+            <div className="text-center pt-4 border-t border-glass-border">
+              <div className="text-lg font-bold text-success mb-2">
                 🎉 100% UNIFIED DATA LAYER ACHIEVED
               </div>
               <div className="text-sm text-text-secondary">

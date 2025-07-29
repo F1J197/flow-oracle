@@ -37,9 +37,9 @@ const getTrendIcon = (trend?: 'up' | 'down' | 'neutral') => {
 const getColorClasses = (color?: string) => {
   switch (color) {
     case 'primary': return 'text-btc-primary';
-    case 'warning': return 'text-btc-light';
-    case 'critical': return 'text-neon-orange';
-    case 'success': return 'text-neon-teal';
+    case 'warning': return 'text-warning';
+    case 'critical': return 'text-critical';
+    case 'success': return 'text-success';
     default: return 'text-text-primary';
   }
 };
@@ -122,16 +122,16 @@ export const MultiMetricTile = ({
             {primaryMetric.label}
           </div>
           
-          {primaryMetric.change !== undefined && (
-            <div className={cn(
-              "inline-flex items-center px-2 py-1 rounded text-xs font-medium",
-              primaryMetric.change > 0 && "text-neon-teal bg-neon-teal/10",
-              primaryMetric.change < 0 && "text-neon-orange bg-neon-orange/10",
-              primaryMetric.change === 0 && "text-text-secondary bg-glass-bg"
-            )}>
-              {primaryMetric.change > 0 ? '+' : ''}{primaryMetric.change.toFixed(2)}%
-            </div>
-          )}
+            {primaryMetric.change !== undefined && (
+              <div className={cn(
+                "inline-flex items-center px-2 py-1 rounded text-xs font-medium",
+                primaryMetric.change > 0 && "text-success bg-success/10",
+                primaryMetric.change < 0 && "text-critical bg-critical/10",
+                primaryMetric.change === 0 && "text-text-secondary bg-glass-bg"
+              )}>
+                {primaryMetric.change > 0 ? '+' : ''}{primaryMetric.change.toFixed(2)}%
+              </div>
+            )}
         </div>
       </div>
 
@@ -163,8 +163,8 @@ export const MultiMetricTile = ({
                 {metric.change !== undefined && (
                   <span className={cn(
                     "text-xs",
-                    metric.change > 0 && "text-neon-teal",
-                    metric.change < 0 && "text-neon-orange",
+                    metric.change > 0 && "text-success",
+                    metric.change < 0 && "text-critical",
                     metric.change === 0 && "text-text-secondary"
                   )}>
                     {metric.change > 0 ? '+' : ''}{metric.change.toFixed(1)}%

@@ -67,8 +67,8 @@ export const PremiumChartTile = ({
               {summary.change !== undefined && (
                 <div className={cn(
                   "text-sm font-medium px-2 py-1 rounded",
-                  summary.change > 0 && "text-neon-teal bg-neon-teal/10",
-                  summary.change < 0 && "text-neon-orange bg-neon-orange/10",
+                  summary.change > 0 && "text-success bg-success/10",
+                  summary.change < 0 && "text-critical bg-critical/10",
                   summary.change === 0 && "text-text-secondary bg-glass-bg"
                 )}>
                   {summary.change > 0 ? '+' : ''}{summary.change.toFixed(2)}%

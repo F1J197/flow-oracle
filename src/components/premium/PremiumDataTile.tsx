@@ -8,7 +8,7 @@ interface MetricData {
   change?: number;
   unit?: string;
   trend?: 'up' | 'down' | 'neutral';
-  color?: 'btc' | 'btc-light' | 'btc-glow' | 'neon-teal' | 'neon-orange' | 'default';
+  color?: 'btc' | 'btc-light' | 'btc-glow' | 'success' | 'critical' | 'default';
 }
 
 interface PremiumDataTileProps {
@@ -60,10 +60,10 @@ export const PremiumDataTile = ({
         return 'text-btc-light';
       case 'btc-glow':
         return 'text-btc-glow';
-      case 'neon-teal':
-        return 'text-neon-teal';
-      case 'neon-orange':
-        return 'text-neon-orange';
+      case 'success':
+        return 'text-success';
+      case 'critical':
+        return 'text-critical';
       default:
         return 'text-text-primary';
     }
@@ -96,8 +96,8 @@ export const PremiumDataTile = ({
               {primaryMetric.trend && (
                 <span className={cn(
                   "ml-2 text-lg",
-                  primaryMetric.trend === 'up' && "text-neon-teal",
-                  primaryMetric.trend === 'down' && "text-neon-orange",
+                  primaryMetric.trend === 'up' && "text-success",
+                  primaryMetric.trend === 'down' && "text-critical",
                   primaryMetric.trend === 'neutral' && "text-text-secondary"
                 )}>
                   {getTrendIcon(primaryMetric.trend)}
@@ -112,8 +112,8 @@ export const PremiumDataTile = ({
             {primaryMetric.change !== undefined && (
               <div className={cn(
                 "text-sm font-medium",
-                primaryMetric.change > 0 && "text-neon-teal",
-                primaryMetric.change < 0 && "text-neon-orange",
+                primaryMetric.change > 0 && "text-success",
+                primaryMetric.change < 0 && "text-critical",
                 primaryMetric.change === 0 && "text-text-secondary"
               )}>
                 {primaryMetric.change > 0 ? '+' : ''}{primaryMetric.change.toFixed(2)}%
@@ -134,8 +134,8 @@ export const PremiumDataTile = ({
                     {metric.trend && (
                       <span className={cn(
                         "ml-1 text-sm",
-                        metric.trend === 'up' && "text-neon-teal",
-                        metric.trend === 'down' && "text-neon-orange"
+                        metric.trend === 'up' && "text-success",
+                        metric.trend === 'down' && "text-critical"
                       )}>
                         {getTrendIcon(metric.trend)}
                       </span>

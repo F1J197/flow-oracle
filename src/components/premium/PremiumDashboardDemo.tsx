@@ -38,7 +38,7 @@ export const PremiumDashboardDemo = () => {
             label: "TGA Balance", 
             value: "758B",
             trend: 'down',
-            color: 'neon-orange'
+            color: 'critical'
           }
         ]}
         insight="Liquidity expanding steadily with QE continuation and treasury drawdown"
@@ -94,13 +94,13 @@ export const PremiumDashboardDemo = () => {
           unit: "B",
           change: -8.7,
           trend: 'down',
-          color: 'neon-orange'
+          color: 'critical'
         }}
         secondaryMetrics={[
           {
             label: "Duration Risk",
             value: "High",
-            color: 'neon-orange'
+            color: 'critical'
           }
         ]}
         insight="Dealers reducing treasury exposure amid volatility"
@@ -137,7 +137,7 @@ export const PremiumDashboardDemo = () => {
           value: 1.84,
           change: 5.2,
           trend: 'up',
-          color: 'neon-teal'
+          color: 'success'
         }}
         insight="Signal indicating oversold conditions in key markets"
       />
@@ -149,13 +149,13 @@ export const PremiumDashboardDemo = () => {
         primaryMetric={{
           label: "System Health",
           value: "99.7%",
-          color: 'neon-teal'
+          color: 'success'
         }}
         secondaryMetrics={[
           {
             label: "API Status",
             value: "Online",
-            color: 'neon-teal'
+            color: 'success'
           },
           {
             label: "Last Update",

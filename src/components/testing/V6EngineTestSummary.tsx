@@ -16,7 +16,7 @@ export const V6EngineTestSummary = () => {
   return (
     <Card className="glass-card max-w-lg">
       <CardHeader>
-        <CardTitle className="text-neon-teal flex items-center justify-between">
+        <CardTitle className="text-btc-primary flex items-center justify-between">
           Primary Dealer Positions V6 Engine Test
           {getStatusBadge()}
         </CardTitle>
@@ -81,19 +81,19 @@ export const V6EngineTestSummary = () => {
         )}
 
         <div className="pt-2 border-t border-glass-border">
-          <div className="text-neon-lime text-xs">
+          <div className="text-success text-xs">
             ✓ Engine V6 Implementation Complete
           </div>
-          <div className="text-neon-lime text-xs">
+          <div className="text-success text-xs">
             ✓ Specialized Dashboard Tile Created  
           </div>
-          <div className="text-neon-lime text-xs">
+          <div className="text-success text-xs">
             ✓ Position Bars Visualization Working
           </div>
-          <div className="text-neon-lime text-xs">
+          <div className="text-success text-xs">
             ✓ Engine Manager Integration Fixed
           </div>
-          <div className="text-neon-lime text-xs">
+          <div className="text-success text-xs">
             ✓ Dashboard Data Hook Updated
           </div>
         </div>

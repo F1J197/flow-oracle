@@ -40,17 +40,17 @@ const getAlertConfig = (type: 'info' | 'warning' | 'critical' | 'success') => {
       return {
         icon: AlertCircle,
         variant: 'critical' as const,
-        colorClass: 'text-neon-orange',
-        bgClass: 'bg-neon-orange/10',
-        borderClass: 'border-neon-orange/30'
+        colorClass: 'text-critical',
+        bgClass: 'bg-critical/10',
+        borderClass: 'border-critical/30'
       };
     case 'success':
       return {
         icon: CheckCircle,
         variant: 'success' as const,
-        colorClass: 'text-neon-teal',
-        bgClass: 'bg-neon-teal/10',
-        borderClass: 'border-neon-teal/30'
+        colorClass: 'text-success',
+        bgClass: 'bg-success/10',
+        borderClass: 'border-success/30'
       };
   }
 };
@@ -150,10 +150,10 @@ export const AlertTile = ({
               config.colorClass,
               config.borderClass,
               "hover:bg-glass-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-tile",
-              alertType === 'critical' && "focus:ring-neon-orange",
-              alertType === 'warning' && "focus:ring-btc-light",
+              alertType === 'critical' && "focus:ring-critical",
+              alertType === 'warning' && "focus:ring-warning",
               alertType === 'info' && "focus:ring-btc-primary",
-              alertType === 'success' && "focus:ring-neon-teal"
+              alertType === 'success' && "focus:ring-success"
             )}
           >
             {action.label}

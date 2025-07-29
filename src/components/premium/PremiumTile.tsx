@@ -37,12 +37,12 @@ export const PremiumTile = ({
         // Variant styles
         variant === 'primary' && "border-btc-primary/30 bg-gradient-to-br from-btc-primary/5 to-transparent",
         variant === 'warning' && "border-btc-light/30 bg-gradient-to-br from-btc-light/5 to-transparent",
-        variant === 'critical' && "border-neon-orange/30 bg-gradient-to-br from-neon-orange/5 to-transparent",
+        variant === 'critical' && "border-critical/30 bg-gradient-to-br from-critical/5 to-transparent",
         
         // Status effects
         status === 'active' && "ring-1 ring-btc-primary/20",
-        status === 'warning' && "ring-1 ring-btc-light/20 animate-pulse",
-        status === 'critical' && "ring-1 ring-neon-orange/20 animate-pulse",
+        status === 'warning' && "ring-1 ring-warning/20 animate-pulse",
+        status === 'critical' && "ring-1 ring-critical/20 animate-pulse",
         
         // Loading state
         isLoading && "animate-pulse",
@@ -61,8 +61,8 @@ export const PremiumTile = ({
           <div className={cn(
             "w-2 h-2 rounded-full animate-pulse",
             status === 'active' && "bg-btc-primary",
-            status === 'warning' && "bg-btc-light",
-            status === 'critical' && "bg-neon-orange"
+            status === 'warning' && "bg-warning",
+            status === 'critical' && "bg-critical"
           )} />
         )}
       </div>

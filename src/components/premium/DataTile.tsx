@@ -44,9 +44,9 @@ const getTrendIcon = (trend?: 'up' | 'down' | 'neutral') => {
 const getColorClasses = (color?: string) => {
   switch (color) {
     case 'primary': return 'text-btc-primary';
-    case 'warning': return 'text-btc-light';
-    case 'critical': return 'text-neon-orange';
-    case 'success': return 'text-neon-teal';
+    case 'warning': return 'text-warning';
+    case 'critical': return 'text-critical';
+    case 'success': return 'text-success';
     default: return 'text-text-primary';
   }
 };
@@ -127,8 +127,8 @@ export const DataTile = ({
       {metric.change !== undefined && (
         <div className={cn(
           "inline-flex items-center px-2 py-1 rounded text-xs font-medium mb-3",
-          metric.change > 0 && "text-neon-teal bg-neon-teal/10",
-          metric.change < 0 && "text-neon-orange bg-neon-orange/10", 
+          metric.change > 0 && "text-success bg-success/10",
+          metric.change < 0 && "text-critical bg-critical/10", 
           metric.change === 0 && "text-text-secondary bg-glass-bg"
         )}>
           {metric.change > 0 ? '+' : ''}{metric.change.toFixed(2)}%

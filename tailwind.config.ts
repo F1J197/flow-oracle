@@ -104,18 +104,6 @@ export default {
 					dark: 'hsl(var(--btc-dark))',
 					glow: 'hsl(var(--btc-glow))',
 					muted: 'hsl(var(--btc-muted))'
-				},
-				neon: {
-					teal: 'hsl(var(--positive))',
-					orange: 'hsl(var(--negative))',
-					lime: 'hsl(var(--success))',
-					gold: 'hsl(var(--warning))',
-					fuchsia: 'hsl(var(--critical))'
-				},
-				text: {
-					primary: 'hsl(var(--text-primary))',
-					secondary: 'hsl(var(--text-secondary))',
-					muted: 'hsl(var(--text-muted))'
 				}
 			},
 			borderRadius: {
