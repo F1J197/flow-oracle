@@ -19,6 +19,8 @@ export { ErrorBoundary } from './ErrorBoundary';
 export { NetLiquidityView } from './NetLiquidityView';
 export { CreditStressView } from './CreditStressView';
 export { MomentumView } from './MomentumView';
+export { ZScoreView } from './ZScoreView';
+export { PrimaryDealerView } from './PrimaryDealerView';
 
 // Legacy exports for compatibility
 export { IntelligenceEngineWrapper } from './IntelligenceEngineWrapper';

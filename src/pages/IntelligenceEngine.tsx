@@ -16,16 +16,23 @@ import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositions
 import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";
 
 // Engine Views
-import { NetLiquidityView } from "@/components/intelligence/NetLiquidityView";
-import { CreditStressView } from "@/components/intelligence/CreditStressView";
-import { MomentumView } from "@/components/intelligence/MomentumView";
+import { 
+  NetLiquidityView,
+  CreditStressView,
+  MomentumView,
+  ZScoreView,
+  PrimaryDealerView,
+  CUSIPStealthQEView
+} from "@/components/intelligence";
 
 
 function IntelligenceEngine() {
-  // Simplified implementation for now
+  // Engine instances
+  const cusipEngine = useMemo(() => new CUSIPStealthQEEngine(), []);
+  
   const loading = false;
   const systemHealth = 'healthy' as const;
-  const activeEngineCount = 7;
+  const activeEngineCount = 6;
   const refreshAll = () => {};
   const errors: string[] = [];
 
@@ -37,6 +44,12 @@ function IntelligenceEngine() {
         return <CreditStressView loading={loading} />;
       case 'momentum':
         return <MomentumView loading={loading} />;
+      case 'zScore':
+        return <ZScoreView loading={loading} />;
+      case 'primaryDealer':
+        return <PrimaryDealerView loading={loading} />;
+      case 'cusipStealth':
+        return <CUSIPStealthQEView engine={cusipEngine} loading={loading} />;
       default:
         return (
           <div className="glass-tile p-6 font-mono">
@@ -58,7 +71,7 @@ function IntelligenceEngine() {
           <IntelligenceHeaderTile
             systemHealth={systemHealth}
             activeEngines={activeEngineCount}
-            totalEngines={7}
+            totalEngines={6}
             dataIntegrity={98.7}
             refreshRate={30}
             lastRefresh={new Date()}
