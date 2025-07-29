@@ -1,129 +1,191 @@
-import { useUnifiedDashboard } from "@/hooks/useUnifiedDashboard";
+import { useState, useEffect, useMemo } from "react";
+import { PremiumLayout } from "@/components/layout/PremiumLayout";
 import { TerminalEngineView } from "@/components/intelligence/TerminalEngineView";
-import { CUSIPStealthQEView } from "@/components/intelligence/CUSIPStealthQEView";
-import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
-import { useState, useEffect } from "react";
 import { DetailedEngineView } from "@/types/engines";
+import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
+import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
+import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";
+import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
+import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
+import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
+import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
 
 export const IntelligenceEngine = () => {
-  const { dashboardData, loading, error } = useUnifiedDashboard();
   const [engineViews, setEngineViews] = useState<Record<string, DetailedEngineView>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Mock engine views based on dashboard data
-    if (dashboardData) {
-      setEngineViews({
-        dataIntegrity: {
-          title: 'Data Integrity & Self-Healing Engine',
-          primarySection: {
-            title: 'System Status',
-            metrics: {
-              'Score': '99.2%',
-              'Sources': '4/4 Active',
-              'Anomalies': '0 Detected',
-              'Healing': '3 Actions/24h'
-            }
-          },
-          sections: []
-        },
-        netLiquidity: {
-          title: 'Net Liquidity Engine V6',
-          primarySection: {
-            title: 'Current Status',
-            metrics: {
-              'Net Liquidity': dashboardData.netLiquidity?.primaryMetric || '--',
-              'Regime': 'QE',
-              'Signal': 'BULLISH',
-              'Confidence': '98%'
-            }
-          },
-          sections: []
-        }
-      });
-    }
-  }, [dashboardData]);
+  // Initialize engine instances
+  const engines = useMemo(() => ({
+    dataIntegrity: new DataIntegrityEngine(),
+    netLiquidity: new NetLiquidityEngine(),
+    creditStressV6: new CreditStressEngineV6(),
+    cusipStealthQE: new CUSIPStealthQEEngine(),
+    enhancedZScore: new EnhancedZScoreEngine(),
+    enhancedMomentum: new EnhancedMomentumEngine(),
+    primaryDealerPositions: new PrimaryDealerPositionsEngineV6(),
+  }), []);
 
   const activeEngines = [
-    { key: "dataIntegrity", name: "Data Integrity & Self-Healing Engine" },
-    { key: "netLiquidity", name: "Net Liquidity Engine V6" },
-    { key: "creditStressV6", name: "Credit Stress Engine V6" },
-    { key: "cusipStealthQE", name: "CUSIP-Level Stealth QE Detection V6" },
-    { key: "enhancedZScore", name: "Enhanced Z-Score Engine" },
-    { key: "enhancedMomentum", name: "Enhanced Momentum Engine" },
-    { key: "primaryDealerPositions", name: "Primary Dealer Positions Engine V6" },
+    { key: "dataIntegrity", name: "Data Integrity & Self-Healing Engine", engine: engines.dataIntegrity },
+    { key: "netLiquidity", name: "Net Liquidity Engine V6", engine: engines.netLiquidity },
+    { key: "creditStressV6", name: "Credit Stress Engine V6", engine: engines.creditStressV6 },
+    { key: "cusipStealthQE", name: "CUSIP-Level Stealth QE Detection V6", engine: engines.cusipStealthQE },
+    { key: "enhancedZScore", name: "Enhanced Z-Score Engine", engine: engines.enhancedZScore },
+    { key: "enhancedMomentum", name: "Enhanced Momentum Engine", engine: engines.enhancedMomentum },
+    { key: "primaryDealerPositions", name: "Primary Dealer Positions Engine V6", engine: engines.primaryDealerPositions },
   ];
 
+  // Load engine data
+  useEffect(() => {
+    const loadEngineData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const engineData: Record<string, DetailedEngineView> = {};
+        
+        // Load data for each engine
+        await Promise.all(
+          activeEngines.map(async ({ key, engine }) => {
+            try {
+              await engine.execute(); // Execute the engine first
+              engineData[key] = engine.getDetailedView();
+            } catch (engineError) {
+              console.warn(`Failed to load data for engine ${key}:`, engineError);
+              // Use fallback data for failed engines
+              engineData[key] = {
+                title: engine.name,
+                primarySection: {
+                  title: 'Status',
+                  metrics: { 'Status': 'Loading...' }
+                },
+                sections: [],
+                alerts: [{ severity: 'warning', message: 'Engine data temporarily unavailable' }]
+              };
+            }
+          })
+        );
+        
+        setEngineViews(engineData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load engine data');
+        console.error('Engine loading error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEngineData();
+    
+    // Set up refresh interval for real-time updates
+    const interval = setInterval(loadEngineData, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, [activeEngines]);
+
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8 space-y-3">
-        <div className="text-text-secondary font-mono text-sm">
-          The Intelligence Engine synthesizes 28 specialized processing engines to deliver 
-          real-time market intelligence. Each engine processes specific data streams and 
-          contributes to our comprehensive liquidity assessment framework.
-        </div>
-        <div className="text-text-muted font-mono text-xs">
-          Foundation Engines • Pillar Analysis • Synthesis & Execution
+    <PremiumLayout 
+      variant="intelligence" 
+      density="comfortable" 
+      maxWidth="2xl"
+      className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary"
+    >
+      {/* Enhanced Header with Premium Styling */}
+      <div className="mb-8 space-y-4 col-span-full">
+        <div className="glass-tile p-6 border border-btc-primary/20 bg-gradient-to-r from-bg-secondary/50 to-bg-primary/50">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-btc-primary font-mono tracking-wider">
+              INTELLIGENCE ENGINE
+            </h1>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>
+                <span className="text-xs font-mono text-btc-light">REAL-TIME</span>
+              </div>
+              {error && (
+                <div className="text-xs font-mono text-btc-error">
+                  ERROR: {error}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="text-text-secondary font-mono text-sm leading-relaxed">
+            The Intelligence Engine synthesizes <span className="text-btc-primary font-bold">28 specialized processing engines</span> to deliver 
+            real-time market intelligence. Each engine processes specific data streams and 
+            contributes to our comprehensive liquidity assessment framework.
+          </div>
+          
+          <div className="mt-3 text-text-muted font-mono text-xs">
+            <span className="text-btc-light">Foundation Engines</span> • 
+            <span className="text-btc-primary"> Pillar Analysis</span> • 
+            <span className="text-btc-glow"> Synthesis & Execution</span>
+          </div>
         </div>
       </div>
 
-      {/* 3x3 Engine Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {activeEngines.map((engine) => (
+      {/* Premium Engine Grid */}
+      {activeEngines.map(({ key, engine }) => (
+        <div key={key} className="transform transition-all duration-300 hover:scale-105">
           <TerminalEngineView
-            key={engine.key}
-            view={engineViews[engine.key]}
-            loading={loading || !engineViews[engine.key]}
+            view={engineViews[key]}
+            loading={loading || !engineViews[key]}
           />
-        ))}
+        </div>
+      ))}
 
-        {/* Placeholder Development Engines */}
-        <div className="glass-tile p-6 font-mono text-sm opacity-60">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-neon-teal font-bold text-base uppercase tracking-wide">
-                REGIME DETECTION ENGINE
-              </h2>
-              <div className="text-xs text-neon-gold border border-neon-gold px-2 py-1 rounded">
-                DEV
-              </div>
+      {/* Development Engines with Premium Styling */}
+      <div className="glass-tile p-6 font-mono text-sm opacity-60 border border-btc-glow/30 hover:border-btc-glow/50 transition-all duration-300">
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-btc-glow font-bold text-base uppercase tracking-wide">
+              REGIME DETECTION ENGINE
+            </h2>
+            <div className="text-xs text-btc-light border border-btc-light px-2 py-1 rounded bg-btc-light/10">
+              DEV
             </div>
-          </div>
-          <div className="text-text-muted text-xs italic">
-            Market cycle identification & regime transitions
           </div>
         </div>
-
-        <div className="glass-tile p-6 font-mono text-sm opacity-60">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-neon-teal font-bold text-base uppercase tracking-wide">
-                CROSS-ASSET CORRELATION
-              </h2>
-              <div className="text-xs text-neon-orange border border-neon-orange px-2 py-1 rounded">
-                DESIGN
-              </div>
-            </div>
-          </div>
-          <div className="text-text-muted text-xs italic">
-            Multi-asset momentum correlation analysis
-          </div>
+        <div className="text-text-muted text-xs italic">
+          Market cycle identification & regime transitions
         </div>
       </div>
 
-      {/* Footer Status */}
-      <div className="mt-8 text-center">
-        <div className="glass-tile p-4 font-mono text-sm">
+      <div className="glass-tile p-6 font-mono text-sm opacity-60 border border-btc-muted/30 hover:border-btc-muted/50 transition-all duration-300">
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-btc-muted font-bold text-base uppercase tracking-wide">
+              CROSS-ASSET CORRELATION
+            </h2>
+            <div className="text-xs text-btc-error border border-btc-error px-2 py-1 rounded bg-btc-error/10">
+              DESIGN
+            </div>
+          </div>
+        </div>
+        <div className="text-text-muted text-xs italic">
+          Multi-asset momentum correlation analysis
+        </div>
+      </div>
+
+      {/* Enhanced Footer Status */}
+      <div className="col-span-full mt-8">
+        <div className="glass-tile p-6 font-mono text-sm border border-btc-primary/20 bg-gradient-to-r from-btc-primary/5 to-btc-glow/5">
           <div className="flex items-center justify-center space-x-8 text-text-secondary">
-            <span className="text-neon-lime">7 ACTIVE ENGINES</span>
-            <span>•</span>
-            <span>UNIFIED DATA LAYER</span>
-            <span>•</span>
-            <span className="text-neon-teal">REAL-TIME UPDATES</span>
+            <span className="text-btc-primary font-bold">
+              {activeEngines.filter(({ key }) => engineViews[key] && !loading).length} ACTIVE ENGINES
+            </span>
+            <span className="text-btc-muted">•</span>
+            <span className="text-btc-light">UNIFIED DATA LAYER</span>
+            <span className="text-btc-muted">•</span>
+            <span className="text-btc-glow">REAL-TIME UPDATES</span>
+            <span className="text-btc-muted">•</span>
+            <span className="text-btc-primary">
+              V6 ARCHITECTURE
+            </span>
           </div>
         </div>
       </div>
-    </div>
+    </PremiumLayout>
   );
 };
 

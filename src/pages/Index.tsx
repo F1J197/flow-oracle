@@ -3,7 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { TabNavigation } from "@/components/layout/TabNavigation";
 import { Dashboard } from "./Dashboard";
 import { PremiumDashboard } from "./PremiumDashboard";
-import IntelligenceEngine from "./IntelligenceEngine";
+import { IntelligenceEngineWrapper } from "@/components/intelligence/IntelligenceEngineWrapper";
 import { UnifiedChartsView } from "@/components/charts/UnifiedChartsView";
 import { UnifiedDataDemo } from "./UnifiedDataDemo";
 import SystemValidation from "./SystemValidation";
@@ -19,7 +19,7 @@ const Index = () => {
       case 'data':
         return <SystemValidation />;
       case 'engines':
-        return <IntelligenceEngine />;
+        return <IntelligenceEngineWrapper />;
       case 'charts':
         return <UnifiedChartsView />;
       case 'unified-demo':

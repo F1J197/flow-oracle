@@ -31,10 +31,10 @@ export const TerminalEngineView = memo(({ view, loading = false }: TerminalEngin
       {/* Engine Title - Clean Format */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-btc-orange-bright font-bold text-base uppercase tracking-wide">
+          <h2 className="text-btc-primary font-bold text-base uppercase tracking-wide">
             {view.title}
           </h2>
-          <Badge variant="btc-bright" className="text-xs">
+          <Badge variant="outline" className="text-xs border-btc-primary text-btc-primary bg-btc-primary/10">
             LIVE ⚡
           </Badge>
         </div>
@@ -42,7 +42,7 @@ export const TerminalEngineView = memo(({ view, loading = false }: TerminalEngin
 
       {/* Primary Section */}
       <div className="mb-6">
-        <div className="text-btc-orange-bright font-semibold uppercase text-sm mb-3">
+        <div className="text-btc-primary font-semibold uppercase text-sm mb-3">
           {view.primarySection.title}
         </div>
         
@@ -59,7 +59,7 @@ export const TerminalEngineView = memo(({ view, loading = false }: TerminalEngin
       {/* Additional Sections */}
       {view.sections.map((section, index) => (
         <div key={index} className="mb-6">
-          <div className="text-btc-orange-bright font-semibold uppercase text-sm mb-3">
+          <div className="text-btc-primary font-semibold uppercase text-sm mb-3">
             {section.title}
           </div>
           
@@ -80,7 +80,7 @@ export const TerminalEngineView = memo(({ view, loading = false }: TerminalEngin
       {/* Alerts Section */}
       {view.alerts && view.alerts.length > 0 && (
         <div className="mt-6 pt-4 border-t border-text-secondary/30">
-          <div className="text-btc-orange-dark font-semibold uppercase text-sm mb-3">
+          <div className="text-btc-primary font-semibold uppercase text-sm mb-3">
             Active Alerts
           </div>
           <div className="space-y-2">
@@ -90,10 +90,10 @@ export const TerminalEngineView = memo(({ view, loading = false }: TerminalEngin
                 className={cn(
                   "p-3 rounded border-l-4 text-sm",
                   alert.severity === "critical"
-                    ? "border-btc-orange-dark bg-btc-orange-dark/10 text-btc-orange-dark"
+                    ? "border-btc-error bg-btc-error/10 text-btc-error"
                     : alert.severity === "warning"
-                    ? "border-btc-orange bg-btc-orange/10 text-btc-orange"
-                    : "border-btc-orange-bright bg-btc-orange-bright/10 text-btc-orange-bright"
+                    ? "border-btc-light bg-btc-light/10 text-btc-light"
+                    : "border-btc-primary bg-btc-primary/10 text-btc-primary"
                 )}
               >
                 {alert.message}
