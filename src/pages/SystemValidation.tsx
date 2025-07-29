@@ -76,7 +76,8 @@ const SystemValidation = () => {
 
         {/* Overall Status */}
         {validationResults && (
-          <GlassTile title="VALIDATION OVERVIEW" status="normal">
+          <BaseTile className="space-y-4">
+            <h3 className="text-sm font-medium text-text-secondary mb-4">VALIDATION OVERVIEW</h3>
             <div className="grid grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
@@ -109,11 +110,12 @@ const SystemValidation = () => {
                 <div className="text-xs text-text-secondary">ERRORS</div>
               </div>
             </div>
-          </GlassTile>
+          </BaseTile>
         )}
 
         {/* Completion Status */}
-        <GlassTile title="IMPLEMENTATION STATUS" status="normal">
+        <BaseTile className="space-y-4">
+          <h3 className="text-sm font-medium text-text-secondary mb-4">IMPLEMENTATION STATUS</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center">
@@ -166,7 +168,7 @@ const SystemValidation = () => {
               </div>
             </div>
           </div>
-        </GlassTile>
+        </BaseTile>
       </div>
     </div>
   );

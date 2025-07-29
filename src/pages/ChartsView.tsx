@@ -253,20 +253,22 @@ const ChartsView = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {loading ? (
           Array.from({ length: 8 }).map((_, index) => (
-            <GlassTile key={index} title="Loading..." className="animate-pulse">
+            <BaseTile key={index} className="animate-pulse" status="loading">
+              <h3 className="text-sm font-medium text-text-secondary mb-4">Loading...</h3>
               <div className="space-y-3">
-                <div className="h-6 bg-glass-bg rounded"></div>
-                <div className="h-4 bg-glass-bg rounded w-2/3"></div>
+                <div className="h-6 bg-glass-surface rounded"></div>
+                <div className="h-4 bg-glass-surface rounded w-2/3"></div>
               </div>
-            </GlassTile>
+            </BaseTile>
           ))
         ) : (
           filteredIndicators.map(indicator => (
-            <GlassTile 
+            <BaseTile 
               key={indicator.id} 
-              title={indicator.name}
-              className="hover:scale-105 transition-transform cursor-pointer"
+              className="hover:scale-105 transition-transform cursor-pointer space-y-3"
+              interactive="clickable"
             >
+              <h3 className="text-sm font-medium text-text-secondary">{indicator.name}</h3>
               <div className="space-y-3">
                 {/* Value and Change */}
                 <div className="flex items-center justify-between">
@@ -315,7 +317,7 @@ const ChartsView = () => {
                   </div>
                 </div>
               </div>
-            </GlassTile>
+            </BaseTile>
           ))
         )}
       </div>

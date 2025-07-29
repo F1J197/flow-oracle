@@ -53,19 +53,23 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
 
   if (loading) {
     return (
-      <GlassTile title="CUSIP STEALTH QE ENGINE" status="normal" className="col-span-1">
+      <BaseTile className="col-span-1" status="loading">
         <div className="space-y-4">
-          <div className="h-4 bg-noir-border rounded animate-pulse" />
-          <div className="h-4 bg-noir-border rounded animate-pulse w-3/4" />
-          <div className="h-4 bg-noir-border rounded animate-pulse w-1/2" />
+          <h3 className="text-sm font-medium text-text-secondary mb-4">CUSIP STEALTH QE ENGINE</h3>
+          <div className="h-4 bg-glass-surface rounded animate-pulse" />
+          <div className="h-4 bg-glass-surface rounded animate-pulse w-3/4" />
+          <div className="h-4 bg-glass-surface rounded animate-pulse w-1/2" />
         </div>
-      </GlassTile>
+      </BaseTile>
     );
   }
 
   return (
-    <GlassTile title="CUSIP STEALTH QE ENGINE" status="normal" className="col-span-1">
+    <BaseTile className="col-span-1">
       <div className="space-y-6">
+        {/* Title */}
+        <h3 className="text-sm font-medium text-text-secondary mb-4">CUSIP STEALTH QE ENGINE</h3>
+        
         {/* Primary Status */}
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -162,6 +166,6 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
           </div>
         </div>
       </div>
-    </GlassTile>
+    </BaseTile>
   );
 });

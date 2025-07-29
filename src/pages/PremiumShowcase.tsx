@@ -191,7 +191,7 @@ export const PremiumShowcase = () => {
               title="System Notification"
               message="Market data successfully synchronized"
               alertType="success"
-              timestamp={new Date()}
+              timestamp={new Date().toLocaleString()}
               isDismissible={true}
             />
             
@@ -200,7 +200,7 @@ export const PremiumShowcase = () => {
               message="High volatility detected in crypto markets"
               alertType="warning"
               details="BTC volatility increased 23% in the last 4 hours. Monitor position sizes."
-              timestamp={new Date()}
+              timestamp={new Date().toLocaleString()}
               action={{
                 label: "View Details",
                 onClick: () => console.log("Action clicked")
@@ -212,7 +212,7 @@ export const PremiumShowcase = () => {
               message="Circuit breaker triggered"
               alertType="critical"
               details="S&P 500 futures down 3.2%. Trading halted for 15 minutes."
-              timestamp={new Date()}
+              timestamp={new Date().toLocaleString()}
               action={{
                 label: "Emergency Protocol",
                 onClick: () => console.log("Emergency action")
@@ -224,7 +224,7 @@ export const PremiumShowcase = () => {
               message="Fed meeting scheduled for next week"
               alertType="info"
               details="FOMC meeting on interest rates expected to impact market liquidity conditions."
-              timestamp={new Date()}
+              timestamp={new Date().toLocaleString()}
             />
           </PremiumLayout>
         </section>

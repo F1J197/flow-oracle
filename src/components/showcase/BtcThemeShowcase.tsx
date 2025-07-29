@@ -36,7 +36,8 @@ export const BtcThemeShowcase = () => {
       </div>
 
       {/* Typography Showcase */}
-      <GlassTile title="TYPOGRAPHY SYSTEM" size="large">
+      <BaseTile size="lg" className="space-y-4">
+        <h3 className="text-sm font-medium text-text-secondary mb-4">TYPOGRAPHY SYSTEM</h3>
         <div className="space-y-4">
           <div className="data-value">$5.626T</div>
           <div className="data-label">NET LIQUIDITY</div>
@@ -44,10 +45,11 @@ export const BtcThemeShowcase = () => {
           <div className="text-metric btc-primary">Metric with BTC Primary</div>
           <div className="text-data text-btc-orange-bright">Data Display</div>
         </div>
-      </GlassTile>
+      </BaseTile>
 
       {/* Button Variants */}
-      <GlassTile title="BUTTON VARIANTS" size="large">
+      <BaseTile size="lg" className="space-y-4">
+        <h3 className="text-sm font-medium text-text-secondary mb-4">BUTTON VARIANTS</h3>
         <div className="flex flex-wrap gap-4">
           <Button variant="btc">BTC Primary</Button>
           <Button variant="btc-outline">BTC Outline</Button>
@@ -55,10 +57,11 @@ export const BtcThemeShowcase = () => {
           <Button variant="btc-dark">BTC Dark</Button>
           <Button variant="btc-muted">BTC Muted</Button>
         </div>
-      </GlassTile>
+      </BaseTile>
 
       {/* Badge Variants */}
-      <GlassTile title="BADGE VARIANTS" size="large">
+      <BaseTile size="lg" className="space-y-4">
+        <h3 className="text-sm font-medium text-text-secondary mb-4">BADGE VARIANTS</h3>
         <div className="flex flex-wrap gap-4">
           <Badge variant="btc">BTC</Badge>
           <Badge variant="btc-bright">BTC Bright</Badge>
@@ -66,7 +69,7 @@ export const BtcThemeShowcase = () => {
           <Badge variant="btc-dark">BTC Dark</Badge>
           <Badge variant="btc-muted">BTC Muted</Badge>
         </div>
-      </GlassTile>
+      </BaseTile>
 
       {/* Glass Effects */}
       <div className="grid grid-cols-2 gap-6">
@@ -81,7 +84,8 @@ export const BtcThemeShowcase = () => {
       </div>
 
       {/* Data Display Components */}
-      <GlassTile title="DATA DISPLAY COMPONENTS" size="large">
+      <BaseTile size="lg" className="space-y-4">
+        <h3 className="text-sm font-medium text-text-secondary mb-4">DATA DISPLAY COMPONENTS</h3>
         <div className="grid grid-cols-3 gap-6">
           <DataDisplay 
             value="89.7" 
@@ -105,10 +109,11 @@ export const BtcThemeShowcase = () => {
             size="lg"
           />
         </div>
-      </GlassTile>
+      </BaseTile>
 
       {/* Text Effects */}
-      <GlassTile title="TEXT EFFECTS & GLOWS" size="large">
+      <BaseTile size="lg" className="space-y-4">
+        <h3 className="text-sm font-medium text-text-secondary mb-4">TEXT EFFECTS & GLOWS</h3>
         <div className="space-y-4">
           <div className="btc-primary">BTC Primary with Glow</div>
           <div className="btc-light">BTC Light Effect</div>
@@ -116,7 +121,7 @@ export const BtcThemeShowcase = () => {
           <div className="btc-muted">BTC Muted Subtle</div>
           <div className="btc-pulse">BTC Pulse Animation</div>
         </div>
-      </GlassTile>
+      </BaseTile>
     </div>
   );
 };

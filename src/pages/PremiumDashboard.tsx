@@ -57,7 +57,7 @@ export const PremiumDashboard = () => {
             label: "Retry Connection",
             onClick: refreshData
           }}
-          timestamp={new Date()}
+          timestamp={new Date().toLocaleString()}
           isDismissible={false}
         />
       </PremiumLayout>

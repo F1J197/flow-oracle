@@ -17,10 +17,10 @@ export const PremiumDashboardDemo = () => {
       {/* Net Liquidity - Large Primary Tile */}
       <DataTile
         title="Net Liquidity"
-        size="large"
+        size="lg"
         variant="primary"
         status="active"
-        primaryMetric={{
+        metric={{
           label: "Global Liquidity",
           value: 5.626,
           unit: "T",
@@ -28,28 +28,15 @@ export const PremiumDashboardDemo = () => {
           trend: 'up',
           color: 'btc'
         }}
-        secondaryMetrics={[
-          {
-            label: "M2 Money Supply",
-            value: "21.1T",
-            trend: 'up',
-            color: 'btc-light'
-          },
-          {
-            label: "TGA Balance", 
-            value: "758B",
-            trend: 'down',
-            color: 'critical'
-          }
-        ]}
-        insight="Liquidity expanding steadily with QE continuation and treasury drawdown"
+        subtitle="Liquidity expanding steadily with QE continuation"
+        description="Treasury drawdown and Federal Reserve balance sheet operations"
       />
 
       {/* Credit Stress */}
       <DataTile
         title="Credit Stress"
         variant="warning"
-        primaryMetric={{
+        metric={{
           label: "Credit Spread",
           value: 342,
           unit: "bps",
@@ -57,7 +44,7 @@ export const PremiumDashboardDemo = () => {
           trend: 'down',
           color: 'btc-light'
         }}
-        insight="Credit conditions improving across IG and HY segments"
+        description="Credit conditions improving across IG and HY segments"
       />
 
       {/* Momentum Chart */}
@@ -77,19 +64,22 @@ export const PremiumDashboardDemo = () => {
             </AreaChart>
           </ResponsiveContainer>
         }
-        summary={{
-          value: 0.73,
-          label: "Signal Strength",
-          change: 12.5
-        }}
+        metrics={[
+          {
+            label: "Signal Strength",
+            value: 0.73,
+            change: 12.5,
+            color: 'btc'
+          }
+        ]}
       />
 
       {/* Primary Dealer Positions */}
-      <PremiumDataTile
+      <DataTile
         title="Primary Dealer Positions"
         variant="critical"
         status="warning"
-        primaryMetric={{
+        metric={{
           label: "Treasury Holdings",
           value: -45.2,
           unit: "B",
@@ -97,14 +87,7 @@ export const PremiumDashboardDemo = () => {
           trend: 'down',
           color: 'critical'
         }}
-        secondaryMetrics={[
-          {
-            label: "Duration Risk",
-            value: "High",
-            color: 'critical'
-          }
-        ]}
-        insight="Dealers reducing treasury exposure amid volatility"
+        description="Dealers reducing treasury exposure amid volatility"
       />
 
       {/* Action Tile Example */}
@@ -131,45 +114,35 @@ export const PremiumDashboardDemo = () => {
       />
 
       {/* Z-Score Performance */}
-      <PremiumDataTile
+      <DataTile
         title="Z-Score Engine"
-        primaryMetric={{
+        metric={{
           label: "Normalized Score",
           value: 1.84,
           change: 5.2,
           trend: 'up',
           color: 'success'
         }}
-        insight="Signal indicating oversold conditions in key markets"
+        description="Signal indicating oversold conditions in key markets"
       />
 
       {/* Data Integrity Status */}
-      <PremiumDataTile
+      <DataTile
         title="Data Integrity"
         status="active"
-        primaryMetric={{
+        metric={{
           label: "System Health",
           value: "99.7%",
           color: 'success'
         }}
-        secondaryMetrics={[
-          {
-            label: "API Status",
-            value: "Online",
-            color: 'success'
-          },
-          {
-            label: "Last Update",
-            value: "15s",
-            color: 'btc-light'
-          }
-        ]}
+        subtitle="API Status: Online | Last Update: 15s"
+        description="Real-time monitoring of data quality and API health"
       />
 
       {/* Large Chart Tile */}
-      <PremiumChartTile
+      <ChartTile
         title="Market Correlation Matrix"
-        size="large"
+        size="lg"
         chart={
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={chartData}>
@@ -183,11 +156,15 @@ export const PremiumDashboardDemo = () => {
             </LineChart>
           </ResponsiveContainer>
         }
-        summary={{
-          value: "0.847",
-          label: "Avg Correlation",
-          change: -2.1
-        }}
+        metrics={[
+          {
+            label: "Avg Correlation",
+            value: "0.847",
+            change: -2.1,
+            color: 'btc'
+          }
+        ]}
+        chartHeight="lg"
       />
     </PremiumGrid>
   );
