@@ -22,6 +22,7 @@ import {
 } from "@/components/intelligence";
 import { ZScoreIntelligenceView } from "@/components/intelligence/ZScoreIntelligenceView";
 import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
+import { StableDataTest } from "@/components/testing/StableDataTest";
 
 // Import intelligence styles
 import "@/styles/intelligence.css";
@@ -114,6 +115,11 @@ function IntelligenceEngine() {
           <ErrorBoundary>
             {renderEngineView('cusipStealth', 'CUSIP Stealth QE Engine')}
           </ErrorBoundary>
+        </div>
+
+        {/* Test Component for Validation */}
+        <div className="mb-8">
+          <StableDataTest />
         </div>
 
         {/* Development Engine Cards */}

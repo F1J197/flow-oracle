@@ -1,10 +1,26 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 
 interface StableDataConfig {
   changeThreshold?: number; // Minimum percentage change to update
   debounceMs?: number; // Debounce time for updates
   smoothingFactor?: number; // Exponential smoothing factor (0-1)
 }
+
+// Deep comparison utility
+const deepEqual = (a: any, b: any): boolean => {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (typeof a !== typeof b) return false;
+  
+  if (typeof a === 'object') {
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    if (keysA.length !== keysB.length) return false;
+    return keysA.every(key => deepEqual(a[key], b[key]));
+  }
+  
+  return false;
+};
 
 /**
  * Hook to stabilize rapidly changing numeric data and prevent jittery updates
@@ -13,19 +29,24 @@ export const useStableData = <T>(
   newValue: T,
   config: StableDataConfig = {}
 ) => {
-  const {
-    changeThreshold = 0.05, // 5% minimum change
-    debounceMs = 1000, // 1 second debounce
-    smoothingFactor = 0.7 // Moderate smoothing
-  } = config;
+  // Memoize config to prevent recreating dependencies
+  const stableConfig = useMemo(() => ({
+    changeThreshold: config.changeThreshold ?? 0.05,
+    debounceMs: config.debounceMs ?? 1000,
+    smoothingFactor: config.smoothingFactor ?? 0.7
+  }), [config.changeThreshold, config.debounceMs, config.smoothingFactor]);
 
   const [stableValue, setStableValue] = useState<T>(newValue);
   const [isChanging, setIsChanging] = useState(false);
   const lastUpdateRef = useRef<number>(Date.now());
   const timeoutRef = useRef<NodeJS.Timeout>();
   const previousRawRef = useRef<T>(newValue);
+  const updatePendingRef = useRef<boolean>(false);
 
+  // Stable update function with memoized dependencies
   const updateStableValue = useCallback((value: T) => {
+    if (updatePendingRef.current) return; // Prevent concurrent updates
+    
     const now = Date.now();
     const timeSinceLastUpdate = now - lastUpdateRef.current;
 
@@ -34,21 +55,23 @@ export const useStableData = <T>(
       const percentChange = Math.abs((value - stableValue) / stableValue);
       
       // If change is too small and recent, ignore it
-      if (percentChange < changeThreshold && timeSinceLastUpdate < debounceMs) {
+      if (percentChange < stableConfig.changeThreshold && timeSinceLastUpdate < stableConfig.debounceMs) {
         return;
       }
 
       // Apply exponential smoothing for gradual transitions
-      const smoothedValue = (smoothingFactor * value + (1 - smoothingFactor) * stableValue) as T;
+      const smoothedValue = (stableConfig.smoothingFactor * value + (1 - stableConfig.smoothingFactor) * stableValue) as T;
       
+      updatePendingRef.current = true;
       setIsChanging(true);
       setStableValue(smoothedValue);
     } else {
-      // For non-numeric values, use debouncing
-      if (timeSinceLastUpdate < debounceMs && value === previousRawRef.current) {
+      // For non-numeric values, use deep comparison and debouncing
+      if (timeSinceLastUpdate < stableConfig.debounceMs && deepEqual(value, previousRawRef.current)) {
         return;
       }
       
+      updatePendingRef.current = true;
       setIsChanging(true);
       setStableValue(value);
     }
@@ -62,17 +85,34 @@ export const useStableData = <T>(
     }
     timeoutRef.current = setTimeout(() => {
       setIsChanging(false);
+      updatePendingRef.current = false;
     }, 300);
-  }, [stableValue, changeThreshold, debounceMs, smoothingFactor]);
+  }, [stableValue, stableConfig]);
 
-  // Update when new value changes significantly
-  if (newValue !== previousRawRef.current) {
+  // Move value comparison to useEffect to avoid render-time updates
+  useEffect(() => {
+    if (!deepEqual(newValue, previousRawRef.current)) {
+      updateStableValue(newValue);
+    }
+  }, [newValue, updateStableValue]);
+
+  // Force update function
+  const forceUpdate = useCallback(() => {
     updateStableValue(newValue);
-  }
+  }, [newValue, updateStableValue]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     value: stableValue,
     isChanging,
-    forceUpdate: () => updateStableValue(newValue)
+    forceUpdate
   };
 };

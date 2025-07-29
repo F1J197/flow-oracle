@@ -19,8 +19,8 @@ export function DataIntegrityEngineView({ loading: externalLoading, className }:
 
   const isLoading = externalLoading || hookLoading;
 
-  // Stabilized mock data for consistent display
-  const mockData = useStableData({
+  // Memoized mock data for consistent reference identity
+  const mockData = useMemo(() => ({
     integrityScore: 95.2,
     activeSources: 4,
     totalSources: 4,
@@ -29,9 +29,15 @@ export function DataIntegrityEngineView({ loading: externalLoading, className }:
     errorRate: 0.001,
     dataFreshness: 28,
     completeness: 99.8
-  }).value;
+  }), []);
 
-  const data = metrics || mockData;
+  // Use stabilized data only if we have metrics from the hook
+  const stableMetrics = useStableData(metrics || mockData, {
+    changeThreshold: 0.01, // 1% change threshold
+    debounceMs: 500 // Shorter debounce for UI responsiveness
+  });
+
+  const data = stableMetrics.value;
 
   const keyMetrics = useMemo(() => [
     {
