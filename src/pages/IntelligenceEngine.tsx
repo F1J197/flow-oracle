@@ -8,7 +8,7 @@ import { useResilientEngine } from "@/hooks/useResilientEngine";
 import { SimplifiedDataIntegrityEngine } from "@/engines/SimplifiedDataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
-import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
+import { EnhancedZScoreEngineV6 } from "@/engines/EnhancedZScoreEngineV6";
 import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
 import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";
@@ -18,11 +18,11 @@ import {
   NetLiquidityView,
   CreditStressView,
   MomentumView,
-  ZScoreView,
   PrimaryDealerView,
   CUSIPStealthQEView,
   DataIntegrityEngineView
 } from "@/components/intelligence";
+import { ZScoreIntelligenceView } from "@/components/intelligence/ZScoreIntelligenceView";
 
 // Import intelligence styles
 import "@/styles/intelligence.css";
@@ -49,7 +49,7 @@ function IntelligenceEngine() {
       case 'momentum':
         return <MomentumView loading={loading} />;
       case 'zScore':
-        return <ZScoreView loading={loading} />;
+        return <ZScoreIntelligenceView loading={loading} />;
       case 'primaryDealer':
         return <PrimaryDealerView loading={loading} />;
       case 'cusipStealth':

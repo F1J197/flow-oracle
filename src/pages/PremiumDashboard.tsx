@@ -6,6 +6,7 @@ import { PrimaryDealerIntelligenceTile } from "@/components/intelligence/Primary
 import { SystemStatusFooter } from "@/components/dashboard/SystemStatusFooter";
 import { StaticTileWrapper } from "@/components/dashboard/StaticTileWrapper";
 import { Activity, TrendingUp, Shield, Database, Target, BarChart3 } from "lucide-react";
+import { ZScoreDashboardTile } from "@/components/dashboard/ZScoreDashboardTile";
 
 export const PremiumDashboard = () => {
   const {
@@ -141,27 +142,8 @@ export const PremiumDashboard = () => {
         </StaticTileWrapper>
       )}
 
-      {/* Z-Score Analysis */}
-      {dashboardData?.zScore && (
-        <StaticTileWrapper>
-          <DataTile
-            title="Z-Score Analysis"
-            metric={{
-              label: "Standard Deviations",
-              value: dashboardData.zScore.primaryMetric || "1.84",
-              unit: "σ",
-              change: 0.23,
-              trend: dashboardData.zScore.trend as 'up' | 'down' | 'neutral',
-              color: 'primary'
-            }}
-            subtitle="Statistical deviation analysis"
-            description="Market pricing relative to historical norms"
-            icon={<BarChart3 className="w-5 h-5" />}
-            size="md"
-            isLoading={loading}
-          />
-        </StaticTileWrapper>
-      )}
+      {/* Enhanced Z-Score Engine V6 */}
+      <ZScoreDashboardTile />
 
       {/* Primary Dealer Intelligence */}
       <div className="col-span-full sm:col-span-2">

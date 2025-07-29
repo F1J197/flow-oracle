@@ -20,6 +20,8 @@ export { NetLiquidityView } from './NetLiquidityView';
 export { CreditStressView } from './CreditStressView';
 export { MomentumView } from './MomentumView';
 export { ZScoreView } from './ZScoreView';
+export { ZScoreIntelligenceView } from './ZScoreIntelligenceView';
+export { ZScoreHistogram } from './ZScoreHistogram';
 export { PrimaryDealerView } from './PrimaryDealerView';
 
 // Legacy exports for compatibility
