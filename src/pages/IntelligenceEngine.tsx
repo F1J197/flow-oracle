@@ -20,7 +20,8 @@ import {
   MomentumView,
   ZScoreView,
   PrimaryDealerView,
-  CUSIPStealthQEView
+  CUSIPStealthQEView,
+  DataIntegrityEngineView
 } from "@/components/intelligence";
 
 // Import intelligence styles
@@ -33,12 +34,14 @@ function IntelligenceEngine() {
   
   const loading = false;
   const systemHealth = 'healthy' as const;
-  const activeEngineCount = 6;
+  const activeEngineCount = 7;
   const refreshAll = () => {};
   const errors: string[] = [];
 
   const renderEngineView = (engineKey: string, title: string) => {
     switch (engineKey) {
+      case 'dataIntegrity':
+        return <DataIntegrityEngineView loading={loading} />;
       case 'netLiquidity':
         return <NetLiquidityView loading={loading} />;
       case 'creditStress':
@@ -69,7 +72,7 @@ function IntelligenceEngine() {
           <IntelligenceHeaderTile
             systemHealth={systemHealth}
             activeEngines={activeEngineCount}
-            totalEngines={6}
+            totalEngines={7}
             dataIntegrity={98.7}
             refreshRate={30}
             lastRefresh={new Date()}
@@ -80,6 +83,10 @@ function IntelligenceEngine() {
 
         {/* Active Engine Views */}
         <div className="intelligence-grid">
+          <ErrorBoundary>
+            {renderEngineView('dataIntegrity', 'Data Integrity Engine')}
+          </ErrorBoundary>
+          
           <ErrorBoundary>
             {renderEngineView('netLiquidity', 'Net Liquidity Engine')}
           </ErrorBoundary>

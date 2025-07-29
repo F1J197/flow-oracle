@@ -29,6 +29,7 @@ export { PrimaryDealerIntelligenceTile } from './PrimaryDealerIntelligenceTile';
 export { PrimaryDealerPositionsView } from './PrimaryDealerPositionsView';
 export { CUSIPStealthQEView } from './CUSIPStealthQEView';
 export { DataIntegrityView } from './DataIntegrityView';
+export { DataIntegrityEngineView } from './DataIntegrityEngineView';
 export { useDataIntegrity } from '@/hooks/useDataIntegrity';
 
 // Types
