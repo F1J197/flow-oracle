@@ -2,30 +2,31 @@ import { useMemo } from "react";
 import { PremiumLayout } from "@/components/layout/PremiumLayout";
 import { TerminalEngineView } from "@/components/intelligence/TerminalEngineView";
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
-import { useStabilizedEngine } from "@/hooks/useStabilizedEngine";
+import { useResilientEngine } from "@/hooks/useResilientEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";
 import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
-import { DataIntegrityEngine } from "@/engines/DataIntegrityEngine";
+import { SimplifiedDataIntegrityEngine } from "@/engines/SimplifiedDataIntegrityEngine";
 import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
+import { EngineAdapter } from "@/utils/engineAdapter";
 
 export const IntelligenceEngine = () => {
 
-  // Initialize engine instances
+  // Initialize engine instances with resilient pattern
   const engines = useMemo(() => ({
-    dataIntegrity: new DataIntegrityEngine(),
-    netLiquidity: new NetLiquidityEngine(),
-    creditStressV6: new CreditStressEngineV6(),
-    cusipStealthQE: new CUSIPStealthQEEngine(),
-    enhancedZScore: new EnhancedZScoreEngine(),
-    enhancedMomentum: new EnhancedMomentumEngine(),
-    primaryDealerPositions: new PrimaryDealerPositionsEngineV6(),
+    dataIntegrity: new SimplifiedDataIntegrityEngine(),
+    netLiquidity: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new NetLiquidityEngine())),
+    creditStressV6: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new CreditStressEngineV6())),
+    cusipStealthQE: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new CUSIPStealthQEEngine())),
+    enhancedZScore: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new EnhancedZScoreEngine())),
+    enhancedMomentum: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new EnhancedMomentumEngine())),
+    primaryDealerPositions: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new PrimaryDealerPositionsEngineV6())),
   }), []);
 
   const activeEngines = [
-    { key: "dataIntegrity", name: "Data Integrity & Self-Healing Engine", engine: engines.dataIntegrity },
+    { key: "dataIntegrity", name: "Data Integrity & Self-Healing Engine V6", engine: engines.dataIntegrity },
     { key: "netLiquidity", name: "Net Liquidity Engine V6", engine: engines.netLiquidity },
     { key: "creditStressV6", name: "Credit Stress Engine V6", engine: engines.creditStressV6 },
     { key: "cusipStealthQE", name: "CUSIP-Level Stealth QE Detection V6", engine: engines.cusipStealthQE },
@@ -34,12 +35,12 @@ export const IntelligenceEngine = () => {
     { key: "primaryDealerPositions", name: "Primary Dealer Positions Engine V6", engine: engines.primaryDealerPositions },
   ];
 
-  // Use stabilized engine hook
-  const { engineViews, loading, error, forceRefresh } = useStabilizedEngine(activeEngines, {
-    refreshInterval: 45000, // Increased from 30s to reduce load
-    maxRetries: 3,
-    cacheTimeout: 300000, // 5 minutes cache
-    debounceMs: 2000 // 2 second debounce
+  // Use resilient engine hook with graceful degradation
+  const { engineViews, engineStatuses, loading, error, systemHealth, forceRefresh } = useResilientEngine(activeEngines, {
+    refreshInterval: 45000,
+    maxRetries: 2,
+    fallbackEnabled: true,
+    staleDataThreshold: 300000
   });
 
   return (
@@ -58,8 +59,15 @@ export const IntelligenceEngine = () => {
             </h1>
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-btc-primary rounded-full animate-pulse"></div>
-                <span className="text-sm font-mono text-btc-light font-bold tracking-wide">REAL-TIME</span>
+                <div className={`w-3 h-3 rounded-full ${
+                  systemHealth === 'healthy' ? 'bg-btc-primary animate-pulse' :
+                  systemHealth === 'degraded' ? 'bg-yellow-500 animate-pulse' :
+                  systemHealth === 'critical' ? 'bg-orange-500 animate-pulse' :
+                  'bg-red-500 animate-pulse'
+                }`}></div>
+                <span className="text-sm font-mono text-btc-light font-bold tracking-wide">
+                  {systemHealth.toUpperCase()}
+                </span>
               </div>
               {error && (
                 <div className="text-sm font-mono text-btc-error font-bold">
@@ -100,16 +108,22 @@ export const IntelligenceEngine = () => {
       </div>
 
       {/* Premium Engine Grid with Enhanced Terminal Layout */}
-      {activeEngines.map(({ key, engine }) => (
-        <ErrorBoundary key={key}>
-          <div className="transform transition-all duration-300 hover:scale-[1.02] hover:z-10">
-            <TerminalEngineView
-              view={engineViews[key]}
-              loading={loading || !engineViews[key]}
-            />
-          </div>
-        </ErrorBoundary>
-      ))}
+      {activeEngines.map(({ key, engine }) => {
+        const status = engineStatuses[key];
+        return (
+          <ErrorBoundary key={key}>
+            <div className="transform transition-all duration-300 hover:scale-[1.02] hover:z-10">
+              <TerminalEngineView
+                view={engineViews[key]}
+                loading={loading && !engineViews[key]}
+                isHealthy={status?.isHealthy}
+                usingFallback={status?.usingFallback}
+                retryCount={status?.retryCount || 0}
+              />
+            </div>
+          </ErrorBoundary>
+        );
+      })}
 
       {/* Development Engines with Premium Terminal Styling */}
       <div className="glass-tile p-8 font-mono text-sm opacity-70 border border-btc-glow/40 hover:border-btc-glow/60 transition-all duration-300 ascii-border">

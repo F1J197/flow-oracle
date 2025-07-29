@@ -11,9 +11,18 @@ import { KeyMetrics } from "./KeyMetrics";
 interface TerminalEngineViewProps {
   view: DetailedEngineView;
   loading?: boolean;
+  isHealthy?: boolean;
+  usingFallback?: boolean;
+  retryCount?: number;
 }
 
-export const TerminalEngineView = memo(({ view, loading = false }: TerminalEngineViewProps) => {
+export const TerminalEngineView = memo(({ 
+  view, 
+  loading = false, 
+  isHealthy = true, 
+  usingFallback = false, 
+  retryCount = 0 
+}: TerminalEngineViewProps) => {
   if (loading) {
     return (
       <EngineLayout title="Loading Engine..." status="offline">
@@ -40,10 +49,23 @@ export const TerminalEngineView = memo(({ view, loading = false }: TerminalEngin
     status: 'neutral' as const
   }));
 
+  const getEngineStatus = (): "active" | "warning" | "critical" | "offline" => {
+    if (loading) return "warning";
+    if (!isHealthy && !usingFallback) return "offline";
+    if (usingFallback) return "warning";
+    return "active";
+  };
+
+  const getStatusIndicator = () => {
+    if (retryCount > 0) return ` (Retry ${retryCount})`;
+    if (usingFallback) return " (Fallback)";
+    return "";
+  };
+
   return (
     <EngineLayout 
-      title={view.title} 
-      status="active"
+      title={`${view.title}${getStatusIndicator()}`} 
+      status={getEngineStatus()}
       className="min-h-[500px]"
     >
       {/* Key Metrics Overview */}
