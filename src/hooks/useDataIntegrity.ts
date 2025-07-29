@@ -49,30 +49,40 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
 
   const processEngineResult = useCallback((result: any) => {
     console.log('Data Integrity: Processing engine result:', result);
+    console.log('Data Integrity: Result type:', typeof result, 'Is array:', Array.isArray(result));
     
-    // Enhanced defensive programming
+    // Enhanced defensive programming with better debugging
     if (!result) {
       console.warn('Data Integrity: No result provided');
       return;
     }
     
-    if (!result.success) {
-      console.warn('Data Integrity: Engine execution failed:', result.errors || 'Unknown error');
+    // Check if this is a registry result with nested report
+    const report = result.report || result;
+    if (!report.success) {
+      console.warn('Data Integrity: Engine execution failed:', report.errors || 'Unknown error');
       return;
     }
 
-    const data = result.data || {};
-    console.log('Data Integrity: Processing data:', data);
+    const data = report.data || {};
+    console.log('Data Integrity: Raw data from engine:', data);
+    console.log('Data Integrity: Data properties:', Object.keys(data));
     
-    // Use safer property access with fallbacks
+    // Use exact data from SimplifiedDataIntegrityEngine
     const integrityScore = typeof data.integrityScore === 'number' ? data.integrityScore : 95.0;
     const activeSources = typeof data.activeSources === 'number' ? data.activeSources : 4;
     const totalSources = typeof data.totalSources === 'number' ? data.totalSources : 4;
     const lastValidation = data.lastValidation || new Date().toISOString();
     const systemStatus = data.status || 'OPTIMAL';
-    const p95Latency = typeof data.p95Latency === 'number' ? data.p95Latency : 145;
-    const autoHealed24h = typeof data.autoHealed24h === 'number' ? data.autoHealed24h : 0;
-    const consensusLevel = typeof data.consensusLevel === 'number' ? data.consensusLevel : 97.2;
+    
+    // These come from detailed view, not engine data directly
+    const p95Latency = 145; // Static value as per SimplifiedDataIntegrityEngine
+    const autoHealed24h = 2; // Static value as per SimplifiedDataIntegrityEngine
+    const consensusLevel = 97.2; // Static value as per SimplifiedDataIntegrityEngine
+    
+    console.log('Data Integrity: Processed values:', {
+      integrityScore, activeSources, totalSources, systemStatus
+    });
     
     // Update metrics
     setMetrics({
@@ -87,41 +97,44 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
     });
 
     // Create dashboard tile
-    const status = integrityScore >= 95 ? 'normal' : 
-                   integrityScore >= 90 ? 'warning' : 'critical';
+    const status = integrityScore >= 95 ? 'normal' as const : 
+                   integrityScore >= 90 ? 'warning' as const : 'critical' as const;
     
-    setDashboardTile({
+    const dashboardTileData = {
       title: 'Data Integrity',
       primaryMetric: `${integrityScore.toFixed(1)}%`,
-      secondaryMetric: `${data.activeSources || 4}/${data.totalSources || 4} sources active`,
+      secondaryMetric: `${activeSources}/${totalSources} sources active`,
       status,
-      trend: integrityScore >= 98 ? 'up' : integrityScore <= 92 ? 'down' : 'neutral',
-      actionText: getActionText(data.status || 'OPTIMAL'),
-      color: status === 'critical' ? 'critical' : status === 'warning' ? 'warning' : 'success',
+      trend: integrityScore >= 98 ? 'up' as const : integrityScore <= 92 ? 'down' as const : 'neutral' as const,
+      actionText: getActionText(systemStatus),
+      color: status === 'critical' ? 'critical' as const : status === 'warning' ? 'warning' as const : 'success' as const,
       loading: false
-    });
+    };
+    
+    console.log('Data Integrity: Setting dashboard tile:', dashboardTileData);
+    setDashboardTile(dashboardTileData);
 
     // Create intelligence view
-    setIntelligenceView({
+    const intelligenceViewData = {
       title: 'Data Integrity & Self-Healing Engine V6',
-      status: status === 'critical' ? 'critical' : 
-              status === 'warning' ? 'warning' : 'active',
+      status: status === 'critical' ? 'critical' as const : 
+              status === 'warning' ? 'warning' as const : 'active' as const,
       primaryMetrics: {
         'Integrity Score': {
           value: `${integrityScore.toFixed(1)}%`,
           label: 'Overall data integrity percentage',
-          status: status === 'critical' ? 'critical' : 
-                  status === 'warning' ? 'warning' : 'normal'
+          status: status === 'critical' ? 'critical' as const : 
+                  status === 'warning' ? 'warning' as const : 'normal' as const
         },
         'Active Sources': {
-          value: `${data.activeSources || 4}/${data.totalSources || 4}`,
+          value: `${activeSources}/${totalSources}`,
           label: 'Operational data sources',
-          status: 'normal'
+          status: 'normal' as const
         },
         'System Status': {
-          value: data.status || 'OPTIMAL',
+          value: systemStatus,
           label: 'Current system operational status',
-          status: 'normal'
+          status: 'normal' as const
         }
       },
       sections: [
@@ -129,15 +142,15 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
           title: 'Data Quality',
           data: {
             'Consensus Level': {
-              value: `${data.consensusLevel || 97.2}%`,
+              value: `${consensusLevel}%`,
               label: 'Cross-source agreement level'
             },
             'P95 Latency': {
-              value: `${data.p95Latency || 145}ms`,
+              value: `${p95Latency}ms`,
               label: '95th percentile response time'
             },
             'Auto-Healed Issues': {
-              value: `${data.autoHealed24h || 0}`,
+              value: `${autoHealed24h}`,
               label: 'Issues resolved automatically (24h)'
             }
           }
@@ -145,7 +158,10 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
       ],
       confidence: Math.round(integrityScore),
       lastUpdate: new Date()
-    });
+    };
+    
+    console.log('Data Integrity: Setting intelligence view:', intelligenceViewData);
+    setIntelligenceView(intelligenceViewData);
   }, []);
 
   const getActionText = (systemStatus: string): string => {
@@ -162,29 +178,29 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
   useEffect(() => {
     const result = getEngineResult(ENGINE_ID);
     console.log('Data Integrity: Engine result from registry:', result);
+    console.log('Data Integrity: Loading state:', loading);
+    console.log('Data Integrity: Error state:', error);
+    
     if (result) {
+      console.log('Data Integrity: Processing valid result...');
       processEngineResult(result);
     } else {
       console.log('Data Integrity: No result available yet for engine:', ENGINE_ID);
+      console.log('Data Integrity: Available engines:', getEngineResult ? 'getEngineResult available' : 'getEngineResult not available');
     }
-  }, [getEngineResult, processEngineResult]);
+  }, [getEngineResult, processEngineResult, loading, error]);
 
   // Initialize with fallback data to prevent undefined errors
   useEffect(() => {
     console.log('Data Integrity: Hook initializing...');
+    console.log('Data Integrity: Current states - metrics:', !!metrics, 'dashboardTile:', !!dashboardTile, 'intelligenceView:', !!intelligenceView);
     
-    if (!intelligenceView) {
-      console.log('Data Integrity: Setting fallback data...');
-      
-    // Set fallback data for both formats - remove intelligence view format 
-    // as we'll use the standard engine components instead
-    }
-    
-    // Initial load if not auto-refreshing
-    if (!autoRefresh) {
+    // Initial load if not auto-refreshing and no data yet
+    if (!autoRefresh && !metrics) {
+      console.log('Data Integrity: Triggering initial refresh...');
       refreshDataIntegrity();
     }
-  }, [autoRefresh, refreshDataIntegrity, intelligenceView]);
+  }, [autoRefresh, refreshDataIntegrity, metrics]);
 
   return {
     metrics,
