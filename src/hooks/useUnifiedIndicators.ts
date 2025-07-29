@@ -131,25 +131,38 @@ export const useUnifiedIndicators = (
 
   // Update indicators state when data service changes
   const updateIndicators = useCallback(() => {
-    const indicatorIds = metadata.map(m => m.id);
-    const states = dataService.getIndicatorStates(indicatorIds);
-    
-    let newIndicators = Array.from(states.values());
-    
-    // Filter out inactive indicators if not requested
-    if (!includeInactive) {
-      newIndicators = newIndicators.filter(indicator => indicator.status !== 'offline');
-    }
-
-    // Apply additional filtering
-    if (filter) {
-      if (filter.status) {
-        newIndicators = newIndicators.filter(indicator => indicator.status === filter.status);
+    try {
+      // Get all indicator states (includes mock data)
+      let newIndicators = dataService.getAllIndicatorStates();
+      
+      // Filter out inactive indicators if not requested
+      if (!includeInactive) {
+        newIndicators = newIndicators.filter(indicator => indicator.status !== 'offline');
       }
-    }
 
-    setIndicators(newIndicators);
-  }, [metadata, dataService, includeInactive, filter]);
+      // Apply additional filtering
+      if (filter) {
+        if (filter.status) {
+          newIndicators = newIndicators.filter(indicator => indicator.status === filter.status);
+        }
+        if (filter.category) {
+          newIndicators = newIndicators.filter(indicator => indicator.metadata.category === filter.category);
+        }
+        if (filter.pillar) {
+          newIndicators = newIndicators.filter(indicator => indicator.metadata.pillar === filter.pillar);
+        }
+        if (filter.source) {
+          newIndicators = newIndicators.filter(indicator => indicator.metadata.source === filter.source);
+        }
+      }
+
+      setIndicators(newIndicators);
+      setLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update indicators');
+      setLoading(false);
+    }
+  }, [dataService, includeInactive, filter]);
 
   // Set up subscriptions for all indicators
   useEffect(() => {

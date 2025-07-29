@@ -4,7 +4,7 @@ import { TabNavigation } from "@/components/layout/TabNavigation";
 import { Dashboard } from "./Dashboard";
 import { DataIngestionPanel } from "@/components/data/DataIngestionPanel";
 import IntelligenceEngine from "./IntelligenceEngine";
-import EnhancedChartsView from "./EnhancedChartsView";
+import { UnifiedChartsView } from "@/components/charts/UnifiedChartsView";
 import { UnifiedDataDemo } from "./UnifiedDataDemo";
 
 const Index = () => {
@@ -23,7 +23,7 @@ const Index = () => {
       case 'engines':
         return <IntelligenceEngine />;
       case 'charts':
-        return <EnhancedChartsView />;
+        return <UnifiedChartsView />;
       case 'unified-demo':
         return <UnifiedDataDemo />;
       default:

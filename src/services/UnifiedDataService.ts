@@ -11,6 +11,7 @@ import {
 } from '@/types/indicators';
 import { IndicatorRegistry } from './IndicatorRegistry';
 import { CacheManager } from './CacheManager';
+import { MockDataProvider } from './MockDataProvider';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -31,7 +32,20 @@ export class UnifiedDataService {
   private constructor() {
     this.registry = IndicatorRegistry.getInstance();
     this.cache = CacheManager.getInstance();
+    this.initializeMockData(); // Load mock data for testing
     this.initializeWebSocket();
+  }
+
+  /**
+   * Initialize with mock data for testing/development
+   */
+  private initializeMockData(): void {
+    const mockProvider = MockDataProvider.getInstance();
+    const mockStates = mockProvider.generateMockIndicatorStates();
+    
+    mockStates.forEach((state, indicatorId) => {
+      this.indicatorStates.set(indicatorId, state);
+    });
   }
 
   static getInstance(): UnifiedDataService {
@@ -226,6 +240,13 @@ export class UnifiedDataService {
   getIndicatorsByCategory(category: string): IndicatorState[] {
     return Array.from(this.indicatorStates.values())
       .filter(state => state.metadata.category === category);
+  }
+
+  /**
+   * Get all indicator states (for unified dashboard)
+   */
+  getAllIndicatorStates(): IndicatorState[] {
+    return Array.from(this.indicatorStates.values());
   }
 
   /**
