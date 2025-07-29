@@ -23,25 +23,34 @@ const EnhancedChartsView = () => {
     }
   };
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColorClass = (category: string) => {
     switch (category) {
-      case 'momentum': return 'neon-teal';
-      case 'liquidity': return 'neon-lime';
-      case 'volatility': return 'neon-orange';
-      case 'sentiment': return 'neon-fuchsia';
-      case 'macro': return 'neon-gold';
-      case 'onchain': return 'neon-teal';
-      case 'credit': return 'neon-orange';
-      default: return 'text-secondary';
+      case 'momentum': return 'text-btc-orange-bright';
+      case 'liquidity': return 'text-btc-orange-light';
+      case 'volatility': return 'text-btc-orange';
+      case 'sentiment': return 'text-btc-orange-bright';
+      case 'macro': return 'text-btc-orange-light';
+      case 'onchain': return 'text-btc-orange-bright';
+      case 'credit': return 'text-btc-orange-dark';
+      default: return 'text-text-secondary';
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'bullish': return 'neon-lime';
-      case 'bearish': return 'neon-orange';
-      case 'neutral': return 'text-secondary';
-      default: return 'text-secondary';
+      case 'bullish': return 'btc-bright';
+      case 'bearish': return 'btc-dark';
+      case 'neutral': return 'outline';
+      default: return 'outline';
+    }
+  };
+
+  const getStatusColorClass = (status: string) => {
+    switch (status) {
+      case 'bullish': return 'text-btc-orange-bright';
+      case 'bearish': return 'text-btc-orange-dark';
+      case 'neutral': return 'text-text-secondary';
+      default: return 'text-text-secondary';
     }
   };
 
@@ -79,7 +88,7 @@ const EnhancedChartsView = () => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-btc-orange-bright rounded-full animate-pulse"></div>
           <span className="text-sm text-text-secondary">LIVE</span>
         </div>
       </div>
@@ -147,7 +156,7 @@ const EnhancedChartsView = () => {
                   <div className="text-2xl font-bold text-text-data">
                     {indicator.value}
                   </div>
-                  <div className={`flex items-center space-x-1 text-${getStatusColor(indicator.status)}`}>
+                  <div className={`flex items-center space-x-1 ${getStatusColorClass(indicator.status)}`}>
                     {getTrendIcon(indicator.change)}
                     <span className="text-xs font-medium">
                       {indicator.change > 0 ? '+' : ''}{indicator.change.toFixed(1)}%
@@ -157,15 +166,15 @@ const EnhancedChartsView = () => {
 
                 {/* Category and Status */}
                 <div className="flex items-center justify-between">
-                  <div className={`flex items-center space-x-1 text-${getCategoryColor(indicator.category)}`}>
+                  <div className={`flex items-center space-x-1 ${getCategoryColorClass(indicator.category)}`}>
                     {getCategoryIcon(indicator.category)}
                     <span className="text-xs font-medium uppercase tracking-wider">
                       {indicator.category}
                     </span>
                   </div>
                   <Badge 
-                    variant="outline" 
-                    className={`text-xs border-${getStatusColor(indicator.status)} text-${getStatusColor(indicator.status)}`}
+                    variant={getStatusBadgeVariant(indicator.status) as any}
+                    className="text-xs"
                   >
                     {indicator.status.toUpperCase()}
                   </Badge>
@@ -192,7 +201,7 @@ const EnhancedChartsView = () => {
                   {indicator.confidence !== undefined && (
                     <div className="flex justify-between">
                       <span>Confidence:</span>
-                      <span className={`${indicator.confidence > 0.8 ? 'text-neon-lime' : indicator.confidence > 0.6 ? 'text-neon-gold' : 'text-neon-orange'}`}>
+                      <span className={`${indicator.confidence > 0.8 ? 'text-btc-orange-bright' : indicator.confidence > 0.6 ? 'text-btc-orange' : 'text-btc-orange-dark'}`}>
                         {(indicator.confidence * 100).toFixed(0)}%
                       </span>
                     </div>
@@ -216,8 +225,8 @@ const EnhancedChartsView = () => {
           <div className="flex items-center justify-between">
             <span className="text-text-secondary">Live Updates:</span>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>
-              <span className="text-neon-lime">Active</span>
+              <div className="w-2 h-2 bg-btc-orange-bright rounded-full animate-pulse"></div>
+              <span className="text-btc-orange-bright">Active</span>
             </div>
           </div>
           <div className="flex items-center justify-between">

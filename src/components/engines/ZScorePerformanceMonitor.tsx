@@ -129,8 +129,11 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
           </div>
 
           <Badge 
-            variant="outline" 
-            className={`mt-2 border-neon-${getFreshnessColor(metrics.dataFreshness)} text-neon-${getFreshnessColor(metrics.dataFreshness)}`}
+            variant={
+              getFreshnessColor(metrics.dataFreshness) === 'lime' ? 'btc-bright' :
+              getFreshnessColor(metrics.dataFreshness) === 'gold' ? 'btc' : 'btc-dark'
+            }
+            className="mt-2"
           >
             {metrics.dataFreshness > 80 ? 'EXCELLENT' : 
              metrics.dataFreshness > 60 ? 'GOOD' : 'NEEDS REFRESH'}

@@ -28,7 +28,7 @@ export const ActionableInsightTile = memo(({
       return () => clearTimeout(timer);
     }
   }, [insight.signalStrength, stableSignalStrength]);
-  const getActionColor = (action: string) => {
+  const getActionColorClass = (action: string) => {
     switch (action) {
       case 'BUY': return 'btc-orange-bright';
       case 'SELL': return 'btc-orange-dark'; 
@@ -40,10 +40,10 @@ export const ActionableInsightTile = memo(({
 
   const getConfidenceColor = (confidence: string) => {
     switch (confidence) {
-      case 'HIGH': return 'text-btc-light';
-      case 'MED': return 'text-btc-glow';
-      case 'LOW': return 'text-btc-muted';
-      default: return 'text-btc-muted';
+      case 'HIGH': return 'text-btc-orange-light';
+      case 'MED': return 'text-btc-orange';
+      case 'LOW': return 'text-btc-orange-muted';
+      default: return 'text-btc-orange-muted';
     }
   };
 
@@ -74,7 +74,7 @@ export const ActionableInsightTile = memo(({
         </div>
         <div className="w-full bg-noir-border rounded-full h-2 overflow-hidden">
           <div 
-            className={`h-full bg-gradient-to-r from-${getActionColor(insight.marketAction)} to-${getActionColor(insight.marketAction)}/60 transition-all duration-500 ease-out`}
+            className="h-full bg-btc-orange transition-all duration-500 ease-out"
             style={{ width: `${stableSignalStrength}%` }}
           />
         </div>
@@ -86,8 +86,8 @@ export const ActionableInsightTile = memo(({
       {/* Market Action */}
       <div className="mb-4">
         <Badge 
-          variant="outline" 
-          className={`border-${getActionColor(insight.marketAction)} text-${getActionColor(insight.marketAction)} font-mono text-lg px-4 py-2`}
+          variant={getActionColorClass(insight.marketAction) as any}
+          className="font-mono text-lg px-4 py-2"
         >
           {insight.marketAction}
         </Badge>

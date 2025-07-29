@@ -45,42 +45,52 @@ export const MomentumDashboard = ({
   className 
 }: MomentumDashboardProps) => {
   
-  const getCategoryColor = (category: string) => {
+  const getCategoryColorClass = (category: string) => {
     switch (category) {
-      case 'EXPLODING': return 'btc-orange-bright';
-      case 'BUILDING': return 'btc-orange';
-      case 'SLOWING': return 'btc-orange-light';
-      case 'DECLINING': return 'btc-orange-dark';
-      default: return 'btc-orange';
+      case 'EXPLODING': return 'text-btc-orange-bright';
+      case 'BUILDING': return 'text-btc-orange';
+      case 'SLOWING': return 'text-btc-orange-light';
+      case 'DECLINING': return 'text-btc-orange-dark';
+      default: return 'text-btc-orange';
     }
   };
 
-  const getRegimeColor = (regime: string) => {
+  const getRegimeColorClass = (regime: string) => {
     switch (regime) {
-      case 'BULL_ACCEL': return 'btc-orange-bright';
-      case 'BULL_DECEL': return 'btc-orange';
-      case 'BEAR_ACCEL': return 'btc-orange-dark';
-      case 'BEAR_DECEL': return 'btc-orange-muted';
-      default: return 'btc-orange';
+      case 'BULL_ACCEL': return 'text-btc-orange-bright';
+      case 'BULL_DECEL': return 'text-btc-orange';
+      case 'BEAR_ACCEL': return 'text-btc-orange-dark';
+      case 'BEAR_DECEL': return 'text-btc-orange-muted';
+      default: return 'text-btc-orange';
     }
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityBadgeVariant = (severity: string) => {
     switch (severity) {
-      case 'CRITICAL': return 'btc-orange-muted';
-      case 'HIGH': return 'btc-orange-dark';
-      case 'MEDIUM': return 'btc-orange-light';
-      case 'LOW': return 'btc-orange';
-      default: return 'btc-orange';
+      case 'CRITICAL': return 'btc-muted';
+      case 'HIGH': return 'btc-dark';
+      case 'MEDIUM': return 'btc-light';
+      case 'LOW': return 'btc';
+      default: return 'btc';
+    }
+  };
+
+  const getSeverityColorClass = (severity: string) => {
+    switch (severity) {
+      case 'CRITICAL': return 'bg-btc-orange-muted';
+      case 'HIGH': return 'bg-btc-orange-dark';
+      case 'MEDIUM': return 'bg-btc-orange-light';
+      case 'LOW': return 'bg-btc-orange';
+      default: return 'bg-btc-orange';
     }
   };
 
   const getMomentumDirection = (value: number) => {
-    if (value > 50) return { text: 'EXPLOSIVE ↗', color: 'btc-orange-bright' };
-    if (value > 20) return { text: 'BULLISH ↗', color: 'btc-orange' };
-    if (value > -20) return { text: 'NEUTRAL →', color: 'btc-orange-light' };
-    if (value > -50) return { text: 'BEARISH ↘', color: 'btc-orange-dark' };
-    return { text: 'DECLINING ↓', color: 'btc-orange-muted' };
+    if (value > 50) return { text: 'EXPLOSIVE ↗', badgeVariant: 'btc-bright' as any };
+    if (value > 20) return { text: 'BULLISH ↗', badgeVariant: 'btc' as any };
+    if (value > -20) return { text: 'NEUTRAL →', badgeVariant: 'btc-light' as any };
+    if (value > -50) return { text: 'BEARISH ↘', badgeVariant: 'btc-dark' as any };
+    return { text: 'DECLINING ↓', badgeVariant: 'btc-muted' as any };
   };
 
   const direction = getMomentumDirection(composite.value);
@@ -100,8 +110,7 @@ export const MomentumDashboard = ({
                 {composite.value.toFixed(1)}
               </div>
               <Badge 
-                variant="outline" 
-                className={`border-${direction.color} text-${direction.color}`}
+                variant={direction.badgeVariant}
               >
                 {direction.text}
               </Badge>
@@ -109,13 +118,13 @@ export const MomentumDashboard = ({
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-text-secondary">Category:</span>
-                <span className={`text-${getCategoryColor(composite.category)} font-medium`}>
+                <span className={`${getCategoryColorClass(composite.category)} font-medium`}>
                   {composite.category}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-text-secondary">Regime:</span>
-                <span className={`text-${getRegimeColor(composite.regime)} font-medium`}>
+                <span className={`${getRegimeColorClass(composite.regime)} font-medium`}>
                   {composite.regime}
                 </span>
               </div>
@@ -173,13 +182,13 @@ export const MomentumDashboard = ({
                 alerts.map((alert, index) => (
                   <div key={index} className="space-y-1">
                     <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full bg-${getSeverityColor(alert.severity)}`}></div>
+                      <div className={`w-2 h-2 rounded-full ${getSeverityColorClass(alert.severity)}`}></div>
                       <span className="text-xs font-medium text-text-primary">
                         {alert.type}
                       </span>
                       <Badge 
-                        variant="outline" 
-                        className={`text-xs border-${getSeverityColor(alert.severity)} text-${getSeverityColor(alert.severity)}`}
+                        variant={getSeverityBadgeVariant(alert.severity) as any}
+                        className="text-xs"
                       >
                         {alert.severity}
                       </Badge>

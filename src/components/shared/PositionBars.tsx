@@ -36,11 +36,11 @@ export const PositionBars = ({
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
           <span className="text-text-secondary font-mono">GROSS LONG</span>
-          <span className="text-neon-teal font-mono">{formatValue(grossLong)}</span>
+          <span className="text-btc-orange-bright font-mono">{formatValue(grossLong)}</span>
         </div>
         <div className="h-1.5 bg-glass-bg rounded-full overflow-hidden">
           <div 
-            className="h-full bg-neon-teal rounded-full transition-all duration-300"
+            className="h-full bg-btc-orange-bright rounded-full transition-all duration-300"
             style={{ width: `${Math.max(2, grossLongPct)}%` }}
           />
         </div>
@@ -50,11 +50,11 @@ export const PositionBars = ({
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
           <span className="text-text-secondary font-mono">GROSS SHORT</span>
-          <span className="text-neon-orange font-mono">{formatValue(Math.abs(grossShort))}</span>
+          <span className="text-btc-orange-dark font-mono">{formatValue(Math.abs(grossShort))}</span>
         </div>
         <div className="h-1.5 bg-glass-bg rounded-full overflow-hidden">
           <div 
-            className="h-full bg-neon-orange rounded-full transition-all duration-300"
+            className="h-full bg-btc-orange-dark rounded-full transition-all duration-300"
             style={{ width: `${Math.max(2, grossShortPct)}%` }}
           />
         </div>
@@ -66,7 +66,7 @@ export const PositionBars = ({
           <span className="text-text-secondary font-mono">NET POSITION</span>
           <span className={cn(
             "font-mono",
-            netPosition >= 0 ? "text-neon-teal" : "text-neon-orange"
+            netPosition >= 0 ? "text-btc-orange-bright" : "text-btc-orange-dark"
           )}>
             {netPosition >= 0 ? '+' : ''}{formatValue(netPosition)}
           </span>
@@ -79,7 +79,7 @@ export const PositionBars = ({
           <div 
             className={cn(
               "h-full rounded-full transition-all duration-300",
-              netPosition >= 0 ? "bg-neon-teal" : "bg-neon-orange"
+              netPosition >= 0 ? "bg-btc-orange-bright" : "bg-btc-orange-dark"
             )}
             style={{ 
               width: `${Math.max(2, Math.abs(netPositionPct))}%`,
@@ -94,11 +94,11 @@ export const PositionBars = ({
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
           <span className="text-text-secondary font-mono">HIST. AVG</span>
-          <span className="text-neon-gold font-mono">{formatValue(historicalAverage)}</span>
+          <span className="text-btc-orange font-mono">{formatValue(historicalAverage)}</span>
         </div>
         <div className="h-1 bg-glass-bg rounded-full overflow-hidden">
           <div 
-            className="h-full bg-neon-gold opacity-60 rounded-full transition-all duration-300"
+            className="h-full bg-btc-orange opacity-60 rounded-full transition-all duration-300"
             style={{ width: `${Math.max(2, historicalAvgPct)}%` }}
           />
         </div>

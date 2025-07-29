@@ -35,20 +35,20 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
   const dashboardData = engine.getDashboardData();
   const detailedView = engine.getDetailedView();
 
-  const getFlowDirectionColor = (direction: string) => {
+  const getFlowDirectionBadgeVariant = (direction: string) => {
     switch (direction) {
-      case 'STEALTH_BUY': return 'lime';
-      case 'STEALTH_SELL': return 'orange';
-      case 'NEUTRAL': return 'gray';
-      default: return 'gray';
+      case 'STEALTH_BUY': return 'btc-bright';
+      case 'STEALTH_SELL': return 'btc-dark';
+      case 'NEUTRAL': return 'outline';
+      default: return 'outline';
     }
   };
 
-  const getStealthScoreColor = (score: number) => {
-    if (score > 75) return 'fuchsia';
-    if (score > 50) return 'orange';
-    if (score > 25) return 'gold';
-    return 'teal';
+  const getStealthScoreColorClass = (score: number) => {
+    if (score > 75) return 'text-btc-orange-bright';
+    if (score > 50) return 'text-btc-orange';
+    if (score > 25) return 'text-btc-orange-light';
+    return 'text-btc-orange-muted';
   };
 
   if (loading) {
@@ -70,15 +70,15 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <div className="text-xs text-text-secondary mb-1">OVERALL STEALTH SCORE</div>
-            <div className={`text-xl font-bold text-neon-${getStealthScoreColor(parseFloat(dashboardData.primaryMetric))}`}>
+            <div className={getStealthScoreColorClass(parseFloat(dashboardData.primaryMetric)) + ' text-xl font-bold'}>
               {dashboardData.primaryMetric}/100
             </div>
           </div>
           <div>
             <div className="text-xs text-text-secondary mb-1">OPERATION STATUS</div>
             <Badge 
-              variant="outline" 
-              className={`border-neon-${dashboardData.color} text-neon-${dashboardData.color}`}
+              variant="btc"
+              className="text-xs"
             >
               {dashboardData.actionText}
             </Badge>
@@ -97,12 +97,12 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
                 <div key={segment} className="bg-glass-bg border border-glass-border rounded-lg p-3">
                   <div className="text-xs text-text-secondary mb-1">{segment}</div>
                   <div className="flex items-center justify-between">
-                    <span className={`text-sm font-bold text-neon-${getStealthScoreColor(parseFloat(score))}`}>
+                    <span className={`text-sm font-bold ${getStealthScoreColorClass(parseFloat(score))}`}>
                       {score}
                     </span>
                     <Badge 
-                      variant="outline" 
-                      className={`border-neon-${getFlowDirectionColor(cleanDirection)} text-neon-${getFlowDirectionColor(cleanDirection)} text-xs`}
+                      variant={getFlowDirectionBadgeVariant(cleanDirection) as any}
+                      className="text-xs"
                     >
                       {cleanDirection.replace('STEALTH_', '')}
                     </Badge>
@@ -128,8 +128,8 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
 
         {/* Alerts */}
         {detailedView.alerts && detailedView.alerts.length > 0 && (
-          <div className="border border-neon-orange/30 bg-neon-orange/5 rounded-lg p-3">
-            <div className="text-xs font-medium text-neon-orange mb-2">STEALTH OPERATION ALERT</div>
+          <div className="border border-btc-orange/30 bg-btc-orange/5 rounded-lg p-3">
+            <div className="text-xs font-medium text-btc-orange mb-2">STEALTH OPERATION ALERT</div>
             {detailedView.alerts.map((alert: any, index: number) => (
               <div key={index} className="text-xs text-text-secondary">
                 {alert.message}
@@ -143,7 +143,7 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-xs text-text-secondary">HIDDEN FLOWS</div>
-              <div className="text-sm font-bold text-neon-fuchsia">
+              <div className="text-sm font-bold text-btc-orange-bright">
                 {detailedView.primarySection?.metrics?.['Hidden Flows Detected'] || '0'}
               </div>
             </div>
@@ -155,7 +155,7 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
             </div>
             <div>
               <div className="text-xs text-text-secondary">INTENSITY</div>
-              <div className="text-sm font-bold text-neon-orange">
+              <div className="text-sm font-bold text-btc-orange-dark">
                 {detailedView.primarySection?.metrics?.['Operation Intensity'] || '0'}
               </div>
             </div>

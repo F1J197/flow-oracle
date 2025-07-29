@@ -180,23 +180,32 @@ const ChartsView = () => {
     }
   };
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColorClass = (category: string) => {
     switch (category) {
-      case 'momentum': return 'neon-teal';
-      case 'liquidity': return 'neon-lime';
-      case 'volatility': return 'neon-orange';
-      case 'sentiment': return 'neon-fuchsia';
-      case 'macro': return 'neon-gold';
-      default: return 'text-secondary';
+      case 'momentum': return 'text-btc-orange-bright';
+      case 'liquidity': return 'text-btc-orange-light';
+      case 'volatility': return 'text-btc-orange';
+      case 'sentiment': return 'text-btc-orange-bright';
+      case 'macro': return 'text-btc-orange-light';
+      default: return 'text-text-secondary';
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'bullish': return 'neon-lime';
-      case 'bearish': return 'neon-orange';
-      case 'neutral': return 'text-secondary';
-      default: return 'text-secondary';
+      case 'bullish': return 'btc-bright';
+      case 'bearish': return 'btc-dark';
+      case 'neutral': return 'outline';
+      default: return 'outline';
+    }
+  };
+
+  const getStatusColorClass = (status: string) => {
+    switch (status) {
+      case 'bullish': return 'text-btc-orange-bright';
+      case 'bearish': return 'text-btc-orange-dark';
+      case 'neutral': return 'text-text-secondary';
+      default: return 'text-text-secondary';
     }
   };
 
@@ -218,7 +227,7 @@ const ChartsView = () => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-btc-orange-bright rounded-full animate-pulse"></div>
           <span className="text-sm text-text-secondary">LIVE</span>
         </div>
       </div>
@@ -264,7 +273,7 @@ const ChartsView = () => {
                   <div className="text-2xl font-bold text-text-data">
                     {indicator.value}
                   </div>
-                  <div className={`flex items-center space-x-1 text-${getStatusColor(indicator.status)}`}>
+                  <div className={`flex items-center space-x-1 ${getStatusColorClass(indicator.status)}`}>
                     {indicator.change > 0 ? (
                       <TrendingUp className="w-3 h-3" />
                     ) : indicator.change < 0 ? (
@@ -280,15 +289,15 @@ const ChartsView = () => {
 
                 {/* Category and Status */}
                 <div className="flex items-center justify-between">
-                  <div className={`flex items-center space-x-1 text-${getCategoryColor(indicator.category)}`}>
+                  <div className={`flex items-center space-x-1 ${getCategoryColorClass(indicator.category)}`}>
                     {getCategoryIcon(indicator.category)}
                     <span className="text-xs font-medium uppercase">
                       {indicator.category}
                     </span>
                   </div>
                   <Badge 
-                    variant="outline" 
-                    className={`text-xs border-${getStatusColor(indicator.status)} text-${getStatusColor(indicator.status)}`}
+                    variant={getStatusBadgeVariant(indicator.status) as any}
+                    className="text-xs"
                   >
                     {indicator.status.toUpperCase()}
                   </Badge>
@@ -319,7 +328,7 @@ const ChartsView = () => {
               Showing {filteredIndicators.length} of {indicators.length} indicators
             </span>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-btc-orange-bright rounded-full animate-pulse"></div>
               <span className="text-text-secondary">Real-time updates active</span>
             </div>
           </div>

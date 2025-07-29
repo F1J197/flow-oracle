@@ -11,44 +11,54 @@ export const CreditRegimeIndicator = ({
   confidence, 
   compact = false 
 }: CreditRegimeIndicatorProps) => {
-  const getRegimeDisplay = (regime: EnhancedCreditData['regime']) => {
+  const getRegimeColor = (regime: EnhancedCreditData['regime']) => {
     switch (regime) {
       case 'QE_SUPPORTIVE':
-        return { 
-          label: compact ? 'QE' : 'QE Supportive', 
-          color: 'btc-bright',
-          icon: '▲'
-        };
+        return 'text-btc-orange-bright';
       case 'QT_STRESS':
-        return { 
-          label: compact ? 'QT' : 'QT Stress', 
-          color: 'btc-dark',
-          icon: '▼'
-        };
+        return 'text-btc-orange-dark';
       case 'CRISIS_MODE':
-        return { 
-          label: compact ? 'Crisis' : 'Crisis Mode', 
-          color: 'btc-muted',
-          icon: '⚠'
-        };
+        return 'text-btc-orange-muted';
       case 'NEUTRAL':
-        return { 
-          label: 'Neutral', 
-          color: 'btc',
-          icon: '○'
-        };
+        return 'text-btc-orange';
     }
   };
 
-  const display = getRegimeDisplay(regime);
+  const getRegimeIcon = (regime: EnhancedCreditData['regime']) => {
+    switch (regime) {
+      case 'QE_SUPPORTIVE':
+        return '▲';
+      case 'QT_STRESS':
+        return '▼';
+      case 'CRISIS_MODE':
+        return '⚠';
+      case 'NEUTRAL':
+        return '○';
+    }
+  };
+
+  const getRegimeLabel = (regime: EnhancedCreditData['regime']) => {
+    switch (regime) {
+      case 'QE_SUPPORTIVE':
+        return compact ? 'QE' : 'QE Supportive';
+      case 'QT_STRESS':
+        return compact ? 'QT' : 'QT Stress';
+      case 'CRISIS_MODE':
+        return compact ? 'Crisis' : 'Crisis Mode';
+      case 'NEUTRAL':
+        return 'Neutral';
+    }
+  };
+
+  const colorClass = getRegimeColor(regime);
 
   return (
     <div className="flex items-center gap-2">
-      <span className={`text-${display.color}`}>
-        {display.icon}
+      <span className={colorClass}>
+        {getRegimeIcon(regime)}
       </span>
-      <span className={`text-${display.color} font-medium`}>
-        {display.label}
+      <span className={`${colorClass} font-medium`}>
+        {getRegimeLabel(regime)}
       </span>
       {!compact && (
         <span className="text-text-secondary text-xs">
