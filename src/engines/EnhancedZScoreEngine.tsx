@@ -1,5 +1,5 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from '@/types/engines';
-import { dataService } from '@/services/dataService';
+import { UnifiedDataService } from '@/services/UnifiedDataService';
 
 // Core interfaces for Z-Score calculations
 interface TimeSeriesData {
@@ -919,8 +919,14 @@ export class EnhancedZScoreEngine implements IEngine {
         return cached.zScores;
       }
 
-      // Fetch data points from dataService
-      const dataPoints = await dataService.getDataPoints(symbol, 2000); // Get last 2000 points
+      // Fetch data points from UnifiedDataService  
+      const unifiedService = UnifiedDataService.getInstance();
+      const result = await unifiedService.getHistoricalData({
+        indicatorId: symbol,
+        timeFrame: '1d',
+        limit: 2000
+      });
+      const dataPoints = result || [];
       
       if (!dataPoints || dataPoints.length < 50) {
         console.warn(`Insufficient data for ${symbol}: ${dataPoints?.length || 0} points`);

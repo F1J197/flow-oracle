@@ -1,5 +1,5 @@
 import { IEngine, EngineReport, DashboardTileData, DetailedEngineView, ActionableInsight } from '@/types/engines';
-import { dataService } from '@/services/dataService';
+import { UnifiedDataService } from '@/services/UnifiedDataService';
 
 // ============= INTERFACES =============
 
@@ -138,11 +138,12 @@ class CreditSpreadCalculator {
     console.log('🔍 Credit Spread Calculator: Starting composite calculation...');
     
     // Fetch all spreads in parallel with fallbacks
+    const unifiedService = UnifiedDataService.getInstance();
     const spreadPromises = Object.values(this.sources).map(async (source) => {
       try {
-        const data = await dataService.getDataPoints(source.id, 30);
-        if (data && data.length > 0) {
-          let value = data[0].value;
+        const result = await unifiedService.refreshIndicator(source.id);
+        if (result) {
+          let value = result.current;
           
           // Convert VIX to spread-like value (proxy conversion)
           if (source.id === 'VIXCLS') {
@@ -153,7 +154,7 @@ class CreditSpreadCalculator {
             source: source.name,
             value,
             weight: source.weight,
-            timestamp: data[0].timestamp,
+            timestamp: new Date().toISOString(),
             valid: true
           };
         }

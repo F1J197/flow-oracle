@@ -1,5 +1,5 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
-import { dataService } from "@/services/dataService";
+import { UnifiedDataService } from "@/services/UnifiedDataService";
 import { supabase } from "@/integrations/supabase/client";
 
 interface DataSource {

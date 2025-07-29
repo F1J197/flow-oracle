@@ -1,5 +1,5 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
-import { dataService } from "@/services/dataService";
+import { UnifiedDataService } from "@/services/UnifiedDataService";
 
 export class NetLiquidityEngine implements IEngine {
   id = 'net-liquidity';
@@ -100,10 +100,20 @@ export class NetLiquidityEngine implements IEngine {
       }
       
       // Fetch data with timeout and fallbacks
+      const unifiedService = UnifiedDataService.getInstance();
       const dataPromises = [
-        this.fetchWithTimeout(() => dataService.fetchFREDData('WALCL'), 3000).catch(() => 6657715),
-        this.fetchWithTimeout(() => dataService.fetchFREDData('WTREGEN'), 3000).catch(() => 632000),
-        this.fetchWithTimeout(() => dataService.fetchFREDData('RRPONTSYD'), 3000).catch(() => 0)
+        this.fetchWithTimeout(async () => {
+          const result = await unifiedService.refreshIndicator('WALCL');
+          return result?.current || 6657715;
+        }, 3000).catch(() => 6657715),
+        this.fetchWithTimeout(async () => {
+          const result = await unifiedService.refreshIndicator('WTREGEN');
+          return result?.current || 632000;
+        }, 3000).catch(() => 632000),
+        this.fetchWithTimeout(async () => {
+          const result = await unifiedService.refreshIndicator('RRPONTSYD');
+          return result?.current || 0;
+        }, 3000).catch(() => 0)
       ];
       
       const [walclRaw, wtregenRaw, rrpontsydRaw] = await Promise.all(dataPromises);

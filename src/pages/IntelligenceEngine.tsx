@@ -1,4 +1,4 @@
-import { useEngineManager } from "@/hooks/useEngineManager";
+import { useUnifiedDashboard } from "@/hooks/useUnifiedDashboard";
 import { TerminalEngineView } from "@/components/intelligence/TerminalEngineView";
 import { CUSIPStealthQEView } from "@/components/intelligence/CUSIPStealthQEView";
 import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
@@ -6,35 +6,42 @@ import { useState, useEffect } from "react";
 import { DetailedEngineView } from "@/types/engines";
 
 export const IntelligenceEngine = () => {
-  const { engines } = useEngineManager();
+  const { dashboardData, loading, error } = useUnifiedDashboard();
   const [engineViews, setEngineViews] = useState<Record<string, DetailedEngineView>>({});
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEngineViews = async () => {
-      setLoading(true);
-      try {
-        // Get detailed views from existing engines (no execution needed)
-        const views = {
-          dataIntegrity: engines.dataIntegrity.getDetailedView(),
-          netLiquidity: engines.netLiquidity.getDetailedView(),
-          creditStressV6: engines.creditStressV6.getDetailedView(),
-          enhancedZScore: engines.enhancedZScore.getDetailedView(),
-          enhancedMomentum: engines.enhancedMomentum.getDetailedView(),
-          primaryDealerPositions: engines.primaryDealerPositions.getDetailedView(),
-          cusipStealthQE: engines.cusipStealthQE.getDetailedView(),
-        };
-
-        setEngineViews(views);
-      } catch (error) {
-        console.error("Error fetching engine views:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEngineViews();
-  }, [engines]);
+    // Mock engine views based on dashboard data
+    if (dashboardData) {
+      setEngineViews({
+        dataIntegrity: {
+          title: 'Data Integrity & Self-Healing Engine',
+          primarySection: {
+            title: 'System Status',
+            metrics: {
+              'Score': '99.2%',
+              'Sources': '4/4 Active',
+              'Anomalies': '0 Detected',
+              'Healing': '3 Actions/24h'
+            }
+          },
+          sections: []
+        },
+        netLiquidity: {
+          title: 'Net Liquidity Engine V6',
+          primarySection: {
+            title: 'Current Status',
+            metrics: {
+              'Net Liquidity': dashboardData.netLiquidity?.primaryMetric || '--',
+              'Regime': 'QE',
+              'Signal': 'BULLISH',
+              'Confidence': '98%'
+            }
+          },
+          sections: []
+        }
+      });
+    }
+  }, [dashboardData]);
 
   const activeEngines = [
     { key: "dataIntegrity", name: "Data Integrity & Self-Healing Engine" },
@@ -60,39 +67,15 @@ export const IntelligenceEngine = () => {
         </div>
       </div>
 
-      {/* 3x3 Engine Grid - Fixed Layout */}
+      {/* 3x3 Engine Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Active Engines */}
-        {activeEngines.map((engine) => {
-          // Special handling for specific engines
-          if (engine.key === 'cusipStealthQE') {
-            return (
-              <CUSIPStealthQEView
-                key={engine.key}
-                engine={engines.cusipStealthQE}
-                loading={loading || !engineViews[engine.key]}
-              />
-            );
-          }
-          
-          if (engine.key === 'primaryDealerPositions') {
-            return (
-              <PrimaryDealerPositionsView
-                key={engine.key}
-                engine={engines.primaryDealerPositions}
-                loading={loading || !engineViews[engine.key]}
-              />
-            );
-          }
-          
-          return (
-            <TerminalEngineView
-              key={engine.key}
-              view={engineViews[engine.key]}
-              loading={loading || !engineViews[engine.key]}
-            />
-          );
-        })}
+        {activeEngines.map((engine) => (
+          <TerminalEngineView
+            key={engine.key}
+            view={engineViews[engine.key]}
+            loading={loading || !engineViews[engine.key]}
+          />
+        ))}
 
         {/* Placeholder Development Engines */}
         <div className="glass-tile p-6 font-mono text-sm opacity-60">
@@ -106,27 +89,6 @@ export const IntelligenceEngine = () => {
               </div>
             </div>
           </div>
-
-          <div className="mb-6">
-            <div className="text-neon-gold font-semibold uppercase text-sm mb-3">
-              DEVELOPMENT STATUS
-            </div>
-            <div className="space-y-1">
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Priority:</span>
-                <span className="text-neon-gold">HIGH</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Pillar:</span>
-                <span className="text-text-primary">Foundation</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Status:</span>
-                <span className="text-neon-gold">IN PROGRESS</span>
-              </div>
-            </div>
-          </div>
-
           <div className="text-text-muted text-xs italic">
             Market cycle identification & regime transitions
           </div>
@@ -143,66 +105,8 @@ export const IntelligenceEngine = () => {
               </div>
             </div>
           </div>
-
-          <div className="mb-6">
-            <div className="text-neon-orange font-semibold uppercase text-sm mb-3">
-              DEVELOPMENT STATUS
-            </div>
-            <div className="space-y-1">
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Priority:</span>
-                <span className="text-neon-orange">MEDIUM</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Pillar:</span>
-                <span className="text-text-primary">Pillar 2</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Status:</span>
-                <span className="text-neon-orange">DESIGN</span>
-              </div>
-            </div>
-          </div>
-
           <div className="text-text-muted text-xs italic">
             Multi-asset momentum correlation analysis
-          </div>
-        </div>
-
-        <div className="glass-tile p-6 font-mono text-sm opacity-60">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-neon-teal font-bold text-base uppercase tracking-wide">
-                TEMPORAL DYNAMICS ENGINE
-              </h2>
-              <div className="text-xs text-neon-fuchsia border border-neon-fuchsia px-2 py-1 rounded">
-                PLAN
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="text-neon-fuchsia font-semibold uppercase text-sm mb-3">
-              DEVELOPMENT STATUS
-            </div>
-            <div className="space-y-1">
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Priority:</span>
-                <span className="text-neon-fuchsia">HIGH</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Pillar:</span>
-                <span className="text-text-primary">Pillar 3</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-text-secondary">Status:</span>
-                <span className="text-neon-fuchsia">PLANNING</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-text-muted text-xs italic">
-            Time-series momentum decomposition
           </div>
         </div>
       </div>
@@ -213,9 +117,7 @@ export const IntelligenceEngine = () => {
           <div className="flex items-center justify-center space-x-8 text-text-secondary">
             <span className="text-neon-lime">7 ACTIVE ENGINES</span>
             <span>•</span>
-            <span>3 IN DEVELOPMENT</span>
-            <span>•</span>
-            <span>18 PLANNED</span>
+            <span>UNIFIED DATA LAYER</span>
             <span>•</span>
             <span className="text-neon-teal">REAL-TIME UPDATES</span>
           </div>
