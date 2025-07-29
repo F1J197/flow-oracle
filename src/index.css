@@ -4,6 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import tile-specific animations and effects */
+@import './styles/tiles.css';
+
 /* Global Liquidity Intelligence Platform V6 - Noir & Neon Design System */
 
 @layer base {

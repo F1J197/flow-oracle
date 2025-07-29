@@ -1,4 +1,4 @@
-import { GlassTile } from "@/components/shared/GlassTile";
+import { BaseTile } from "@/components/tiles";
 import { Badge } from "@/components/ui/badge";
 import { ActionableInsight } from "@/types/engines";
 import { memo, useState, useEffect } from "react";
@@ -49,21 +49,33 @@ export const ActionableInsightTile = memo(({
 
   if (loading) {
     return (
-      <GlassTile title={engineName} size="normal">
+      <BaseTile status="loading" className="cursor-pointer hover:scale-[1.02] transition-all duration-300">
         <div className="animate-pulse space-y-3">
           <div className="h-8 bg-noir-border rounded w-3/4"></div>
           <div className="h-4 bg-noir-border rounded w-1/2"></div>
         </div>
-      </GlassTile>
+      </BaseTile>
     );
   }
 
   return (
-    <GlassTile 
-      title={engineName}
-      size="normal"
+    <BaseTile 
       className="cursor-pointer hover:scale-[1.02] transition-all duration-300"
+      interactive="clickable"
     >
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <span className="text-xs text-text-secondary uppercase tracking-wide">
+          {engineName}
+        </span>
+        <Badge 
+          variant={getActionColorClass(insight.marketAction) as any}
+          className="font-mono text-xs px-2 py-1"
+        >
+          {insight.marketAction}
+        </Badge>
+      </div>
+
       {/* Signal Strength Meter */}
       <div className="mb-4">
         <div className="flex justify-between items-center mb-1">
@@ -83,27 +95,17 @@ export const ActionableInsightTile = memo(({
         </div>
       </div>
 
-      {/* Market Action */}
-      <div className="mb-4">
-        <Badge 
-          variant={getActionColorClass(insight.marketAction) as any}
-          className="font-mono text-lg px-4 py-2"
-        >
-          {insight.marketAction}
-        </Badge>
-      </div>
-
       {/* Actionable Text */}
-      <p className="text-sm text-text-primary font-mono leading-relaxed">
+      <p className="text-sm text-text-primary font-mono leading-relaxed mb-3">
         {insight.actionText}
       </p>
 
       {/* Timeframe */}
-      <div className="mt-3 pt-3 border-t border-noir-border">
+      <div className="pt-3 border-t border-noir-border">
         <span className="text-xs text-text-secondary uppercase tracking-wider">
           {insight.timeframe.replace('_', ' ')}
         </span>
       </div>
-    </GlassTile>
+    </BaseTile>
   );
 });

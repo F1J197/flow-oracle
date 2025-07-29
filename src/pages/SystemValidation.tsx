@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { GlassTile } from '@/components/shared/GlassTile';
+import { BaseTile } from '@/components/tiles';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, XCircle, Loader2, Play, BarChart3 } from 'lucide-react';
 

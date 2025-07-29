@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { GlassTile } from "@/components/shared/GlassTile";
+import { BaseTile } from "@/components/tiles";
 import { memo } from "react";
 
 interface CUSIPData {

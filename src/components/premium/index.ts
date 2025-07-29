@@ -1,9 +1,5 @@
-// Core Foundation Components
-export { BaseTile } from './BaseTile';
-export { DataTile } from './DataTile';
-export { MultiMetricTile } from './MultiMetricTile';
-export { AlertTile } from './AlertTile';
-export { ChartTile } from './ChartTile';
+// Core Tile Components (migrated to /tiles)
+export { BaseTile, DataTile, MultiMetricTile, AlertTile, ChartTile } from '../tiles';
 
 // Layout Components
 export { PremiumGrid } from './PremiumGrid';
@@ -15,5 +11,4 @@ export { PremiumChartTile } from './PremiumChartTile';
 export { PremiumActionTile } from './PremiumActionTile';
 
 // Type Exports
-export type { BaseTileProps } from './BaseTile';
-export type { MetricData } from './DataTile';
+export type { BaseTileProps, MetricData, DataTileProps, ChartTileProps, MultiMetricTileProps, AlertTileProps } from '../tiles';

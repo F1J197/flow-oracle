@@ -1,4 +1,5 @@
-import { PremiumDataTile, PremiumChartTile, PremiumActionTile, PremiumGrid } from '@/components/premium';
+import { DataTile, ChartTile, PremiumGrid } from '@/components/premium';
+import { PremiumActionTile } from './PremiumActionTile';
 import { LineChart, Line, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 // Mock data for demonstration
@@ -14,7 +15,7 @@ export const PremiumDashboardDemo = () => {
   return (
     <PremiumGrid density="comfortable" maxWidth="2xl">
       {/* Net Liquidity - Large Primary Tile */}
-      <PremiumDataTile
+      <DataTile
         title="Net Liquidity"
         size="large"
         variant="primary"
@@ -45,7 +46,7 @@ export const PremiumDashboardDemo = () => {
       />
 
       {/* Credit Stress */}
-      <PremiumDataTile
+      <DataTile
         title="Credit Stress"
         variant="warning"
         primaryMetric={{
@@ -60,7 +61,7 @@ export const PremiumDashboardDemo = () => {
       />
 
       {/* Momentum Chart */}
-      <PremiumChartTile
+      <ChartTile
         title="Momentum Engine"
         chart={
           <ResponsiveContainer width="100%" height={120}>

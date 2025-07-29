@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GlassTile } from '@/components/shared/GlassTile';
+import { BaseTile } from '@/components/tiles';
 import { DataDisplay } from '@/components/shared/DataDisplay';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -77,8 +77,9 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Processing Performance */}
-        <GlassTile 
-          title="PROCESSING PERFORMANCE"
+        <BaseTile 
+          variant={getPerformanceStatus(metrics.processingTime) === 'normal' ? 'default' : 
+                   getPerformanceStatus(metrics.processingTime) === 'warning' ? 'warning' : 'critical'}
           status={getPerformanceStatus(metrics.processingTime)}
         >
           <DataDisplay
@@ -106,10 +107,10 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
               {isLive ? 'Live' : 'Stale'}
             </span>
           </div>
-        </GlassTile>
+        </BaseTile>
 
         {/* Data Quality */}
-        <GlassTile title="DATA QUALITY">
+        <BaseTile>
           <DataDisplay
             value={`${metrics.dataFreshness}%`}
             label="Freshness Score"
@@ -138,10 +139,10 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
             {metrics.dataFreshness > 80 ? 'EXCELLENT' : 
              metrics.dataFreshness > 60 ? 'GOOD' : 'NEEDS REFRESH'}
           </Badge>
-        </GlassTile>
+        </BaseTile>
 
         {/* Cache Performance */}
-        <GlassTile title="CACHE EFFICIENCY">
+        <BaseTile>
           <DataDisplay
             value={`${metrics.cacheHitRate.toFixed(1)}%`}
             label="Hit Rate"
@@ -171,10 +172,10 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
               ></div>
             </div>
           </div>
-        </GlassTile>
+        </BaseTile>
 
         {/* System Health */}
-        <GlassTile title="SYSTEM HEALTH">
+        <BaseTile>
           <DataDisplay
             value={isLive && metrics.successRate > 90 ? 'HEALTHY' : 'DEGRADED'}
             label="Overall Status"
@@ -208,13 +209,13 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
               <span className="text-xs text-text-muted">Data</span>
             </div>
           </div>
-        </GlassTile>
+        </BaseTile>
 
       </div>
 
       {/* Detailed Metrics Table */}
       <div className="mt-6">
-        <GlassTile title="DETAILED METRICS">
+        <BaseTile>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <div className="text-text-secondary text-xs mb-1">Processing</div>
@@ -242,7 +243,7 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
               <div>• Performance-optimized with intelligent caching</div>
             </div>
           </div>
-        </GlassTile>
+        </BaseTile>
       </div>
     </div>
   );

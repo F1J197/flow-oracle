@@ -1,0 +1,146 @@
+/* Premium Tile System Animations */
+
+/* Tile Entry Animation */
+@keyframes tileEntry {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Data Update Animation */
+@keyframes dataUpdate {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Status Pulse Animation */
+@keyframes statusPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 currentColor;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 8px transparent;
+    opacity: 0.7;
+  }
+}
+
+/* BTC Glow Animation */
+@keyframes btcGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px hsla(var(--btc-primary), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px hsla(var(--btc-primary), 0.5);
+  }
+}
+
+/* Shimmer Effect for Loading States */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* Utility Classes */
+.animate-tileEntry {
+  animation: tileEntry 0.4s ease-out;
+}
+
+.animate-dataUpdate {
+  animation: dataUpdate 0.3s ease-out;
+}
+
+.animate-statusPulse {
+  animation: statusPulse 2s infinite;
+}
+
+.animate-btcGlow {
+  animation: btcGlow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsla(var(--glass-border), 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Shadow Effects */
+.shadow-btc-glow {
+  box-shadow: 0 4px 20px hsla(var(--btc-primary), 0.3);
+}
+
+.shadow-btc-glow-intense {
+  box-shadow: 0 8px 30px hsla(var(--btc-primary), 0.5);
+}
+
+/* Interactive Glow States */
+.group:hover .shadow-btc-glow {
+  box-shadow: 0 8px 30px hsla(var(--btc-primary), 0.4);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Premium Glass Effects */
+.glass-surface-hover {
+  transition: all 0.3s ease;
+}
+
+.glass-surface-hover:hover {
+  background: hsla(var(--glass-surface), 0.8);
+  backdrop-filter: blur(16px);
+}
+
+/* Metric Update Indicators */
+.metric-updated {
+  position: relative;
+}
+
+.metric-updated::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  background: hsla(var(--btc-primary), 1);
+  border-radius: 50%;
+  animation: statusPulse 1s ease-out;
+}
+
+/* Tile Status Indicators */
+.tile-status-active {
+  border-color: hsla(var(--btc-primary), 0.5);
+  box-shadow: 0 0 0 1px hsla(var(--btc-primary), 0.2);
+}
+
+.tile-status-warning {
+  border-color: hsla(var(--warning), 0.5);
+  box-shadow: 0 0 0 1px hsla(var(--warning), 0.2);
+}
+
+.tile-status-critical {
+  border-color: hsla(var(--critical), 0.5);
+  box-shadow: 0 0 0 1px hsla(var(--critical), 0.2);
+  animation: statusPulse 2s infinite;
+}

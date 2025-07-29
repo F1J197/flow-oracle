@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { GlassTile } from "@/components/shared/GlassTile";
+import { BaseTile } from "@/components/tiles";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Activity, DollarSign, Zap } from "lucide-react";
 
