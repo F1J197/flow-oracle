@@ -592,11 +592,11 @@ export class CUSIPStealthQEEngine implements IEngine {
   getDashboardData(): DashboardTileData {
     const totalAnomalies = this.segments.reduce((sum, s) => sum + s.anomalyCount, 0);
     
-    const getColor = (): 'teal' | 'orange' | 'gold' | 'lime' | 'fuchsia' => {
-      if (totalAnomalies > 10) return 'fuchsia'; // Critical anomaly count
-      if (this.hiddenFlowsDetected >= 3) return 'orange'; // High stealth activity
-      if (this.overallStealthScore > 50) return 'gold'; // Moderate stealth
-      return 'teal'; // Normal
+    const getColor = (): 'success' | 'critical' | 'warning' | 'success' | 'critical' => {
+      if (totalAnomalies > 10) return 'critical'; // Critical anomaly count
+      if (this.hiddenFlowsDetected >= 3) return 'critical'; // High stealth activity
+      if (this.overallStealthScore > 50) return 'warning'; // Moderate stealth
+      return 'success'; // Normal
     };
 
     const getStatus = (): 'normal' | 'warning' | 'critical' => {

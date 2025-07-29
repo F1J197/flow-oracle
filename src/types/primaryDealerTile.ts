@@ -5,7 +5,7 @@ export interface PrimaryDealerTileData {
   riskAppetite: 'EXPANDING' | 'CONTRACTING' | 'STABLE' | 'CRISIS';
   signal: 'BULLISH' | 'BEARISH' | 'NEUTRAL';
   status: 'normal' | 'warning' | 'critical';
-  color: 'teal' | 'orange' | 'lime' | 'gold' | 'fuchsia';
+  color: 'success' | 'critical' | 'warning' | 'info' | 'neutral';
   
   // Position bars data
   positionBars: {

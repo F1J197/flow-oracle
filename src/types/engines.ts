@@ -13,7 +13,7 @@ export interface DashboardTileData {
   status: 'normal' | 'warning' | 'critical';
   trend?: 'up' | 'down' | 'neutral';
   actionText?: string;
-  color?: 'teal' | 'orange' | 'lime' | 'gold' | 'fuchsia';
+  color?: 'success' | 'critical' | 'warning' | 'info' | 'neutral';
   loading?: boolean;
 }
 

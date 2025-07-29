@@ -194,12 +194,12 @@ export class NetLiquidityEngine implements IEngine {
   }
 
   getDashboardData(): DashboardTileData {
-    const getColor = (): 'teal' | 'orange' | 'gold' | 'lime' | 'fuchsia' => {
+    const getColor = (): 'success' | 'critical' | 'warning' | 'success' | 'critical' => {
       switch (this.regime) {
-        case 'QE': return 'teal';
-        case 'QT': return 'orange';
-        case 'TRANSITION': return 'gold';
-        default: return 'teal';
+        case 'QE': return 'success';
+        case 'QT': return 'critical';
+        case 'TRANSITION': return 'warning';
+        default: return 'success';
       }
     };
 

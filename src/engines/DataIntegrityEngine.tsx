@@ -573,7 +573,7 @@ export class DataIntegrityEngine implements IEngine {
       secondaryMetric: getStatusText(),
       status: getStatus(),
       actionText: getInsight(),
-      color: this.integrityScore > 99 ? 'lime' : this.integrityScore > 95 ? 'gold' : 'orange'
+      color: this.integrityScore > 99 ? 'success' : this.integrityScore > 95 ? 'warning' : 'critical'
     };
   }
 

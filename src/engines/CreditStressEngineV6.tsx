@@ -484,7 +484,7 @@ export class CreditStressEngineV6 implements IEngine {
         primaryMetric: '--',
         secondaryMetric: 'INITIALIZING',
         status: 'normal' as const,
-        color: 'gold' as const,
+        color: 'warning' as const,
         actionText: 'Loading credit stress data...'
       };
     }

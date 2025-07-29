@@ -635,7 +635,7 @@ export class EnhancedZScoreEngine implements IEngine {
         primaryMetric: 'Loading...',
         secondaryMetric: 'Initializing multi-timeframe analysis',
         status: 'normal',
-        color: 'teal',
+        color: 'success',
         loading: true,
         actionText: 'Calculating statistical distribution across 7 core indicators'
       };
@@ -663,7 +663,7 @@ export class EnhancedZScoreEngine implements IEngine {
       secondaryMetric: `${successfulIndicators} indicators • ${extremeCount} extremes`,
       status,
       trend: this.compositeZScore > 0 ? 'up' : this.compositeZScore < 0 ? 'down' : 'neutral',
-      color: this.regime === 'EXPANSION' ? 'lime' : this.regime === 'CONTRACTION' ? 'orange' : 'teal',
+      color: this.regime === 'EXPANSION' ? 'success' : this.regime === 'CONTRACTION' ? 'critical' : 'success',
       actionText: this.generateStatisticalSummary()
     };
   }

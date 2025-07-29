@@ -279,13 +279,13 @@ export class PrimaryDealerPositionsEngineV6 implements IEngine {
     const { riskMetrics, analytics } = this.currentData;
     const totalPositions = this.getTotalPositions();
     
-    const getColor = (): 'teal' | 'orange' | 'gold' | 'lime' | 'fuchsia' => {
+    const getColor = (): 'success' | 'critical' | 'warning' | 'success' | 'critical' => {
       switch (analytics.regime) {
-        case 'EXPANSION': return 'teal';
-        case 'CONTRACTION': return 'orange';
-        case 'CRISIS': return 'fuchsia';
-        case 'TRANSITION': return 'lime';
-        default: return 'gold';
+        case 'EXPANSION': return 'success';
+        case 'CONTRACTION': return 'critical';
+        case 'CRISIS': return 'critical';
+        case 'TRANSITION': return 'success';
+        default: return 'warning';
       }
     };
 
@@ -355,13 +355,13 @@ export class PrimaryDealerPositionsEngineV6 implements IEngine {
       }
     };
 
-    const getColor = (): 'teal' | 'orange' | 'gold' | 'lime' | 'fuchsia' => {
+    const getColor = (): 'success' | 'critical' | 'warning' | 'success' | 'critical' => {
       switch (analytics.regime) {
-        case 'EXPANSION': return 'teal';
-        case 'CONTRACTION': return 'orange';
-        case 'CRISIS': return 'fuchsia';
-        case 'TRANSITION': return 'lime';
-        default: return 'gold';
+        case 'EXPANSION': return 'success';
+        case 'CONTRACTION': return 'critical';
+        case 'CRISIS': return 'critical';
+        case 'TRANSITION': return 'success';
+        default: return 'warning';
       }
     };
 
@@ -519,7 +519,7 @@ export class PrimaryDealerPositionsEngineV6 implements IEngine {
       secondaryMetric: 'NEUTRAL | 85.6% CAPACITY',
       status: 'warning',
       trend: 'neutral',
-      color: 'gold',
+      color: 'warning',
       actionText: 'DATA UNAVAILABLE',
       loading: false
     };
@@ -533,7 +533,7 @@ export class PrimaryDealerPositionsEngineV6 implements IEngine {
       riskAppetite: 'STABLE',
       signal: 'NEUTRAL',
       status: 'warning',
-      color: 'gold',
+      color: 'warning',
       positionBars: {
         grossLong: 5660000,
         grossShort: 5970000,

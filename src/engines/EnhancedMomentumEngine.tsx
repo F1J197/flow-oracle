@@ -827,10 +827,10 @@ export class EnhancedMomentumEngine implements IEngine {
 
   getDashboardData(): DashboardTileData {
     const getColor = (): DashboardTileData['color'] => {
-      if (this.compositeMomentum.value > 40) return 'lime';
-      if (this.compositeMomentum.value > 0) return 'teal';
-      if (this.compositeMomentum.value > -40) return 'orange';
-      return 'fuchsia';
+      if (this.compositeMomentum.value > 40) return 'success';
+      if (this.compositeMomentum.value > 0) return 'success';
+      if (this.compositeMomentum.value > -40) return 'critical';
+      return 'critical';
     };
 
     const getStatus = (): DashboardTileData['status'] => {
