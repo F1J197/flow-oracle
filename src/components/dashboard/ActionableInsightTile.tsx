@@ -1,7 +1,7 @@
 import { GlassTile } from "@/components/shared/GlassTile";
 import { Badge } from "@/components/ui/badge";
 import { ActionableInsight } from "@/types/engines";
-import { memo } from "react";
+import { memo, useState, useEffect } from "react";
 
 interface ActionableInsightTileProps {
   insight: ActionableInsight;
@@ -14,6 +14,20 @@ export const ActionableInsightTile = memo(({
   engineName,
   loading = false 
 }: ActionableInsightTileProps) => {
+  // Stabilize signal strength to prevent rapid glitching
+  const [stableSignalStrength, setStableSignalStrength] = useState(insight.signalStrength);
+  
+  useEffect(() => {
+    // Only update if the change is significant (>5%) to reduce visual noise
+    const difference = Math.abs(insight.signalStrength - stableSignalStrength);
+    if (difference > 5 || stableSignalStrength === 0) {
+      const timer = setTimeout(() => {
+        setStableSignalStrength(insight.signalStrength);
+      }, 100); // Small delay to batch rapid updates
+      
+      return () => clearTimeout(timer);
+    }
+  }, [insight.signalStrength, stableSignalStrength]);
   const getActionColor = (action: string) => {
     switch (action) {
       case 'BUY': return 'lime';
@@ -60,12 +74,12 @@ export const ActionableInsightTile = memo(({
         </div>
         <div className="w-full bg-noir-border rounded-full h-2 overflow-hidden">
           <div 
-            className={`h-full bg-gradient-to-r from-neon-${getActionColor(insight.marketAction)} to-neon-${getActionColor(insight.marketAction)}/60 transition-all duration-1000`}
-            style={{ width: `${insight.signalStrength}%` }}
+            className={`h-full bg-gradient-to-r from-neon-${getActionColor(insight.marketAction)} to-neon-${getActionColor(insight.marketAction)}/60 transition-all duration-500 ease-out`}
+            style={{ width: `${stableSignalStrength}%` }}
           />
         </div>
         <div className="text-right">
-          <span className="text-xs text-text-secondary">{insight.signalStrength}%</span>
+          <span className="text-xs text-text-secondary">{stableSignalStrength}%</span>
         </div>
       </div>
 
