@@ -90,9 +90,21 @@ export class EngineOrchestrator {
     // Sort by priority (higher priority = lower number = executes first)
     const sortedEngines = targetEngines.sort((a, b) => a.priority - b.priority);
     
-    // For now, simple sequential execution by priority
-    // TODO: Implement proper dependency resolution
-    const executionOrder = sortedEngines.map(engine => [engine.id]);
+    // Group engines by pillar for parallel execution within each pillar
+    const pillarGroups = new Map<number, IEngine[]>();
+    sortedEngines.forEach(engine => {
+      const pillar = engine.pillar;
+      if (!pillarGroups.has(pillar)) {
+        pillarGroups.set(pillar, []);
+      }
+      pillarGroups.get(pillar)!.push(engine);
+    });
+    
+    // Create execution batches: each pillar can run in parallel
+    const executionOrder: string[][] = [];
+    for (const [pillar, engines] of Array.from(pillarGroups.entries()).sort(([a], [b]) => a - b)) {
+      executionOrder.push(engines.map(e => e.id));
+    }
     
     return {
       engines: sortedEngines,

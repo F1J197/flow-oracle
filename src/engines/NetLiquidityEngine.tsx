@@ -1,8 +1,8 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
 import { UnifiedDataService } from "@/services/UnifiedDataService";
-import { BaseEngine } from "./BaseEngine";
+import { ResilientBaseEngine } from "./ResilientBaseEngine";
 
-export class NetLiquidityEngine extends BaseEngine {
+export class NetLiquidityEngine extends ResilientBaseEngine {
   id = 'net-liquidity';
   name = 'Net Liquidity Engine V6';
   priority = 1;
@@ -10,10 +10,11 @@ export class NetLiquidityEngine extends BaseEngine {
 
   constructor() {
     super({
-      refreshInterval: 15000,
-      retryAttempts: 3,
-      timeout: 10000,
-      cacheTimeout: 30000
+      refreshInterval: 45000,
+      maxRetries: 2,
+      timeout: 20000,
+      cacheTimeout: 90000,
+      gracefulDegradation: true
     });
   }
 

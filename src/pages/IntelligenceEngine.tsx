@@ -10,19 +10,19 @@ import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
 import { SimplifiedDataIntegrityEngine } from "@/engines/SimplifiedDataIntegrityEngine";
 import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
-import { EngineAdapter } from "@/utils/engineAdapter";
+
 
 export const IntelligenceEngine = () => {
 
   // Initialize engine instances with resilient pattern
   const engines = useMemo(() => ({
     dataIntegrity: new SimplifiedDataIntegrityEngine(),
-    netLiquidity: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new NetLiquidityEngine())),
-    creditStressV6: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new CreditStressEngineV6())),
-    cusipStealthQE: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new CUSIPStealthQEEngine())),
-    enhancedZScore: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new EnhancedZScoreEngine())),
-    enhancedMomentum: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new EnhancedMomentumEngine())),
-    primaryDealerPositions: EngineAdapter.wrapExecution(EngineAdapter.adaptLegacyEngine(new PrimaryDealerPositionsEngineV6())),
+    netLiquidity: new NetLiquidityEngine(),
+    creditStressV6: new CreditStressEngineV6(),
+    cusipStealthQE: new CUSIPStealthQEEngine(),
+    enhancedZScore: new EnhancedZScoreEngine(),
+    enhancedMomentum: new EnhancedMomentumEngine(),
+    primaryDealerPositions: new PrimaryDealerPositionsEngineV6(),
   }), []);
 
   const activeEngines = [

@@ -1,5 +1,5 @@
 import { IEngine, EngineReport, DashboardTileData, DetailedEngineView, ActionableInsight } from '@/types/engines';
-import { BaseEngine } from './BaseEngine';
+import { ResilientBaseEngine } from './ResilientBaseEngine';
 import { UnifiedDataService } from '@/services/UnifiedDataService';
 
 // ============= INTERFACES =============
@@ -397,7 +397,7 @@ class LeadingIndicatorAnalyzer {
 
 // ============= MAIN ENGINE =============
 
-export class CreditStressEngineV6 extends BaseEngine {
+export class CreditStressEngineV6 extends ResilientBaseEngine {
   readonly id = 'credit-stress-v6';
   readonly name = 'Credit Stress Engine V6';
   readonly priority = 1;
@@ -416,9 +416,10 @@ export class CreditStressEngineV6 extends BaseEngine {
   constructor() {
     super({
       refreshInterval: 30000,
-      retryAttempts: 3,
+      maxRetries: 2,
       timeout: 15000,
-      cacheTimeout: 60000
+      cacheTimeout: 60000,
+      gracefulDegradation: true
     });
     console.log('🚀 Credit Stress Engine V6 initialized');
   }
@@ -579,7 +580,8 @@ export class CreditStressEngineV6 extends BaseEngine {
     };
   }
 
-  getState() {
+  // Custom state methods for credit-specific data
+  getCreditState() {
     return {
       currentData: this.currentData,
       termStructure: this.termStructure,
@@ -587,11 +589,6 @@ export class CreditStressEngineV6 extends BaseEngine {
       leadingIndicators: this.leadingIndicators,
       lastUpdate: Date.now()
     };
-  }
-
-  subscribe(callback: (state: any) => void) {
-    // Implement subscription logic if needed
-    return () => {};
   }
 
   private generateInsight(): string {
