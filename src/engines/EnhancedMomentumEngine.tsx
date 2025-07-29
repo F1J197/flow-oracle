@@ -475,6 +475,7 @@ export class EnhancedMomentumEngine extends BaseEngine {
   readonly name = 'Enhanced Momentum Engine V6';
   readonly priority = 2;
   readonly pillar = 1 as const;
+  readonly category = 'core' as const;
 
   // Phase 1: Core Components
   private calculator = new EnhancedMomentumCalculator();
@@ -971,6 +972,67 @@ export class EnhancedMomentumEngine extends BaseEngine {
       marketAction,
       confidence,
       timeframe: Math.abs(momentum) > 0.5 ? 'MEDIUM_TERM' : 'SHORT_TERM'
+    };
+  }
+
+  getIntelligenceView() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      status: dashboardData.status === 'critical' ? 'critical' as const : 
+              dashboardData.status === 'warning' ? 'warning' as const : 'active' as const,
+      primaryMetrics: {
+        'Momentum Score': {
+          value: this.compositeMomentum.value.toFixed(1),
+          label: 'Composite momentum strength',
+          status: 'normal' as const
+        }
+      },
+      sections: [
+        {
+          title: 'Momentum Analysis',
+          data: {
+            'Category': {
+              value: this.compositeMomentum.category,
+              label: 'Current momentum classification'
+            },
+            'Regime': {
+              value: this.compositeMomentum.regime,
+              label: 'Market momentum regime'
+            },
+            'Confidence': {
+              value: `${this.compositeMomentum.confidence}%`,
+              label: 'Analysis confidence level',
+              unit: '%'
+            }
+          }
+        }
+      ],
+      confidence: this.compositeMomentum.confidence,
+      lastUpdate: new Date()
+    };
+  }
+
+  getDetailedModal() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      description: 'Advanced momentum analysis using multiscale calculations and derivative analysis',
+      keyInsights: [
+        `Momentum score: ${this.compositeMomentum.value.toFixed(1)}`,
+        `Category: ${this.compositeMomentum.category}`,
+        `Confidence: ${this.compositeMomentum.confidence}%`
+      ],
+      detailedMetrics: [
+        {
+          category: 'Momentum Analysis',
+          metrics: {
+            'Momentum Score': { value: this.compositeMomentum.value, description: 'Composite momentum strength indicator' },
+            'Category': { value: this.compositeMomentum.category, description: 'Current momentum classification' },
+            'Confidence': { value: `${this.compositeMomentum.confidence}%`, description: 'Analysis confidence level' }
+          }
+        }
+      ]
     };
   }
 }

@@ -477,6 +477,7 @@ export class EnhancedZScoreEngine extends BaseEngine {
   readonly name = 'Enhanced Z-Score Engine';
   readonly priority = 1;
   readonly pillar = 1 as const;
+  readonly category = 'foundation' as const;
 
   private calculator = new EnhancedZScoreCalculator();
   private validator = new ZScoreValidator();
@@ -1281,6 +1282,68 @@ export class EnhancedZScoreEngine extends BaseEngine {
       marketAction,
       confidence,
       timeframe: magnitude > 2 ? 'IMMEDIATE' : magnitude > 1 ? 'SHORT_TERM' : 'MEDIUM_TERM'
+    };
+  }
+
+  getIntelligenceView() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      status: dashboardData.status === 'critical' ? 'critical' as const : 
+              dashboardData.status === 'warning' ? 'warning' as const : 'active' as const,
+      primaryMetrics: {
+        'Composite Z-Score': {
+          value: `${this.compositeZScore.toFixed(1)}σ`,
+          label: 'Weighted composite statistical score',
+          status: 'normal' as const
+        }
+      },
+      sections: [
+        {
+          title: 'Statistical Analysis',
+          data: {
+            'Regime': {
+              value: this.regime,
+              label: 'Current market regime'
+            },
+            'Confidence': {
+              value: `${this.confidence}%`,
+              label: 'Analysis confidence level',
+              unit: '%'
+            },
+            'Alignment': {
+              value: `${this.alignment}%`,
+              label: 'Cross-timeframe alignment',
+              unit: '%'
+            }
+          }
+        }
+      ],
+      confidence: this.confidence,
+      lastUpdate: new Date()
+    };
+  }
+
+  getDetailedModal() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      description: 'Institutional-grade Z-score analysis with multi-timeframe statistical modeling',
+      keyInsights: [
+        `Composite Z-score: ${this.compositeZScore.toFixed(1)}σ`,
+        `Market regime: ${this.regime}`,
+        `Analysis confidence: ${this.confidence}%`
+      ],
+      detailedMetrics: [
+        {
+          category: 'Statistical Analysis',
+          metrics: {
+            'Composite Z-Score': { value: `${this.compositeZScore}σ`, description: 'Weighted composite statistical score' },
+            'Regime': { value: this.regime, description: 'Current market regime classification' },
+            'Confidence': { value: `${this.confidence}%`, description: 'Statistical confidence level' }
+          }
+        }
+      ]
     };
   }
 }

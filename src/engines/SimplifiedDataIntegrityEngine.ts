@@ -6,6 +6,7 @@ import { ResilientBaseEngine } from "./ResilientBaseEngine";
  * Focuses on core functionality with robust error handling and graceful degradation
  */
 export class SimplifiedDataIntegrityEngine extends ResilientBaseEngine {
+  readonly category = 'foundation' as const;
   readonly id = 'data-integrity-v6';
   readonly name = 'Data Integrity Engine V6';
   readonly priority = 1;
@@ -207,5 +208,65 @@ export class SimplifiedDataIntegrityEngine extends ResilientBaseEngine {
     }
     
     return alerts;
+  }
+
+  getIntelligenceView() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      status: dashboardData.status === 'critical' ? 'critical' as const : 
+              dashboardData.status === 'warning' ? 'warning' as const : 'active' as const,
+      primaryMetrics: {
+        'Integrity Score': {
+          value: `${this.integrityScore.toFixed(1)}%`,
+          label: 'Overall data integrity percentage',
+          status: 'normal' as const
+        }
+      },
+      sections: [
+        {
+          title: 'Data Quality',
+          data: {
+            'Active Sources': {
+              value: `${this.activeSources}/${this.totalSources}`,
+              label: 'Operational data sources'
+            },
+            'System Status': {
+              value: this.getSystemStatus(),
+              label: 'Current system status'
+            },
+            'Last Validation': {
+              value: `${Math.round(this.getAge() / 60000)}m ago`,
+              label: 'Time since last validation'
+            }
+          }
+        }
+      ],
+      confidence: Math.round(this.integrityScore),
+      lastUpdate: new Date()
+    };
+  }
+
+  getDetailedModal() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      description: 'Advanced data integrity monitoring with automated validation and self-healing capabilities',
+      keyInsights: [
+        `Integrity score: ${this.integrityScore.toFixed(1)}%`,
+        `System status: ${this.getSystemStatus()}`,
+        `Active sources: ${this.activeSources}/${this.totalSources}`
+      ],
+      detailedMetrics: [
+        {
+          category: 'Data Quality',
+          metrics: {
+            'Integrity Score': { value: `${this.integrityScore}%`, description: 'Overall data integrity percentage' },
+            'System Status': { value: this.getSystemStatus(), description: 'Current system operational status' },
+            'Active Sources': { value: `${this.activeSources}/${this.totalSources}`, description: 'Number of operational data sources' }
+          }
+        }
+      ]
+    };
   }
 }

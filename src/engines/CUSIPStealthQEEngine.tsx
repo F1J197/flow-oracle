@@ -66,6 +66,7 @@ export class CUSIPStealthQEEngine extends BaseEngine {
   readonly name = 'CUSIP-Level Stealth QE Detection V6';
   readonly priority = 1;
   readonly pillar = 2 as const;
+  readonly category = 'core' as const;
 
   // Enhanced V6 metrics
   private segments: TreasurySegment[] = [];
@@ -684,6 +685,67 @@ export class CUSIPStealthQEEngine extends BaseEngine {
           message: `V6 ALERT: ${totalAnomalies} ML-detected anomalies across ${this.hiddenFlowsDetected} stealth flow segments. Top severity: ${Math.max(...this.anomalies.map(a => a.severity_score)).toFixed(1)}/100`
         }
       ] : undefined
+    };
+  }
+
+  getIntelligenceView() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      status: dashboardData.status === 'critical' ? 'critical' as const : 
+              dashboardData.status === 'warning' ? 'warning' as const : 'active' as const,
+      primaryMetrics: {
+        'Stealth Score': {
+          value: `${this.overallStealthScore.toFixed(1)}/100`,
+          label: 'Overall stealth activity score',
+          status: 'normal' as const
+        }
+      },
+      sections: [
+        {
+          title: 'Detection Metrics',
+          data: {
+            'Detection Confidence': {
+              value: `${this.detectionConfidence.toFixed(1)}%`,
+              label: 'ML detection confidence',
+              unit: '%'
+            },
+            'Hidden Flows': {
+              value: this.hiddenFlowsDetected,
+              label: 'Active stealth flow segments'
+            },
+            'ML Anomalies': {
+              value: this.segments.reduce((sum, s) => sum + s.anomalyCount, 0),
+              label: 'Total ML-detected anomalies'
+            }
+          }
+        }
+      ],
+      confidence: this.detectionConfidence,
+      lastUpdate: new Date()
+    };
+  }
+
+  getDetailedModal() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      description: 'Advanced CUSIP-level stealth QE detection using machine learning anomaly detection',
+      keyInsights: [
+        `Overall stealth score: ${this.overallStealthScore.toFixed(1)}/100`,
+        `Detection confidence: ${this.detectionConfidence.toFixed(1)}%`,
+        `Active anomalies: ${this.segments.reduce((sum, s) => sum + s.anomalyCount, 0)}`
+      ],
+      detailedMetrics: [
+        {
+          category: 'Detection Results',
+          metrics: {
+            'Stealth Score': { value: this.overallStealthScore, description: 'Composite stealth activity score' },
+            'Confidence': { value: `${this.detectionConfidence}%`, description: 'ML detection confidence level' },
+            'Anomalies': { value: this.segments.reduce((sum, s) => sum + s.anomalyCount, 0), description: 'Total ML-detected anomalies' }
+          }
+        }
+      ]
     };
   }
 }

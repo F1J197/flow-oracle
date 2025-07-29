@@ -402,6 +402,7 @@ export class CreditStressEngineV6 extends ResilientBaseEngine {
   readonly name = 'Credit Stress Engine V6';
   readonly priority = 1;
   readonly pillar = 2 as const;
+  readonly category = 'core' as const;
 
   private calculator = new CreditSpreadCalculator();
   private termAnalyzer = new TermStructureAnalyzer();
@@ -694,6 +695,67 @@ export class CreditStressEngineV6 extends ResilientBaseEngine {
       marketAction,
       confidence,
       timeframe: this.currentData.stressLevel === 'CRISIS' ? 'IMMEDIATE' : 'SHORT_TERM'
+    };
+  }
+
+  getIntelligenceView() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      status: dashboardData.status === 'critical' ? 'critical' as const : 
+              dashboardData.status === 'warning' ? 'warning' as const : 'active' as const,
+      primaryMetrics: {
+        'Credit Spread': {
+          value: this.currentData ? `${Math.round(this.currentData.composite)}bps` : '--',
+          label: 'Composite credit spread',
+          status: 'normal' as const
+        }
+      },
+      sections: [
+        {
+          title: 'Credit Analysis',
+          data: {
+            'Stress Level': {
+              value: this.currentData?.stressLevel || 'Unknown',
+              label: 'Current market stress level'
+            },
+            'Regime': {
+              value: this.currentData?.regime || 'Unknown',
+              label: 'Market regime classification'
+            },
+            'Confidence': {
+              value: this.currentData ? `${this.currentData.confidence}%` : '--',
+              label: 'Analysis confidence level',
+              unit: '%'
+            }
+          }
+        }
+      ],
+      confidence: this.currentData?.confidence || 0,
+      lastUpdate: new Date()
+    };
+  }
+
+  getDetailedModal() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      description: 'Comprehensive credit stress monitoring with composite spread calculation and regime detection',
+      keyInsights: [
+        `Credit spread: ${this.currentData ? Math.round(this.currentData.composite) : '--'}bps`,
+        `Stress level: ${this.currentData?.stressLevel || 'Unknown'}`,
+        `Market regime: ${this.currentData?.regime || 'Unknown'}`
+      ],
+      detailedMetrics: [
+        {
+          category: 'Credit Analysis',
+          metrics: {
+            'Composite Spread': { value: this.currentData ? `${this.currentData.composite}bps` : '--', description: 'Weighted composite credit spread' },
+            'Stress Level': { value: this.currentData?.stressLevel || 'Unknown', description: 'Current market stress classification' },
+            'Confidence': { value: this.currentData ? `${this.currentData.confidence}%` : '--', description: 'Data quality confidence' }
+          }
+        }
+      ]
     };
   }
 }

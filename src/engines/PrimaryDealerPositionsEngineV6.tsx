@@ -5,6 +5,7 @@ import { DealerPositionData, DealerRegime, DealerAlert, DealerInsight } from '@/
 import { PrimaryDealerTileData } from '@/types/primaryDealerTile';
 
 export class PrimaryDealerPositionsEngineV6 extends BaseEngine {
+  readonly category = 'core' as const;
   readonly id = 'primary-dealer-positions-v6';
   readonly name = 'Primary Dealer Positions V6';
   readonly priority = 20;
@@ -616,6 +617,67 @@ export class PrimaryDealerPositionsEngineV6 extends BaseEngine {
       errorCount: this.errorCount,
       lastUpdate: this.lastSuccessfulUpdate,
       dataAge: Date.now() - this.lastSuccessfulUpdate.getTime()
+    };
+  }
+
+  getIntelligenceView() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      status: dashboardData.status === 'critical' ? 'critical' as const : 
+              dashboardData.status === 'warning' ? 'warning' as const : 'active' as const,
+      primaryMetrics: {
+        'Total Positions': {
+          value: this.currentData ? `$${(this.getTotalPositions() / 1000000).toFixed(3)}T` : '--',
+          label: 'Total dealer positions',
+          status: 'normal' as const
+        }
+      },
+      sections: [
+        {
+          title: 'Position Analysis',
+          data: {
+            'Regime': {
+              value: this.currentData?.analytics.regime || 'Unknown',
+              label: 'Current dealer regime'
+            },
+            'Risk Capacity': {
+              value: this.currentData ? `${this.currentData.riskMetrics.riskCapacity.toFixed(1)}%` : '--',
+              label: 'Available risk capacity',
+              unit: '%'
+            },
+            'Flow Direction': {
+              value: this.currentData?.analytics.flowDirection || 'Unknown',
+              label: 'Current flow direction'
+            }
+          }
+        }
+      ],
+      confidence: this.currentData ? Math.round(this.currentData.analytics.regimeConfidence * 100) : 0,
+      lastUpdate: new Date()
+    };
+  }
+
+  getDetailedModal() {
+    const dashboardData = this.getDashboardData();
+    return {
+      title: this.name,
+      description: 'Comprehensive primary dealer position tracking with regime analysis and risk monitoring',
+      keyInsights: [
+        `Total positions: ${this.currentData ? `$${(this.getTotalPositions() / 1000000).toFixed(3)}T` : 'Unknown'}`,
+        `Regime: ${this.currentData?.analytics.regime || 'Unknown'}`,
+        `Risk capacity: ${this.currentData ? `${this.currentData.riskMetrics.riskCapacity.toFixed(1)}%` : 'Unknown'}`
+      ],
+      detailedMetrics: [
+        {
+          category: 'Position Analysis',
+          metrics: {
+            'Total Positions': { value: this.currentData ? `$${(this.getTotalPositions() / 1000000).toFixed(3)}T` : '--', description: 'Total dealer positions across all instruments' },
+            'Regime': { value: this.currentData?.analytics.regime || 'Unknown', description: 'Current dealer positioning regime' },
+            'Risk Capacity': { value: this.currentData ? `${this.currentData.riskMetrics.riskCapacity}%` : '--', description: 'Available risk capacity percentage' }
+          }
+        }
+      ]
     };
   }
 }
