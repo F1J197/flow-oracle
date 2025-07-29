@@ -28,6 +28,7 @@ export { IntelligenceTile } from './IntelligenceTile';
 export { PrimaryDealerIntelligenceTile } from './PrimaryDealerIntelligenceTile';
 export { PrimaryDealerPositionsView } from './PrimaryDealerPositionsView';
 export { CUSIPStealthQEView } from './CUSIPStealthQEView';
+export { DataIntegrityView } from './DataIntegrityView';
 
 // Types
 export type { IntelligenceViewData } from '@/types/intelligenceView';
