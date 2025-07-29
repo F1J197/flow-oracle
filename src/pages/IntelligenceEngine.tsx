@@ -45,15 +45,20 @@ export const IntelligenceEngine = () => {
   return (
     <div className="max-w-7xl mx-auto p-6">
       {/* Header */}
-      <div className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold text-neon-teal">Intelligence Engine</h1>
-        <p className="text-text-secondary font-mono">
-          28 Processing Engines • Real-time Market Analysis
-        </p>
+      <div className="mb-8 space-y-3">
+        <div className="text-text-secondary font-mono text-sm">
+          The Intelligence Engine synthesizes 28 specialized processing engines to deliver 
+          real-time market intelligence. Each engine processes specific data streams and 
+          contributes to our comprehensive liquidity assessment framework.
+        </div>
+        <div className="text-text-muted font-mono text-xs">
+          Foundation Engines • Pillar Analysis • Synthesis & Execution
+        </div>
       </div>
 
-      {/* 3x3 Engine Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* 3x3 Engine Grid - Fixed Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Active Engines */}
         {/* Active Engines */}
         {activeEngines.map((engine) => (
           <TerminalEngineView
@@ -66,14 +71,13 @@ export const IntelligenceEngine = () => {
         {/* Placeholder Development Engines */}
         <div className="glass-tile p-6 font-mono text-sm opacity-60">
           <div className="mb-6">
-            <div className="text-text-secondary text-xs uppercase tracking-wider mb-2">
-              Intelligence Engine View Layout:
-            </div>
-            <div className="text-text-primary font-bold text-sm uppercase mb-1">
-              REGIME DETECTION ENGINE
-            </div>
-            <div className="text-text-secondary">
-              {"=".repeat("REGIME DETECTION ENGINE".length)}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-neon-teal font-bold text-base uppercase tracking-wide">
+                REGIME DETECTION ENGINE
+              </h2>
+              <div className="text-xs text-neon-gold border border-neon-gold px-2 py-1 rounded">
+                DEV
+              </div>
             </div>
           </div>
 
@@ -104,14 +108,13 @@ export const IntelligenceEngine = () => {
 
         <div className="glass-tile p-6 font-mono text-sm opacity-60">
           <div className="mb-6">
-            <div className="text-text-secondary text-xs uppercase tracking-wider mb-2">
-              Intelligence Engine View Layout:
-            </div>
-            <div className="text-text-primary font-bold text-sm uppercase mb-1">
-              CROSS-ASSET CORRELATION
-            </div>
-            <div className="text-text-secondary">
-              {"=".repeat("CROSS-ASSET CORRELATION".length)}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-neon-teal font-bold text-base uppercase tracking-wide">
+                CROSS-ASSET CORRELATION
+              </h2>
+              <div className="text-xs text-neon-orange border border-neon-orange px-2 py-1 rounded">
+                DESIGN
+              </div>
             </div>
           </div>
 
@@ -142,14 +145,13 @@ export const IntelligenceEngine = () => {
 
         <div className="glass-tile p-6 font-mono text-sm opacity-60">
           <div className="mb-6">
-            <div className="text-text-secondary text-xs uppercase tracking-wider mb-2">
-              Intelligence Engine View Layout:
-            </div>
-            <div className="text-text-primary font-bold text-sm uppercase mb-1">
-              TEMPORAL DYNAMICS ENGINE
-            </div>
-            <div className="text-text-secondary">
-              {"=".repeat("TEMPORAL DYNAMICS ENGINE".length)}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-neon-teal font-bold text-base uppercase tracking-wide">
+                TEMPORAL DYNAMICS ENGINE
+              </h2>
+              <div className="text-xs text-neon-fuchsia border border-neon-fuchsia px-2 py-1 rounded">
+                PLAN
+              </div>
             </div>
           </div>
 

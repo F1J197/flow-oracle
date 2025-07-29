@@ -28,22 +28,15 @@ export const TerminalEngineView = memo(({ view, loading = false }: TerminalEngin
 
   return (
     <div className="glass-tile p-6 font-mono text-sm leading-relaxed">
-      {/* Terminal Header */}
+      {/* Engine Title - Clean Format */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-text-secondary text-xs uppercase tracking-wider">
-            Intelligence Engine View Layout:
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-neon-teal font-bold text-base uppercase tracking-wide">
+            {view.title}
           </h2>
           <Badge variant="outline" className="text-neon-lime border-neon-lime text-xs">
             LIVE ⚡
           </Badge>
-        </div>
-        
-        <div className="text-text-primary font-bold text-sm uppercase mb-1">
-          {view.title}
-        </div>
-        <div className="text-text-secondary">
-          {"=".repeat(view.title.length)}
         </div>
       </div>
 
