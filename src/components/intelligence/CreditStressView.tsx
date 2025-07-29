@@ -47,10 +47,10 @@ export const CreditStressView = ({ loading, className }: CreditStressViewProps) 
   }
 
   const keyMetrics = [
-    { label: "Stress", value: mockData.stressLevel.toFixed(1), status: "critical" as const },
-    { label: "VIX", value: mockData.vix.toFixed(1), status: "warning" as const },
-    { label: "Risk App", value: mockData.riskAppetite, status: "warning" as const },
-    { label: "Curve", value: mockData.termStructure, status: "critical" as const }
+    { label: "Stress", value: mockData.value.stressLevel.toFixed(1), status: "critical" as const },
+    { label: "VIX", value: mockData.value.vix.toFixed(1), status: "warning" as const },
+    { label: "Risk App", value: mockData.value.riskAppetite, status: "warning" as const },
+    { label: "Curve", value: mockData.value.termStructure, status: "critical" as const }
   ];
 
   return (
@@ -62,20 +62,20 @@ export const CreditStressView = ({ loading, className }: CreditStressViewProps) 
       <TerminalMetricGrid metrics={keyMetrics} columns={2} />
       
       <TerminalDataSection title="SPREADS">
-        <TerminalDataRow label="IG" value={`${mockData.creditSpreads.investmentGrade}%`} status="warning" />
-        <TerminalDataRow label="HY" value={`${mockData.creditSpreads.highYield}%`} status="critical" />
-        <TerminalDataRow label="EM" value={`${mockData.creditSpreads.emergingMarkets}%`} status="warning" />
+        <TerminalDataRow label="IG" value={`${mockData.value.creditSpreads.investmentGrade}%`} status="warning" />
+        <TerminalDataRow label="HY" value={`${mockData.value.creditSpreads.highYield}%`} status="critical" />
+        <TerminalDataRow label="EM" value={`${mockData.value.creditSpreads.emergingMarkets}%`} status="warning" />
       </TerminalDataSection>
 
       <TerminalDataSection title="VOLATILITY">
-        <TerminalDataRow label="VIX" value={`${mockData.vix}%`} status="warning" />
+        <TerminalDataRow label="VIX" value={`${mockData.value.vix}%`} status="warning" />
         <TerminalDataRow label="MOVE" value="142.3" status="warning" />
         <TerminalDataRow label="Credit Vol" value="18.7%" status="positive" />
-        <TerminalDataRow label="Clustering" value={mockData.volatilityCluster ? "Active" : "Inactive"} status="warning" />
+        <TerminalDataRow label="Clustering" value={mockData.value.volatilityCluster ? "Active" : "Inactive"} status="warning" />
       </TerminalDataSection>
 
       <TerminalDataSection title="TERM STRUCT">
-        <TerminalDataRow label="Shape" value={mockData.termStructure} status="critical" />
+        <TerminalDataRow label="Shape" value={mockData.value.termStructure} status="critical" />
         <TerminalDataRow label="2Y-10Y" value="-0.45%" status="critical" />
         <TerminalDataRow label="3M-10Y" value="-0.82%" status="critical" />
         <TerminalDataRow label="Steepness" value="Flattening" status="warning" />

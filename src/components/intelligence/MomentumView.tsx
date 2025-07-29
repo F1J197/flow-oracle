@@ -42,10 +42,10 @@ export const MomentumView = ({ loading, className }: MomentumViewProps) => {
   }
 
   const keyMetrics = [
-    { label: "Momentum", value: mockData.overallMomentum.toFixed(1), status: "critical" as const },
-    { label: "Strength", value: `${mockData.trendStrength}%`, status: "positive" as const },
-    { label: "Vol", value: `${mockData.volatility}%`, status: "warning" as const },
-    { label: "RSI", value: mockData.rsi, status: "critical" as const }
+    { label: "Momentum", value: mockData.value.overallMomentum.toFixed(1), status: "critical" as const },
+    { label: "Strength", value: `${mockData.value.trendStrength}%`, status: "positive" as const },
+    { label: "Vol", value: `${mockData.value.volatility}%`, status: "warning" as const },
+    { label: "RSI", value: mockData.value.rsi, status: "critical" as const }
   ];
 
   return (
@@ -57,17 +57,17 @@ export const MomentumView = ({ loading, className }: MomentumViewProps) => {
       <TerminalMetricGrid metrics={keyMetrics} columns={2} />
       
       <TerminalDataSection title="TECHNICALS">
-        <TerminalDataRow label="MACD" value={mockData.macd.toFixed(2)} status="critical" />
-        <TerminalDataRow label="Stoch %K" value={`${mockData.stochastic}%`} status="critical" />
-        <TerminalDataRow label="RSI (14)" value={mockData.rsi} status="critical" />
-        <TerminalDataRow label="Vol (30D)" value={`${mockData.volatility}%`} status="warning" />
+        <TerminalDataRow label="MACD" value={mockData.value.macd.toFixed(2)} status="critical" />
+        <TerminalDataRow label="Stoch %K" value={`${mockData.value.stochastic}%`} status="critical" />
+        <TerminalDataRow label="RSI (14)" value={mockData.value.rsi} status="critical" />
+        <TerminalDataRow label="Vol (30D)" value={`${mockData.value.volatility}%`} status="warning" />
       </TerminalDataSection>
 
       <TerminalDataSection title="TIMEFRAMES">
-        <TerminalDataRow label="1D" value={mockData.timeframes["1D"].toFixed(1)} status="critical" />
-        <TerminalDataRow label="7D" value={mockData.timeframes["7D"].toFixed(1)} status="critical" />
-        <TerminalDataRow label="30D" value={mockData.timeframes["30D"].toFixed(1)} status="negative" />
-        <TerminalDataRow label="90D" value={mockData.timeframes["90D"].toFixed(1)} status="positive" />
+        <TerminalDataRow label="1D" value={mockData.value.timeframes["1D"].toFixed(1)} status="critical" />
+        <TerminalDataRow label="7D" value={mockData.value.timeframes["7D"].toFixed(1)} status="critical" />
+        <TerminalDataRow label="30D" value={mockData.value.timeframes["30D"].toFixed(1)} status="negative" />
+        <TerminalDataRow label="90D" value={mockData.value.timeframes["90D"].toFixed(1)} status="positive" />
       </TerminalDataSection>
 
       <TerminalDataSection title="SIGNALS">
