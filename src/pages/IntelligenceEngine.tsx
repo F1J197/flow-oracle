@@ -1,5 +1,7 @@
 import { useEngineManager } from "@/hooks/useEngineManager";
 import { TerminalEngineView } from "@/components/intelligence/TerminalEngineView";
+import { CUSIPStealthQEView } from "@/components/intelligence/CUSIPStealthQEView";
+import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
 import { useState, useEffect } from "react";
 import { DetailedEngineView } from "@/types/engines";
 
@@ -61,14 +63,36 @@ export const IntelligenceEngine = () => {
       {/* 3x3 Engine Grid - Fixed Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Active Engines */}
-        {/* Active Engines */}
-        {activeEngines.map((engine) => (
-          <TerminalEngineView
-            key={engine.key}
-            view={engineViews[engine.key]}
-            loading={loading || !engineViews[engine.key]}
-          />
-        ))}
+        {activeEngines.map((engine) => {
+          // Special handling for specific engines
+          if (engine.key === 'cusipStealthQE') {
+            return (
+              <CUSIPStealthQEView
+                key={engine.key}
+                engine={engines.cusipStealthQE}
+                loading={loading || !engineViews[engine.key]}
+              />
+            );
+          }
+          
+          if (engine.key === 'primaryDealerPositions') {
+            return (
+              <PrimaryDealerPositionsView
+                key={engine.key}
+                engine={engines.primaryDealerPositions}
+                loading={loading || !engineViews[engine.key]}
+              />
+            );
+          }
+          
+          return (
+            <TerminalEngineView
+              key={engine.key}
+              view={engineViews[engine.key]}
+              loading={loading || !engineViews[engine.key]}
+            />
+          );
+        })}
 
         {/* Placeholder Development Engines */}
         <div className="glass-tile p-6 font-mono text-sm opacity-60">

@@ -408,6 +408,235 @@ class DataService {
       return [];
     }
   }
+
+  // Fetch SOMA Holdings data for CUSIP Stealth QE Engine
+  async fetchSOMAHoldings(daysBack = 30): Promise<any[]> {
+    const cacheKey = `soma_holdings_${daysBack}`;
+    
+    // Check cache first
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < cached.ttl) {
+      return cached.data;
+    }
+
+    try {
+      // Calculate date range
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - daysBack);
+
+      // Fetch holdings from database
+      const { data, error } = await supabase
+        .from('soma_holdings')
+        .select(`
+          *,
+          cusip_metadata (
+            security_type,
+            maturity_bucket,
+            issuer,
+            benchmark_security,
+            on_the_run,
+            duration,
+            convexity,
+            liquidity_tier
+          )
+        `)
+        .gte('holdings_date', startDate.toISOString().split('T')[0])
+        .lte('holdings_date', endDate.toISOString().split('T')[0])
+        .order('holdings_date', { ascending: false })
+        .order('cusip_id', { ascending: true });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const processedData = data || [];
+      
+      // Cache the result
+      this.cache.set(cacheKey, {
+        data: processedData,
+        timestamp: Date.now(),
+        ttl: CACHE_TTL
+      });
+
+      return processedData;
+    } catch (error) {
+      console.error('Error fetching SOMA holdings:', error);
+      
+      // Return mock data as fallback
+      const mockData = this.getMockSOMAData();
+      
+      // Cache the mock result
+      this.cache.set(cacheKey, {
+        data: mockData,
+        timestamp: Date.now(),
+        ttl: CACHE_TTL
+      });
+
+      return mockData;
+    }
+  }
+
+  // Fetch CUSIP anomalies for Stealth QE detection
+  async fetchCUSIPAnomalies(daysBack = 7): Promise<any[]> {
+    const cacheKey = `cusip_anomalies_${daysBack}`;
+    
+    // Check cache first
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < cached.ttl) {
+      return cached.data;
+    }
+
+    try {
+      // Calculate date range
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - daysBack);
+
+      // Fetch anomalies from database
+      const { data, error } = await supabase
+        .from('cusip_anomalies')
+        .select('*')
+        .gte('detected_at', startDate.toISOString())
+        .lte('detected_at', endDate.toISOString())
+        .order('detected_at', { ascending: false })
+        .order('severity_score', { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const processedData = data || [];
+      
+      // Cache the result
+      this.cache.set(cacheKey, {
+        data: processedData,
+        timestamp: Date.now(),
+        ttl: CACHE_TTL
+      });
+
+      return processedData;
+    } catch (error) {
+      console.error('Error fetching CUSIP anomalies:', error);
+      
+      // Return mock data as fallback
+      const mockData = this.getMockAnomaliesData();
+      
+      // Cache the mock result
+      this.cache.set(cacheKey, {
+        data: mockData,
+        timestamp: Date.now(),
+        ttl: CACHE_TTL
+      });
+
+      return mockData;
+    }
+  }
+
+  // Trigger CUSIP anomaly detection
+  async triggerCUSIPAnomalyDetection(algorithm = 'isolation_forest', lookbackDays = 30): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('cusip-anomaly-detection', {
+        body: { algorithm, lookbackDays }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Clear anomalies cache
+      for (const key of this.cache.keys()) {
+        if (key.startsWith('cusip_anomalies_')) {
+          this.cache.delete(key);
+        }
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error triggering CUSIP anomaly detection:', error);
+      throw error;
+    }
+  }
+
+  // Trigger SOMA data ingestion
+  async triggerSOMAIngestion(): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('soma-data-ingestion', {
+        body: {}
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Clear SOMA cache
+      for (const key of this.cache.keys()) {
+        if (key.startsWith('soma_holdings_')) {
+          this.cache.delete(key);
+        }
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error triggering SOMA data ingestion:', error);
+      throw error;
+    }
+  }
+
+  private getMockSOMAData(): any[] {
+    return [
+      {
+        id: 'mock-1',
+        cusip_id: '912828B00',
+        holdings_date: new Date().toISOString().split('T')[0],
+        security_description: 'T-Bill 2027-01',
+        par_amount: 1045.22,
+        market_value: 1048.33,
+        coupon_rate: 0.125,
+        maturity_date: '2027-01-15',
+        issue_date: '2024-01-15',
+        weighted_average_maturity: 2.5,
+        change_from_previous: 15.45,
+        sector: 'Bills',
+        cusip_metadata: {
+          security_type: 'Treasury Bill',
+          maturity_bucket: '2-5Y',
+          issuer: 'US Treasury',
+          benchmark_security: true,
+          on_the_run: true,
+          duration: 2.4,
+          convexity: 0.05,
+          liquidity_tier: 1
+        }
+      }
+    ];
+  }
+
+  private getMockAnomaliesData(): any[] {
+    return [
+      {
+        id: 'mock-anomaly-1',
+        cusip_id: '912828B00',
+        anomaly_type: 'volume_spike',
+        detection_method: 'isolation_forest',
+        severity_score: 85.6,
+        confidence_level: 92.3,
+        detected_at: new Date().toISOString(),
+        anomaly_details: {
+          expected_volume: 100.0,
+          actual_volume: 850.0,
+          z_score: 4.2
+        },
+        raw_features: {
+          volume: 850.0,
+          price_change: 0.15,
+          bid_ask_spread: 0.02
+        },
+        is_validated: false,
+        validation_notes: null
+      }
+    ];
+  }
 }
 
 export const dataService = new DataService();

@@ -76,7 +76,8 @@ export const rateLimiters = {
   marketstack: new RateLimiter({ requestsPerMinute: 1000 }), // Free tier
   polygon: new RateLimiter({ requestsPerMinute: 500 }), // Free tier
   coingecko: new RateLimiter({ requestsPerMinute: 30 }), // Free tier
-  alphavantage: new RateLimiter({ requestsPerMinute: 25 }) // Free tier
+  alphavantage: new RateLimiter({ requestsPerMinute: 25 }), // Free tier
+  nyfed: new RateLimiter({ requestsPerMinute: 120 }) // NY Fed SOMA API
 };
 
 export { RateLimiter };

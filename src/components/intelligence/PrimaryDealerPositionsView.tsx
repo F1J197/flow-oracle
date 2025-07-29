@@ -6,8 +6,17 @@ import { useDealerPositions } from "@/hooks/useDealerPositions";
 import { AlertTriangle, TrendingUp, TrendingDown, Activity, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const PrimaryDealerPositionsView = () => {
-  const { data, alerts, insights, loading, error, healthStatus } = useDealerPositions();
+interface PrimaryDealerPositionsViewProps {
+  engine?: {
+    getDashboardData: () => any;
+    getDetailedView: () => any;
+  };
+  loading?: boolean;
+}
+
+export const PrimaryDealerPositionsView = ({ engine, loading: engineLoading }: PrimaryDealerPositionsViewProps = {}) => {
+  const { data, alerts, insights, loading: hookLoading, error, healthStatus } = useDealerPositions();
+  const loading = engineLoading || hookLoading;
 
   if (loading) {
     return (
