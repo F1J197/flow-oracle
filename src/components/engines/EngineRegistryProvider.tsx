@@ -6,6 +6,7 @@ import { CUSIPStealthQEEngine } from '@/engines/CUSIPStealthQEEngine';
 import { DataIntegrityEngine } from '@/engines/DataIntegrityEngine';
 import { EnhancedMomentumEngine } from '@/engines/EnhancedMomentumEngine';
 import { PrimaryDealerPositionsEngineV6 } from '@/engines/PrimaryDealerPositionsEngineV6';
+import { EnhancedZScoreEngine } from '@/engines/EnhancedZScoreEngine';
 
 interface EngineRegistryContextType {
   registry: EngineRegistry;
@@ -36,6 +37,7 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
     const netLiquidityEngine = new NetLiquidityEngine();
     const dataIntegrityEngine = new DataIntegrityEngine();
     const enhancedMomentumEngine = new EnhancedMomentumEngine();
+    const enhancedZScoreEngine = new EnhancedZScoreEngine();
     
     // Pillar 2 Engines  
     const creditStressEngine = new CreditStressEngineV6();
@@ -62,6 +64,13 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
       version: '6.0',
       category: 'foundation',
       dependencies: ['MULTIPLE_INDICATORS']
+    });
+    
+    registry.register(enhancedZScoreEngine, {
+      description: 'Enhanced Z-score analysis with multi-timeframe statistical rigor',
+      version: '6.0',
+      category: 'foundation',
+      dependencies: ['DGS10', 'DGS2', 'VIXCLS', 'T10Y2Y', 'BAMLH0A0HYM2']
     });
     
     // Register Pillar 2 Engines

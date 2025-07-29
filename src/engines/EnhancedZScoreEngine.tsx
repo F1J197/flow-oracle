@@ -1,4 +1,5 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from '@/types/engines';
+import { BaseEngine } from '@/engines/BaseEngine';
 import { UnifiedDataService } from '@/services/UnifiedDataService';
 
 // Core interfaces for Z-Score calculations
@@ -471,21 +472,18 @@ class ZScoreValidator {
 }
 
 // Main Enhanced Z-Score Engine
-export class EnhancedZScoreEngine implements IEngine {
-  id = 'enhanced-zscore';
-  name = 'Enhanced Z-Score Engine';
-  priority = 1;
-  pillar = 1 as const;
+export class EnhancedZScoreEngine extends BaseEngine {
+  readonly id = 'enhanced-zscore';
+  readonly name = 'Enhanced Z-Score Engine';
+  readonly priority = 1;
+  readonly pillar = 1 as const;
 
   private calculator = new EnhancedZScoreCalculator();
   private validator = new ZScoreValidator();
-  private cache = new Map<string, CachedZScore>();
   private updateInterval: ReturnType<typeof setInterval> | null = null;
-  private readonly CACHE_TTL = 300000; // 5 minutes for production
-  private isProcessing = false;
   private lastFullUpdate = 0;
 
-  private config: ZScoreConfig = {
+  private zScoreConfig: ZScoreConfig = {
     windows: {
       short: 4,   // weeks
       medium: 12, // weeks
@@ -545,27 +543,32 @@ export class EnhancedZScoreEngine implements IEngine {
     dataFreshness: 0
   };
 
-  async execute(): Promise<EngineReport> {
-    if (this.isProcessing) {
-      console.log('Z-Score Engine: Already processing, skipping execution');
-      return this.getLastReportOrDefault();
-    }
-
-    this.isProcessing = true;
-    const startTime = Date.now();
-    const EXECUTION_TIMEOUT = 30000; // 30 seconds timeout
-    
-    // Create timeout promise
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Engine execution timeout')), EXECUTION_TIMEOUT);
+  constructor() {
+    super({
+      refreshInterval: 60000, // 1 minute for Z-score analysis
+      retryAttempts: 3,
+      timeout: 30000,
+      cacheTimeout: 300000 // 5 minutes
     });
+  }
+
+  protected async performExecution(): Promise<EngineReport> {
+    const startTime = Date.now();
 
     try {
-      // Race between execution and timeout
-      await Promise.race([
-        this.executeWithRetry(),
-        timeoutPromise
-      ]);
+      // Step 1: Check if we need a full update or can use cached data
+      const needsFullUpdate = Date.now() - this.lastFullUpdate > 300000; // 5 minutes
+      
+      if (needsFullUpdate) {
+        await this.performFullMultiIndicatorAnalysis();
+        this.lastFullUpdate = Date.now();
+      } else {
+        // Quick update using cached data
+        await this.performIncrementalUpdate();
+      }
+
+      // Step 2: Calculate aggregate metrics from all indicators
+      this.calculateAggregateMetrics();
 
       // Update performance metrics
       this.performanceMetrics.processingTime = Date.now() - startTime;
@@ -588,46 +591,19 @@ export class EnhancedZScoreEngine implements IEngine {
         lastUpdated: new Date()
       };
 
+      // Cache the report for fallback
+      this.setCacheData('lastReport', report);
       return report;
 
     } catch (error) {
       console.error('Enhanced Z-Score Engine execution failed:', error);
-      
-      return {
-        success: false,
-        confidence: 0,
-        signal: 'neutral',
-        data: {
-          error: error instanceof Error ? error.message : 'Unknown error',
-          performance: this.performanceMetrics
-        },
-        errors: [error instanceof Error ? error.message : 'Unknown error'],
-        lastUpdated: new Date()
-      };
-    } finally {
-      // Always clear processing flag
-      this.isProcessing = false;
+      throw error;
     }
   }
 
-  private async executeWithRetry(): Promise<void> {
-    // Step 1: Check if we need a full update or can use cached data
-    const needsFullUpdate = Date.now() - this.lastFullUpdate > this.CACHE_TTL;
-    
-    if (needsFullUpdate) {
-      await this.performFullMultiIndicatorAnalysis();
-      this.lastFullUpdate = Date.now();
-    } else {
-      // Quick update using cached data
-      await this.performIncrementalUpdate();
-    }
-
-    // Step 2: Calculate aggregate metrics from all indicators
-    this.calculateAggregateMetrics();
-  }
 
   getDashboardData(): DashboardTileData {
-    const loading = this.isProcessing || this.multiIndicatorResults.size === 0;
+    const loading = this.getStatus() === 'running' || this.multiIndicatorResults.size === 0;
     
     if (loading) {
       return {
@@ -783,21 +759,6 @@ export class EnhancedZScoreEngine implements IEngine {
 
   // ========== CORE IMPLEMENTATION METHODS ==========
 
-  private getLastReportOrDefault(): EngineReport {
-    return {
-      success: true,
-      confidence: this.confidence / 100,
-      signal: this.regime === 'EXPANSION' ? 'bullish' : this.regime === 'CONTRACTION' ? 'bearish' : 'neutral',
-      data: {
-        compositeZScore: this.compositeZScore,
-        regime: this.regime,
-        confidence: this.confidence,
-        cached: true
-      },
-      lastUpdated: new Date()
-    };
-  }
-
   private async performFullMultiIndicatorAnalysis(): Promise<void> {
     console.log('Performing full multi-indicator Z-Score analysis...');
     const startTime = Date.now();
@@ -875,12 +836,10 @@ export class EnhancedZScoreEngine implements IEngine {
 
       for (const indicator of criticalIndicators) {
         try {
-          const cached = this.cache.get(indicator);
-          if (cached && Date.now() - cached.timestamp < this.CACHE_TTL / 2) {
-            // Use cached data if recent enough
-            if (cached.zScores.composite?.value !== undefined) {
-              allZScores.set(indicator, cached.zScores.composite.value);
-            }
+          const cached = this.getCacheData(`zscore-${indicator}`);
+          if (cached && cached.composite?.value !== undefined) {
+            // Use cached data if available
+            allZScores.set(indicator, cached.composite.value);
           } else {
             // Update this indicator
             const result = await this.processIndicator(indicator);
@@ -913,10 +872,10 @@ export class EnhancedZScoreEngine implements IEngine {
 
   private async processIndicator(symbol: string): Promise<MultiTimeframeZScores | null> {
     try {
-      // Check cache first
-      const cached = this.cache.get(symbol);
-      if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
-        return cached.zScores;
+      // Check cache first using BaseEngine cache methods
+      const cached = this.getCacheData(`zscore-${symbol}`);
+      if (cached) {
+        return cached;
       }
 
       // Fetch data points from UnifiedDataService  
@@ -945,7 +904,7 @@ export class EnhancedZScoreEngine implements IEngine {
       }
 
       // Calculate Z-scores
-      const results = this.calculator.calculateZScores(symbol, timeSeriesData, this.config);
+      const results = this.calculator.calculateZScores(symbol, timeSeriesData, this.zScoreConfig);
 
       // Validate results
       if (results.composite) {
@@ -966,12 +925,8 @@ export class EnhancedZScoreEngine implements IEngine {
         }
       }
 
-      // Cache the results
-      this.cache.set(symbol, {
-        zScores: results,
-        timestamp: Date.now(),
-        indicator: symbol
-      });
+      // Cache the results using BaseEngine cache methods
+      this.setCacheData(`zscore-${symbol}`, results);
 
       return results;
 
@@ -1190,19 +1145,11 @@ export class EnhancedZScoreEngine implements IEngine {
   }
 
   private calculateDataFreshness(): number {
+    // Use a simple score based on last update time
     const now = Date.now();
-    let totalAge = 0;
-    let count = 0;
-
-    for (const cached of this.cache.values()) {
-      totalAge += now - cached.timestamp;
-      count++;
-    }
-
-    if (count === 0) return 0;
-    
-    const avgAge = totalAge / count;
-    const freshnessScore = Math.max(0, 100 - (avgAge / this.CACHE_TTL) * 100);
+    const lastUpdate = this.performanceMetrics.lastUpdateTime || now;
+    const age = now - lastUpdate;
+    const freshnessScore = Math.max(0, 100 - (age / 300000) * 100); // 5 minute scale
     
     return Math.round(freshnessScore);
   }
