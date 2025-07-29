@@ -1,4 +1,12 @@
-// Intelligence Engine Components
+// Premium Intelligence Components
+export { PremiumEngineView } from './PremiumEngineView';
+export { IntelligenceMetricTile } from './IntelligenceMetricTile';
+export { EngineStatusTile } from './EngineStatusTile';
+export { EngineAlertsTile } from './EngineAlertsTile';
+export { IntelligenceHeaderTile } from './IntelligenceHeaderTile';
+export { DevelopmentEngineCard } from './DevelopmentEngineCard';
+
+// Legacy Intelligence Engine Components
 export { EngineLayout } from './EngineLayout';
 export { DataSection } from './DataSection';
 export { DataRow } from './DataRow';
