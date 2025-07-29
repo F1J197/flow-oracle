@@ -1,4 +1,6 @@
 import { dataService } from './dataService';
+import { UnifiedDataService } from './UnifiedDataService';
+import { IndicatorRegistry } from './IndicatorRegistry';
 
 export interface LiveIndicator {
   id: string;
