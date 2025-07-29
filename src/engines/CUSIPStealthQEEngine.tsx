@@ -1,4 +1,5 @@
 import { IEngine, EngineReport, ActionableInsight, DashboardTileData, DetailedEngineView } from '../types/engines';
+import { BaseEngine } from './BaseEngine';
 import { supabase } from '../integrations/supabase/client';
 
 interface CUSIPData {
@@ -60,11 +61,11 @@ interface StealthPattern {
   false_positive_rate: number;
 }
 
-export class CUSIPStealthQEEngine implements IEngine {
-  id = 'cusip-stealth-qe-v6';
-  name = 'CUSIP-Level Stealth QE Detection V6';
-  priority = 1;
-  pillar = 2 as const;
+export class CUSIPStealthQEEngine extends BaseEngine {
+  readonly id = 'cusip-stealth-qe-v6';
+  readonly name = 'CUSIP-Level Stealth QE Detection V6';
+  readonly priority = 1;
+  readonly pillar = 2 as const;
 
   // Enhanced V6 metrics
   private segments: TreasurySegment[] = [];
@@ -74,7 +75,6 @@ export class CUSIPStealthQEEngine implements IEngine {
   private hiddenFlowsDetected = 0;
   private primaryDealerAnomalies = 0;
   private confidence = 92;
-  private cache = new Map<string, any>();
   private readonly CACHE_TTL = 30000; // 30 seconds cache for real-time data
   
   // V6 Advanced features
@@ -84,6 +84,12 @@ export class CUSIPStealthQEEngine implements IEngine {
   private somaDataTimestamp: string | null = null;
   
   constructor() {
+    super({
+      refreshInterval: 30000,
+      retryAttempts: 3,
+      timeout: 20000,
+      cacheTimeout: 60000
+    });
     this.initializeAdvancedEngine();
   }
 
@@ -427,18 +433,14 @@ export class CUSIPStealthQEEngine implements IEngine {
   }
 
   private getCachedData(key: string): any {
-    const cached = this.cache.get(key);
-    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
-      return cached.data;
-    }
-    return null;
+    return super.getCacheData(key);
   }
 
   private setCachedData(key: string, data: any): void {
-    this.cache.set(key, { data, timestamp: Date.now() });
+    super.setCacheData(key, data);
   }
 
-  async execute(): Promise<EngineReport> {
+  protected async performExecution(): Promise<EngineReport> {
     try {
       console.log('CUSIP-Level Stealth QE Detection Engine V6 executing...');
       

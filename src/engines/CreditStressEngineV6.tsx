@@ -1,4 +1,5 @@
 import { IEngine, EngineReport, DashboardTileData, DetailedEngineView, ActionableInsight } from '@/types/engines';
+import { BaseEngine } from './BaseEngine';
 import { UnifiedDataService } from '@/services/UnifiedDataService';
 
 // ============= INTERFACES =============
@@ -396,11 +397,11 @@ class LeadingIndicatorAnalyzer {
 
 // ============= MAIN ENGINE =============
 
-export class CreditStressEngineV6 implements IEngine {
-  id = 'credit-stress-v6';
-  name = 'Credit Stress Engine V6';
-  priority = 1;
-  pillar = 2 as const;
+export class CreditStressEngineV6 extends BaseEngine {
+  readonly id = 'credit-stress-v6';
+  readonly name = 'Credit Stress Engine V6';
+  readonly priority = 1;
+  readonly pillar = 2 as const;
 
   private calculator = new CreditSpreadCalculator();
   private termAnalyzer = new TermStructureAnalyzer();
@@ -412,12 +413,17 @@ export class CreditStressEngineV6 implements IEngine {
   private divergences: DivergenceAnalysis | null = null;
   private leadingIndicators: LeadingIndicators | null = null;
 
-  async initialize(): Promise<void> {
-    console.log('🚀 Initializing Credit Stress Engine V6...');
-    // Engine is ready
+  constructor() {
+    super({
+      refreshInterval: 30000,
+      retryAttempts: 3,
+      timeout: 15000,
+      cacheTimeout: 60000
+    });
+    console.log('🚀 Credit Stress Engine V6 initialized');
   }
 
-  async execute(): Promise<EngineReport> {
+  protected async performExecution(): Promise<EngineReport> {
     console.log('⚡ Executing Credit Stress Engine V6...');
     
     try {

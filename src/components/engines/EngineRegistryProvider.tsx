@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { EngineRegistry } from '@/engines/EngineRegistry';
 import { NetLiquidityEngine } from '@/engines/NetLiquidityEngine';
+import { CreditStressEngineV6 } from '@/engines/CreditStressEngineV6';
+import { CUSIPStealthQEEngine } from '@/engines/CUSIPStealthQEEngine';
+import { DataIntegrityEngine } from '@/engines/DataIntegrityEngine';
+import { EnhancedMomentumEngine } from '@/engines/EnhancedMomentumEngine';
+import { PrimaryDealerPositionsEngineV6 } from '@/engines/PrimaryDealerPositionsEngineV6';
 
 interface EngineRegistryContextType {
   registry: EngineRegistry;
@@ -24,21 +29,69 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
   const registry = EngineRegistry.getInstance();
 
   useEffect(() => {
-    // Register core engines on startup
-    const netLiquidityEngine = new NetLiquidityEngine();
+    // Register all engines on startup
+    console.log('🚀 Initializing Engine Registry with all V6 engines...');
     
+    // Foundation Engines
+    const netLiquidityEngine = new NetLiquidityEngine();
+    const dataIntegrityEngine = new DataIntegrityEngine();
+    const enhancedMomentumEngine = new EnhancedMomentumEngine();
+    
+    // Pillar 2 Engines  
+    const creditStressEngine = new CreditStressEngineV6();
+    const cusipStealthEngine = new CUSIPStealthQEEngine();
+    const primaryDealerEngine = new PrimaryDealerPositionsEngineV6();
+    
+    // Register Foundation Engines (Pillar 1)
     registry.register(netLiquidityEngine, {
       description: 'Analyzes net liquidity conditions in the financial system',
       version: '6.0',
       category: 'foundation',
       dependencies: ['WALCL', 'WTREGEN', 'RRPONTSYD']
     });
-
-    // TODO: Register additional engines as they're created
-    // registry.register(new CreditStressEngine(), { ... });
-    // registry.register(new MomentumEngine(), { ... });
     
-    console.log('Engine registry initialized with engines:', registry.getAllMetadata().length);
+    registry.register(dataIntegrityEngine, {
+      description: 'Validates data sources and performs self-healing operations',
+      version: '6.0',
+      category: 'foundation',
+      dependencies: ['WALCL', 'WTREGEN', 'RRPONTSYD', 'DGS10']
+    });
+    
+    registry.register(enhancedMomentumEngine, {
+      description: 'Multi-scale momentum analysis with pattern recognition',
+      version: '6.0',
+      category: 'foundation',
+      dependencies: ['MULTIPLE_INDICATORS']
+    });
+    
+    // Register Pillar 2 Engines
+    registry.register(creditStressEngine, {
+      description: 'Analyzes credit stress conditions and corporate bond spreads',
+      version: '6.0',
+      category: 'core',
+      dependencies: ['BAMLH0A0HYM2', 'BAMLC0A0CM', 'VIXCLS']
+    });
+    
+    registry.register(cusipStealthEngine, {
+      description: 'Detects stealth QE operations at CUSIP level',
+      version: '6.0',
+      category: 'core',
+      dependencies: ['SOMA_HOLDINGS', 'CUSIP_METADATA']
+    });
+    
+    registry.register(primaryDealerEngine, {
+      description: 'Analyzes primary dealer positioning and risk appetite',
+      version: '6.0',
+      category: 'core',
+      dependencies: ['DEALER_POSITIONS', 'MARKET_DATA']
+    });
+    
+    console.log(`✅ Engine registry initialized with ${registry.getAllMetadata().length} engines`);
+    
+    // Log all registered engines
+    registry.getAllMetadata().forEach(metadata => {
+      console.log(`📊 Registered: ${metadata.name} (${metadata.category}) - v${metadata.version}`);
+    });
   }, [registry]);
 
   return (

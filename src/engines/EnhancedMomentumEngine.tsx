@@ -1,4 +1,5 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from '@/types/engines';
+import { BaseEngine } from './BaseEngine';
 import { UnifiedDataService } from '@/services/UnifiedDataService';
 
 // Core interfaces for momentum calculations
@@ -469,11 +470,11 @@ class MomentumPatternRecognizer {
 }
 
 // Main Enhanced Momentum Engine V6 - Complete Implementation
-export class EnhancedMomentumEngine implements IEngine {
-  id = 'enhanced-momentum-v6';
-  name = 'Enhanced Momentum Engine V6';
-  priority = 2;
-  pillar = 1 as const;
+export class EnhancedMomentumEngine extends BaseEngine {
+  readonly id = 'enhanced-momentum-v6';
+  readonly name = 'Enhanced Momentum Engine V6';
+  readonly priority = 2;
+  readonly pillar = 1 as const;
 
   // Phase 1: Core Components
   private calculator = new EnhancedMomentumCalculator();
@@ -483,11 +484,10 @@ export class EnhancedMomentumEngine implements IEngine {
   private insightsGenerator = new DynamicInsightsGenerator();
   private patternRecognizer = new MomentumPatternRecognizer();
   
-  private cache = new Map<string, { data: any; timestamp: number }>();
   private readonly CACHE_TTL = 60000; // 1 minute for real-time processing
 
   // Enhanced Configuration for V6
-  private config: MomentumConfig = {
+  private momentumConfig: MomentumConfig = {
     windows: {
       short: 2,    // 2 weeks - reactive
       medium: 6,   // 6 weeks - balanced  
@@ -541,7 +541,7 @@ export class EnhancedMomentumEngine implements IEngine {
     return this.alerts;
   }
 
-  async execute(): Promise<EngineReport> {
+  protected async performExecution(): Promise<EngineReport> {
     try {
       // Check cache first - use cached data if recent
       const cacheKey = 'momentum-execution';
@@ -759,7 +759,7 @@ export class EnhancedMomentumEngine implements IEngine {
     const baseAlerts = this.alertGenerator.generateAlerts(
       this.compositeMomentum,
       this.multiscaleMomentum,
-      this.config
+      this.momentumConfig
     );
 
     // Add pattern-based alerts

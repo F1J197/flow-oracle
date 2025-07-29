@@ -1,4 +1,5 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
+import { BaseEngine } from "./BaseEngine";
 import { UnifiedDataService } from "@/services/UnifiedDataService";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -38,11 +39,11 @@ interface SelfHealingAction {
   timestamp: Date;
 }
 
-export class DataIntegrityEngine implements IEngine {
-  id = 'data-integrity';
-  name = 'Data Integrity & Self-Healing Engine';
-  priority = 1;
-  pillar = 1 as const;
+export class DataIntegrityEngine extends BaseEngine {
+  readonly id = 'data-integrity';
+  readonly name = 'Data Integrity & Self-Healing Engine';
+  readonly priority = 1;
+  readonly pillar = 1 as const;
 
   private dataSources: DataSource[] = [
     { id: 'WALCL', name: 'Fed Balance Sheet', endpoint: 'fred/WALCL', expectedRange: [6000000, 12000000], criticalityWeight: 0.3, consecutiveFailures: 0, status: 'active' },
@@ -64,7 +65,16 @@ export class DataIntegrityEngine implements IEngine {
   private autoHealed24h = 0;
   private latencyP95 = 0;
 
-  async execute(): Promise<EngineReport> {
+  constructor() {
+    super({
+      refreshInterval: 20000,
+      retryAttempts: 3,
+      timeout: 30000,
+      cacheTimeout: 45000
+    });
+  }
+
+  protected async performExecution(): Promise<EngineReport> {
     try {
       console.log('Data Integrity Engine: Starting comprehensive validation...');
       

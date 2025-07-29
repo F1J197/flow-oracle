@@ -1,13 +1,14 @@
 import { IEngine, EngineReport, DashboardTileData, DetailedEngineView, ActionableInsight } from '@/types/engines';
+import { BaseEngine } from './BaseEngine';
 import { UnifiedDataService } from '@/services/UnifiedDataService';
 import { DealerPositionData, DealerRegime, DealerAlert, DealerInsight } from '@/types/dealerPositions';
 import { PrimaryDealerTileData } from '@/types/primaryDealerTile';
 
-export class PrimaryDealerPositionsEngineV6 implements IEngine {
-  id = 'primary-dealer-positions-v6';
-  name = 'Primary Dealer Positions V6';
-  priority = 20;
-  pillar = 2 as const;
+export class PrimaryDealerPositionsEngineV6 extends BaseEngine {
+  readonly id = 'primary-dealer-positions-v6';
+  readonly name = 'Primary Dealer Positions V6';
+  readonly priority = 20;
+  readonly pillar = 2 as const;
 
   private unifiedService = UnifiedDataService.getInstance();
   private currentData: DealerPositionData | null = null;
@@ -15,7 +16,16 @@ export class PrimaryDealerPositionsEngineV6 implements IEngine {
   private errorCount = 0;
   private maxRetries = 3;
 
-  async execute(): Promise<EngineReport> {
+  constructor() {
+    super({
+      refreshInterval: 35000,
+      retryAttempts: 3,
+      timeout: 15000,
+      cacheTimeout: 60000
+    });
+  }
+
+  protected async performExecution(): Promise<EngineReport> {
     try {
       console.log('Primary Dealer Positions Engine V6 executing...');
       
