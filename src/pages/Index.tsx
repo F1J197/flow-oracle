@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { TabNavigation } from "@/components/layout/TabNavigation";
 import { Dashboard } from "./Dashboard";
-import { DataIngestionPanel } from "@/components/data/DataIngestionPanel";
 import IntelligenceEngine from "./IntelligenceEngine";
 import { UnifiedChartsView } from "@/components/charts/UnifiedChartsView";
 import { UnifiedDataDemo } from "./UnifiedDataDemo";
+import SystemValidation from "./SystemValidation";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -15,11 +15,7 @@ const Index = () => {
       case 'dashboard':
         return <Dashboard />;
       case 'data':
-        return (
-          <div className="max-w-7xl mx-auto p-6">
-            <DataIngestionPanel />
-          </div>
-        );
+        return <SystemValidation />;
       case 'engines':
         return <IntelligenceEngine />;
       case 'charts':
