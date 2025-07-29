@@ -49,7 +49,7 @@ export const EngineLayout = ({ title, status, children, className }: EngineLayou
       <div className="mb-6 pb-4 border-b border-glass-border/50 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">
           <h2 className={cn(
-            "text-lg font-bold uppercase tracking-wider",
+            "text-base font-medium uppercase tracking-wider",
             status === 'active' && "text-btc-primary",
             status === 'warning' && "text-btc-light", 
             status === 'critical' && "text-negative",

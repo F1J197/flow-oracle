@@ -240,8 +240,8 @@
 }
 
 .key-metric-value {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 500;
   color: #fff;
   font-variant-numeric: tabular-nums;
   display: flex;

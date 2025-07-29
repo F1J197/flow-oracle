@@ -1,6 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import { BaseTile } from "@/components/tiles";
-import { memo } from "react";
+import { EngineLayout } from "./EngineLayout";
+import { KeyMetrics } from "./KeyMetrics";
+import { DataSection } from "./DataSection";
+import { DataRow } from "./DataRow";
+import { memo, useMemo } from "react";
 
 interface CUSIPData {
   id: string;
@@ -35,6 +38,33 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
   const dashboardData = engine.getDashboardData();
   const detailedView = engine.getDetailedView();
 
+  const keyMetrics = useMemo(() => [
+    {
+      label: "Overall Stealth Score",
+      value: parseFloat(dashboardData.primaryMetric),
+      format: "number" as const,
+      decimals: 0,
+      unit: "/100",
+      status: parseFloat(dashboardData.primaryMetric) > 75 ? 'critical' as const : 
+              parseFloat(dashboardData.primaryMetric) > 50 ? 'warning' as const : 'neutral' as const
+    },
+    {
+      label: "Hidden Flows",
+      value: detailedView.primarySection?.metrics?.['Hidden Flows Detected'] || '0',
+      status: 'positive' as const
+    },
+    {
+      label: "Detection Confidence",
+      value: detailedView.primarySection?.metrics?.['Detection Confidence'] || '0%',
+      status: 'positive' as const
+    },
+    {
+      label: "Operation Status",
+      value: dashboardData.actionText,
+      status: 'neutral' as const
+    }
+  ], [dashboardData, detailedView]);
+
   const getFlowDirectionBadgeVariant = (direction: string) => {
     switch (direction) {
       case 'STEALTH_BUY': return 'btc-bright';
@@ -53,55 +83,35 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
 
   if (loading) {
     return (
-      <BaseTile className="col-span-1" status="loading">
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium text-text-secondary mb-4">CUSIP STEALTH QE ENGINE</h3>
-          <div className="h-4 bg-glass-surface rounded animate-pulse" />
-          <div className="h-4 bg-glass-surface rounded animate-pulse w-3/4" />
-          <div className="h-4 bg-glass-surface rounded animate-pulse w-1/2" />
+      <EngineLayout title="CUSIP STEALTH QE ENGINE" status="active">
+        <div className="space-y-4 animate-pulse">
+          <div className="h-4 bg-glass-surface rounded" />
+          <div className="h-4 bg-glass-surface rounded w-3/4" />
+          <div className="h-4 bg-glass-surface rounded w-1/2" />
         </div>
-      </BaseTile>
+      </EngineLayout>
     );
   }
 
   return (
-    <BaseTile className="col-span-1">
+    <EngineLayout title="CUSIP STEALTH QE ENGINE" status="active">
       <div className="space-y-6">
-        {/* Title */}
-        <h3 className="text-sm font-medium text-text-secondary mb-4">CUSIP STEALTH QE ENGINE</h3>
-        
-        {/* Primary Status */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="text-xs text-text-secondary mb-1">OVERALL STEALTH SCORE</div>
-            <div className={getStealthScoreColorClass(parseFloat(dashboardData.primaryMetric)) + ' text-xl font-bold'}>
-              {dashboardData.primaryMetric}/100
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-text-secondary mb-1">OPERATION STATUS</div>
-            <Badge 
-              variant="btc"
-              className="text-xs"
-            >
-              {dashboardData.actionText}
-            </Badge>
-          </div>
-        </div>
+        {/* Key Metrics */}
+        <KeyMetrics metrics={keyMetrics} columns={2} />
 
-        {/* Segment Analysis */}
-        <div>
-          <div className="text-sm font-medium text-text-primary mb-3">TREASURY SEGMENT ANALYSIS</div>
-          <div className="grid grid-cols-2 gap-3">
-            {detailedView.sections?.[0]?.metrics && Object.entries(detailedView.sections[0].metrics).map(([segment, value]) => {
-              const [score, direction] = (value as string).split(' (');
-              const cleanDirection = direction?.replace(')', '') || 'NEUTRAL';
-              
-              return (
-                <div key={segment} className="bg-glass-bg border border-glass-border rounded-lg p-3">
-                  <div className="text-xs text-text-secondary mb-1">{segment}</div>
-                  <div className="flex items-center justify-between">
-                    <span className={`text-sm font-bold ${getStealthScoreColorClass(parseFloat(score))}`}>
+        {/* Treasury Segment Analysis */}
+        <DataSection title="TREASURY SEGMENT ANALYSIS">
+          {detailedView.sections?.[0]?.metrics && Object.entries(detailedView.sections[0].metrics).map(([segment, value]) => {
+            const [score, direction] = (value as string).split(' (');
+            const cleanDirection = direction?.replace(')', '') || 'NEUTRAL';
+            const scoreValue = parseFloat(score);
+            
+            return (
+              <div key={segment} className="flex items-center justify-between py-2 border-b border-glass-border/30 last:border-0">
+                <div className="space-y-1">
+                  <div className="text-xs text-text-secondary font-medium">{segment}</div>
+                  <div className="flex items-center space-x-3">
+                    <span className={`text-sm font-medium ${getStealthScoreColorClass(scoreValue)}`}>
                       {score}
                     </span>
                     <Badge 
@@ -112,23 +122,22 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
                     </Badge>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              </div>
+            );
+          })}
+        </DataSection>
 
         {/* Flow Intelligence */}
-        <div>
-          <div className="text-sm font-medium text-text-primary mb-3">FLOW INTELLIGENCE</div>
-          <div className="grid grid-cols-2 gap-4">
-            {detailedView.sections?.[1]?.metrics && Object.entries(detailedView.sections[1].metrics).map(([key, value]) => (
-              <div key={key} className="space-y-1">
-                <div className="text-xs text-text-secondary">{key}</div>
-                <div className="text-sm font-medium text-text-primary">{value as string}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <DataSection title="FLOW INTELLIGENCE">
+          {detailedView.sections?.[1]?.metrics && Object.entries(detailedView.sections[1].metrics).map(([key, value]) => (
+            <DataRow 
+              key={key}
+              label={key}
+              value={value as string}
+              status="neutral"
+            />
+          ))}
+        </DataSection>
 
         {/* Alerts */}
         {detailedView.alerts && detailedView.alerts.length > 0 && (
@@ -141,31 +150,7 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
             ))}
           </div>
         )}
-
-        {/* Performance Metrics */}
-        <div className="pt-3 border-t border-noir-border">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-xs text-text-secondary">HIDDEN FLOWS</div>
-              <div className="text-sm font-bold text-btc-orange-bright">
-                {detailedView.primarySection?.metrics?.['Hidden Flows Detected'] || '0'}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-text-secondary">CONFIDENCE</div>
-              <div className="text-sm font-bold text-btc-orange">
-                {detailedView.primarySection?.metrics?.['Detection Confidence'] || '0%'}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-text-secondary">INTENSITY</div>
-              <div className="text-sm font-bold text-btc-orange-dark">
-                {detailedView.primarySection?.metrics?.['Operation Intensity'] || '0'}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-    </BaseTile>
+    </EngineLayout>
   );
 });

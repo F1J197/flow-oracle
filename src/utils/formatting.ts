@@ -108,3 +108,15 @@ export const getStatusColor = (status: 'positive' | 'negative' | 'neutral' | 'wa
     default: return 'text-text-primary';
   }
 };
+
+// Semantic value color helper for numeric values
+export const getValueColor = (value: number, threshold?: { positive?: number; negative?: number }): string => {
+  if (threshold) {
+    if (threshold.positive && value >= threshold.positive) return 'text-btc-primary';
+    if (threshold.negative && value <= threshold.negative) return 'text-btc-error';
+  } else {
+    if (value > 0) return 'text-btc-primary';
+    if (value < 0) return 'text-btc-error';
+  }
+  return 'text-text-primary';
+};

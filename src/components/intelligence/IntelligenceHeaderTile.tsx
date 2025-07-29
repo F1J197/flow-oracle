@@ -96,33 +96,30 @@ export const IntelligenceHeaderTile = memo(({
 
   return (
     <BaseTile 
-      size="xl" 
+      size="lg" 
       variant={getHealthStatus() === "critical" ? "critical" : getHealthStatus() === "warning" ? "warning" : "primary"}
       status={getHealthStatus() === "normal" ? "active" : getHealthStatus()}
       interactive="none"
       className="col-span-full"
     >
-      {/* Main Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-mono font-bold text-btc-primary tracking-wider uppercase">
-              ═══ INTELLIGENCE ENGINE V6 ═══
+      {/* Compact Header */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h1 className="text-xl font-mono font-medium text-btc-primary tracking-wide uppercase">
+              INTELLIGENCE ENGINE V6
             </h1>
-            <div className="text-sm text-text-secondary font-mono">
-              Institutional-Grade Market Intelligence • Real-Time Processing
+            <div className="text-xs text-text-secondary font-mono">
+              Real-Time Market Intelligence
             </div>
           </div>
           
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               {getHealthIcon()}
               <div className="text-right">
-                <div className={cn("text-lg font-mono font-bold", getHealthColor())}>
+                <div className={cn("text-sm font-mono font-medium", getHealthColor())}>
                   {systemHealth.toUpperCase()}
-                </div>
-                <div className="text-xs text-text-secondary font-mono">
-                  System Status
                 </div>
               </div>
             </div>
@@ -131,38 +128,38 @@ export const IntelligenceHeaderTile = memo(({
               <button
                 onClick={onRefresh}
                 className="p-2 rounded-lg bg-glass-surface hover:bg-btc-primary/20 transition-colors duration-200"
-                title="Force Refresh"
+                title="Refresh"
               >
-                <RefreshCw className="w-5 h-5 text-btc-primary" />
+                <RefreshCw className="w-4 h-4 text-btc-primary" />
               </button>
             )}
           </div>
         </div>
 
         {error && (
-          <div className="p-4 rounded-lg border border-critical/30 bg-critical/5 mb-4">
+          <div className="p-3 rounded-lg border border-critical/30 bg-critical/5 mb-3">
             <div className="flex items-center space-x-2">
-              <span className="text-critical text-sm font-mono font-bold">⚠ ERROR:</span>
-              <span className="text-critical text-sm font-mono">{error}</span>
+              <span className="text-critical text-xs font-mono font-medium">⚠ ERROR:</span>
+              <span className="text-critical text-xs font-mono">{error}</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* System Metrics Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Compact System Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {systemMetrics.map((metric, index) => (
-          <div key={metric.label} className="space-y-2">
+          <div key={metric.label} className="space-y-1">
             <div className="text-xs text-text-secondary font-mono uppercase tracking-wide">
               {metric.label}
             </div>
             <div className={cn(
-              "text-xl font-mono font-bold",
+              "text-sm font-mono font-medium",
               getMetricColor(metric.status)
             )}>
               {typeof metric.value === 'number' ? metric.value.toLocaleString() : metric.value}
               {metric.unit && (
-                <span className="text-sm text-text-secondary ml-1">
+                <span className="text-xs text-text-secondary ml-1">
                   {metric.unit}
                 </span>
               )}
@@ -171,39 +168,10 @@ export const IntelligenceHeaderTile = memo(({
         ))}
       </div>
 
-      {/* Architecture Info */}
-      <div className="pt-6 border-t border-glass-border/30">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm font-mono">
-          <div className="flex items-center space-x-3">
-            <Database className="w-4 h-4 text-btc-primary" />
-            <div>
-              <div className="text-btc-primary font-bold">FOUNDATION ENGINES</div>
-              <div className="text-text-secondary">Data integrity & Z-Score analysis</div>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <Cpu className="w-4 h-4 text-btc-light" />
-            <div>
-              <div className="text-btc-light font-bold">PILLAR ANALYSIS</div>
-              <div className="text-text-secondary">Credit, liquidity & momentum</div>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <Activity className="w-4 h-4 text-btc-glow" />
-            <div>
-              <div className="text-btc-glow font-bold">SYNTHESIS ENGINE</div>
-              <div className="text-text-secondary">V6 unified processing</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Live indicator */}
-      <div className="absolute top-6 right-6 flex items-center space-x-2">
+      <div className="absolute top-4 right-4 flex items-center space-x-2">
         <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse" />
-        <span className="text-xs text-btc-primary font-mono font-bold">LIVE</span>
+        <span className="text-xs text-btc-primary font-mono font-medium">LIVE</span>
       </div>
     </BaseTile>
   );

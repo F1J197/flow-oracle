@@ -1,11 +1,12 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { getStatusColor, getValueColor } from "@/utils/formatting";
 
 interface DataRowProps {
   label: string;
   value: string | number | ReactNode;
   unit?: string;
-  status?: 'positive' | 'negative' | 'neutral' | 'updating';
+  status?: 'positive' | 'negative' | 'neutral' | 'warning' | 'critical' | 'updating';
   className?: string;
 }
 
@@ -20,24 +21,33 @@ export const DataRow = ({ label, value, unit, status, className }: DataRowProps)
     return val;
   };
 
+  // Auto-detect color for numeric values if no status provided
+  const getColor = () => {
+    if (status && status !== 'updating') {
+      return getStatusColor(status as 'positive' | 'negative' | 'neutral' | 'warning' | 'critical');
+    }
+    if (typeof value === 'number') {
+      return getValueColor(value);
+    }
+    return 'text-text-primary';
+  };
+
   return (
     <div className={cn("data-row data-columns", className)}>
-      <span className="text-text-secondary font-medium">
+      <span className="text-text-secondary font-medium text-sm">
         {label}:
       </span>
       
       <span className={cn(
-        "data-value font-semibold tabular-nums",
-        status === 'positive' && "text-btc-primary",
-        status === 'negative' && "text-btc-error", 
-        status === 'neutral' && "text-text-primary",
+        "data-value font-medium tabular-nums text-sm",
+        getColor(),
         status === 'updating' && "updating"
       )}>
         {formatValue(value)}
       </span>
       
       {unit && (
-        <span className="text-text-muted text-sm font-medium">
+        <span className="text-text-muted text-xs font-normal">
           {unit}
         </span>
       )}
