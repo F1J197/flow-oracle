@@ -5,6 +5,7 @@ import { Dashboard } from "./Dashboard";
 import { DataIngestionPanel } from "@/components/data/DataIngestionPanel";
 import IntelligenceEngine from "./IntelligenceEngine";
 import EnhancedChartsView from "./EnhancedChartsView";
+import { UnifiedDataDemo } from "./UnifiedDataDemo";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -23,6 +24,8 @@ const Index = () => {
         return <IntelligenceEngine />;
       case 'charts':
         return <EnhancedChartsView />;
+      case 'unified-demo':
+        return <UnifiedDataDemo />;
       default:
         return <Dashboard />;
     }

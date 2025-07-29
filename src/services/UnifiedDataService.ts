@@ -455,34 +455,160 @@ export class UnifiedDataService {
    * Data fetching methods for different sources
    */
   private async fetchFredData(metadata: IndicatorMetadata): Promise<IndicatorValue | null> {
-    // Implement FRED API call
-    // This would use the existing FRED data service or API
-    console.log(`Fetching FRED data for ${metadata.symbol}`);
-    return null; // Placeholder
+    try {
+      // Use existing FRED data ingestion edge function
+      const { data, error } = await supabase.functions.invoke('fred-data-ingestion', {
+        body: { 
+          series: metadata.symbol,
+          apiEndpoint: metadata.apiEndpoint || `https://api.stlouisfed.org/fred/series/observations?series_id=${metadata.symbol}`
+        }
+      });
+
+      if (error) {
+        console.error(`FRED API error for ${metadata.symbol}:`, error);
+        return null;
+      }
+
+      if (data?.value !== undefined) {
+        const timestamp = new Date(data.timestamp || Date.now());
+        return {
+          current: parseFloat(data.value),
+          timestamp,
+          confidence: data.confidence || 1.0,
+          quality: data.quality || 1.0
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error(`Error fetching FRED data for ${metadata.symbol}:`, error);
+      return null;
+    }
   }
 
   private async fetchGlassnodeData(metadata: IndicatorMetadata): Promise<IndicatorValue | null> {
-    // Implement Glassnode API call
-    console.log(`Fetching Glassnode data for ${metadata.symbol}`);
-    return null; // Placeholder
+    try {
+      // Implement Glassnode API integration
+      const endpoint = metadata.apiEndpoint || `https://api.glassnode.com/v1/metrics/${metadata.symbol}`;
+      
+      const response = await fetch(`${endpoint}?a=BTC&api_key=${process.env.GLASSNODE_API_KEY}`);
+      if (!response.ok) {
+        throw new Error(`Glassnode API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const latest = data[data.length - 1];
+        return {
+          current: parseFloat(latest.v),
+          timestamp: new Date(latest.t * 1000),
+          confidence: 1.0,
+          quality: 1.0
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error(`Error fetching Glassnode data for ${metadata.symbol}:`, error);
+      return null;
+    }
   }
 
   private async fetchCoinbaseData(metadata: IndicatorMetadata): Promise<IndicatorValue | null> {
-    // Implement Coinbase API call
-    console.log(`Fetching Coinbase data for ${metadata.symbol}`);
-    return null; // Placeholder
+    try {
+      // Implement Coinbase Pro API integration
+      const symbol = metadata.symbol.replace('/', '-'); // Convert BTC/USD to BTC-USD
+      const endpoint = `https://api.exchange.coinbase.com/products/${symbol}/ticker`;
+      
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        throw new Error(`Coinbase API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data?.price) {
+        return {
+          current: parseFloat(data.price),
+          timestamp: new Date(),
+          confidence: 1.0,
+          quality: 1.0,
+          volume: data.volume ? parseFloat(data.volume) : undefined
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error(`Error fetching Coinbase data for ${metadata.symbol}:`, error);
+      return null;
+    }
   }
 
   private async fetchMarketData(metadata: IndicatorMetadata): Promise<IndicatorValue | null> {
-    // Implement market data API call
-    console.log(`Fetching market data for ${metadata.symbol}`);
-    return null; // Placeholder
+    try {
+      // Use existing market data services or create new API calls
+      const { data, error } = await supabase.functions.invoke('live-data-fetch', {
+        body: { 
+          symbol: metadata.symbol,
+          source: 'market',
+          endpoint: metadata.apiEndpoint
+        }
+      });
+
+      if (error) {
+        console.error(`Market data API error for ${metadata.symbol}:`, error);
+        return null;
+      }
+
+      if (data?.value !== undefined) {
+        return {
+          current: parseFloat(data.value),
+          previous: data.previous ? parseFloat(data.previous) : undefined,
+          change: data.change ? parseFloat(data.change) : undefined,
+          changePercent: data.changePercent ? parseFloat(data.changePercent) : undefined,
+          timestamp: new Date(data.timestamp || Date.now()),
+          confidence: data.confidence || 1.0,
+          quality: data.quality || 1.0
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error(`Error fetching market data for ${metadata.symbol}:`, error);
+      return null;
+    }
   }
 
   private async calculateEngineData(metadata: IndicatorMetadata): Promise<IndicatorValue | null> {
-    // Implement engine-based calculations
-    console.log(`Calculating engine data for ${metadata.symbol}`);
-    return null; // Placeholder
+    try {
+      // Use existing engine execution system
+      const { data, error } = await supabase.functions.invoke('engine-execution', {
+        body: { 
+          engineId: metadata.symbol,
+          dependencies: metadata.dependencies || [],
+          parameters: {}  // Use empty object instead of metadata.metadata
+        }
+      });
+
+      if (error) {
+        console.error(`Engine execution error for ${metadata.symbol}:`, error);
+        return null;
+      }
+
+      if (data?.result_data) {
+        const result = data.result_data;
+        return {
+          current: parseFloat(result.value || result.signal || result.score),
+          confidence: parseFloat(result.confidence || data.confidence || 1.0),
+          timestamp: new Date(data.created_at || Date.now()),
+          quality: result.quality || 1.0
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error(`Error calculating engine data for ${metadata.symbol}:`, error);
+      return null;
+    }
   }
 
   /**

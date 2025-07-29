@@ -36,6 +36,7 @@ export interface IndicatorValue {
   timestamp: Date;
   confidence?: number;
   quality?: number;
+  volume?: number;
 }
 
 export interface IndicatorState {
