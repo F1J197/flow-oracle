@@ -10,6 +10,7 @@ const tabs = [
   { id: 'data', label: 'Data Ingestion', description: 'API feeds & monitoring' },
   { id: 'engines', label: 'Intelligence Engine', description: '28 processing engines' },
   { id: 'charts', label: 'Charts', description: '50+ live indicators' },
+  { id: 'showcase', label: 'Premium', description: 'Tile system showcase' },
   { id: 'unified-demo', label: 'Unified Data Demo', description: 'Complete data layer showcase' }
 ];
 

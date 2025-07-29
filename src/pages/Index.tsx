@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { TabNavigation } from "@/components/layout/TabNavigation";
 import { Dashboard } from "./Dashboard";
+import { PremiumDashboard } from "./PremiumDashboard";
 import IntelligenceEngine from "./IntelligenceEngine";
 import { UnifiedChartsView } from "@/components/charts/UnifiedChartsView";
 import { UnifiedDataDemo } from "./UnifiedDataDemo";
 import SystemValidation from "./SystemValidation";
+import { PremiumShowcase } from "./PremiumShowcase";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -13,7 +15,7 @@ const Index = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return <PremiumDashboard />;
       case 'data':
         return <SystemValidation />;
       case 'engines':
@@ -22,8 +24,10 @@ const Index = () => {
         return <UnifiedChartsView />;
       case 'unified-demo':
         return <UnifiedDataDemo />;
+      case 'showcase':
+        return <PremiumShowcase />;
       default:
-        return <Dashboard />;
+        return <PremiumDashboard />;
     }
   };
 

@@ -8,70 +8,91 @@
 
 @layer base {
   :root {
-    /* Noir & Neon Color Palette */
-    --noir-bg: 216 7% 7%;           /* #121212 charcoal black */
-    --noir-surface: 216 7% 12%;     /* #1a1a1a elevated surfaces */
-    --noir-border: 216 7% 20%;      /* #2a2a2a subtle borders */
+    /* LIQUIDITY² V6 - Enhanced Premium Design System */
     
-    /* BTC Orange Theme Colors - Exact Specifications */
-    --btc-orange: 28 100% 54%;      /* #F7931A Official Bitcoin Orange */
-    --btc-orange-bright: 31 100% 64%; /* #FF9F33 Bright variant */
-    --btc-orange-light: 34 100% 74%;  /* #FFAA55 Light variant */
-    --btc-orange-dark: 25 100% 44%;   /* #E67E00 Dark variant */
-    --btc-orange-muted: 28 70% 34%;   /* #B87416 Muted variant */
+    /* Background Hierarchy */
+    --bg-primary: 216 7% 7%;        /* #121212 Main background */
+    --bg-secondary: 216 7% 10%;     /* #191919 Secondary surfaces */
+    --bg-tile: 216 7% 12% / 0.95;   /* #1F1F1F Tile backgrounds with transparency */
+    --bg-elevated: 216 7% 15%;      /* #262626 Elevated elements */
     
-    /* Legacy BTC mappings for compatibility */
-    --btc-primary: var(--btc-orange);
-    --btc-light: var(--btc-orange-light);
-    --btc-dark: var(--btc-orange-dark);
-    --btc-glow: var(--btc-orange-bright);
-    --btc-muted: var(--btc-orange-muted);
+    /* Glass Morphism System */
+    --glass-bg: 216 7% 12% / 0.8;   /* Semi-transparent glass */
+    --glass-border: 216 20% 25% / 0.3; /* Subtle glass borders */
+    --glass-surface: 216 7% 15% / 0.9;  /* Glass surface overlay */
     
-    /* Typography */
-    --text-primary: 0 0% 92%;       /* #EAEAEA off-white primary */
-    --text-secondary: 0 0% 60%;     /* #999999 gray secondary */
-    --text-muted: 0 0% 40%;         /* #666666 muted text */
+    /* BTC Orange Professional Palette */
+    --btc-primary: 28 100% 54%;     /* #F7931A Bitcoin Orange */
+    --btc-bright: 31 100% 64%;      /* #FF9F33 Bright accent */
+    --btc-light: 34 100% 74%;       /* #FFAA55 Light variant */
+    --btc-dark: 25 100% 44%;        /* #E67E00 Dark variant */
+    --btc-muted: 28 70% 34%;        /* #B87416 Muted state */
+    --btc-glow: 31 100% 64%;        /* #FF9F33 Glow effect */
     
-    /* Glass Effects */
-    --glass-bg: 216 7% 7% / 0.8;    /* Semi-transparent black */
-    --glass-border: 216 7% 30% / 0.3; /* Subtle glass border */
+    /* Semantic Color System */
+    --positive: 142 76% 36%;        /* #16A34A Green for positive */
+    --negative: 0 84% 60%;          /* #EF4444 Red for negative */
+    --warning: 45 93% 58%;          /* #F59E0B Amber for warning */
+    --critical: 0 91% 71%;          /* #F87171 Light red for critical */
+    --success: 142 71% 45%;         /* #22C55E Bright green for success */
+    --info: 217 91% 60%;            /* #3B82F6 Blue for information */
     
-    /* Semantic Mappings */
-    --background: var(--noir-bg);
+    /* Typography Hierarchy */
+    --text-primary: 0 0% 92%;       /* #EAEAEA Primary text */
+    --text-secondary: 0 0% 70%;     /* #B3B3B3 Secondary text */
+    --text-muted: 0 0% 50%;         /* #808080 Muted text */
+    --text-accent: var(--btc-primary); /* BTC orange for accents */
+    --text-data: 0 0% 95%;          /* #F2F2F2 Pure data display */
+    
+    /* Enhanced Glass Effects */
+    --glass-glow: 0 0 40px hsl(var(--btc-primary) / 0.1);
+    --glass-glow-hover: 0 0 60px hsl(var(--btc-primary) / 0.2);
+    --glass-shadow: 0 8px 32px hsl(var(--bg-primary) / 0.6);
+    --glass-shadow-hover: 0 16px 48px hsl(var(--bg-primary) / 0.8);
+    
+    /* Semantic Mappings for shadcn/ui compatibility */
+    --background: var(--bg-primary);
     --foreground: var(--text-primary);
-    --card: var(--noir-surface);
+    --card: var(--bg-tile);
     --card-foreground: var(--text-primary);
-    --popover: var(--noir-surface);
+    --popover: var(--bg-elevated);
     --popover-foreground: var(--text-primary);
     --primary: var(--btc-primary);
-    --primary-foreground: var(--noir-bg);
-    --secondary: var(--noir-border);
+    --primary-foreground: var(--bg-primary);
+    --secondary: var(--bg-secondary);
     --secondary-foreground: var(--text-primary);
-    --muted: var(--noir-border);
+    --muted: var(--bg-secondary);
     --muted-foreground: var(--text-secondary);
     --accent: var(--btc-light);
-    --accent-foreground: var(--noir-bg);
-    --destructive: var(--btc-dark);
+    --accent-foreground: var(--bg-primary);
+    --destructive: var(--negative);
     --destructive-foreground: var(--text-primary);
-    --border: var(--noir-border);
-    --input: var(--noir-border);
+    --border: var(--glass-border);
+    --input: var(--glass-border);
     --ring: var(--btc-primary);
-    --radius: 0.5rem;
+    --radius: 0.75rem;
     
-    /* Custom Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--btc-primary)) 0%, hsl(var(--btc-light)) 100%);
-    --gradient-danger: linear-gradient(135deg, hsl(var(--btc-dark)) 0%, hsl(var(--btc-primary)) 100%);
-    --gradient-glass: linear-gradient(135deg, hsl(var(--glass-bg)) 0%, hsl(var(--noir-surface)) 100%);
+    /* Premium Gradient System */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--btc-primary)) 0%, hsl(var(--btc-bright)) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--bg-secondary)) 0%, hsl(var(--bg-elevated)) 100%);
+    --gradient-glass: linear-gradient(135deg, hsl(var(--glass-bg)) 0%, hsl(var(--glass-surface)) 100%);
+    --gradient-glow: linear-gradient(135deg, hsl(var(--btc-primary) / 0.1) 0%, hsl(var(--btc-glow) / 0.05) 100%);
+    --gradient-data: linear-gradient(90deg, hsl(var(--positive)) 0%, hsl(var(--btc-primary)) 50%, hsl(var(--negative)) 100%);
     
-    /* Shadows & Glows */
-    --shadow-glass: 0 4px 6px hsl(var(--noir-bg) / 0.3), 0 1px 3px hsl(var(--noir-bg) / 0.1);
-    --glow-btc: 0 0 20px hsl(var(--btc-primary) / 0.3);
-    --glow-btc-intense: 0 0 30px hsl(var(--btc-glow) / 0.4);
-    --glow-btc-subtle: 0 0 15px hsl(var(--btc-muted) / 0.2);
+    /* Enhanced Shadow System */
+    --shadow-sm: 0 2px 4px hsl(var(--bg-primary) / 0.1);
+    --shadow-md: 0 4px 12px hsl(var(--bg-primary) / 0.15);
+    --shadow-lg: 0 8px 24px hsl(var(--bg-primary) / 0.2);
+    --shadow-xl: 0 16px 48px hsl(var(--bg-primary) / 0.25);
+    --shadow-glass: var(--glass-shadow);
+    --shadow-glow: 0 0 32px hsl(var(--btc-primary) / 0.2);
+    --shadow-glow-intense: 0 0 48px hsl(var(--btc-glow) / 0.3);
     
-    /* Animations */
+    /* Animation System */
+    --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-fast: all 0.15s ease-out;
+    --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    --spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 }
 
