@@ -6,6 +6,7 @@
 
 /* Import tile-specific animations and effects */
 @import './styles/tiles.css';
+@import './styles/intelligence.css';
 
 /* Global Liquidity Intelligence Platform V6 - Noir & Neon Design System */
 
@@ -31,6 +32,7 @@
     --btc-dark: 25 100% 44%;        /* #E67E00 Dark variant */
     --btc-muted: 28 70% 34%;        /* #B87416 Muted state */
     --btc-glow: 31 100% 64%;        /* #FF9F33 Glow effect */
+    --btc-error: 0 84% 60%;         /* #EF4444 Error state */
     
     /* Semantic Color System */
     --positive: 142 76% 36%;        /* #16A34A Green for positive */
