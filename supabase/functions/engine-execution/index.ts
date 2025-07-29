@@ -42,12 +42,14 @@ serve(async (req) => {
     const { NetLiquidityEngine } = await import('../_shared/engines/net-liquidity-engine.ts');
     const { CreditStressEngine } = await import('../_shared/engines/credit-stress-engine.ts');
     const { MarketRegimeEngine } = await import('../_shared/engines/market-regime-engine.ts');
+    const { DataIntegrityEngine } = await import('../_shared/engines/data-integrity-engine.ts');
 
     // Available engines
     const engines = [
       new NetLiquidityEngine(),
       new CreditStressEngine(),
-      new MarketRegimeEngine()
+      new MarketRegimeEngine(),
+      new DataIntegrityEngine()
     ];
 
     let enginesToRun = engines;
