@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      cusip_anomalies: {
+        Row: {
+          anomaly_details: Json | null
+          anomaly_type: string
+          confidence_level: number
+          cusip_id: string
+          detected_at: string
+          detection_method: string
+          id: string
+          is_validated: boolean | null
+          raw_features: Json | null
+          severity_score: number
+          validation_notes: string | null
+        }
+        Insert: {
+          anomaly_details?: Json | null
+          anomaly_type: string
+          confidence_level: number
+          cusip_id: string
+          detected_at?: string
+          detection_method: string
+          id?: string
+          is_validated?: boolean | null
+          raw_features?: Json | null
+          severity_score: number
+          validation_notes?: string | null
+        }
+        Update: {
+          anomaly_details?: Json | null
+          anomaly_type?: string
+          confidence_level?: number
+          cusip_id?: string
+          detected_at?: string
+          detection_method?: string
+          id?: string
+          is_validated?: boolean | null
+          raw_features?: Json | null
+          severity_score?: number
+          validation_notes?: string | null
+        }
+        Relationships: []
+      }
+      cusip_metadata: {
+        Row: {
+          benchmark_security: boolean | null
+          convexity: number | null
+          created_at: string
+          cusip_id: string
+          duration: number | null
+          id: string
+          issuer: string | null
+          liquidity_tier: number | null
+          maturity_bucket: string | null
+          on_the_run: boolean | null
+          security_type: string
+          updated_at: string
+        }
+        Insert: {
+          benchmark_security?: boolean | null
+          convexity?: number | null
+          created_at?: string
+          cusip_id: string
+          duration?: number | null
+          id?: string
+          issuer?: string | null
+          liquidity_tier?: number | null
+          maturity_bucket?: string | null
+          on_the_run?: boolean | null
+          security_type: string
+          updated_at?: string
+        }
+        Update: {
+          benchmark_security?: boolean | null
+          convexity?: number | null
+          created_at?: string
+          cusip_id?: string
+          duration?: number | null
+          id?: string
+          issuer?: string | null
+          liquidity_tier?: number | null
+          maturity_bucket?: string | null
+          on_the_run?: boolean | null
+          security_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       data_points: {
         Row: {
           confidence_score: number | null
@@ -132,6 +219,45 @@ export type Database = {
         }
         Relationships: []
       }
+      h41_validation: {
+        Row: {
+          central_bank_liquidity_swaps: number | null
+          created_at: string
+          id: string
+          other_assets: number | null
+          reconciliation_status: string | null
+          report_date: string
+          repurchase_agreements: number | null
+          securities_held_outright: number | null
+          total_assets: number | null
+          variance_from_soma: number | null
+        }
+        Insert: {
+          central_bank_liquidity_swaps?: number | null
+          created_at?: string
+          id?: string
+          other_assets?: number | null
+          reconciliation_status?: string | null
+          report_date: string
+          repurchase_agreements?: number | null
+          securities_held_outright?: number | null
+          total_assets?: number | null
+          variance_from_soma?: number | null
+        }
+        Update: {
+          central_bank_liquidity_swaps?: number | null
+          created_at?: string
+          id?: string
+          other_assets?: number | null
+          reconciliation_status?: string | null
+          report_date?: string
+          repurchase_agreements?: number | null
+          securities_held_outright?: number | null
+          total_assets?: number | null
+          variance_from_soma?: number | null
+        }
+        Relationships: []
+      }
       indicators: {
         Row: {
           api_endpoint: string | null
@@ -223,6 +349,135 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      market_microstructure: {
+        Row: {
+          bid_ask_spread: number | null
+          created_at: string
+          cusip_id: string
+          id: string
+          liquidity_score: number | null
+          order_flow_imbalance: number | null
+          price_impact: number | null
+          trade_volume: number | null
+          trading_date: string
+          volatility: number | null
+        }
+        Insert: {
+          bid_ask_spread?: number | null
+          created_at?: string
+          cusip_id: string
+          id?: string
+          liquidity_score?: number | null
+          order_flow_imbalance?: number | null
+          price_impact?: number | null
+          trade_volume?: number | null
+          trading_date: string
+          volatility?: number | null
+        }
+        Update: {
+          bid_ask_spread?: number | null
+          created_at?: string
+          cusip_id?: string
+          id?: string
+          liquidity_score?: number | null
+          order_flow_imbalance?: number | null
+          price_impact?: number | null
+          trade_volume?: number | null
+          trading_date?: string
+          volatility?: number | null
+        }
+        Relationships: []
+      }
+      soma_holdings: {
+        Row: {
+          change_from_previous: number | null
+          coupon_rate: number | null
+          created_at: string
+          cusip_id: string
+          holdings_date: string
+          id: string
+          issue_date: string | null
+          market_value: number | null
+          maturity_date: string | null
+          par_amount: number | null
+          sector: string | null
+          security_description: string | null
+          updated_at: string
+          weighted_average_maturity: number | null
+        }
+        Insert: {
+          change_from_previous?: number | null
+          coupon_rate?: number | null
+          created_at?: string
+          cusip_id: string
+          holdings_date: string
+          id?: string
+          issue_date?: string | null
+          market_value?: number | null
+          maturity_date?: string | null
+          par_amount?: number | null
+          sector?: string | null
+          security_description?: string | null
+          updated_at?: string
+          weighted_average_maturity?: number | null
+        }
+        Update: {
+          change_from_previous?: number | null
+          coupon_rate?: number | null
+          created_at?: string
+          cusip_id?: string
+          holdings_date?: string
+          id?: string
+          issue_date?: string | null
+          market_value?: number | null
+          maturity_date?: string | null
+          par_amount?: number | null
+          sector?: string | null
+          security_description?: string | null
+          updated_at?: string
+          weighted_average_maturity?: number | null
+        }
+        Relationships: []
+      }
+      stealth_patterns: {
+        Row: {
+          created_at: string
+          detection_algorithm: string
+          false_positive_rate: number | null
+          id: string
+          is_active: boolean | null
+          last_calibrated: string | null
+          parameters: Json | null
+          pattern_name: string
+          pattern_type: string
+          success_rate: number | null
+        }
+        Insert: {
+          created_at?: string
+          detection_algorithm: string
+          false_positive_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_calibrated?: string | null
+          parameters?: Json | null
+          pattern_name: string
+          pattern_type: string
+          success_rate?: number | null
+        }
+        Update: {
+          created_at?: string
+          detection_algorithm?: string
+          false_positive_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_calibrated?: string | null
+          parameters?: Json | null
+          pattern_name?: string
+          pattern_type?: string
+          success_rate?: number | null
+        }
+        Relationships: []
       }
     }
     Views: {

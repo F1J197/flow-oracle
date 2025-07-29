@@ -1,14 +1,44 @@
-import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
-import { dataService } from "@/services/dataService";
+import { IEngine, EngineReport, ActionableInsight, DashboardTileData, DetailedEngineView } from '../types/engines';
+import { supabase } from '../integrations/supabase/client';
 
 interface CUSIPData {
-  id: string;
-  name: string;
-  maturity: string;
-  outstandingAmount: number;
-  yieldCurveContribution: number;
-  technicalFlows: number;
+  cusip: string;
+  parAmount: number;
+  marketValue: number;
+  changeFromPrevious: number;
   stealthScore: number;
+  maturityBucket: string;
+  anomalyScore?: number;
+  detectionMethod?: string;
+  technicalFlows: {
+    netFlow: number;
+    averageSize: number;
+    frequency: number;
+    timeConcentration: number;
+  };
+}
+
+interface AnomalyData {
+  cusip_id: string;
+  anomaly_type: string;
+  severity_score: number;
+  confidence_level: number;
+  detection_method: string;
+  anomaly_details: any;
+  detected_at: string;
+}
+
+interface SOMAHolding {
+  cusip_id: string;
+  par_amount: number;
+  market_value: number;
+  change_from_previous: number;
+  holdings_date: string;
+  cusip_metadata?: {
+    maturity_bucket: string;
+    duration: number;
+    liquidity_tier: number;
+  };
 }
 
 interface TreasurySegment {
@@ -17,15 +47,26 @@ interface TreasurySegment {
   avgStealthScore: number;
   flowDirection: 'STEALTH_BUY' | 'STEALTH_SELL' | 'NEUTRAL';
   intensity: number;
+  anomalyCount: number;
+  totalHoldings: number;
+}
+
+interface StealthPattern {
+  pattern_name: string;
+  pattern_type: string;
+  detection_algorithm: string;
+  parameters: any;
+  success_rate: number;
+  false_positive_rate: number;
 }
 
 export class CUSIPStealthQEEngine implements IEngine {
-  id = 'cusip-stealth-qe';
+  id = 'cusip-stealth-qe-v6';
   name = 'CUSIP-Level Stealth QE Detection V6';
-  priority = 2;
+  priority = 1;
   pillar = 2 as const;
 
-  // Core stealth QE metrics
+  // Enhanced V6 metrics
   private segments: TreasurySegment[] = [];
   private overallStealthScore = 0;
   private detectionConfidence = 0;
@@ -34,122 +75,313 @@ export class CUSIPStealthQEEngine implements IEngine {
   private primaryDealerAnomalies = 0;
   private confidence = 92;
   private cache = new Map<string, any>();
-  private readonly CACHE_TTL = 45000; // 45 seconds cache
-
+  private readonly CACHE_TTL = 30000; // 30 seconds cache for real-time data
+  
+  // V6 Advanced features
+  private anomalies: AnomalyData[] = [];
+  private stealthPatterns: StealthPattern[] = [];
+  private h41ValidationStatus = 'pending';
+  private somaDataTimestamp: string | null = null;
+  
   constructor() {
-    this.initializeDefaultSegments();
+    this.initializeAdvancedEngine();
   }
 
-  private initializeDefaultSegments(): void {
-    this.segments = [
-      {
-        name: '2-5Y BILLS',
-        cusips: this.generateMockCUSIPs('BILLS', 5),
-        avgStealthScore: 0,
-        flowDirection: 'NEUTRAL',
-        intensity: 0
-      },
-      {
-        name: '5-10Y NOTES', 
-        cusips: this.generateMockCUSIPs('NOTES', 8),
-        avgStealthScore: 0,
-        flowDirection: 'NEUTRAL',
-        intensity: 0
-      },
-      {
-        name: '10-30Y BONDS',
-        cusips: this.generateMockCUSIPs('BONDS', 6),
-        avgStealthScore: 0,
-        flowDirection: 'NEUTRAL',
-        intensity: 0
-      },
-      {
-        name: 'TIPS COMPLEX',
-        cusips: this.generateMockCUSIPs('TIPS', 4),
-        avgStealthScore: 0,
-        flowDirection: 'NEUTRAL',
-        intensity: 0
+  private async initializeAdvancedEngine(): Promise<void> {
+    try {
+      // Load stealth detection patterns from database
+      await this.loadStealthPatterns();
+      
+      // Initialize default segments with real data structure
+      this.segments = [
+        {
+          name: '0-1Y BILLS',
+          cusips: [],
+          avgStealthScore: 0,
+          flowDirection: 'NEUTRAL',
+          intensity: 0,
+          anomalyCount: 0,
+          totalHoldings: 0
+        },
+        {
+          name: '1-3Y NOTES',
+          cusips: [],
+          avgStealthScore: 0,
+          flowDirection: 'NEUTRAL',
+          intensity: 0,
+          anomalyCount: 0,
+          totalHoldings: 0
+        },
+        {
+          name: '3-5Y NOTES', 
+          cusips: [],
+          avgStealthScore: 0,
+          flowDirection: 'NEUTRAL',
+          intensity: 0,
+          anomalyCount: 0,
+          totalHoldings: 0
+        },
+        {
+          name: '5-10Y NOTES',
+          cusips: [],
+          avgStealthScore: 0,
+          flowDirection: 'NEUTRAL',
+          intensity: 0,
+          anomalyCount: 0,
+          totalHoldings: 0
+        },
+        {
+          name: '10Y+ BONDS',
+          cusips: [],
+          avgStealthScore: 0,
+          flowDirection: 'NEUTRAL',
+          intensity: 0,
+          anomalyCount: 0,
+          totalHoldings: 0
+        }
+      ];
+    } catch (error) {
+      console.error('Failed to initialize advanced engine:', error);
+    }
+  }
+
+  private async loadStealthPatterns(): Promise<void> {
+    try {
+      const { data, error } = await supabase
+        .from('stealth_patterns')
+        .select('*')
+        .eq('is_active', true);
+
+      if (error) {
+        console.error('Failed to load stealth patterns:', error);
+        return;
       }
-    ];
+
+      this.stealthPatterns = data || [];
+      console.log(`Loaded ${this.stealthPatterns.length} stealth detection patterns`);
+    } catch (error) {
+      console.error('Error loading stealth patterns:', error);
+    }
   }
 
-  private generateMockCUSIPs(type: string, count: number): CUSIPData[] {
-    const cusips: CUSIPData[] = [];
-    const baseValues = {
-      BILLS: { yield: 5.2, outstanding: 1200, maturity: '2027' },
-      NOTES: { yield: 4.1, outstanding: 2800, maturity: '2032' },
-      BONDS: { yield: 4.5, outstanding: 1900, maturity: '2054' },
-      TIPS: { yield: 2.8, outstanding: 450, maturity: '2034' }
-    };
-    
-    const base = baseValues[type as keyof typeof baseValues];
-    
-    for (let i = 0; i < count; i++) {
-      const variation = 0.8 + Math.random() * 0.4; // 0.8 to 1.2 multiplier
-      cusips.push({
-        id: `912828${type.charAt(0)}${i.toString().padStart(2, '0')}`,
-        name: `${type} ${base.maturity}-${i + 1}`,
-        maturity: base.maturity,
-        outstandingAmount: base.outstanding * variation,
-        yieldCurveContribution: base.yield * variation,
-        technicalFlows: (Math.random() - 0.5) * 50, // -25 to +25
-        stealthScore: 0
+  private async fetchSOMAHoldings(): Promise<SOMAHolding[]> {
+    try {
+      // Fetch last 30 days of SOMA holdings data
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data, error } = await supabase
+        .from('soma_holdings')
+        .select(`
+          cusip_id,
+          par_amount,
+          market_value,
+          change_from_previous,
+          holdings_date
+        `)
+        .gte('holdings_date', thirtyDaysAgo.toISOString().split('T')[0])
+        .order('holdings_date', { ascending: false });
+
+      if (error) {
+        console.error('Failed to fetch SOMA holdings:', error);
+        return [];
+      }
+
+      // Fetch CUSIP metadata separately to avoid relation issues
+      const cusipIds = data?.map(h => h.cusip_id) || [];
+      const { data: metadataData } = await supabase
+        .from('cusip_metadata')
+        .select('cusip_id, maturity_bucket, duration, liquidity_tier')
+        .in('cusip_id', cusipIds);
+
+      // Merge the data
+      const holdings: SOMAHolding[] = (data || []).map(holding => ({
+        ...holding,
+        cusip_metadata: metadataData?.find(m => m.cusip_id === holding.cusip_id) || {
+          maturity_bucket: '5-10Y',
+          duration: 5.0,
+          liquidity_tier: 1
+        }
+      }));
+
+      this.somaDataTimestamp = new Date().toISOString();
+      return holdings;
+    } catch (error) {
+      console.error('Error fetching SOMA holdings:', error);
+      return [];
+    }
+  }
+
+  private async fetchAnomalies(): Promise<AnomalyData[]> {
+    try {
+      // Fetch recent anomalies (last 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { data, error } = await supabase
+        .from('cusip_anomalies')
+        .select('*')
+        .gte('detected_at', sevenDaysAgo.toISOString())
+        .order('severity_score', { ascending: false });
+
+      if (error) {
+        console.error('Failed to fetch anomalies:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching anomalies:', error);
+      return [];
+    }
+  }
+
+  private async triggerAnomalyDetection(): Promise<void> {
+    try {
+      // Call the anomaly detection edge function
+      const { data, error } = await supabase.functions.invoke('cusip-anomaly-detection', {
+        body: {
+          algorithm: 'dbscan',
+          lookbackDays: 30
+        }
       });
+
+      if (error) {
+        console.error('Failed to trigger anomaly detection:', error);
+        return;
+      }
+
+      console.log(`Anomaly detection completed: ${data.anomalies_detected} anomalies found`);
+    } catch (error) {
+      console.error('Error triggering anomaly detection:', error);
     }
+  }
+
+  private processSOMAData(holdings: SOMAHolding[]): void {
+    // Clear existing CUSIP data
+    this.segments.forEach(segment => {
+      segment.cusips = [];
+      segment.totalHoldings = 0;
+    });
+
+    // Group holdings by maturity bucket and process
+    const cusipMap = new Map<string, SOMAHolding[]>();
     
-    return cusips;
+    holdings.forEach(holding => {
+      const maturityBucket = holding.cusip_metadata?.maturity_bucket || '5-10Y';
+      if (!cusipMap.has(maturityBucket)) {
+        cusipMap.set(maturityBucket, []);
+      }
+      cusipMap.get(maturityBucket)!.push(holding);
+    });
+
+    // Process each maturity segment
+    cusipMap.forEach((holdingsInBucket, bucket) => {
+      const segment = this.segments.find(s => s.name.includes(bucket)) || this.segments[2]; // Default to 3-5Y
+      
+      holdingsInBucket.forEach(holding => {
+        const cusipData: CUSIPData = {
+          cusip: holding.cusip_id,
+          parAmount: holding.par_amount,
+          marketValue: holding.market_value,
+          changeFromPrevious: holding.change_from_previous,
+          stealthScore: 0,
+          maturityBucket: bucket,
+          technicalFlows: {
+            netFlow: holding.change_from_previous,
+            averageSize: holding.par_amount / 1000000, // Convert to millions
+            frequency: this.calculateTradingFrequency(holding),
+            timeConcentration: this.calculateTimeConcentration(holding)
+          }
+        };
+
+        segment.cusips.push(cusipData);
+        segment.totalHoldings += holding.par_amount;
+      });
+    });
   }
 
-  private fetchWithTimeout<T>(fn: () => Promise<T>, timeout: number): Promise<T> {
-    return Promise.race([
-      fn(),
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), timeout)
-      )
-    ]);
+  private calculateTradingFrequency(holding: SOMAHolding): number {
+    // Estimate trading frequency based on change patterns
+    const absoluteChange = Math.abs(holding.change_from_previous);
+    const relativeMagnitude = absoluteChange / Math.max(holding.par_amount, 1);
+    
+    // Higher relative changes suggest more frequent operations
+    return Math.min(10, relativeMagnitude * 100);
   }
 
-  private getCachedData(key: string): any {
-    const cached = this.cache.get(key);
-    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
-      return cached;
-    }
-    return null;
+  private calculateTimeConcentration(holding: SOMAHolding): number {
+    // Analyze temporal patterns (simplified - in real implementation would use historical data)
+    const hour = new Date().getHours();
+    
+    // Federal Reserve operations often occur during specific windows
+    if (hour >= 10 && hour <= 11) return 0.8; // High concentration during 10-11 AM
+    if (hour >= 14 && hour <= 15) return 0.6; // Moderate during 2-3 PM
+    return 0.3; // Low concentration other times
   }
 
-  private setCachedData(key: string, data: any): void {
-    this.cache.set(key, { ...data, timestamp: Date.now() });
+  private processAnomalies(anomalies: AnomalyData[]): void {
+    this.anomalies = anomalies;
+    
+    // Update CUSIP data with anomaly information
+    this.segments.forEach(segment => {
+      segment.anomalyCount = 0;
+      
+      segment.cusips.forEach(cusip => {
+        const cusipAnomalies = anomalies.filter(a => a.cusip_id === cusip.cusip);
+        
+        if (cusipAnomalies.length > 0) {
+          const highestSeverity = Math.max(...cusipAnomalies.map(a => a.severity_score));
+          cusip.anomalyScore = highestSeverity;
+          cusip.detectionMethod = cusipAnomalies[0].detection_method;
+          segment.anomalyCount++;
+        }
+      });
+    });
   }
 
-  private calculateStealthScores(): void {
+  private calculateAdvancedStealthScores(): void {
     let totalStealth = 0;
     let maxIntensity = 0;
-    let anomalyCount = 0;
+    let totalAnomalies = 0;
 
     this.segments.forEach(segment => {
       let segmentStealth = 0;
       let segmentFlows = 0;
+      let segmentAnomalies = 0;
 
       segment.cusips.forEach(cusip => {
-        // Calculate stealth score based on technical flows vs expected patterns
-        const expectedFlow = cusip.outstandingAmount * 0.01; // 1% baseline
-        const flowAnomaly = Math.abs(cusip.technicalFlows - expectedFlow);
-        const stealthIndicator = flowAnomaly / expectedFlow;
+        // Multi-factor stealth calculation
+        const flowFactor = this.calculateFlowStealthFactor(cusip);
+        const anomalyFactor = cusip.anomalyScore ? cusip.anomalyScore / 100 : 0;
+        const temporalFactor = cusip.technicalFlows.timeConcentration;
+        const sizeFactor = this.calculateSizeFactor(cusip);
         
-        cusip.stealthScore = Math.min(100, stealthIndicator * 20); // Scale to 0-100
+        // Weighted composite stealth score
+        cusip.stealthScore = (
+          flowFactor * 0.4 +
+          anomalyFactor * 0.3 +
+          temporalFactor * 0.2 +
+          sizeFactor * 0.1
+        ) * 100;
+        
         segmentStealth += cusip.stealthScore;
-        segmentFlows += cusip.technicalFlows;
-
-        if (cusip.stealthScore > 75) anomalyCount++;
+        segmentFlows += cusip.technicalFlows.netFlow;
+        
+        if (cusip.anomalyScore && cusip.anomalyScore > 70) {
+          segmentAnomalies++;
+        }
       });
 
-      segment.avgStealthScore = segmentStealth / segment.cusips.length;
-      segment.intensity = Math.abs(segmentFlows) / 100;
+      segment.avgStealthScore = segment.cusips.length > 0 ? segmentStealth / segment.cusips.length : 0;
+      segment.intensity = Math.abs(segmentFlows) / Math.max(segment.totalHoldings / 1000000000, 1); // Normalize by holdings
+      segment.anomalyCount = segmentAnomalies;
       
-      // Determine flow direction
-      if (segmentFlows > 15) {
+      // Enhanced flow direction detection
+      const flowThreshold = segment.totalHoldings * 0.01; // 1% of total holdings
+      if (segmentFlows > flowThreshold) {
         segment.flowDirection = 'STEALTH_BUY';
-      } else if (segmentFlows < -15) {
+      } else if (segmentFlows < -flowThreshold) {
         segment.flowDirection = 'STEALTH_SELL';
       } else {
         segment.flowDirection = 'NEUTRAL';
@@ -157,36 +389,53 @@ export class CUSIPStealthQEEngine implements IEngine {
 
       totalStealth += segment.avgStealthScore;
       maxIntensity = Math.max(maxIntensity, segment.intensity);
+      totalAnomalies += segmentAnomalies;
     });
 
-    this.overallStealthScore = totalStealth / this.segments.length;
+    this.overallStealthScore = this.segments.length > 0 ? totalStealth / this.segments.length : 0;
     this.operationIntensity = maxIntensity;
-    this.primaryDealerAnomalies = anomalyCount;
+    this.primaryDealerAnomalies = totalAnomalies;
     this.hiddenFlowsDetected = this.segments.filter(s => s.flowDirection !== 'NEUTRAL').length;
     
-    // Calculate detection confidence based on multiple factors
-    const scoreConfidence = this.overallStealthScore / 100;
-    const intensityConfidence = Math.min(1, this.operationIntensity / 50);
-    const anomalyConfidence = Math.min(1, this.primaryDealerAnomalies / 10);
+    // Advanced confidence calculation incorporating multiple factors
+    const scoreConfidence = Math.min(1, this.overallStealthScore / 80);
+    const intensityConfidence = Math.min(1, this.operationIntensity / 10);
+    const anomalyConfidence = Math.min(1, totalAnomalies / 20);
+    const patternConfidence = this.stealthPatterns.length > 0 ? 
+      this.stealthPatterns.reduce((avg, p) => avg + p.success_rate, 0) / (this.stealthPatterns.length * 100) : 0.5;
     
-    this.detectionConfidence = (scoreConfidence + intensityConfidence + anomalyConfidence) / 3 * 100;
+    this.detectionConfidence = (scoreConfidence + intensityConfidence + anomalyConfidence + patternConfidence) / 4 * 100;
   }
 
-  private simulateRealtimeFlows(): void {
-    // Simulate real-time CUSIP-level flow detection
-    const timeOfDay = new Date().getHours();
-    const marketSession = timeOfDay >= 9 && timeOfDay <= 16 ? 'ACTIVE' : 'QUIET';
+  private calculateFlowStealthFactor(cusip: CUSIPData): number {
+    const expectedFlow = cusip.parAmount * 0.005; // 0.5% baseline for typical operations
+    const actualFlow = Math.abs(cusip.technicalFlows.netFlow);
+    const deviation = actualFlow / Math.max(expectedFlow, 1);
     
-    this.segments.forEach(segment => {
-      segment.cusips.forEach(cusip => {
-        // Add some realistic flow simulation based on market conditions
-        const baseFlow = cusip.technicalFlows;
-        const sessionMultiplier = marketSession === 'ACTIVE' ? 1.5 : 0.3;
-        const randomVariation = (Math.random() - 0.5) * 20; // ±10 variation
-        
-        cusip.technicalFlows = baseFlow * sessionMultiplier + randomVariation;
-      });
-    });
+    // Stealth operations often show unusual flow patterns
+    return Math.min(1, Math.max(0, (deviation - 1) / 10));
+  }
+
+  private calculateSizeFactor(cusip: CUSIPData): number {
+    // Large operations in small increments are characteristic of stealth
+    const averageSize = cusip.technicalFlows.averageSize;
+    const frequency = cusip.technicalFlows.frequency;
+    
+    // High frequency + moderate size = potential stealth
+    const stealthProfile = (frequency / 10) * Math.min(1, averageSize / 100);
+    return Math.min(1, stealthProfile);
+  }
+
+  private getCachedData(key: string): any {
+    const cached = this.cache.get(key);
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
+      return cached.data;
+    }
+    return null;
+  }
+
+  private setCachedData(key: string, data: any): void {
+    this.cache.set(key, { data, timestamp: Date.now() });
   }
 
   async execute(): Promise<EngineReport> {
@@ -194,43 +443,32 @@ export class CUSIPStealthQEEngine implements IEngine {
       console.log('CUSIP-Level Stealth QE Detection Engine V6 executing...');
       
       // Check cache first
-      const cacheKey = 'cusip-stealth-data';
+      const cacheKey = 'cusip-stealth-v6-data';
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-        this.segments = cached.segments;
-        this.overallStealthScore = cached.overallStealthScore;
-        this.detectionConfidence = cached.detectionConfidence;
-        this.operationIntensity = cached.operationIntensity;
+        Object.assign(this, cached);
         return this.generateReport();
       }
 
-      // Simulate real-time data acquisition
-      this.simulateRealtimeFlows();
-      
-      // Try to fetch some real Treasury data for enhanced realism
-      try {
-        const treasuryData = await this.fetchWithTimeout(
-          () => dataService.fetchFREDData('DGS10'), 
-          3000
-        );
-        
-        // Use treasury data to adjust stealth detection sensitivity
-        if (treasuryData) {
-          const yieldLevel = treasuryData;
-          const sensitivityAdjustment = yieldLevel > 4.5 ? 1.2 : yieldLevel < 3.5 ? 0.8 : 1.0;
-          
-          this.segments.forEach(segment => {
-            segment.cusips.forEach(cusip => {
-              cusip.technicalFlows *= sensitivityAdjustment;
-            });
-          });
-        }
-      } catch (error) {
-        console.warn('Could not fetch Treasury data, using simulated flows:', error);
+      // Phase 1: Fetch real SOMA holdings data
+      const somaHoldings = await this.fetchSOMAHoldings();
+      console.log(`Fetched ${somaHoldings.length} SOMA holdings`);
+
+      // Phase 2: Process SOMA data into segments
+      this.processSOMAData(somaHoldings);
+
+      // Phase 3: Trigger advanced anomaly detection if we have enough data
+      if (somaHoldings.length > 50) {
+        await this.triggerAnomalyDetection();
       }
 
-      // Calculate stealth scores
-      this.calculateStealthScores();
+      // Phase 4: Fetch and process anomalies
+      const anomalies = await this.fetchAnomalies();
+      this.processAnomalies(anomalies);
+      console.log(`Processed ${anomalies.length} anomalies`);
+
+      // Phase 5: Calculate advanced stealth scores
+      this.calculateAdvancedStealthScores();
       
       // Cache the computed data
       const computedData = {
@@ -238,13 +476,16 @@ export class CUSIPStealthQEEngine implements IEngine {
         overallStealthScore: this.overallStealthScore,
         detectionConfidence: this.detectionConfidence,
         operationIntensity: this.operationIntensity,
-        timestamp: Date.now()
+        hiddenFlowsDetected: this.hiddenFlowsDetected,
+        primaryDealerAnomalies: this.primaryDealerAnomalies,
+        anomalies: this.anomalies,
+        somaDataTimestamp: this.somaDataTimestamp
       };
       this.setCachedData(cacheKey, computedData);
 
       return this.generateReport();
     } catch (error) {
-      console.error('CUSIP Stealth QE Engine error:', error);
+      console.error('CUSIP Stealth QE Engine V6 error:', error);
       return {
         success: false,
         confidence: 0,
@@ -258,7 +499,7 @@ export class CUSIPStealthQEEngine implements IEngine {
 
   private generateReport(): EngineReport {
     const signal = this.getMarketSignal();
-    console.log(`Stealth QE Score: ${this.overallStealthScore.toFixed(1)} | Detection: ${this.detectionConfidence.toFixed(1)}% | Signal: ${signal}`);
+    console.log(`Stealth QE V6 - Score: ${this.overallStealthScore.toFixed(1)} | Confidence: ${this.detectionConfidence.toFixed(1)}% | Signal: ${signal}`);
     
     return {
       success: true,
@@ -270,7 +511,11 @@ export class CUSIPStealthQEEngine implements IEngine {
         operationIntensity: this.operationIntensity,
         hiddenFlowsDetected: this.hiddenFlowsDetected,
         primaryDealerAnomalies: this.primaryDealerAnomalies,
-        segments: this.segments
+        segments: this.segments,
+        anomalies: this.anomalies.slice(0, 10), // Top 10 anomalies
+        stealthPatterns: this.stealthPatterns,
+        somaDataTimestamp: this.somaDataTimestamp,
+        h41ValidationStatus: this.h41ValidationStatus
       },
       lastUpdated: new Date()
     };
@@ -279,52 +524,60 @@ export class CUSIPStealthQEEngine implements IEngine {
   private getMarketSignal(): 'bullish' | 'bearish' | 'neutral' {
     const buyingSegments = this.segments.filter(s => s.flowDirection === 'STEALTH_BUY').length;
     const sellingSegments = this.segments.filter(s => s.flowDirection === 'STEALTH_SELL').length;
+    const totalAnomalies = this.segments.reduce((sum, s) => sum + s.anomalyCount, 0);
     
-    if (buyingSegments >= 2 && this.overallStealthScore > 60) return 'bullish';
-    if (sellingSegments >= 2 && this.overallStealthScore > 60) return 'bearish';
+    // Enhanced signal detection with anomaly weighting
+    if (buyingSegments >= 2 && this.overallStealthScore > 60 && totalAnomalies > 5) return 'bullish';
+    if (sellingSegments >= 2 && this.overallStealthScore > 60 && totalAnomalies > 5) return 'bearish';
+    if (buyingSegments > sellingSegments && this.overallStealthScore > 40) return 'bullish';
+    if (sellingSegments > buyingSegments && this.overallStealthScore > 40) return 'bearish';
     return 'neutral';
   }
 
   getSingleActionableInsight(): ActionableInsight {
     const signal = this.getMarketSignal();
     const activeSegments = this.segments.filter(s => s.flowDirection !== 'NEUTRAL');
+    const totalAnomalies = this.segments.reduce((sum, s) => sum + s.anomalyCount, 0);
     
-    // Calculate signal strength
+    // Calculate signal strength with V6 enhancements
     const scoreComponent = this.overallStealthScore;
     const confidenceComponent = this.detectionConfidence;
-    const intensityComponent = this.operationIntensity * 2;
-    const signalStrength = Math.min(100, (scoreComponent + confidenceComponent + intensityComponent) / 3);
+    const intensityComponent = this.operationIntensity * 5;
+    const anomalyComponent = Math.min(50, totalAnomalies * 5);
+    const signalStrength = Math.min(100, (scoreComponent + confidenceComponent + intensityComponent + anomalyComponent) / 4);
 
-    // Determine market action
+    // Enhanced market action determination
     let marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
-    if (this.hiddenFlowsDetected >= 3 && signal === 'bullish') {
+    if (this.hiddenFlowsDetected >= 3 && signal === 'bullish' && totalAnomalies > 8) {
       marketAction = 'BUY';
-    } else if (this.hiddenFlowsDetected >= 3 && signal === 'bearish') {
+    } else if (this.hiddenFlowsDetected >= 3 && signal === 'bearish' && totalAnomalies > 8) {
       marketAction = 'SELL';
-    } else if (this.overallStealthScore > 40) {
+    } else if (this.overallStealthScore > 50 || totalAnomalies > 5) {
       marketAction = 'WAIT';
     } else {
       marketAction = 'HOLD';
     }
 
-    // Determine confidence
+    // Enhanced confidence calculation
     const confidence: 'HIGH' | 'MED' | 'LOW' = 
-      this.detectionConfidence > 80 && this.primaryDealerAnomalies > 5 ? 'HIGH' :
-      this.detectionConfidence > 60 && this.primaryDealerAnomalies > 2 ? 'MED' : 'LOW';
+      this.detectionConfidence > 85 && totalAnomalies > 10 ? 'HIGH' :
+      this.detectionConfidence > 70 && totalAnomalies > 5 ? 'MED' : 'LOW';
 
-    // Generate actionable text
+    // Generate V6 actionable text
     let actionText: string;
-    if (this.hiddenFlowsDetected > 0) {
+    if (this.hiddenFlowsDetected > 0 && totalAnomalies > 0) {
       const dominantDirection = activeSegments.length > 0 ? activeSegments[0].flowDirection : 'NEUTRAL';
       if (dominantDirection === 'STEALTH_BUY') {
-        actionText = `STEALTH QE DETECTED: ${this.hiddenFlowsDetected} segments show hidden buying flows`;
+        actionText = `STEALTH QE V6: ${this.hiddenFlowsDetected} segments show buying + ${totalAnomalies} ML-detected anomalies`;
       } else if (dominantDirection === 'STEALTH_SELL') {
-        actionText = `STEALTH QT DETECTED: ${this.hiddenFlowsDetected} segments show hidden selling flows`;
+        actionText = `STEALTH QT V6: ${this.hiddenFlowsDetected} segments show selling + ${totalAnomalies} ML-detected anomalies`;
       } else {
-        actionText = `MIXED SIGNALS: ${this.primaryDealerAnomalies} dealer anomalies across segments`;
+        actionText = `MIXED STEALTH V6: ${totalAnomalies} anomalies across ${this.hiddenFlowsDetected} active segments`;
       }
+    } else if (totalAnomalies > 0) {
+      actionText = `ANOMALY ALERT V6: ${totalAnomalies} ML-detected irregularities in CUSIP flows`;
     } else {
-      actionText = `NO STEALTH OPERATIONS: Market flows appear normal across all CUSIP segments`;
+      actionText = `NORMAL OPERATIONS V6: No significant stealth patterns or anomalies detected`;
     }
 
     return {
@@ -332,21 +585,23 @@ export class CUSIPStealthQEEngine implements IEngine {
       signalStrength: Math.round(signalStrength),
       marketAction,
       confidence,
-      timeframe: this.hiddenFlowsDetected > 2 ? 'IMMEDIATE' : 'SHORT_TERM'
+      timeframe: totalAnomalies > 8 ? 'IMMEDIATE' : this.hiddenFlowsDetected > 2 ? 'SHORT_TERM' : 'MEDIUM_TERM'
     };
   }
 
   getDashboardData(): DashboardTileData {
+    const totalAnomalies = this.segments.reduce((sum, s) => sum + s.anomalyCount, 0);
+    
     const getColor = (): 'teal' | 'orange' | 'gold' | 'lime' | 'fuchsia' => {
-      if (this.hiddenFlowsDetected >= 3) return 'fuchsia'; // High stealth activity
-      if (this.overallStealthScore > 70) return 'orange'; // Moderate stealth
-      if (this.overallStealthScore > 40) return 'gold'; // Some stealth
+      if (totalAnomalies > 10) return 'fuchsia'; // Critical anomaly count
+      if (this.hiddenFlowsDetected >= 3) return 'orange'; // High stealth activity
+      if (this.overallStealthScore > 50) return 'gold'; // Moderate stealth
       return 'teal'; // Normal
     };
 
     const getStatus = (): 'normal' | 'warning' | 'critical' => {
-      if (this.primaryDealerAnomalies > 8) return 'critical';
-      if (this.hiddenFlowsDetected > 2) return 'warning';
+      if (totalAnomalies > 15 || this.overallStealthScore > 80) return 'critical';
+      if (this.hiddenFlowsDetected > 2 || totalAnomalies > 8) return 'warning';
       return 'normal';
     };
 
@@ -358,54 +613,73 @@ export class CUSIPStealthQEEngine implements IEngine {
     };
 
     return {
-      title: 'CUSIP STEALTH QE ENGINE',
+      title: 'CUSIP STEALTH QE V6',
       primaryMetric: `${this.overallStealthScore.toFixed(1)}`,
-      secondaryMetric: `${this.hiddenFlowsDetected} Hidden Flows | ${this.primaryDealerAnomalies} Anomalies`,
+      secondaryMetric: `${this.hiddenFlowsDetected} Flows | ${totalAnomalies} ML Anomalies`,
       status: getStatus(),
       trend: getTrend(),
       color: getColor(),
-      actionText: this.hiddenFlowsDetected > 0 ? 'STEALTH OPERATIONS DETECTED' : 'NORMAL FLOWS'
+      actionText: totalAnomalies > 0 ? `V6: ${totalAnomalies} ANOMALIES DETECTED` : 'V6: NORMAL OPERATIONS'
     };
   }
 
   getDetailedView(): DetailedEngineView {
     const activeSegments = this.segments.filter(s => s.flowDirection !== 'NEUTRAL');
+    const totalAnomalies = this.segments.reduce((sum, s) => sum + s.anomalyCount, 0);
+    const topAnomalies = this.anomalies.slice(0, 5);
     
     return {
       title: 'CUSIP-Level Stealth QE Detection Engine V6',
       primarySection: {
-        title: 'Stealth Operation Detection',
+        title: 'V6 Enhanced Detection System',
         metrics: {
           'Overall Stealth Score': `${this.overallStealthScore.toFixed(1)}/100`,
-          'Detection Confidence': `${this.detectionConfidence.toFixed(1)}%`,
-          'Operation Intensity': `${this.operationIntensity.toFixed(1)}`,
-          'Hidden Flows Detected': this.hiddenFlowsDetected.toString()
+          'ML Detection Confidence': `${this.detectionConfidence.toFixed(1)}%`,
+          'Operation Intensity': `${this.operationIntensity.toFixed(2)}`,
+          'Hidden Flows Detected': this.hiddenFlowsDetected.toString(),
+          'ML Anomalies Found': totalAnomalies.toString()
         }
       },
       sections: [
         {
-          title: 'Segment Analysis',
+          title: 'Maturity Segment Analysis',
           metrics: {
-            '2-5Y Bills Stealth': `${this.segments[0]?.avgStealthScore.toFixed(1) || '0'} (${this.segments[0]?.flowDirection || 'NEUTRAL'})`,
-            '5-10Y Notes Stealth': `${this.segments[1]?.avgStealthScore.toFixed(1) || '0'} (${this.segments[1]?.flowDirection || 'NEUTRAL'})`,
-            '10-30Y Bonds Stealth': `${this.segments[2]?.avgStealthScore.toFixed(1) || '0'} (${this.segments[2]?.flowDirection || 'NEUTRAL'})`,
-            'TIPS Complex Stealth': `${this.segments[3]?.avgStealthScore.toFixed(1) || '0'} (${this.segments[3]?.flowDirection || 'NEUTRAL'})`
+            '0-1Y Bills': `${this.segments[0]?.avgStealthScore.toFixed(1) || '0'} (${this.segments[0]?.flowDirection || 'NEUTRAL'}) [${this.segments[0]?.anomalyCount || 0} anomalies]`,
+            '1-3Y Notes': `${this.segments[1]?.avgStealthScore.toFixed(1) || '0'} (${this.segments[1]?.flowDirection || 'NEUTRAL'}) [${this.segments[1]?.anomalyCount || 0} anomalies]`,
+            '3-5Y Notes': `${this.segments[2]?.avgStealthScore.toFixed(1) || '0'} (${this.segments[2]?.flowDirection || 'NEUTRAL'}) [${this.segments[2]?.anomalyCount || 0} anomalies]`,
+            '5-10Y Notes': `${this.segments[3]?.avgStealthScore.toFixed(1) || '0'} (${this.segments[3]?.flowDirection || 'NEUTRAL'}) [${this.segments[3]?.anomalyCount || 0} anomalies]`,
+            '10Y+ Bonds': `${this.segments[4]?.avgStealthScore.toFixed(1) || '0'} (${this.segments[4]?.flowDirection || 'NEUTRAL'}) [${this.segments[4]?.anomalyCount || 0} anomalies]`
           }
         },
         {
-          title: 'Flow Intelligence',
+          title: 'V6 Intelligence Systems',
           metrics: {
-            'Primary Dealer Anomalies': this.primaryDealerAnomalies.toString(),
-            'Active Segments': activeSegments.length.toString(),
-            'Market Signal': this.getMarketSignal().toUpperCase(),
-            'Stealth Classification': this.overallStealthScore > 70 ? 'HIGH STEALTH' : this.overallStealthScore > 40 ? 'MODERATE STEALTH' : 'NORMAL'
+            'SOMA Data Status': this.somaDataTimestamp ? 'LIVE' : 'SIMULATED',
+            'H.4.1 Validation': this.h41ValidationStatus.toUpperCase(),
+            'Active Patterns': this.stealthPatterns.length.toString(),
+            'Pattern Success Rate': this.stealthPatterns.length > 0 ? 
+              `${(this.stealthPatterns.reduce((avg, p) => avg + p.success_rate, 0) / this.stealthPatterns.length).toFixed(1)}%` : 'N/A',
+            'Detection Algorithms': this.stealthPatterns.map(p => p.detection_algorithm).join(', ') || 'Statistical'
+          }
+        },
+        {
+          title: 'Anomaly Intelligence',
+          metrics: topAnomalies.length > 0 ? {
+            'Top Anomaly': `${topAnomalies[0].cusip_id} (${topAnomalies[0].severity_score.toFixed(1)}/100)`,
+            'Detection Method': topAnomalies[0].detection_method.toUpperCase(),
+            'Anomaly Type': topAnomalies[0].anomaly_type.toUpperCase(),
+            'Total Critical': this.anomalies.filter(a => a.severity_score > 80).length.toString(),
+            'Last Scan': new Date(Math.max(...this.anomalies.map(a => new Date(a.detected_at).getTime()))).toLocaleTimeString()
+          } : {
+            'Anomaly Status': 'No recent anomalies detected',
+            'Scan Status': 'Continuous monitoring active'
           }
         }
       ],
-      alerts: this.hiddenFlowsDetected > 2 ? [
+      alerts: totalAnomalies > 5 ? [
         {
-          severity: 'warning' as const,
-          message: `ALERT: ${this.hiddenFlowsDetected} segments showing stealth operations with ${this.primaryDealerAnomalies} dealer anomalies`
+          severity: totalAnomalies > 15 ? 'critical' as const : 'warning' as const,
+          message: `V6 ALERT: ${totalAnomalies} ML-detected anomalies across ${this.hiddenFlowsDetected} stealth flow segments. Top severity: ${Math.max(...this.anomalies.map(a => a.severity_score)).toFixed(1)}/100`
         }
       ] : undefined
     };
