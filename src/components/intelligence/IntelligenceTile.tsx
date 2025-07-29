@@ -50,16 +50,16 @@ export const IntelligenceTile = memo(({ data, loading = false }: IntelligenceTil
         "min-h-[280px]" // Fixed height for grid consistency
       )}>
         <div className="flex items-center justify-between">
-          <div className="h-4 bg-gray-700 rounded w-2/3 animate-pulse"></div>
-          <div className="w-2 h-2 bg-gray-600 rounded-full animate-pulse"></div>
+          <div className="h-4 bg-glass-surface rounded w-2/3 animate-pulse"></div>
+          <div className="w-2 h-2 bg-glass-bg rounded-full animate-pulse"></div>
         </div>
         <div className="space-y-3">
-          <div className="h-6 bg-gray-600 rounded w-1/2 animate-pulse"></div>
+          <div className="h-6 bg-glass-bg rounded w-1/2 animate-pulse"></div>
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="flex justify-between">
-                <div className="h-3 bg-gray-700 rounded w-1/3 animate-pulse"></div>
-                <div className="h-3 bg-gray-600 rounded w-1/4 animate-pulse"></div>
+                <div className="h-3 bg-glass-surface rounded w-1/3 animate-pulse"></div>
+                <div className="h-3 bg-glass-bg rounded w-1/4 animate-pulse"></div>
               </div>
             ))}
           </div>

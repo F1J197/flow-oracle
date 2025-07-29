@@ -13,13 +13,13 @@ export const TerminalEngineView = memo(({ view, loading = false }: TerminalEngin
     return (
       <div className="glass-tile p-6 space-y-4 min-h-[600px]">
         <div className="space-y-2">
-          <div className="h-4 bg-gray-700 rounded w-3/4 animate-pulse"></div>
-          <div className="h-3 bg-gray-600 rounded w-full animate-pulse"></div>
+          <div className="h-4 bg-glass-surface rounded w-3/4 animate-pulse"></div>
+          <div className="h-3 bg-glass-bg rounded w-full animate-pulse"></div>
         </div>
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="space-y-1">
-            <div className="h-3 bg-gray-700 rounded w-1/4 animate-pulse"></div>
-            <div className="h-3 bg-gray-600 rounded w-1/3 animate-pulse"></div>
+            <div className="h-3 bg-glass-surface rounded w-1/4 animate-pulse"></div>
+            <div className="h-3 bg-glass-bg rounded w-1/3 animate-pulse"></div>
           </div>
         ))}
       </div>

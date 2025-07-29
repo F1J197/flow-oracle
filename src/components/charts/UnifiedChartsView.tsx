@@ -38,19 +38,19 @@ export const UnifiedChartsView = () => {
   // Get status color
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'text-green-400';
-      case 'loading': return 'text-yellow-400';
-      case 'error': return 'text-red-400';
-      case 'stale': return 'text-orange-400';
-      default: return 'text-gray-400';
+      case 'active': return 'text-btc-bright';
+      case 'loading': return 'text-btc-light';
+      case 'error': return 'text-btc-dark';
+      case 'stale': return 'text-btc-muted';
+      default: return 'text-text-muted';
     }
   };
 
   // Get trend icon
   const getTrendIcon = (change?: number) => {
-    if (!change) return <Minus className="w-4 h-4 text-gray-400" />;
-    if (change > 0) return <TrendingUp className="w-4 h-4 text-green-400" />;
-    return <TrendingDown className="w-4 h-4 text-red-400" />;
+    if (!change) return <Minus className="w-4 h-4 text-text-muted" />;
+    if (change > 0) return <TrendingUp className="w-4 h-4 text-btc-bright" />;
+    return <TrendingDown className="w-4 h-4 text-btc-dark" />;
   };
 
   // Format value with unit
@@ -75,8 +75,8 @@ export const UnifiedChartsView = () => {
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
-              <h2 className="text-lg font-semibold text-red-400 mb-2">Charts Error</h2>
-              <p className="text-red-300 mb-4">{error}</p>
+              <h2 className="text-lg font-semibold text-btc-dark mb-2">Charts Error</h2>
+              <p className="text-btc-muted mb-4">{error}</p>
               <Button onClick={refreshAll} variant="outline">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Retry
@@ -93,19 +93,19 @@ export const UnifiedChartsView = () => {
       {/* Header with Stats */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Unified Charts</h1>
+          <h1 className="text-2xl font-bold text-text-primary">Unified Charts</h1>
           <p className="text-text-secondary">Real-time financial indicators visualization</p>
         </div>
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="text-green-400 border-green-400">
+            <Badge variant="btc-bright">
               Active: {stats.active}
             </Badge>
-            <Badge variant="outline" className="text-red-400 border-red-400">
+            <Badge variant="btc-dark">
               Error: {stats.error}
             </Badge>
-            <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+            <Badge variant="btc-light">
               Loading: {stats.loading}
             </Badge>
           </div>
@@ -159,14 +159,14 @@ export const UnifiedChartsView = () => {
                 <CardContent>
                   {/* Current Value */}
                   <div className="mb-4">
-                    <div className="text-2xl font-bold text-white">
+                    <div className="text-2xl font-bold text-text-data">
                       {indicator.value ? 
                         formatValue(indicator.value.current, indicator.metadata.unit) : 
                         'N/A'
                       }
                     </div>
                     {indicator.value?.change && (
-                      <div className={`text-sm ${indicator.value.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <div className={`text-sm ${indicator.value.change >= 0 ? 'text-btc-bright' : 'text-btc-dark'}`}>
                         {indicator.value.change >= 0 ? '+' : ''}
                         {formatValue(indicator.value.change, indicator.metadata.unit)} 
                         ({indicator.value.changePercent?.toFixed(2)}%)
@@ -178,31 +178,31 @@ export const UnifiedChartsView = () => {
                   <div className="h-48">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={formatChartData(indicator)}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                        <XAxis 
-                          dataKey="name" 
-                          stroke="rgba(255,255,255,0.5)"
-                          fontSize={12}
-                        />
-                        <YAxis 
-                          stroke="rgba(255,255,255,0.5)"
-                          fontSize={12}
-                        />
-                        <Tooltip 
-                          contentStyle={{
-                            backgroundColor: 'rgba(26, 26, 26, 0.9)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            borderRadius: '8px',
-                            color: '#fff'
-                          }}
-                        />
+                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--glass-border))" />
+                         <XAxis 
+                           dataKey="name" 
+                           stroke="hsl(var(--text-secondary))"
+                           fontSize={12}
+                         />
+                         <YAxis 
+                           stroke="hsl(var(--text-secondary))"
+                           fontSize={12}
+                         />
+                         <Tooltip 
+                           contentStyle={{
+                             backgroundColor: 'hsl(var(--bg-secondary))',
+                             border: '1px solid hsl(var(--glass-border))',
+                             borderRadius: '8px',
+                             color: 'hsl(var(--text-primary))'
+                           }}
+                         />
                         <Line 
                           type="monotone" 
                           dataKey="value" 
-                          stroke="#00BFFF" 
+                          stroke="hsl(var(--btc-primary))" 
                           strokeWidth={2}
                           dot={false}
-                          activeDot={{ r: 6, fill: '#00BFFF' }}
+                          activeDot={{ r: 6, fill: 'hsl(var(--btc-primary))' }}
                         />
                       </LineChart>
                     </ResponsiveContainer>

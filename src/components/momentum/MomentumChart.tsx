@@ -90,7 +90,7 @@ export const MomentumChart = ({
           <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
             <CartesianGrid 
               strokeDasharray="3 3" 
-              stroke="rgba(255, 255, 255, 0.1)" 
+              stroke="hsl(var(--glass-border))" 
               horizontal={true}
               vertical={false}
             />
@@ -98,18 +98,18 @@ export const MomentumChart = ({
               dataKey="index"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 10, fill: '#999999' }}
+              tick={{ fontSize: 10, fill: 'hsl(var(--text-muted))' }}
               hide={true}
             />
             <YAxis 
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 10, fill: '#999999' }}
+              tick={{ fontSize: 10, fill: 'hsl(var(--text-muted))' }}
               domain={['dataMin - 1', 'dataMax + 1']}
             />
             
             {/* Zero reference line */}
-            <ReferenceLine y={0} stroke="rgba(255, 255, 255, 0.3)" strokeDasharray="2 2" />
+            <ReferenceLine y={0} stroke="hsl(var(--text-muted))" strokeDasharray="2 2" />
             
             {/* Main momentum line */}
             <Line
@@ -121,7 +121,7 @@ export const MomentumChart = ({
               activeDot={{ 
                 r: 4, 
                 fill: getTimeframeColor(),
-                stroke: '#121212',
+                stroke: 'hsl(var(--bg-primary))',
                 strokeWidth: 2
               }}
             />
@@ -131,7 +131,7 @@ export const MomentumChart = ({
               <Line
                 type="monotone"
                 dataKey="velocity"
-                stroke="rgba(255, 255, 255, 0.5)"
+                stroke="hsl(var(--text-secondary))"
                 strokeWidth={1}
                 strokeDasharray="3 3"
                 dot={false}
@@ -143,7 +143,7 @@ export const MomentumChart = ({
               <Line
                 type="monotone"
                 dataKey="acceleration"
-                stroke="rgba(255, 69, 0, 0.7)"
+                stroke="hsl(var(--btc-light))"
                 strokeWidth={1}
                 strokeDasharray="1 1"
                 dot={false}

@@ -46,12 +46,12 @@ export const Dashboard = () => {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-red-400 mb-2">Dashboard Error</h2>
-          <p className="text-red-300">{error}</p>
+        <div className="bg-btc-dark/20 border border-btc-dark/50 rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-btc-dark mb-2">Dashboard Error</h2>
+          <p className="text-btc-muted">{error}</p>
           <button 
             onClick={refreshData}
-            className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white transition-colors"
+            className="mt-4 px-4 py-2 bg-btc-primary hover:bg-btc-dark rounded-lg text-text-primary transition-colors"
           >
             Retry
           </button>

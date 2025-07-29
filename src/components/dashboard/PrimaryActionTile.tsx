@@ -56,12 +56,12 @@ export const PrimaryActionTile = memo(({ loading = false }: PrimaryActionTilePro
           
           <div className="flex items-center justify-between text-sm">
             <span className="text-text-secondary font-mono">Risk Level:</span>
-            <span className="text-warning font-bold font-mono">MODERATE</span>
+            <span className="text-btc-light font-bold font-mono">MODERATE</span>
           </div>
           
           <div className="flex items-center justify-between text-sm">
             <span className="text-text-secondary font-mono">Time Horizon:</span>
-            <span className="text-info font-bold font-mono">24-48H</span>
+            <span className="text-btc-bright font-bold font-mono">24-48H</span>
           </div>
         </div>
       </div>
