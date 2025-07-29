@@ -5,7 +5,7 @@ import { usePrimaryDealerV6 } from "@/hooks/usePrimaryDealerV6";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { ActionableInsightTile } from "@/components/dashboard/ActionableInsightTile";
 import { PrimaryActionTile } from "@/components/dashboard/PrimaryActionTile";
-import { PrimaryDealerPositionsV6Tile } from "@/components/dashboard/PrimaryDealerPositionsV6Tile";
+import { PrimaryDealerIntelligenceTile } from "@/components/intelligence/PrimaryDealerIntelligenceTile";
 import { SystemStatusFooter } from "@/components/dashboard/SystemStatusFooter";
 
 export const Dashboard = () => {
@@ -108,9 +108,8 @@ export const Dashboard = () => {
         loading={loading && overallStatus.successCount === 0}
       />
 
-      {/* Replace standard insight tile with specialized V6 tile */}
-      <PrimaryDealerPositionsV6Tile 
-        data={dealerV6TileData || undefined}
+      {/* Primary Dealer Intelligence Tile matching engine format */}
+      <PrimaryDealerIntelligenceTile 
         loading={dealerV6Loading || (loading && overallStatus.successCount === 0)}
       />
 
