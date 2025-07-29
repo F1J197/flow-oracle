@@ -176,49 +176,8 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
     if (!intelligenceView) {
       console.log('Data Integrity: Setting fallback data...');
       
-      // Set fallback intelligence view
-      setIntelligenceView({
-        title: 'Data Integrity & Self-Healing Engine V6',
-        status: 'active',
-        primaryMetrics: {
-          'Integrity Score': {
-            value: '95.0%',
-            label: 'Overall data integrity percentage',
-            status: 'normal'
-          },
-          'Active Sources': {
-            value: '4/4',
-            label: 'Operational data sources',
-            status: 'normal'
-          },
-          'System Status': {
-            value: 'OPTIMAL',
-            label: 'Current system operational status',
-            status: 'normal'
-          }
-        },
-        sections: [
-          {
-            title: 'Data Quality',
-            data: {
-              'Consensus Level': {
-                value: '97.2%',
-                label: 'Cross-source agreement level'
-              },
-              'P95 Latency': {
-                value: '145ms',
-                label: '95th percentile response time'
-              },
-              'Auto-Healed Issues': {
-                value: '0',
-                label: 'Issues resolved automatically (24h)'
-              }
-            }
-          }
-        ],
-        confidence: 95,
-        lastUpdate: new Date()
-      });
+    // Set fallback data for both formats - remove intelligence view format 
+    // as we'll use the standard engine components instead
     }
     
     // Initial load if not auto-refreshing

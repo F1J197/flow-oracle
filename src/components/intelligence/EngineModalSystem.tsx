@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { AlertTriangle, TrendingUp, TrendingDown, Minus, Info, AlertCircle, Clock } from 'lucide-react';
 import { DetailedModalData } from '@/types/engines';
 import { cn } from '@/lib/utils';
-import { DataIntegrityView } from './DataIntegrityView';
+// DataIntegrityView import removed - using StandardDataIntegrityView pattern now
 
 interface EngineModalSystemProps {
   isOpen: boolean;
