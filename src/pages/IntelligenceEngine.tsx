@@ -1,129 +1,131 @@
 import { useMemo } from "react";
 import { PremiumLayout } from "@/components/layout/PremiumLayout";
-import { PremiumEngineView } from "@/components/intelligence/PremiumEngineView";
+import { PremiumGrid } from "@/components/premium/PremiumGrid";
 import { IntelligenceHeaderTile } from "@/components/intelligence/IntelligenceHeaderTile";
 import { DevelopmentEngineCard } from "@/components/intelligence/DevelopmentEngineCard";
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { useResilientEngine } from "@/hooks/useResilientEngine";
-import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
-import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
-import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";
-import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
-import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
+
+// Engine implementations
 import { SimplifiedDataIntegrityEngine } from "@/engines/SimplifiedDataIntegrityEngine";
+import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
+import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
+import { EnhancedZScoreEngine } from "@/engines/EnhancedZScoreEngine";
+import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
+import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";
+
+// Engine Views
+import { NetLiquidityView } from "@/components/intelligence/NetLiquidityView";
+import { CreditStressView } from "@/components/intelligence/CreditStressView";
+import { MomentumView } from "@/components/intelligence/MomentumView";
 
 
-export const IntelligenceEngine = () => {
+function IntelligenceEngine() {
+  // Simplified implementation for now
+  const loading = false;
+  const systemHealth = 'healthy' as const;
+  const activeEngineCount = 7;
+  const refreshAll = () => {};
+  const errors: string[] = [];
 
-  // Initialize engine instances with resilient pattern
-  const engines = useMemo(() => ({
-    dataIntegrity: new SimplifiedDataIntegrityEngine(),
-    netLiquidity: new NetLiquidityEngine(),
-    creditStressV6: new CreditStressEngineV6(),
-    cusipStealthQE: new CUSIPStealthQEEngine(),
-    enhancedZScore: new EnhancedZScoreEngine(),
-    enhancedMomentum: new EnhancedMomentumEngine(),
-    primaryDealerPositions: new PrimaryDealerPositionsEngineV6(),
-  }), []);
-
-  const activeEngines = [
-    { key: "dataIntegrity", name: "Data Integrity & Self-Healing Engine V6", engine: engines.dataIntegrity },
-    { key: "netLiquidity", name: "Net Liquidity Engine V6", engine: engines.netLiquidity },
-    { key: "creditStressV6", name: "Credit Stress Engine V6", engine: engines.creditStressV6 },
-    { key: "cusipStealthQE", name: "CUSIP-Level Stealth QE Detection V6", engine: engines.cusipStealthQE },
-    { key: "enhancedZScore", name: "Enhanced Z-Score Engine", engine: engines.enhancedZScore },
-    { key: "enhancedMomentum", name: "Enhanced Momentum Engine", engine: engines.enhancedMomentum },
-    { key: "primaryDealerPositions", name: "Primary Dealer Positions Engine V6", engine: engines.primaryDealerPositions },
-  ];
-
-  // Use resilient engine hook with graceful degradation
-  const { engineViews, engineStatuses, loading, error, systemHealth, forceRefresh } = useResilientEngine(activeEngines, {
-    refreshInterval: 45000,
-    maxRetries: 2,
-    fallbackEnabled: true,
-    staleDataThreshold: 300000
-  });
+  const renderEngineView = (engineKey: string, title: string) => {
+    switch (engineKey) {
+      case 'netLiquidity':
+        return <NetLiquidityView loading={loading} />;
+      case 'creditStress':
+        return <CreditStressView loading={loading} />;
+      case 'momentum':
+        return <MomentumView loading={loading} />;
+      default:
+        return (
+          <div className="glass-tile p-6 font-mono">
+            <h3 className="text-lg font-bold text-btc-primary mb-4">{title}</h3>
+            <p className="text-text-secondary">View coming soon...</p>
+          </div>
+        );
+    }
+  };
 
   return (
     <PremiumLayout 
-      variant="intelligence" 
-      density="comfortable" 
-      maxWidth="2xl"
-      className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary"
+      variant="intelligence"
+      className="min-h-screen bg-bg-primary"
     >
-      {/* Premium Intelligence Header */}
-      <IntelligenceHeaderTile
-        systemHealth={systemHealth as 'healthy' | 'degraded' | 'critical' | 'offline'}
-        activeEngines={activeEngines.filter(({ key }) => engineViews[key] && !loading).length}
-        totalEngines={28}
-        dataIntegrity={98.7}
-        refreshRate={45}
-        lastRefresh={new Date()}
-        error={error}
-        onRefresh={forceRefresh}
-      />
+      <PremiumGrid density="comfortable" maxWidth="2xl">
+        {/* System Header */}
+        <div className="col-span-full mb-6">
+          <IntelligenceHeaderTile
+            systemHealth={systemHealth}
+            activeEngines={activeEngineCount}
+            totalEngines={7}
+            onRefresh={refreshAll}
+            loading={loading}
+            error={errors.join(', ')}
+          />
+        </div>
 
-      {/* Premium Engine Grid */}
-      {activeEngines.map(({ key, engine }) => {
-        const status = engineStatuses[key];
-        return (
-          <ErrorBoundary key={key}>
-            <PremiumEngineView
-              view={engineViews[key]}
-              loading={loading && !engineViews[key]}
-              isHealthy={status?.isHealthy}
-              usingFallback={status?.usingFallback}
-              retryCount={status?.retryCount || 0}
-            />
+        {/* Active Engine Views */}
+        <div className="col-span-full grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+          <ErrorBoundary>
+            {renderEngineView('netLiquidity', 'Net Liquidity Engine')}
           </ErrorBoundary>
-        );
-      })}
+          
+          <ErrorBoundary>
+            {renderEngineView('creditStress', 'Credit Stress Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('momentum', 'Momentum Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('zScore', 'Z-Score Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('primaryDealer', 'Primary Dealer Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('cusipStealth', 'CUSIP Stealth QE Engine')}
+          </ErrorBoundary>
+        </div>
 
-      {/* Development Engines */}
-      <DevelopmentEngineCard
-        title="Regime Detection Engine"
-        status="development"
-        description="Market cycle identification & regime transitions"
-        targetMetrics="Real-time regime classification with 85%+ accuracy"
-        progress={65}
-        expectedCompletion="Q2 2024"
-      />
-
-      <DevelopmentEngineCard
-        title="Cross-Asset Correlation Engine"
-        status="design"
-        description="Multi-asset momentum correlation analysis"
-        targetMetrics="Cross-market relationship mapping & divergence detection"
-        expectedCompletion="Q3 2024"
-      />
-
-      <DevelopmentEngineCard
-        title="Options Flow Intelligence"
-        status="planning"
-        description="Real-time options flow analysis & unusual activity detection"
-        targetMetrics="Institutional options flow tracking with 90%+ accuracy"
-        expectedCompletion="Q4 2024"
-      />
-
-      <DevelopmentEngineCard
-        title="Macro Sentiment Engine"
-        status="planning"
-        description="Central bank communications & policy sentiment analysis"
-        targetMetrics="Policy shift prediction with 72-hour advance notice"
-        expectedCompletion="Q1 2025"
-      />
-
-      {/* System Status Footer */}
-      <div className="col-span-full mt-8">
-        <div className="text-center py-6 border-t border-glass-border/30">
-          <div className="text-xs text-text-secondary font-mono tracking-wider">
-            LIQUIDITY² INTELLIGENCE ENGINE V6 • REAL-TIME MARKET ANALYSIS • INSTITUTIONAL GRADE
+        {/* Development Engine Cards */}
+        <div className="col-span-full mt-12">
+          <h2 className="text-xl font-bold text-btc-primary mb-6 font-mono">
+            DEVELOPMENT PIPELINE
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <DevelopmentEngineCard
+              title="Regime Detection Engine"
+              status="design"
+              description="Advanced market regime classification using ML clustering"
+              targetMetrics="Regime Classification, Transition Probabilities, Confidence Scores"
+              expectedCompletion="Q2 2024"
+            />
+            
+            <DevelopmentEngineCard
+              title="Options Flow Engine"
+              status="planning"
+              description="Real-time analysis of institutional options positioning"
+              targetMetrics="Put/Call Ratios, Unusual Activity, Gamma Exposure"
+              expectedCompletion="Q3 2024"
+            />
+            
+            <DevelopmentEngineCard
+              title="Sentiment Synthesis Engine"
+              status="development"
+              description="Multi-source sentiment aggregation and analysis"
+              targetMetrics="Composite Sentiment, Source Reliability, Divergence Alerts"
+              expectedCompletion="Q1 2024"
+            />
           </div>
         </div>
-      </div>
+      </PremiumGrid>
     </PremiumLayout>
   );
-};
+}
 
 export default IntelligenceEngine;

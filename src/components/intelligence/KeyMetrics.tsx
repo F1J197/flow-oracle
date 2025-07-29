@@ -1,63 +1,78 @@
+import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { formatNumber, formatPercentage, formatCurrency, getStatusColor } from "@/utils/formatting";
 
-interface Metric {
+interface KeyMetric {
   label: string;
-  value: string | number;
-  change?: number;
-  status?: 'positive' | 'negative' | 'neutral';
+  value: number | string | ReactNode;
   unit?: string;
+  status?: 'positive' | 'negative' | 'neutral' | 'warning' | 'critical';
+  format?: 'number' | 'percentage' | 'currency' | 'custom';
+  decimals?: number;
+  compact?: boolean;
 }
 
 interface KeyMetricsProps {
-  metrics: Metric[];
+  metrics: KeyMetric[];
+  columns?: 2 | 3 | 4;
   className?: string;
 }
 
-export const KeyMetrics = ({ metrics, className }: KeyMetricsProps) => {
-  const formatChange = (change: number) => {
-    const sign = change >= 0 ? '+' : '';
-    return `${sign}${change.toFixed(2)}%`;
-  };
+export const KeyMetrics = ({ 
+  metrics, 
+  columns = 3, 
+  className 
+}: KeyMetricsProps) => {
+  const formatValue = (metric: KeyMetric): string | ReactNode => {
+    if (typeof metric.value !== 'number' || metric.format === 'custom') {
+      return metric.value;
+    }
 
-  const getChangeColor = (change: number) => {
-    if (change > 0) return 'text-btc-primary';
-    if (change < 0) return 'text-btc-error';
-    return 'text-text-muted';
+    const options = {
+      decimals: metric.decimals || 2,
+      compact: metric.compact || false,
+      showSign: metric.status === 'positive' || metric.status === 'negative'
+    };
+
+    switch (metric.format) {
+      case 'currency':
+        return formatCurrency(metric.value, options);
+      case 'percentage':
+        return formatPercentage(metric.value, { 
+          decimals: options.decimals, 
+          showSign: options.showSign 
+        });
+      case 'number':
+      default:
+        return formatNumber(metric.value, options);
+    }
   };
 
   return (
-    <div className={cn("key-metrics", className)}>
+    <div className={cn(
+      "key-metrics-grid",
+      columns === 2 && "grid-cols-2",
+      columns === 3 && "grid-cols-3", 
+      columns === 4 && "grid-cols-4",
+      className
+    )}>
       {metrics.map((metric, index) => (
-        <div key={index} className="metric-card">
-          <div className="metric-label">
+        <div key={index} className="key-metric-card group">
+          <div className="key-metric-label">
             {metric.label}
           </div>
           
           <div className={cn(
-            "metric-value",
-            metric.status === 'positive' && "text-btc-primary",
-            metric.status === 'negative' && "text-btc-error",
-            metric.status === 'neutral' && "text-text-primary"
+            "key-metric-value",
+            metric.status && getStatusColor(metric.status)
           )}>
-            {typeof metric.value === 'number' 
-              ? metric.value.toLocaleString('en-US', { 
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 0 
-                })
-              : metric.value
-            }
+            {formatValue(metric)}
             {metric.unit && (
-              <span className="text-sm text-text-muted ml-1">
+              <span className="key-metric-unit">
                 {metric.unit}
               </span>
             )}
           </div>
-          
-          {metric.change !== undefined && (
-            <div className={cn("metric-change", getChangeColor(metric.change))}>
-              {formatChange(metric.change)}
-            </div>
-          )}
         </div>
       ))}
     </div>
