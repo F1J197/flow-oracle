@@ -1,146 +1,179 @@
-/* Premium Tile System Animations */
+/* ASCII Terminal Tile System */
 
-/* Tile Entry Animation */
-@keyframes tileEntry {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+/* ASCII Terminal Utility Classes */
+.ascii-terminal-tile {
+  background: hsl(var(--bg-tile));
+  border: 1px solid hsl(var(--neon-teal) / 0.4);
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  padding: 12px;
 }
 
-/* Data Update Animation */
-@keyframes dataUpdate {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-    filter: brightness(1.2);
-  }
-  100% {
-    transform: scale(1);
-  }
+.ascii-terminal-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: hsl(var(--neon-teal));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid hsl(var(--neon-teal) / 0.3);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
 }
 
-/* Status Pulse Animation */
-@keyframes statusPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 currentColor;
-    opacity: 1;
-  }
-  50% {
-    box-shadow: 0 0 0 8px transparent;
-    opacity: 0.7;
-  }
+.ascii-terminal-content {
+  font-size: 10px;
+  line-height: 1.3;
+  color: hsl(var(--text-primary));
 }
 
-/* BTC Glow Animation */
-@keyframes btcGlow {
-  0%, 100% {
-    box-shadow: 0 0 20px hsla(var(--btc-primary), 0.3);
-  }
-  50% {
-    box-shadow: 0 0 30px hsla(var(--btc-primary), 0.5);
-  }
+.ascii-terminal-data {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+  border-bottom: 1px solid hsl(var(--neon-teal) / 0.1);
 }
 
-/* Shimmer Effect for Loading States */
-@keyframes shimmer {
-  0% {
-    background-position: -200px 0;
-  }
-  100% {
-    background-position: calc(200px + 100%) 0;
-  }
+.ascii-terminal-label {
+  font-size: 9px;
+  color: hsl(var(--text-secondary));
+  font-weight: 500;
 }
 
-/* Utility Classes */
-.animate-tileEntry {
-  animation: tileEntry 0.4s ease-out;
+.ascii-terminal-value {
+  font-size: 10px;
+  font-weight: 600;
+  color: hsl(var(--text-primary));
+  font-variant-numeric: tabular-nums;
 }
 
-.animate-dataUpdate {
-  animation: dataUpdate 0.3s ease-out;
+/* ASCII Status Colors */
+.ascii-status-active {
+  color: hsl(var(--neon-lime));
 }
 
-.animate-statusPulse {
-  animation: statusPulse 2s infinite;
+.ascii-status-warning {
+  color: hsl(var(--neon-gold));
 }
 
-.animate-btcGlow {
-  animation: btcGlow 2s ease-in-out infinite;
+.ascii-status-critical {
+  color: hsl(var(--neon-orange));
 }
 
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    hsla(var(--glass-border), 0.3) 50%,
-    transparent 100%
-  );
-  background-size: 200px 100%;
-  animation: shimmer 1.5s infinite;
+.ascii-status-offline {
+  color: hsl(var(--text-muted));
 }
 
-/* Shadow Effects */
-.shadow-btc-glow {
-  box-shadow: 0 4px 20px hsla(var(--btc-primary), 0.3);
+/* ASCII Terminal Borders */
+.ascii-border-single {
+  border: 1px solid hsl(var(--neon-teal) / 0.4);
 }
 
-.shadow-btc-glow-intense {
-  box-shadow: 0 8px 30px hsla(var(--btc-primary), 0.5);
+.ascii-border-double {
+  border: 2px solid hsl(var(--neon-teal) / 0.4);
 }
 
-/* Interactive Glow States */
-.group:hover .shadow-btc-glow {
-  box-shadow: 0 8px 30px hsla(var(--btc-primary), 0.4);
-  transition: box-shadow 0.3s ease;
+.ascii-border-thick {
+  border: 3px solid hsl(var(--neon-teal) / 0.6);
 }
 
-/* Premium Glass Effects */
-.glass-surface-hover {
-  transition: all 0.3s ease;
+/* ASCII Terminal Typography */
+.ascii-terminal-mono {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.025em;
 }
 
-.glass-surface-hover:hover {
-  background: hsla(var(--glass-surface), 0.8);
-  backdrop-filter: blur(16px);
+.ascii-terminal-small {
+  font-size: 8px;
 }
 
-/* Metric Update Indicators */
-.metric-updated {
-  position: relative;
+.ascii-terminal-normal {
+  font-size: 10px;
 }
 
-.metric-updated::after {
-  content: '';
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 6px;
-  height: 6px;
-  background: hsla(var(--btc-primary), 1);
-  border-radius: 50%;
-  animation: statusPulse 1s ease-out;
+.ascii-terminal-large {
+  font-size: 12px;
 }
 
-/* Tile Status Indicators */
-.tile-status-active {
-  border-color: hsla(var(--btc-primary), 0.5);
-  box-shadow: 0 0 0 1px hsla(var(--btc-primary), 0.2);
+/* ASCII Terminal Grid Layouts */
+.ascii-grid-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
 }
 
-.tile-status-warning {
-  border-color: hsla(var(--warning), 0.5);
-  box-shadow: 0 0 0 1px hsla(var(--warning), 0.2);
+.ascii-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
 }
 
-.tile-status-critical {
-  border-color: hsla(var(--critical), 0.5);
-  box-shadow: 0 0 0 1px hsla(var(--critical), 0.2);
-  animation: statusPulse 2s infinite;
+.ascii-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.ascii-grid-4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+/* ASCII Terminal Dividers */
+.ascii-divider-horizontal {
+  width: 100%;
+  height: 1px;
+  background: hsl(var(--neon-teal) / 0.3);
+  margin: 8px 0;
+}
+
+.ascii-divider-vertical {
+  width: 1px;
+  height: 100%;
+  background: hsl(var(--neon-teal) / 0.3);
+  margin: 0 8px;
+}
+
+/* ASCII Terminal Spacing */
+.ascii-spacing-xs {
+  padding: 4px;
+}
+
+.ascii-spacing-sm {
+  padding: 6px;
+}
+
+.ascii-spacing-md {
+  padding: 8px;
+}
+
+.ascii-spacing-lg {
+  padding: 12px;
+}
+
+.ascii-spacing-xl {
+  padding: 16px;
+}
+
+/* ASCII Terminal Gaps */
+.ascii-gap-xs {
+  gap: 2px;
+}
+
+.ascii-gap-sm {
+  gap: 4px;
+}
+
+.ascii-gap-md {
+  gap: 6px;
+}
+
+.ascii-gap-lg {
+  gap: 8px;
+}
+
+.ascii-gap-xl {
+  gap: 12px;
 }

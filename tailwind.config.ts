@@ -107,9 +107,9 @@ export default {
 				}
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				lg: '0',
+				md: '0',
+				sm: '0'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -127,60 +127,14 @@ export default {
 					to: {
 						height: '0'
 					}
-				},
-				'critical-pulse': {
-					'0%, 100%': {
-						boxShadow: 'var(--shadow-glass)'
-					},
-					'50%': {
-						boxShadow: 'var(--shadow-glass), 0 0 30px hsl(var(--btc-primary) / 0.4)'
-					}
-				},
-				'shimmer': {
-					'0%': {
-						backgroundPosition: '-200% 0'
-					},
-					'100%': {
-						backgroundPosition: '200% 0'
-					}
-				},
-				'gauge-spin': {
-					'0%': {
-						transform: 'rotate(-90deg)'
-					},
-					'100%': {
-						transform: 'rotate(0deg)'
-					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
-				'critical-pulse': 'critical-pulse 2s infinite',
-				'shimmer': 'shimmer 1.5s infinite',
-				'gauge-spin': 'gauge-spin 1s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out'
 			},
 			fontFamily: {
-				mono: ['Roboto Mono', 'monospace']
-			},
-			backdropBlur: {
-				'glass': '10px',
-				'premium': '20px'
-			},
-			// Enhanced grid system for premium tiles
-			spacing: {
-				'grid': '1.5rem',
-				'grid-lg': '2rem'
-			},
-			// Premium container sizes
-			maxWidth: {
-				'8xl': '90rem',
-				'9xl': '96rem'
-			},
-			// Enhanced perspective for 3D effects
-			perspective: {
-				'1000': '1000px',
-				'2000': '2000px'
+				mono: ['JetBrains Mono', 'IBM Plex Mono', 'monospace']
 			}
 		}
 	},
