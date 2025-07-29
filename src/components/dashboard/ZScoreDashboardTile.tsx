@@ -39,7 +39,7 @@ export const ZScoreDashboardTile: React.FC<ZScoreDashboardTileProps> = ({ classN
       case 'extreme_positive':
         return 'text-neon-lime';
       case 'positive':
-        return 'text-btc-light';
+        return 'text-neon-lime';
       case 'neutral':
         return 'text-neon-teal';
       case 'negative':

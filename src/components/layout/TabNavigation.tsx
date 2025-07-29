@@ -14,7 +14,7 @@ const tabs = [
 
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
   return (
-    <nav className="w-full bg-noir-surface border-b border-noir-border">
+    <nav className="w-full bg-bg-secondary border-b border-neon-teal/20">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex space-x-0">
           {tabs.map((tab) => (
@@ -22,14 +22,18 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "px-8 py-4 text-lg font-bold border-b-2 transition-all duration-200",
-                "hover:text-primary hover:border-primary/50 tracking-wider",
+                "px-6 py-3 text-sm font-bold border-b-2 transition-all duration-150",
+                "hover:text-neon-teal hover:border-neon-teal/50 tracking-widest font-mono",
+                "relative overflow-hidden",
                 activeTab === tab.id
-                  ? "text-primary border-primary bg-noir-border/20"
-                  : "text-text-secondary border-transparent"
+                  ? "text-neon-teal border-neon-teal bg-bg-tile/30"
+                  : "text-text-secondary border-transparent hover:bg-bg-tile/20"
               )}
             >
-              <span className="font-mono">{tab.label}</span>
+              {activeTab === tab.id && (
+                <div className="absolute inset-0 bg-neon-teal/5 animate-pulse" />
+              )}
+              <span className="relative z-10">{tab.label}</span>
             </button>
           ))}
         </div>

@@ -2,42 +2,50 @@ import { Badge } from "@/components/ui/badge";
 
 export const Header = () => {
   return (
-    <header className="w-full bg-noir-bg border-b border-noir-border px-6 py-4">
+    <header className="w-full bg-bg-primary border-b border-neon-teal/30 px-6 py-3">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
-        {/* Platform Title */}
-        <div className="flex flex-col items-start space-y-1">
-          <h1 className="text-4xl font-bold text-primary tracking-wider btc-glow">
-            Liquidity²
-          </h1>
-          <div className="text-sm text-btc-primary font-mono tracking-wide">
-            liquido movet mundum
+        {/* Terminal Platform Title */}
+        <div className="flex items-center space-x-4">
+          <div className="flex flex-col items-start">
+            <h1 className="text-2xl font-bold text-neon-teal tracking-widest font-mono">
+              LIQUIDITY²
+            </h1>
+            <div className="text-xs text-text-secondary font-mono tracking-wider">
+              GLOBAL LIQUIDITY INTELLIGENCE TERMINAL
+            </div>
+          </div>
+          <div className="text-neon-teal">│</div>
+        </div>
+
+        {/* Terminal Metrics Bar */}
+        <div className="flex items-center space-x-8 text-xs font-mono">
+          <div className="flex items-center space-x-2">
+            <span className="text-text-secondary tracking-wider">NET_LIQ:</span>
+            <span className="text-neon-lime font-bold tracking-wider">$5.626T</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-text-secondary tracking-wider">REGIME:</span>
+            <span className="text-neon-gold font-bold tracking-wider">TRANSITION</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-text-secondary tracking-wider">ACTION:</span>
+            <span className="text-neon-amber font-bold tracking-wider">HOLD_POS</span>
           </div>
         </div>
 
-        {/* Key Metrics Bar */}
-        <div className="flex items-center space-x-6 text-sm">
-          <div className="flex items-center space-x-2">
-            <span className="text-text-secondary">Net Liquidity:</span>
-            <span className="text-metric btc-primary">$5.626T</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className="text-text-secondary">Regime:</span>
-            <Badge variant="outline" className="border-btc-light text-btc-light">
-              TRANSITION
-            </Badge>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className="text-text-secondary">Primary Action:</span>
-            <Badge variant="outline" className="border-btc-glow text-btc-glow">
-              HOLD POSITIONS
-            </Badge>
-          </div>
-        </div>
-
-        {/* System Status */}
+        {/* Terminal Status */}
         <div className="flex items-center space-x-3">
-          <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>
-          <span className="text-xs text-text-secondary">LIVE</span>
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>
+            <span className="text-xs text-neon-lime font-mono font-bold tracking-wider">LIVE</span>
+          </div>
+          <div className="text-neon-teal">│</div>
+          <span className="text-xs text-text-secondary font-mono tracking-wider">
+            {new Date().toLocaleTimeString('en-US', { 
+              hour12: false, 
+              timeZone: 'UTC' 
+            })} UTC
+          </span>
         </div>
       </div>
     </header>

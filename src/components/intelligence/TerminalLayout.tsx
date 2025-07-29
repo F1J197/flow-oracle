@@ -15,17 +15,17 @@ export const TerminalLayout = ({ title, status, children, className }: TerminalL
       case 'warning': return 'border-neon-gold';
       case 'critical': return 'border-neon-orange';
       case 'offline': return 'border-text-muted';
-      default: return 'border-glass-border';
+      default: return 'border-neon-teal';
     }
   };
 
   const getStatusIndicator = () => {
     switch (status) {
-      case 'active': return '●';
+      case 'active': return '█';
       case 'warning': return '▲';
-      case 'critical': return '⚠';
+      case 'critical': return '✕';
       case 'offline': return '○';
-      default: return '●';
+      default: return '█';
     }
   };
 

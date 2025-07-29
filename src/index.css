@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,46 +9,55 @@
 @import './styles/tiles.css';
 @import './styles/intelligence.css';
 
-/* Global Liquidity Intelligence Platform V6 - Noir & Neon Design System */
+/* LIQUIDITY² V6 - Bloomberg Terminal Design System */
 
 @layer base {
   :root {
-    /* LIQUIDITY² V6 - Enhanced Premium Design System */
+    /* LIQUIDITY² V6 - Bloomberg Terminal Design System */
     
-    /* Background Hierarchy */
-    --bg-primary: 216 7% 7%;        /* #121212 Main background */
-    --bg-secondary: 216 7% 10%;     /* #191919 Secondary surfaces */
-    --bg-tile: 216 7% 12% / 0.95;   /* #1F1F1F Tile backgrounds with transparency */
-    --bg-elevated: 216 7% 15%;      /* #262626 Elevated elements */
+    /* Terminal Background Hierarchy - Pure Black Base */
+    --bg-primary: 0 0% 0%;          /* #000000 Pure black terminal */
+    --bg-secondary: 0 0% 2%;        /* #050505 Slightly elevated */
+    --bg-tile: 0 0% 4%;             /* #0A0A0A Terminal panels */
+    --bg-elevated: 0 0% 6%;         /* #0F0F0F Modal backgrounds */
+    --bg-console: 0 0% 1%;          /* #030303 Deep console black */
     
-    /* Glass Morphism System */
-    --glass-bg: 216 7% 12% / 0.8;   /* Semi-transparent glass */
-    --glass-border: 216 20% 25% / 0.3; /* Subtle glass borders */
-    --glass-surface: 216 7% 15% / 0.9;  /* Glass surface overlay */
+    /* Terminal Color Palette - Neon on Black */
+    --neon-teal: 180 100% 50%;      /* #00FFFF Cyan/Teal */
+    --neon-orange: 14 100% 55%;     /* #FF4500 OrangeRed */
+    --neon-lime: 90 100% 50%;       /* #80FF00 Lime Green */
+    --neon-gold: 50 100% 50%;       /* #FFD700 Gold */
+    --neon-fuchsia: 300 100% 50%;   /* #FF00FF Magenta */
+    --neon-blue: 240 100% 60%;      /* #3366FF Blue */
+    --neon-amber: 45 100% 55%;      /* #FFAA00 Amber */
     
-    /* BTC Orange Professional Palette */
+    /* BTC Orange Professional Accent */
     --btc-primary: 28 100% 54%;     /* #F7931A Bitcoin Orange */
     --btc-bright: 31 100% 64%;      /* #FF9F33 Bright accent */
     --btc-light: 34 100% 74%;       /* #FFAA55 Light variant */
     --btc-dark: 25 100% 44%;        /* #E67E00 Dark variant */
     --btc-muted: 28 70% 34%;        /* #B87416 Muted state */
     --btc-glow: 31 100% 64%;        /* #FF9F33 Glow effect */
-    --btc-error: 0 84% 60%;         /* #EF4444 Error state */
     
-    /* Semantic Color System */
-    --positive: 142 76% 36%;        /* #16A34A Green for positive */
-    --negative: 0 84% 60%;          /* #EF4444 Red for negative */
-    --warning: 45 93% 58%;          /* #F59E0B Amber for warning */
-    --critical: 0 91% 71%;          /* #F87171 Light red for critical */
-    --success: 142 71% 45%;         /* #22C55E Bright green for success */
-    --info: 217 91% 60%;            /* #3B82F6 Blue for information */
+    /* Terminal Glass & Borders */
+    --glass-bg: 0 0% 4% / 0.9;      /* Terminal glass */
+    --glass-border: 180 100% 50% / 0.3; /* Cyan border glow */
+    --glass-surface: 0 0% 6% / 0.95; /* Surface overlay */
     
-    /* Typography Hierarchy */
-    --text-primary: 0 0% 92%;       /* #EAEAEA Primary text */
-    --text-secondary: 0 0% 70%;     /* #B3B3B3 Secondary text */
-    --text-muted: 0 0% 50%;         /* #808080 Muted text */
+    /* Semantic Terminal Colors */
+    --positive: var(--neon-lime);    /* Lime for positive */
+    --negative: var(--neon-orange);  /* Orange for negative */
+    --warning: var(--neon-gold);     /* Gold for warning */
+    --critical: var(--neon-fuchsia); /* Magenta for critical */
+    --success: var(--neon-teal);     /* Teal for success */
+    --info: var(--neon-blue);        /* Blue for information */
+    
+    /* Terminal Typography - High Contrast */
+    --text-primary: 0 0% 100%;       /* #FFFFFF Pure white text */
+    --text-secondary: 0 0% 80%;      /* #CCCCCC Secondary text */
+    --text-muted: 0 0% 60%;          /* #999999 Muted text */
     --text-accent: var(--btc-primary); /* BTC orange for accents */
-    --text-data: 0 0% 95%;          /* #F2F2F2 Pure data display */
+    --text-data: 0 0% 98%;           /* #FAFAFA Data display */
     
     /* Enhanced Glass Effects */
     --glass-glow: 0 0 40px hsl(var(--btc-primary) / 0.1);
@@ -108,37 +118,56 @@
 
   body {
     @apply bg-background text-foreground font-mono;
-    font-family: 'Roboto Mono', monospace;
+    font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Roboto Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.025em;
   }
 }
 
 @layer components {
-  /* Glass Tile Base Component - Premium Glass Morphism */
+  /* Bloomberg Terminal Base Components */
   .glass-tile {
-    @apply bg-card border border-border rounded-lg relative;
-    background: linear-gradient(135deg, 
-      hsl(var(--bg-secondary) / 0.9) 0%, 
-      hsl(var(--bg-primary) / 0.8) 100%);
-    backdrop-filter: blur(12px);
+    @apply bg-card border rounded-none relative;
+    background: hsl(var(--bg-tile));
+    border: 1px solid hsl(var(--neon-teal) / 0.3);
     box-shadow: 
-      0 4px 6px hsl(var(--bg-primary) / 0.3),
-      0 1px 3px hsl(var(--bg-primary) / 0.1),
-      inset 0 1px 0 hsl(var(--glass-border) / 0.5);
-    border: 1px solid hsl(var(--glass-border) / 0.6);
+      0 0 10px hsl(var(--neon-teal) / 0.1),
+      inset 0 1px 0 hsl(var(--neon-teal) / 0.2);
   }
   
   .glass-tile:hover {
-    background: linear-gradient(135deg, 
-      hsl(var(--bg-secondary) / 0.95) 0%, 
-      hsl(var(--bg-primary) / 0.85) 100%);
+    background: hsl(var(--bg-elevated));
+    border-color: hsl(var(--neon-teal) / 0.5);
     box-shadow: 
-      0 8px 12px hsl(var(--bg-primary) / 0.4),
-      0 2px 6px hsl(var(--bg-primary) / 0.2),
-      inset 0 1px 0 hsl(var(--glass-border) / 0.7),
-      0 0 20px hsl(var(--btc-primary) / 0.1);
-    transition: var(--transition-smooth);
-    border-color: hsl(var(--btc-primary) / 0.3);
-    transform: translateY(-1px);
+      0 0 15px hsl(var(--neon-teal) / 0.2),
+      inset 0 1px 0 hsl(var(--neon-teal) / 0.3);
+    transition: var(--transition-fast);
+  }
+  
+  /* Terminal Container Styles */
+  .terminal-container {
+    @apply bg-bg-tile border border-glass-border rounded-none relative;
+    background: hsl(var(--bg-tile));
+    border: 1px solid hsl(var(--neon-teal) / 0.4);
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .terminal-header {
+    @apply flex items-center justify-between p-3 border-b border-glass-border;
+    background: hsl(var(--bg-secondary));
+    border-bottom: 1px solid hsl(var(--neon-teal) / 0.3);
+  }
+  
+  .terminal-title {
+    @apply text-sm font-bold tracking-wider uppercase;
+    color: hsl(var(--neon-teal));
+    text-shadow: 0 0 8px hsl(var(--neon-teal) / 0.5);
+  }
+  
+  .terminal-status {
+    @apply text-sm font-mono;
+    font-weight: 600;
   }
   
   /* Premium glass tile variant */
@@ -233,32 +262,69 @@
 }
 
 @layer utilities {
-  /* Typography Utilities - Enhanced BTC Theme */
+  /* Bloomberg Terminal Typography */
   .text-data {
     @apply text-base font-bold tracking-wider;
+    color: hsl(var(--text-data));
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
   }
   
   .text-metric {
     @apply text-2xl font-bold tracking-wide;
+    color: hsl(var(--text-primary));
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
   }
   
   .text-terminal {
     @apply font-mono text-sm tracking-wider;
+    font-family: 'JetBrains Mono', monospace;
+    color: hsl(var(--text-primary));
+    font-variant-numeric: tabular-nums;
   }
   
   .data-value {
-    @apply text-3xl font-bold tracking-tight text-text-primary;
-    text-shadow: 0 0 10px hsl(var(--btc-primary) / 0.3);
+    @apply text-3xl font-bold tracking-tight;
+    color: hsl(var(--text-data));
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 8px hsl(var(--neon-teal) / 0.3);
   }
   
   .data-label {
-    @apply text-xs uppercase tracking-widest text-text-secondary font-semibold;
+    @apply text-xs uppercase tracking-widest font-semibold;
+    color: hsl(var(--text-secondary));
+    font-family: 'JetBrains Mono', monospace;
   }
   
   .terminal-glow {
-    color: hsl(var(--btc-primary));
-    text-shadow: 0 0 8px hsl(var(--btc-primary) / 0.5);
-    font-family: 'Roboto Mono', monospace;
+    color: hsl(var(--neon-teal));
+    text-shadow: 0 0 8px hsl(var(--neon-teal) / 0.5);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Terminal Neon Colors */
+  .text-neon-teal { color: hsl(var(--neon-teal)); }
+  .text-neon-orange { color: hsl(var(--neon-orange)); }
+  .text-neon-lime { color: hsl(var(--neon-lime)); }
+  .text-neon-gold { color: hsl(var(--neon-gold)); }
+  .text-neon-fuchsia { color: hsl(var(--neon-fuchsia)); }
+  .text-neon-blue { color: hsl(var(--neon-blue)); }
+  .text-neon-amber { color: hsl(var(--neon-amber)); }
+
+  /* Terminal ASCII Elements */
+  .terminal-divider {
+    border-top: 1px solid hsl(var(--neon-teal) / 0.3);
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      hsl(var(--neon-teal) / 0.5) 50%, 
+      transparent 100%);
+    height: 1px;
+  }
+
+  .terminal-border {
+    border: 1px solid hsl(var(--neon-teal) / 0.4);
   }
 }
 
