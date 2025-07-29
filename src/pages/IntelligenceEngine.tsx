@@ -18,11 +18,10 @@ import {
   NetLiquidityView,
   CreditStressView,
   MomentumView,
-  PrimaryDealerView,
-  CUSIPStealthQEView,
   DataIntegrityEngineView
 } from "@/components/intelligence";
 import { ZScoreIntelligenceView } from "@/components/intelligence/ZScoreIntelligenceView";
+import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
 
 // Import intelligence styles
 import "@/styles/intelligence.css";
@@ -51,9 +50,14 @@ function IntelligenceEngine() {
       case 'zScore':
         return <ZScoreIntelligenceView loading={loading} />;
       case 'primaryDealer':
-        return <PrimaryDealerView loading={loading} />;
+        return <PrimaryDealerPositionsView loading={loading} />;
       case 'cusipStealth':
-        return <CUSIPStealthQEView engine={cusipEngine} loading={loading} />;
+        return (
+          <div className="glass-tile p-6 font-mono">
+            <h3 className="text-lg font-bold text-btc-primary mb-4">CUSIP Stealth QE Engine</h3>
+            <p className="text-text-secondary">Engine coming soon...</p>
+          </div>
+        );
       default:
         return (
           <div className="glass-tile p-6 font-mono">
