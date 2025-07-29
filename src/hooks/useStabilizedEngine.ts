@@ -129,7 +129,13 @@ export const useStabilizedEngine = (
             await new Promise(resolve => setTimeout(resolve, 200));
           }
 
-          await engine.execute();
+          const report = await engine.execute();
+          
+          // Validate that execution was successful before getting view
+          if (!report || !report.success) {
+            throw new Error(`Engine ${key} execution failed: ${report?.errors?.join(', ') || 'Unknown error'}`);
+          }
+          
           const viewData = engine.getDetailedView();
           
           engineData[key] = viewData;
@@ -137,7 +143,7 @@ export const useStabilizedEngine = (
           newRetryCount[key] = 0; // Reset retry count on success
           
         } catch (engineError) {
-          console.warn(`Engine ${key} failed:`, engineError);
+          console.error(`Engine ${key} failed:`, engineError);
           
           // Increment retry count
           newRetryCount[key] = (newRetryCount[key] || 0) + 1;

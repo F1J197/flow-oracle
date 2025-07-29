@@ -16,14 +16,10 @@ const Index = () => {
     switch (activeTab) {
       case 'dashboard':
         return <PremiumDashboard />;
-      case 'data':
-        return <SystemValidation />;
       case 'engines':
         return <IntelligenceEngineWrapper />;
       case 'charts':
         return <UnifiedChartsView />;
-      case 'unified-demo':
-        return <UnifiedDataDemo />;
       case 'showcase':
         return <PremiumShowcase />;
       default:

@@ -1,4 +1,3 @@
-import { GlassTile } from "@/components/shared/GlassTile";
 import { PositionBars } from "@/components/shared/PositionBars";
 import { PrimaryDealerTileData } from "@/types/primaryDealerTile";
 import { TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
@@ -35,7 +34,12 @@ export const PrimaryDealerPositionsV6Tile = ({
 
   if (loading) {
     return (
-      <GlassTile title="PRIMARY DEALER POSITIONS V6" size="large" status="normal">
+      <div className="glass-tile p-6 col-span-2">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold text-text-secondary tracking-wider uppercase">
+            PRIMARY DEALER POSITIONS V6
+          </h3>
+        </div>
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-glass-bg rounded"></div>
           <div className="h-4 bg-glass-bg rounded w-3/4"></div>
@@ -45,7 +49,7 @@ export const PrimaryDealerPositionsV6Tile = ({
             <div className="h-2 bg-glass-bg rounded"></div>
           </div>
         </div>
-      </GlassTile>
+      </div>
     );
   }
 
@@ -76,11 +80,23 @@ export const PrimaryDealerPositionsV6Tile = ({
   };
 
   return (
-    <GlassTile 
-      title="PRIMARY DEALER POSITIONS V6" 
-      size="large" 
-      status={tileData.status}
-    >
+    <div className={cn(
+      "glass-tile p-6 col-span-2",
+      tileData.status === 'critical' && "critical-pulse border-btc-primary",
+      tileData.status === 'warning' && "border-btc-light"
+    )}>
+      {/* Title */}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold text-text-secondary tracking-wider uppercase">
+          PRIMARY DEALER POSITIONS V6
+        </h3>
+        {tileData.status === 'critical' && (
+          <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>
+        )}
+        {tileData.status === 'warning' && (
+          <div className="w-2 h-2 bg-btc-light rounded-full animate-pulse"></div>
+        )}
+      </div>
       {/* Header with net position and status */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
@@ -147,6 +163,6 @@ export const PrimaryDealerPositionsV6Tile = ({
           {tileData.metadata.lastUpdated.toLocaleTimeString()}
         </div>
       </div>
-    </GlassTile>
+    </div>
   );
 };
