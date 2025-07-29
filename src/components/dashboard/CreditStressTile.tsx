@@ -1,6 +1,5 @@
-import { GlassTile } from "@/components/shared/GlassTile";
-import { DataDisplay } from "@/components/shared/DataDisplay";
-import { Badge } from "@/components/ui/badge";
+import { EnhancedDashboardTile } from "./EnhancedDashboardTile";
+import { useChartsData } from "@/hooks/useChartsData";
 import { DashboardTileData } from "@/types/engines";
 
 interface CreditStressTileProps {
@@ -9,31 +8,25 @@ interface CreditStressTileProps {
 }
 
 export const CreditStressTile = ({ data, loading = false }: CreditStressTileProps) => {
+  const { getIndicatorById } = useChartsData();
+  const indicator = getIndicatorById('credit-stress');
+
+  const enhancedData = {
+    ...data,
+    primaryMetric: indicator?.value || data.primaryMetric,
+    secondaryMetric: indicator?.change ? `${indicator.change > 0 ? '+' : ''}${indicator.change.toFixed(1)}%` : data.secondaryMetric,
+    trend: indicator?.change ? (indicator.change > 0 ? 'up' : indicator.change < 0 ? 'down' : 'neutral') : data.trend,
+  };
+
   return (
-    <GlassTile 
-      title={data.title}
-      status={data.status}
+    <EnhancedDashboardTile 
+      data={enhancedData} 
+      loading={loading}
+      category="credit"
+      updateFreq={indicator?.updateFreq}
+      lastUpdate={indicator?.lastUpdate}
+      confidence={indicator?.confidence}
     >
-      <DataDisplay
-        value={data.primaryMetric}
-        size="lg"
-        color={data.color}
-        trend={data.trend}
-        loading={loading}
-      />
-      {data.secondaryMetric && (
-        <Badge 
-          variant="outline" 
-          className={`border-neon-${data.color} text-neon-${data.color} mt-2`}
-        >
-          {data.secondaryMetric}
-        </Badge>
-      )}
-      {data.actionText && (
-        <p className="text-xs text-text-primary font-mono mt-3">
-          {data.actionText}
-        </p>
-      )}
       {/* Advanced stress visualization */}
       <div className="mt-3">
         <div className="w-full h-3 bg-noir-border rounded-full overflow-hidden relative">
@@ -59,6 +52,6 @@ export const CreditStressTile = ({ data, loading = false }: CreditStressTileProp
           <span>Crisis Mode</span>
         </div>
       </div>
-    </GlassTile>
+    </EnhancedDashboardTile>
   );
 };

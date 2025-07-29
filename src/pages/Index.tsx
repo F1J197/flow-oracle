@@ -4,7 +4,7 @@ import { TabNavigation } from "@/components/layout/TabNavigation";
 import { Dashboard } from "./Dashboard";
 import { DataIngestionPanel } from "@/components/data/DataIngestionPanel";
 import IntelligenceEngine from "./IntelligenceEngine";
-import ChartsView from "./ChartsView";
+import EnhancedChartsView from "./EnhancedChartsView";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -22,7 +22,7 @@ const Index = () => {
       case 'engines':
         return <IntelligenceEngine />;
       case 'charts':
-        return <ChartsView />;
+        return <EnhancedChartsView />;
       default:
         return <Dashboard />;
     }
