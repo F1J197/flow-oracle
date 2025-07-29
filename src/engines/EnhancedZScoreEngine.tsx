@@ -1,4 +1,4 @@
-import { IEngine, DashboardTileData, DetailedEngineView, EngineReport } from '@/types/engines';
+import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from '@/types/engines';
 import { dataService } from '@/services/dataService';
 
 // Core interfaces for Z-Score calculations
@@ -1269,5 +1269,65 @@ export class EnhancedZScoreEngine implements IEngine {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
     }
+  }
+
+  getSingleActionableInsight(): ActionableInsight {
+    if (!this.multiIndicatorResults || this.multiIndicatorResults.size === 0) {
+      return {
+        actionText: 'WAIT for Z-score analysis initialization',
+        signalStrength: 0,
+        marketAction: 'WAIT',
+        confidence: 'LOW',
+        timeframe: 'IMMEDIATE'
+      };
+    }
+
+    // Get the composite Z-score from current calculation
+    const zScore = this.compositeZScore || 0;
+    const magnitude = Math.abs(zScore);
+    
+    // Calculate signal strength based on Z-score magnitude
+    const signalStrength = Math.min(100, magnitude * 25); // Z-score of 4 = 100% strength
+    
+    // Determine market action based on Z-score extremes
+    let marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
+    if (zScore > 2.5) {
+      marketAction = 'SELL'; // Extremely overbought
+    } else if (zScore < -2.5) {
+      marketAction = 'BUY'; // Extremely oversold
+    } else if (zScore > 1.5) {
+      marketAction = 'HOLD'; // Moderately overbought
+    } else if (zScore < -1.5) {
+      marketAction = 'HOLD'; // Moderately oversold
+    } else {
+      marketAction = 'WAIT'; // Neutral zone
+    }
+    
+    // Determine confidence based on signal extremity
+    const confidence: 'HIGH' | 'MED' | 'LOW' = 
+      magnitude > 2.5 ? 'HIGH' :
+      magnitude > 1.5 ? 'MED' : 'LOW';
+    
+    // Generate actionable text based on Z-score position
+    let actionText: string;
+    if (zScore > 2.5) {
+      actionText = `EXTREME OVERVALUATION - Z-score ${zScore.toFixed(1)}σ indicates major reversion opportunity`;
+    } else if (zScore < -2.5) {
+      actionText = `EXTREME UNDERVALUATION - Z-score ${zScore.toFixed(1)}σ signals significant buying opportunity`;
+    } else if (zScore > 1.5) {
+      actionText = `OVERVALUED TERRITORY - Z-score ${zScore.toFixed(1)}σ suggests caution, potential distribution`;
+    } else if (zScore < -1.5) {
+      actionText = `UNDERVALUED ZONE - Z-score ${zScore.toFixed(1)}σ indicates potential accumulation opportunity`;
+    } else {
+      actionText = `NEUTRAL VALUATION - Z-score ${zScore.toFixed(1)}σ shows fair value, await directional signal`;
+    }
+    
+    return {
+      actionText,
+      signalStrength: Math.round(signalStrength),
+      marketAction,
+      confidence,
+      timeframe: magnitude > 2 ? 'IMMEDIATE' : magnitude > 1 ? 'SHORT_TERM' : 'MEDIUM_TERM'
+    };
   }
 }

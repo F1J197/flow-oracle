@@ -1,4 +1,4 @@
-import { IEngine, DashboardTileData, DetailedEngineView, EngineReport } from "@/types/engines";
+import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
 import { dataService } from "@/services/dataService";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -710,5 +710,47 @@ export class DataIntegrityEngine implements IEngine {
     }
     
     return alerts;
+  }
+
+  getSingleActionableInsight(): ActionableInsight {
+    // Calculate signal strength based on integrity score and active sources
+    const signalStrength = Math.min(100, this.integrityScore);
+    
+    // Determine market action based on data quality
+    let marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
+    if (this.integrityScore > 99) {
+      marketAction = 'BUY';
+    } else if (this.integrityScore < 80) {
+      marketAction = 'WAIT';
+    } else if (this.integrityScore < 95) {
+      marketAction = 'HOLD';
+    } else {
+      marketAction = 'BUY';
+    }
+    
+    // Determine confidence based on active sources and manipulation signals
+    const confidence: 'HIGH' | 'MED' | 'LOW' = 
+      this.activeSources >= 3 && this.manipulationSignals.length === 0 ? 'HIGH' :
+      this.activeSources >= 2 && this.manipulationSignals.length <= 1 ? 'MED' : 'LOW';
+    
+    // Generate actionable text
+    let actionText: string;
+    if (this.integrityScore > 99) {
+      actionText = `ALL SYSTEMS GO - Perfect data integrity across ${this.activeSources}/${this.totalSources} sources`;
+    } else if (this.integrityScore < 80) {
+      actionText = `CRITICAL DATA ISSUES - Only ${this.activeSources}/${this.totalSources} sources reliable, wait for resolution`;
+    } else if (this.manipulationSignals.length > 0) {
+      actionText = `MANIPULATION DETECTED - ${this.manipulationSignals.length} signals, proceed with caution`;
+    } else {
+      actionText = `DATA QUALITY ADEQUATE - ${this.activeSources}/${this.totalSources} sources operational, trading permissible`;
+    }
+    
+    return {
+      actionText,
+      signalStrength,
+      marketAction,
+      confidence,
+      timeframe: this.integrityScore < 80 ? 'IMMEDIATE' : 'SHORT_TERM'
+    };
   }
 }

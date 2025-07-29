@@ -1,3 +1,11 @@
+export interface ActionableInsight {
+  actionText: string;
+  signalStrength: number; // 0-100
+  marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
+  confidence: 'HIGH' | 'MED' | 'LOW';
+  timeframe: 'IMMEDIATE' | 'SHORT_TERM' | 'MEDIUM_TERM';
+}
+
 export interface DashboardTileData {
   title: string;
   primaryMetric: string | number;
@@ -41,6 +49,7 @@ export interface IEngine {
   pillar: 1 | 2 | 3;
   
   execute(): Promise<EngineReport>;
+  getSingleActionableInsight(): ActionableInsight;
   getDashboardData(): DashboardTileData;
   getDetailedView(): DetailedEngineView;
 }

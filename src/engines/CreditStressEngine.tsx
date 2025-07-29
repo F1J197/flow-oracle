@@ -1,4 +1,4 @@
-import { IEngine, DashboardTileData, DetailedEngineView, EngineReport } from "@/types/engines";
+import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
 import { EnhancedCreditData } from "@/types/data";
 import { creditDataService } from "@/services/creditDataService";
 
@@ -116,6 +116,76 @@ export class CreditStressEngine implements IEngine {
     const regimeFactor = this.creditData.regimeConfidence;
     
     return (qualityFactor + sourceFactor + regimeFactor) / 3;
+  }
+
+  getSingleActionableInsight(): ActionableInsight {
+    if (!this.creditData) {
+      return {
+        actionText: 'WAIT for credit data initialization',
+        signalStrength: 0,
+        marketAction: 'WAIT',
+        confidence: 'LOW',
+        timeframe: 'IMMEDIATE'
+      };
+    }
+
+    const signal = this.determineOverallSignal();
+    
+    // Calculate signal strength based on stress level and systemic risk
+    let signalStrength: number;
+    switch (this.creditData.stressLevel) {
+      case 'EXTREME':
+        signalStrength = 95;
+        break;
+      case 'ELEVATED':
+        signalStrength = 75;
+        break;
+      case 'MODERATE':
+        signalStrength = 50;
+        break;
+      default:
+        signalStrength = 25;
+    }
+    
+    // Adjust for systemic risk
+    if (this.creditData.systemicRisk > 80) signalStrength = Math.min(100, signalStrength + 10);
+    
+    // Determine market action
+    let marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
+    if (this.creditData.stressLevel === 'EXTREME') {
+      marketAction = 'SELL';
+    } else if (this.creditData.stressLevel === 'MINIMAL' && signal === 'bullish') {
+      marketAction = 'BUY';
+    } else if (this.creditData.liquidityScore < 30) {
+      marketAction = 'WAIT';
+    } else {
+      marketAction = 'HOLD';
+    }
+    
+    // Determine confidence
+    const confidence: 'HIGH' | 'MED' | 'LOW' = 
+      this.creditData.dataQuality > 0.8 && this.creditData.sourceCount >= 3 ? 'HIGH' :
+      this.creditData.dataQuality > 0.6 ? 'MED' : 'LOW';
+    
+    // Generate actionable text
+    let actionText: string;
+    if (this.creditData.stressLevel === 'EXTREME') {
+      actionText = `RISK-OFF immediately - Credit stress at EXTREME levels (${this.creditData.highYieldSpread}bps)`;
+    } else if (this.creditData.stressLevel === 'ELEVATED') {
+      actionText = `REDUCE risk exposure - Elevated credit stress detected`;
+    } else if (this.creditData.stressLevel === 'MINIMAL') {
+      actionText = `OPPORTUNISTIC buying - Minimal stress, favorable conditions`;
+    } else {
+      actionText = `MAINTAIN current allocation - Moderate stress environment`;
+    }
+    
+    return {
+      actionText,
+      signalStrength,
+      marketAction,
+      confidence,
+      timeframe: this.creditData.stressLevel === 'EXTREME' ? 'IMMEDIATE' : 'SHORT_TERM'
+    };
   }
 
   getDashboardData(): DashboardTileData {

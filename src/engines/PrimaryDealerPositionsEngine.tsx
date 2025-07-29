@@ -1,4 +1,4 @@
-import { IEngine, DashboardTileData, DetailedEngineView, EngineReport } from "@/types/engines";
+import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
 import { dataService } from "@/services/dataService";
 
 export class PrimaryDealerPositionsEngine implements IEngine {
@@ -166,6 +166,59 @@ export class PrimaryDealerPositionsEngine implements IEngine {
     if (this.regime === 'EXPANSION' && this.riskCapacity > 85) return 'bullish';
     if (this.regime === 'CONTRACTION' || this.liquidityStress > 0.25) return 'bearish';
     return 'neutral';
+  }
+
+  getSingleActionableInsight(): ActionableInsight {
+    const signal = this.getMarketSignal();
+    
+    // Calculate signal strength based on regime confidence and risk metrics
+    let signalStrength: number;
+    switch (this.regime) {
+      case 'EXPANSION':
+        signalStrength = 80 + (this.riskCapacity - 80) * 2;
+        break;
+      case 'CONTRACTION':
+        signalStrength = 75 + (this.liquidityStress * 100);
+        break;
+      default:
+        signalStrength = 45;
+    }
+    signalStrength = Math.min(100, signalStrength);
+    
+    // Determine market action
+    let marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
+    if (this.regime === 'EXPANSION' && this.riskCapacity > 85) {
+      marketAction = 'BUY';
+    } else if (this.regime === 'CONTRACTION' || this.liquidityStress > 0.25) {
+      marketAction = 'SELL';
+    } else if (this.leverageRatio > 4.0) {
+      marketAction = 'HOLD';
+    } else {
+      marketAction = 'WAIT';
+    }
+    
+    // Determine confidence
+    const confidence: 'HIGH' | 'MED' | 'LOW' = 
+      this.confidence > 90 && signalStrength > 75 ? 'HIGH' :
+      this.confidence > 80 && signalStrength > 60 ? 'MED' : 'LOW';
+    
+    // Generate actionable text
+    let actionText: string;
+    if (this.regime === 'EXPANSION') {
+      actionText = `DEALERS EXPANDING RISK - Increase allocation as dealers add $${this.totalPositions.toFixed(1)}T exposure`;
+    } else if (this.regime === 'CONTRACTION') {
+      actionText = `DEALERS REDUCING RISK - Defensive positioning as dealer capacity drops to ${this.riskCapacity.toFixed(1)}%`;
+    } else {
+      actionText = `DEALERS NEUTRAL - Monitor $${this.totalPositions.toFixed(1)}T positions for regime change signals`;
+    }
+    
+    return {
+      actionText,
+      signalStrength: Math.round(signalStrength),
+      marketAction,
+      confidence,
+      timeframe: this.regime === 'EXPANSION' || this.regime === 'CONTRACTION' ? 'MEDIUM_TERM' : 'SHORT_TERM'
+    };
   }
 
   getDashboardData(): DashboardTileData {

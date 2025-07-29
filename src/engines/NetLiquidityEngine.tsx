@@ -1,4 +1,4 @@
-import { IEngine, DashboardTileData, DetailedEngineView, EngineReport } from "@/types/engines";
+import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
 import { dataService } from "@/services/dataService";
 
 export class NetLiquidityEngine implements IEngine {
@@ -137,6 +137,50 @@ export class NetLiquidityEngine implements IEngine {
     if (this.regime === 'QE' && this.momentum > 0) return 'bullish';
     if (this.regime === 'QT' && this.momentum < 0) return 'bearish';
     return 'neutral';
+  }
+
+  getSingleActionableInsight(): ActionableInsight {
+    const signal = this.getMarketSignal();
+    
+    // Calculate signal strength based on regime confidence and momentum
+    const regimeStrength = this.regime === 'QE' ? 85 : this.regime === 'QT' ? 75 : 45;
+    const momentumAdjustment = Math.abs(this.momentum) * 10;
+    const signalStrength = Math.min(100, regimeStrength + momentumAdjustment);
+    
+    // Determine market action
+    let marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
+    if (this.regime === 'QE' && this.momentum > 0.5) {
+      marketAction = 'BUY';
+    } else if (this.regime === 'QT' && this.momentum < -0.5) {
+      marketAction = 'SELL';
+    } else if (this.regime === 'TRANSITION') {
+      marketAction = 'WAIT';
+    } else {
+      marketAction = 'HOLD';
+    }
+    
+    // Determine confidence based on data quality and signal strength
+    const confidence: 'HIGH' | 'MED' | 'LOW' = 
+      this.confidence > 85 && signalStrength > 70 ? 'HIGH' :
+      this.confidence > 70 && signalStrength > 50 ? 'MED' : 'LOW';
+    
+    // Generate actionable text
+    let actionText: string;
+    if (this.regime === 'QE') {
+      actionText = `AGGRESSIVE positioning recommended - QE liquidity expanding at $${this.netLiquidity.toFixed(1)}T`;
+    } else if (this.regime === 'QT') {
+      actionText = `DEFENSIVE positioning required - QT contracting liquidity to $${this.netLiquidity.toFixed(1)}T`;
+    } else {
+      actionText = `MONITOR regime shift - liquidity at $${this.netLiquidity.toFixed(1)}T transition zone`;
+    }
+    
+    return {
+      actionText,
+      signalStrength: Math.round(signalStrength),
+      marketAction,
+      confidence,
+      timeframe: this.regime === 'TRANSITION' ? 'SHORT_TERM' : 'MEDIUM_TERM'
+    };
   }
 
   getDashboardData(): DashboardTileData {

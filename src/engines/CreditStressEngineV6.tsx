@@ -1,4 +1,4 @@
-import { IEngine, EngineReport, DashboardTileData, DetailedEngineView } from '@/types/engines';
+import { IEngine, EngineReport, DashboardTileData, DetailedEngineView, ActionableInsight } from '@/types/engines';
 import { dataService } from '@/services/dataService';
 
 // ============= INTERFACES =============
@@ -615,5 +615,81 @@ export class CreditStressEngineV6 implements IEngine {
     }
     
     return `Credit spreads stable at ${Math.round(composite)}bps in ${regime.toLowerCase()} regime`;
+  }
+
+  getSingleActionableInsight(): ActionableInsight {
+    if (!this.currentData) {
+      return {
+        actionText: 'WAIT for credit stress analysis initialization',
+        signalStrength: 0,
+        marketAction: 'WAIT',
+        confidence: 'LOW',
+        timeframe: 'IMMEDIATE'
+      };
+    }
+
+    // Calculate signal strength based on stress level and divergences
+    let signalStrength: number;
+    switch (this.currentData.stressLevel) {
+      case 'CRISIS':
+        signalStrength = 95;
+        break;
+      case 'HIGH':
+        signalStrength = 80;
+        break;
+      case 'MODERATE':
+        signalStrength = 60;
+        break;
+      default:
+        signalStrength = 30;
+    }
+    
+    // Adjust for divergences and leading indicators
+    if (this.divergences && this.divergences.overallAlignment < 50) {
+      signalStrength += 15;
+    }
+    if (this.leadingIndicators && this.leadingIndicators.cdsIndex.trend === 'RISK_AVERSION') {
+      signalStrength += 10;
+    }
+    
+    signalStrength = Math.min(100, signalStrength);
+    
+    // Determine market action
+    let marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
+    if (this.currentData.stressLevel === 'CRISIS') {
+      marketAction = 'SELL';
+    } else if (this.currentData.stressLevel === 'HIGH') {
+      marketAction = 'SELL';
+    } else if (this.currentData.stressLevel === 'LOW' && this.currentData.regime === 'QE_SUPPORTIVE') {
+      marketAction = 'BUY';
+    } else {
+      marketAction = 'HOLD';
+    }
+    
+    // Determine confidence based on data quality and signal clarity
+    const confidence: 'HIGH' | 'MED' | 'LOW' = 
+      this.currentData.confidence > 85 && signalStrength > 70 ? 'HIGH' :
+      this.currentData.confidence > 70 ? 'MED' : 'LOW';
+    
+    // Generate actionable text
+    let actionText: string;
+    const spread = this.currentData.composite;
+    if (this.currentData.stressLevel === 'CRISIS') {
+      actionText = `EMERGENCY RISK-OFF - Credit crisis at ${spread.toFixed(0)}bps, liquidate immediately`;
+    } else if (this.currentData.stressLevel === 'HIGH') {
+      actionText = `REDUCE CREDIT EXPOSURE - High stress at ${spread.toFixed(0)}bps, defensive positioning`;
+    } else if (this.currentData.stressLevel === 'LOW') {
+      actionText = `OPPORTUNISTIC CREDIT - Low stress at ${spread.toFixed(0)}bps, consider adding exposure`;
+    } else {
+      actionText = `MONITOR CREDIT CONDITIONS - Moderate stress at ${spread.toFixed(0)}bps, maintain allocation`;
+    }
+    
+    return {
+      actionText,
+      signalStrength: Math.round(signalStrength),
+      marketAction,
+      confidence,
+      timeframe: this.currentData.stressLevel === 'CRISIS' ? 'IMMEDIATE' : 'SHORT_TERM'
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { IEngine, EngineReport, DashboardTileData, DetailedEngineView } from '@/types/engines';
+import { IEngine, EngineReport, DashboardTileData, DetailedEngineView, ActionableInsight } from '@/types/engines';
 import { DealerPositionsService } from '@/services/dealerPositionsService';
 import { DealerPositionData, DealerRegime, DealerAlert, DealerInsight } from '@/types/dealerPositions';
 import { PrimaryDealerTileData } from '@/types/primaryDealerTile';
@@ -97,6 +97,93 @@ export class PrimaryDealerPositionsEngineV6 implements IEngine {
     if (signalScore >= 3) return 'bullish';
     if (signalScore <= -3) return 'bearish';
     return 'neutral';
+  }
+
+  getSingleActionableInsight(): ActionableInsight {
+    if (!this.currentData) {
+      return {
+        actionText: 'WAIT for dealer position data initialization',
+        signalStrength: 0,
+        marketAction: 'WAIT',
+        confidence: 'LOW',
+        timeframe: 'IMMEDIATE'
+      };
+    }
+
+    const { analytics, riskMetrics } = this.currentData;
+    const signal = this.getMarketSignal();
+    
+    // Calculate signal strength based on regime and risk metrics
+    let signalStrength: number;
+    switch (analytics.regime) {
+      case 'EXPANSION':
+        signalStrength = 85 + (riskMetrics.riskCapacity - 80) / 4;
+        break;
+      case 'CONTRACTION':
+        signalStrength = 75 + riskMetrics.liquidityStress / 2;
+        break;
+      case 'CRISIS':
+        signalStrength = 95;
+        break;
+      case 'TRANSITION':
+        signalStrength = analytics.flowDirection === 'ACCUMULATING' ? 70 : 60;
+        break;
+      default:
+        signalStrength = 40;
+    }
+    signalStrength = Math.min(100, signalStrength);
+    
+    // Determine market action
+    let marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
+    switch (analytics.regime) {
+      case 'EXPANSION':
+        marketAction = riskMetrics.riskCapacity > 85 ? 'BUY' : 'HOLD';
+        break;
+      case 'CONTRACTION':
+        marketAction = 'SELL';
+        break;
+      case 'CRISIS':
+        marketAction = 'SELL';
+        break;
+      case 'TRANSITION':
+        marketAction = analytics.flowDirection === 'ACCUMULATING' ? 'HOLD' : 'WAIT';
+        break;
+      default:
+        marketAction = 'WAIT';
+    }
+    
+    // Determine confidence
+    const confidence: 'HIGH' | 'MED' | 'LOW' = 
+      analytics.regimeConfidence > 0.85 && riskMetrics.riskCapacity > 70 ? 'HIGH' :
+      analytics.regimeConfidence > 0.70 ? 'MED' : 'LOW';
+    
+    // Generate actionable text
+    let actionText: string;
+    const totalPositions = this.getTotalPositions();
+    switch (analytics.regime) {
+      case 'EXPANSION':
+        actionText = `AGGRESSIVE positioning - Dealers expanding to $${(totalPositions / 1000000).toFixed(1)}T, follow their lead`;
+        break;
+      case 'CONTRACTION':
+        actionText = `DEFENSIVE required - Dealers reducing exposure, capacity at ${riskMetrics.riskCapacity.toFixed(1)}%`;
+        break;
+      case 'CRISIS':
+        actionText = `EMERGENCY LIQUIDITY - Crisis mode detected, immediate risk reduction necessary`;
+        break;
+      case 'TRANSITION':
+        actionText = `MONITOR regime shift - Dealers ${analytics.flowDirection.toLowerCase()}, await confirmation`;
+        break;
+      default:
+        actionText = `NEUTRAL stance - No clear dealer signal, maintain current allocation`;
+    }
+    
+    return {
+      actionText,
+      signalStrength: Math.round(signalStrength),
+      marketAction,
+      confidence,
+      timeframe: analytics.regime === 'CRISIS' ? 'IMMEDIATE' : analytics.regime === 'TRANSITION' ? 'SHORT_TERM' : 'MEDIUM_TERM'
+    };
   }
 
   getDashboardData(): DashboardTileData {

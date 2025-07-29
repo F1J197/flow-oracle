@@ -1,4 +1,4 @@
-import { IEngine, DashboardTileData, DetailedEngineView, EngineReport } from '@/types/engines';
+import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from '@/types/engines';
 import { dataService } from '@/services/dataService';
 
 // Core interfaces for momentum calculations
@@ -910,5 +910,62 @@ export class EnhancedMomentumEngine implements IEngine {
 
   get patternsData() {
     return this.detectedPatterns;
+  }
+
+  getSingleActionableInsight(): ActionableInsight {
+    if (!this.compositeMomentum) {
+      return {
+        actionText: 'WAIT for momentum analysis initialization',
+        signalStrength: 0,
+        marketAction: 'WAIT',
+        confidence: 'LOW',
+        timeframe: 'IMMEDIATE'
+      };
+    }
+
+    const momentum = this.compositeMomentum.value;
+    const strength = Math.abs(momentum) * 100;
+    
+    // Calculate signal strength based on momentum magnitude and consistency
+    const signalStrength = Math.min(100, strength + (this.compositeMomentum.confidence * 30));
+    
+    // Determine market action based on momentum direction and strength
+    let marketAction: 'BUY' | 'SELL' | 'HOLD' | 'WAIT';
+    if (momentum > 0.7) {
+      marketAction = 'BUY';
+    } else if (momentum < -0.7) {
+      marketAction = 'SELL';
+    } else if (Math.abs(momentum) > 0.3) {
+      marketAction = 'HOLD';
+    } else {
+      marketAction = 'WAIT';
+    }
+    
+    // Determine confidence based on signal clarity and consistency
+    const confidence: 'HIGH' | 'MED' | 'LOW' = 
+      this.compositeMomentum.confidence > 0.8 && strength > 60 ? 'HIGH' :
+      this.compositeMomentum.confidence > 0.6 && strength > 40 ? 'MED' : 'LOW';
+    
+    // Generate actionable text based on momentum state
+    let actionText: string;
+    if (momentum > 0.7) {
+      actionText = `STRONG UPWARD MOMENTUM - ${(momentum * 100).toFixed(1)}% momentum strength, increase allocation`;
+    } else if (momentum < -0.7) {
+      actionText = `STRONG DOWNWARD MOMENTUM - ${Math.abs(momentum * 100).toFixed(1)}% bearish momentum, reduce exposure`;
+    } else if (momentum > 0.3) {
+      actionText = `MODERATE BULLISH MOMENTUM - ${(momentum * 100).toFixed(1)}% upward trend, gradual accumulation`;
+    } else if (momentum < -0.3) {
+      actionText = `MODERATE BEARISH MOMENTUM - ${Math.abs(momentum * 100).toFixed(1)}% downward trend, cautious positioning`;
+    } else {
+      actionText = `NEUTRAL MOMENTUM - ${Math.abs(momentum * 100).toFixed(1)}% sideways action, await clearer signal`;
+    }
+    
+    return {
+      actionText,
+      signalStrength: Math.round(signalStrength),
+      marketAction,
+      confidence,
+      timeframe: Math.abs(momentum) > 0.5 ? 'MEDIUM_TERM' : 'SHORT_TERM'
+    };
   }
 }
