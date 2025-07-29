@@ -5,7 +5,7 @@ interface DataDisplayProps {
   label?: string;
   trend?: 'up' | 'down' | 'neutral';
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  color?: 'teal' | 'orange' | 'lime' | 'gold' | 'fuchsia' | 'btc' | 'btc-light' | 'btc-glow' | 'btc-muted' | 'default';
+  color?: 'teal' | 'orange' | 'lime' | 'gold' | 'fuchsia' | 'btc' | 'btc-light' | 'btc-glow' | 'btc-muted' | 'btc-dark' | 'btc-bright' | 'default';
   suffix?: string;
   loading?: boolean;
 }
@@ -48,15 +48,15 @@ export const DataDisplay = ({
   const getColorClass = () => {
     switch (color) {
       case 'teal':
-        return 'neon-teal';
+        return 'text-neon-teal';
       case 'orange':
-        return 'neon-orange';
+        return 'text-neon-orange';
       case 'lime':
-        return 'neon-lime';
+        return 'text-neon-lime';
       case 'gold':
-        return 'neon-gold';
+        return 'text-neon-gold';
       case 'fuchsia':
-        return 'neon-fuchsia';
+        return 'text-neon-fuchsia';
       case 'btc':
         return 'btc-primary';
       case 'btc-light':
@@ -65,6 +65,10 @@ export const DataDisplay = ({
         return 'btc-glow';
       case 'btc-muted':
         return 'btc-muted';
+      case 'btc-dark':
+        return 'text-btc-orange-dark';
+      case 'btc-bright':
+        return 'text-btc-orange-bright';
       default:
         return 'text-foreground';
     }

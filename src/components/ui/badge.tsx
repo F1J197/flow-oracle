@@ -15,10 +15,14 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground border-border",
-        btc: "border-transparent bg-btc-primary/20 text-btc-primary border-btc-primary",
-        "btc-light": "border-transparent bg-btc-light/20 text-btc-light border-btc-light",
+        btc: "border-transparent bg-btc-orange/20 text-btc-orange border-btc-orange",
+        "btc-bright": "border-transparent bg-btc-orange-bright/20 text-btc-orange-bright border-btc-orange-bright",
+        "btc-light": "border-transparent bg-btc-orange-light/20 text-btc-orange-light border-btc-orange-light",
+        "btc-dark": "border-transparent bg-btc-orange-dark/20 text-btc-orange-dark border-btc-orange-dark",
+        "btc-muted": "border-transparent bg-btc-orange-muted/20 text-btc-orange-muted border-btc-orange-muted",
+        // Legacy mappings
+        "btc-primary": "border-transparent bg-btc-primary/20 text-btc-primary border-btc-primary",
         "btc-glow": "border-transparent bg-btc-glow/20 text-btc-glow border-btc-glow",
-        "btc-muted": "border-transparent bg-btc-muted/20 text-btc-muted border-btc-muted",
       },
     },
     defaultVariants: {

@@ -52,18 +52,32 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Noir & BTC Orange Custom Colors
+				// Noir & BTC Orange Custom Colors - Complete System
 				noir: {
 					bg: 'hsl(var(--noir-bg))',
 					surface: 'hsl(var(--noir-surface))',
 					border: 'hsl(var(--noir-border))'
 				},
 				btc: {
+					orange: 'hsl(var(--btc-orange))',
+					'orange-bright': 'hsl(var(--btc-orange-bright))',
+					'orange-light': 'hsl(var(--btc-orange-light))',
+					'orange-dark': 'hsl(var(--btc-orange-dark))',
+					'orange-muted': 'hsl(var(--btc-orange-muted))',
+					// Legacy mappings
 					primary: 'hsl(var(--btc-primary))',
 					light: 'hsl(var(--btc-light))',
 					dark: 'hsl(var(--btc-dark))',
 					glow: 'hsl(var(--btc-glow))',
 					muted: 'hsl(var(--btc-muted))'
+				},
+				// Neon accent colors for special states
+				neon: {
+					teal: '#00BFFF',
+					orange: '#FF4500', 
+					lime: '#32CD32',
+					gold: '#FFD700',
+					fuchsia: '#FF00FF'
 				},
 				text: {
 					primary: 'hsl(var(--text-primary))',

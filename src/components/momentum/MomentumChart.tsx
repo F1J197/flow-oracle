@@ -36,10 +36,10 @@ export const MomentumChart = ({
 
   const getTimeframeColor = () => {
     switch (timeframe) {
-      case 'short': return '#00BFFF'; // neon-teal
-      case 'medium': return '#32CD32'; // neon-lime  
-      case 'long': return '#FFD700';  // neon-gold
-      default: return '#00BFFF';
+      case 'short': return 'hsl(28, 100%, 64%)'; // btc-orange-bright
+      case 'medium': return 'hsl(28, 100%, 54%)'; // btc-orange  
+      case 'long': return 'hsl(25, 100%, 44%)';  // btc-orange-dark
+      default: return 'hsl(28, 100%, 54%)'; // btc-orange
     }
   };
 
@@ -62,15 +62,15 @@ export const MomentumChart = ({
           <div className="flex items-center space-x-2">
             <span className={cn(
               "text-lg font-bold",
-              isPositive ? "text-neon-lime" : "text-neon-orange"
+              isPositive ? "text-btc-orange-bright" : "text-btc-orange-dark"
             )}>
               {momentum.toFixed(2)}%
             </span>
             <div className={cn(
               "px-2 py-1 rounded text-xs font-medium",
               isPositive 
-                ? "bg-neon-lime/20 text-neon-lime border border-neon-lime/30"
-                : "bg-neon-orange/20 text-neon-orange border border-neon-orange/30"
+                ? "bg-btc-orange-bright/20 text-btc-orange-bright border border-btc-orange-bright/30"
+                : "bg-btc-orange-dark/20 text-btc-orange-dark border border-btc-orange-dark/30"
             )}>
               {isPositive ? "BULLISH" : "BEARISH"}
             </div>
@@ -183,7 +183,7 @@ export const MomentumChart = ({
         )}>
           <div className={cn(
             "w-4 h-4 border-2 border-t-0 border-l-0 transform rotate-45",
-            isPositive ? "border-neon-lime" : "border-neon-orange"
+            isPositive ? "border-btc-orange-bright" : "border-btc-orange-dark"
           )}></div>
         </div>
       </div>

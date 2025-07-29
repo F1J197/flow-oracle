@@ -13,12 +13,19 @@
     --noir-surface: 216 7% 12%;     /* #1a1a1a elevated surfaces */
     --noir-border: 216 7% 20%;      /* #2a2a2a subtle borders */
     
-    /* BTC Orange Theme Colors */
-    --btc-primary: 25 100% 50%;     /* #FF6600 Bitcoin Orange */
-    --btc-light: 30 100% 60%;       /* #FF8533 Lighter orange for accents */
-    --btc-dark: 20 100% 40%;        /* #CC5200 Darker orange for depth */
-    --btc-glow: 25 100% 70%;        /* #FFB366 Bright glow effect */
-    --btc-muted: 25 50% 30%;        /* #995C1A Muted orange for subtlety */
+    /* BTC Orange Theme Colors - Exact Specifications */
+    --btc-orange: 28 100% 54%;      /* #F7931A Official Bitcoin Orange */
+    --btc-orange-bright: 31 100% 64%; /* #FF9F33 Bright variant */
+    --btc-orange-light: 34 100% 74%;  /* #FFAA55 Light variant */
+    --btc-orange-dark: 25 100% 44%;   /* #E67E00 Dark variant */
+    --btc-orange-muted: 28 70% 34%;   /* #B87416 Muted variant */
+    
+    /* Legacy BTC mappings for compatibility */
+    --btc-primary: var(--btc-orange);
+    --btc-light: var(--btc-orange-light);
+    --btc-dark: var(--btc-orange-dark);
+    --btc-glow: var(--btc-orange-bright);
+    --btc-muted: var(--btc-orange-muted);
     
     /* Typography */
     --text-primary: 0 0% 92%;       /* #EAEAEA off-white primary */
@@ -80,18 +87,42 @@
 }
 
 @layer components {
-  /* Glass Tile Base Component */
+  /* Glass Tile Base Component - Premium Glass Morphism */
   .glass-tile {
-    @apply bg-card border border-border rounded-lg;
-    background: var(--gradient-glass);
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-glass);
+    @apply bg-card border border-border rounded-lg relative;
+    background: linear-gradient(135deg, 
+      hsl(var(--noir-surface) / 0.9) 0%, 
+      hsl(var(--noir-bg) / 0.8) 100%);
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 6px hsl(var(--noir-bg) / 0.3),
+      0 1px 3px hsl(var(--noir-bg) / 0.1),
+      inset 0 1px 0 hsl(var(--noir-border) / 0.5);
+    border: 1px solid hsl(var(--noir-border) / 0.6);
   }
   
   .glass-tile:hover {
-    box-shadow: var(--shadow-glass), var(--glow-btc);
+    background: linear-gradient(135deg, 
+      hsl(var(--noir-surface) / 0.95) 0%, 
+      hsl(var(--noir-bg) / 0.85) 100%);
+    box-shadow: 
+      0 8px 12px hsl(var(--noir-bg) / 0.4),
+      0 2px 6px hsl(var(--noir-bg) / 0.2),
+      inset 0 1px 0 hsl(var(--noir-border) / 0.7),
+      0 0 20px hsl(var(--btc-orange) / 0.1);
     transition: var(--transition-smooth);
-    border-color: hsl(var(--btc-primary) / 0.3);
+    border-color: hsl(var(--btc-orange) / 0.3);
+    transform: translateY(-1px);
+  }
+  
+  /* Premium glass tile variant */
+  .glass-tile-premium {
+    @apply glass-tile;
+    background: linear-gradient(135deg, 
+      hsl(var(--noir-surface) / 0.95) 0%, 
+      hsl(var(--btc-orange) / 0.05) 50%,
+      hsl(var(--noir-bg) / 0.9) 100%);
+    border: 1px solid hsl(var(--btc-orange) / 0.2);
   }
   
   /* BTC Orange Text Effects */
@@ -152,7 +183,7 @@
 }
 
 @layer utilities {
-  /* Typography Utilities */
+  /* Typography Utilities - Enhanced BTC Theme */
   .text-data {
     @apply text-base font-bold tracking-wider;
   }
@@ -163,6 +194,21 @@
   
   .text-terminal {
     @apply font-mono text-sm tracking-wider;
+  }
+  
+  .data-value {
+    @apply text-3xl font-bold tracking-tight text-text-primary;
+    text-shadow: 0 0 10px hsl(var(--btc-orange) / 0.3);
+  }
+  
+  .data-label {
+    @apply text-xs uppercase tracking-widest text-text-secondary font-semibold;
+  }
+  
+  .terminal-glow {
+    color: hsl(var(--btc-orange));
+    text-shadow: 0 0 8px hsl(var(--btc-orange) / 0.5);
+    font-family: 'Roboto Mono', monospace;
   }
 }
 

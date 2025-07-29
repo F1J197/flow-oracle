@@ -30,11 +30,11 @@ export const ActionableInsightTile = memo(({
   }, [insight.signalStrength, stableSignalStrength]);
   const getActionColor = (action: string) => {
     switch (action) {
-      case 'BUY': return 'lime';
-      case 'SELL': return 'orange'; 
-      case 'HOLD': return 'teal';
-      case 'WAIT': return 'gold';
-      default: return 'gold';
+      case 'BUY': return 'btc-orange-bright';
+      case 'SELL': return 'btc-orange-dark'; 
+      case 'HOLD': return 'btc-orange';
+      case 'WAIT': return 'btc-orange-muted';
+      default: return 'btc-orange-muted';
     }
   };
 
@@ -74,7 +74,7 @@ export const ActionableInsightTile = memo(({
         </div>
         <div className="w-full bg-noir-border rounded-full h-2 overflow-hidden">
           <div 
-            className={`h-full bg-gradient-to-r from-neon-${getActionColor(insight.marketAction)} to-neon-${getActionColor(insight.marketAction)}/60 transition-all duration-500 ease-out`}
+            className={`h-full bg-gradient-to-r from-${getActionColor(insight.marketAction)} to-${getActionColor(insight.marketAction)}/60 transition-all duration-500 ease-out`}
             style={{ width: `${stableSignalStrength}%` }}
           />
         </div>
@@ -87,7 +87,7 @@ export const ActionableInsightTile = memo(({
       <div className="mb-4">
         <Badge 
           variant="outline" 
-          className={`border-neon-${getActionColor(insight.marketAction)} text-neon-${getActionColor(insight.marketAction)} font-mono text-lg px-4 py-2`}
+          className={`border-${getActionColor(insight.marketAction)} text-${getActionColor(insight.marketAction)} font-mono text-lg px-4 py-2`}
         >
           {insight.marketAction}
         </Badge>

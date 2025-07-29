@@ -18,8 +18,11 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        btc: "bg-btc-primary text-noir-bg hover:bg-btc-light transition-all duration-300 shadow-lg hover:shadow-xl font-mono",
-        "btc-outline": "border border-btc-primary text-btc-primary hover:bg-btc-primary hover:text-noir-bg transition-all duration-300",
+        btc: "bg-btc-orange text-noir-bg hover:bg-btc-orange-bright transition-all duration-300 shadow-lg hover:shadow-xl font-mono",
+        "btc-outline": "border border-btc-orange text-btc-orange hover:bg-btc-orange hover:text-noir-bg transition-all duration-300",
+        "btc-light": "bg-btc-orange-light text-noir-bg hover:bg-btc-orange transition-all duration-300",
+        "btc-dark": "bg-btc-orange-dark text-text-primary hover:bg-btc-orange transition-all duration-300",
+        "btc-muted": "bg-btc-orange-muted text-text-primary hover:bg-btc-orange-dark transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",
