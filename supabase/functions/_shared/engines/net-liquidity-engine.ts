@@ -1,32 +1,51 @@
-// Net Liquidity Engine for Supabase Edge Functions
-export class NetLiquidityEngine {
-  id = 'net-liquidity';
-  name = 'Net Liquidity Engine';
-  pillar = 1;
-  priority = 1;
+interface IEngine {
+  id: string;
+  name: string;
+  priority: number;
+  pillar: number;
+  execute(): Promise<EngineResult>;
+}
 
-  async execute() {
-    console.log('Executing Net Liquidity Engine...');
-    
+interface EngineResult {
+  success: boolean;
+  confidence: number;
+  signal: 'bullish' | 'bearish' | 'neutral';
+  data: any;
+}
+
+export class NetLiquidityEngine implements IEngine {
+  id = 'NET_LIQ';
+  name = 'Net Liquidity Engine';
+  priority = 1;
+  pillar = 1;
+
+  async execute(): Promise<EngineResult> {
     try {
-      // Simulate engine execution
-      const result = {
+      // Mock calculation for now - will be replaced with real logic
+      const liquidity = Math.random() * 10 + 5; // 5-15T range
+      const trend = Math.random() > 0.5 ? 'increasing' : 'decreasing';
+      
+      return {
         success: true,
         confidence: 0.85,
-        signal: 'bullish' as const,
+        signal: trend === 'increasing' ? 'bullish' : 'bearish',
         data: {
-          netLiquidity: 5626000000000, // $5.626T
-          change24h: 0.023, // +2.3%
-          trend: 'expanding',
-          regime: 'transition'
+          netLiquidity: liquidity,
+          trend,
+          fedBalanceSheet: liquidity * 0.6,
+          treasuryAccount: liquidity * 0.2,
+          reverseRepo: liquidity * 0.2,
+          timestamp: new Date().toISOString()
         }
       };
-
-      console.log('✅ Net Liquidity Engine executed successfully');
-      return result;
     } catch (error) {
-      console.error('❌ Net Liquidity Engine failed:', error);
-      throw error;
+      console.error('NetLiquidityEngine execution failed:', error);
+      return {
+        success: false,
+        confidence: 0,
+        signal: 'neutral',
+        data: { error: error.message }
+      };
     }
   }
 }

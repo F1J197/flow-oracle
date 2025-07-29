@@ -1,32 +1,55 @@
-// Credit Stress Engine for Supabase Edge Functions
-export class CreditStressEngine {
-  id = 'credit-stress';
-  name = 'Credit Stress Engine';
-  pillar = 2;
-  priority = 2;
+interface IEngine {
+  id: string;
+  name: string;
+  priority: number;
+  pillar: number;
+  execute(): Promise<EngineResult>;
+}
 
-  async execute() {
-    console.log('Executing Credit Stress Engine...');
-    
+interface EngineResult {
+  success: boolean;
+  confidence: number;
+  signal: 'bullish' | 'bearish' | 'neutral';
+  data: any;
+}
+
+export class CreditStressEngine implements IEngine {
+  id = 'CREDIT_STRESS';
+  name = 'Credit Stress Engine';
+  priority = 2;
+  pillar = 2;
+
+  async execute(): Promise<EngineResult> {
     try {
-      // Simulate engine execution
-      const result = {
+      // Mock calculation for now - will be replaced with real logic
+      const highYieldSpread = Math.random() * 500 + 200; // 200-700 bps
+      const investmentGradeSpread = Math.random() * 150 + 50; // 50-200 bps
+      const stressLevel = (highYieldSpread + investmentGradeSpread) / 10;
+      
+      let signal: 'bullish' | 'bearish' | 'neutral' = 'neutral';
+      if (stressLevel > 60) signal = 'bearish';
+      else if (stressLevel < 30) signal = 'bullish';
+      
+      return {
         success: true,
         confidence: 0.78,
-        signal: 'neutral' as const,
+        signal,
         data: {
-          stressLevel: 'moderate',
-          creditSpread: 145, // basis points
-          change24h: -0.012, // -1.2%
-          riskAppetite: 'stable'
+          stressLevel,
+          highYieldSpread,
+          investmentGradeSpread,
+          creditConditions: signal === 'bearish' ? 'tightening' : 'stable',
+          timestamp: new Date().toISOString()
         }
       };
-
-      console.log('✅ Credit Stress Engine executed successfully');
-      return result;
     } catch (error) {
-      console.error('❌ Credit Stress Engine failed:', error);
-      throw error;
+      console.error('CreditStressEngine execution failed:', error);
+      return {
+        success: false,
+        confidence: 0,
+        signal: 'neutral',
+        data: { error: error.message }
+      };
     }
   }
 }

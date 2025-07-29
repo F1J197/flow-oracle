@@ -77,7 +77,8 @@ serve(async (req) => {
           .single();
 
         // Fetch data from FRED API with rate limiting and retry logic
-        const fredUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${indicator.api_endpoint}&api_key=${fredApiKey}&file_type=json&limit=100&sort_order=desc`;
+        const seriesId = indicator.api_endpoint?.replace('/observations?series_id=', '') || indicator.symbol;
+        const fredUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${fredApiKey}&file_type=json&limit=100&sort_order=desc`;
         
         const retryHandler = new RetryHandler();
         const data: FredApiResponse = await globalAPIQueue.enqueue(

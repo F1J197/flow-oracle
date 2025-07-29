@@ -70,7 +70,7 @@ class RateLimiter {
 // Global rate limiters for different APIs
 export const rateLimiters = {
   finnhub: new RateLimiter({ requestsPerMinute: 60 }),
-  fred: new RateLimiter({ requestsPerMinute: 120 }),
+  fred: new RateLimiter({ requestsPerMinute: 20 }), // Reduced for better rate limiting
   twelvedata: new RateLimiter({ requestsPerMinute: 800 }), // Free tier
   fmp: new RateLimiter({ requestsPerMinute: 250 }), // Free tier
   marketstack: new RateLimiter({ requestsPerMinute: 1000 }), // Free tier
