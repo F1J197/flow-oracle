@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { DashboardTileData } from "@/types/engines";
 import { useEngineStatus } from "./useEngineStatus";
-import { useStaggeredUpdates } from "./useStaggeredUpdates";
 
 interface DashboardDataState {
   dataIntegrity: DashboardTileData;
@@ -124,15 +123,9 @@ export const useDashboardData = (engines: EngineManager) => {
     });
   };
 
-  const { scheduleUpdate } = useStaggeredUpdates(performUpdate, {
-    baseInterval: 5000, // 5 second base interval
-    staggerWindow: 2000, // 2 second stagger window
-    priority: 'medium'
-  });
-
   const updateDashboardData = useCallback(() => {
-    scheduleUpdate();
-  }, [scheduleUpdate]);
+    performUpdate();
+  }, [performUpdate]);
 
   return {
     dashboardData,

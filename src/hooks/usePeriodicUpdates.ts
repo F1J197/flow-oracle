@@ -114,8 +114,8 @@ export const usePeriodicUpdates = ({
     // Initialize on mount
     initializeAndUpdate();
     
-    // Reduced frequency: Update every 60 seconds after initialization
-    const interval = setInterval(updateData, 60000);
+    // Optimized frequency: Update every 5 minutes after initialization
+    const interval = setInterval(updateData, 300000); // 5 minutes
     
     return () => {
       clearInterval(interval);

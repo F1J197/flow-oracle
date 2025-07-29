@@ -5,7 +5,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 const FRED_BASE_URL = 'https://api.stlouisfed.org/fred/series/observations';
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 3 * 60 * 1000; // 3 minutes - optimized for performance
 
 interface CachedData {
   data: any;
@@ -396,7 +396,7 @@ class DataService {
         .select('*')
         .eq('indicator_id', indicator.id)
         .order('timestamp', { ascending: false })
-        .limit(limit);
+        .limit(Math.min(limit, 500)); // Performance: Cap at 500 data points
 
       if (error) {
         throw new Error(error.message);

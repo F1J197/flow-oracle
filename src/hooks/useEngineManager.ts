@@ -39,13 +39,14 @@ export const useEngineManager = () => {
     setEngineSuccess?: (id: string, report: any) => void;
     setEngineError?: (id: string, error: string) => void;
   }) => {
+    // Optimized engine execution with staggering
     const engineConfigs = [
-      { id: 'data-integrity', engine: engines.dataIntegrity, timeout: 15000, name: 'Data Integrity Engine' },
-      { id: 'net-liquidity', engine: engines.netLiquidity, timeout: 15000, name: 'Net Liquidity Engine' },
-      { id: 'credit-stress', engine: engines.creditStressV6, timeout: 15000, name: 'Credit Stress Engine' },
-      { id: 'enhanced-momentum', engine: engines.enhancedMomentum, timeout: 15000, name: 'Enhanced Momentum Engine' },
-      { id: 'enhanced-zscore', engine: engines.enhancedZScore, timeout: 30000, name: 'Enhanced Z-Score Engine' },
-      { id: 'primary-dealer-positions', engine: engines.primaryDealerPositions, timeout: 15000, name: 'Primary Dealer Positions Engine' },
+      { id: 'data-integrity', engine: engines.dataIntegrity, timeout: 10000, name: 'Data Integrity Engine', priority: 'high' as const },
+      { id: 'net-liquidity', engine: engines.netLiquidity, timeout: 10000, name: 'Net Liquidity Engine', priority: 'high' as const },
+      { id: 'credit-stress', engine: engines.creditStressV6, timeout: 10000, name: 'Credit Stress Engine', priority: 'medium' as const },
+      { id: 'primary-dealer-positions', engine: engines.primaryDealerPositions, timeout: 10000, name: 'Primary Dealer Positions Engine', priority: 'medium' as const },
+      { id: 'enhanced-momentum', engine: engines.enhancedMomentum, timeout: 20000, name: 'Enhanced Momentum Engine', priority: 'low' as const },
+      { id: 'enhanced-zscore', engine: engines.enhancedZScore, timeout: 25000, name: 'Enhanced Z-Score Engine', priority: 'low' as const },
     ];
 
     // Set all engines to loading if status callbacks provided
@@ -53,9 +54,15 @@ export const useEngineManager = () => {
       engineConfigs.forEach(config => statusCallbacks.setEngineLoading!(config.id));
     }
 
-    // Execute engines independently with individual timeouts and status tracking
+    // Execute engines with staggered start times by priority
     const engineResults = await Promise.allSettled(
-      engineConfigs.map(async (config) => {
+      engineConfigs.map(async (config, index) => {
+        // Stagger execution: high priority = immediate, medium = 1s delay, low = 2s delay
+        const staggerDelay = config.priority === 'high' ? 0 : config.priority === 'medium' ? 1000 : 2000;
+        if (staggerDelay > 0) {
+          await new Promise(resolve => setTimeout(resolve, staggerDelay));
+        }
+        
         try {
           const report = await withRetry(
             () => config.engine.execute(),
