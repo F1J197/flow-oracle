@@ -80,12 +80,8 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
     const autoHealed24h = 2; // Static value as per SimplifiedDataIntegrityEngine
     const consensusLevel = 97.2; // Static value as per SimplifiedDataIntegrityEngine
     
-    console.log('Data Integrity: Processed values:', {
-      integrityScore, activeSources, totalSources, systemStatus
-    });
-    
-    // Update metrics
-    setMetrics({
+    // Update metrics state - this is what StandardDataIntegrityView expects
+    const metricsData = {
       integrityScore,
       activeSources,
       totalSources,
@@ -94,7 +90,10 @@ export const useDataIntegrity = (options: UseDataIntegrityOptions = {}) => {
       p95Latency,
       autoHealed24h,
       consensusLevel
-    });
+    };
+    
+    console.log('Data Integrity: Setting metrics:', metricsData);
+    setMetrics(metricsData);
 
     // Create dashboard tile
     const status = integrityScore >= 95 ? 'normal' as const : 
