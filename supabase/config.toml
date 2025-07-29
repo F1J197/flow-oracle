@@ -28,3 +28,6 @@ port = 54326
 
 [functions.fred-data-ingestion]
 verify_jwt = false
+
+[functions.realtime-indicators]
+verify_jwt = false
