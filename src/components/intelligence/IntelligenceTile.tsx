@@ -11,9 +11,9 @@ interface IntelligenceTileProps {
 export const IntelligenceTile = memo(({ data, loading = false }: IntelligenceTileProps) => {
   const getStatusColor = () => {
     switch (data.status) {
-      case 'active': return 'border-neon-lime';
-      case 'warning': return 'border-neon-gold';
-      case 'critical': return 'border-neon-orange';
+      case 'active': return 'border-btc-light';
+      case 'warning': return 'border-btc-glow';
+      case 'critical': return 'border-btc-primary';
       case 'offline': return 'border-text-secondary';
       default: return 'border-glass-border';
     }
@@ -21,20 +21,24 @@ export const IntelligenceTile = memo(({ data, loading = false }: IntelligenceTil
 
   const getStatusIndicator = () => {
     switch (data.status) {
-      case 'active': return <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>;
-      case 'warning': return <div className="w-2 h-2 bg-neon-gold rounded-full animate-pulse"></div>;
-      case 'critical': return <div className="w-2 h-2 bg-neon-orange rounded-full animate-pulse"></div>;
+      case 'active': return <div className="w-2 h-2 bg-btc-light rounded-full animate-pulse"></div>;
+      case 'warning': return <div className="w-2 h-2 bg-btc-glow rounded-full animate-pulse"></div>;
+      case 'critical': return <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>;
       case 'offline': return <div className="w-2 h-2 bg-text-secondary rounded-full"></div>;
     }
   };
 
   const getPrimaryMetricColor = () => {
     switch (data.primaryMetric.color) {
-      case 'teal': return 'text-neon-teal';
-      case 'orange': return 'text-neon-orange';
-      case 'lime': return 'text-neon-lime';
-      case 'gold': return 'text-neon-gold';
-      case 'fuchsia': return 'text-neon-fuchsia';
+      case 'teal': return 'text-btc-muted';
+      case 'orange': return 'text-btc-primary';
+      case 'lime': return 'text-btc-light';
+      case 'gold': return 'text-btc-glow';
+      case 'fuchsia': return 'text-btc-primary';
+      case 'btc': return 'text-btc-primary';
+      case 'btc-light': return 'text-btc-light';
+      case 'btc-glow': return 'text-btc-glow';
+      case 'btc-muted': return 'text-btc-muted';
       default: return 'text-foreground';
     }
   };
@@ -105,9 +109,9 @@ export const IntelligenceTile = memo(({ data, loading = false }: IntelligenceTil
               <span className="text-text-muted text-xs">{metric.label}:</span>
               <span className={cn(
                 "font-mono font-medium",
-                metric.status === 'critical' ? 'text-neon-orange' :
-                metric.status === 'warning' ? 'text-neon-gold' :
-                metric.status === 'good' ? 'text-neon-lime' :
+                metric.status === 'critical' ? 'text-btc-primary' :
+                metric.status === 'warning' ? 'text-btc-glow' :
+                metric.status === 'good' ? 'text-btc-light' :
                 'text-text-primary'
               )}>
                 {metric.value}
@@ -121,9 +125,9 @@ export const IntelligenceTile = memo(({ data, loading = false }: IntelligenceTil
       <div className="flex items-center justify-between mt-auto">
         <Badge variant="outline" className={cn(
           "text-xs font-mono",
-          data.status === 'active' ? 'border-neon-lime text-neon-lime' :
-          data.status === 'warning' ? 'border-neon-gold text-neon-gold' :
-          data.status === 'critical' ? 'border-neon-orange text-neon-orange' :
+          data.status === 'active' ? 'border-btc-light text-btc-light' :
+          data.status === 'warning' ? 'border-btc-glow text-btc-glow' :
+          data.status === 'critical' ? 'border-btc-primary text-btc-primary' :
           'border-text-secondary text-text-secondary'
         )}>
           {data.status.toUpperCase()}

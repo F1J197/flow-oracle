@@ -41,19 +41,19 @@ export const CreditStressMonitor = () => {
 
   const getStressColor = (level: EnhancedCreditData['stressLevel']) => {
     switch (level) {
-      case 'MINIMAL': return 'text-neon-lime';
-      case 'MODERATE': return 'text-neon-teal';
-      case 'ELEVATED': return 'text-neon-gold';
-      case 'EXTREME': return 'text-neon-orange';
+      case 'MINIMAL': return 'text-btc-light';
+      case 'MODERATE': return 'text-btc-glow';
+      case 'ELEVATED': return 'text-btc-muted';
+      case 'EXTREME': return 'text-btc-primary';
     }
   };
 
   const getRegimeIcon = (regime: EnhancedCreditData['regime']) => {
     switch (regime) {
-      case 'QE_SUPPORTIVE': return <TrendingUp className="w-4 h-4 text-neon-lime" />;
-      case 'QT_STRESS': return <TrendingDown className="w-4 h-4 text-neon-orange" />;
-      case 'CRISIS_MODE': return <AlertTriangle className="w-4 h-4 text-neon-fuchsia" />;
-      default: return <Activity className="w-4 h-4 text-neon-teal" />;
+      case 'QE_SUPPORTIVE': return <TrendingUp className="w-4 h-4 text-btc-light" />;
+      case 'QT_STRESS': return <TrendingDown className="w-4 h-4 text-btc-primary" />;
+      case 'CRISIS_MODE': return <AlertTriangle className="w-4 h-4 text-btc-primary" />;
+      default: return <Activity className="w-4 h-4 text-btc-glow" />;
     }
   };
 
@@ -78,7 +78,7 @@ export const CreditStressMonitor = () => {
             {creditData.highYieldSpread.toFixed(0)}
             <span className="text-sm text-text-secondary ml-1">bps</span>
           </div>
-          <div className={`text-sm ${creditData.spreadVelocity > 0 ? 'text-neon-orange' : 'text-neon-lime'}`}>
+          <div className={`text-sm ${creditData.spreadVelocity > 0 ? 'text-btc-primary' : 'text-btc-light'}`}>
             {creditData.spreadVelocity > 0 ? '+' : ''}{creditData.spreadVelocity.toFixed(1)}%
           </div>
         </div>
@@ -123,18 +123,18 @@ export const CreditStressMonitor = () => {
 
       {/* Alerts */}
       {creditData.stressLevel === 'EXTREME' && (
-        <Alert className="border-neon-fuchsia bg-neon-fuchsia/10">
+        <Alert className="border-btc-primary bg-btc-primary/10">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription className="text-neon-fuchsia">
+          <AlertDescription className="text-btc-primary">
             EXTREME credit stress detected. Monitor for contagion effects.
           </AlertDescription>
         </Alert>
       )}
 
       {creditData.liquidityScore < 30 && (
-        <Alert className="border-neon-gold bg-neon-gold/10">
+        <Alert className="border-btc-glow bg-btc-glow/10">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription className="text-neon-gold">
+          <AlertDescription className="text-btc-glow">
             Low liquidity conditions may amplify volatility.
           </AlertDescription>
         </Alert>

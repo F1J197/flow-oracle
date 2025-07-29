@@ -15,8 +15,8 @@ export const PrimaryDealerPositionsV6Tile = ({
 }: PrimaryDealerPositionsV6TileProps) => {
   const getDirectionIcon = (direction: 'up' | 'down' | 'neutral') => {
     switch (direction) {
-      case 'up': return <TrendingUp className="w-4 h-4 text-neon-teal" />;
-      case 'down': return <TrendingDown className="w-4 h-4 text-neon-orange" />;
+      case 'up': return <TrendingUp className="w-4 h-4 text-btc-light" />;
+      case 'down': return <TrendingDown className="w-4 h-4 text-btc-primary" />;
       default: return <Minus className="w-4 h-4 text-text-secondary" />;
     }
   };
@@ -25,11 +25,11 @@ export const PrimaryDealerPositionsV6Tile = ({
     const baseClasses = "w-2 h-2 rounded-full";
     switch (status) {
       case 'critical':
-        return <div className={cn(baseClasses, "bg-neon-fuchsia animate-pulse")} />;
+        return <div className={cn(baseClasses, "bg-btc-primary animate-pulse")} />;
       case 'warning':
-        return <div className={cn(baseClasses, "bg-neon-gold animate-pulse")} />;
+        return <div className={cn(baseClasses, "bg-btc-glow animate-pulse")} />;
       default:
-        return <div className={cn(baseClasses, "bg-neon-teal opacity-60")} />;
+        return <div className={cn(baseClasses, "bg-btc-muted opacity-60")} />;
     }
   };
 
@@ -101,10 +101,10 @@ export const PrimaryDealerPositionsV6Tile = ({
           <span className="text-text-secondary font-mono">APPETITE:</span>
           <span className={cn(
             "ml-2 font-mono font-semibold",
-            tileData.riskAppetite === 'EXPANDING' && "text-neon-teal",
-            tileData.riskAppetite === 'CONTRACTING' && "text-neon-orange",
-            tileData.riskAppetite === 'CRISIS' && "text-neon-fuchsia",
-            tileData.riskAppetite === 'STABLE' && "text-neon-lime"
+            tileData.riskAppetite === 'EXPANDING' && "text-btc-light",
+            tileData.riskAppetite === 'CONTRACTING' && "text-btc-primary",
+            tileData.riskAppetite === 'CRISIS' && "text-btc-primary",
+            tileData.riskAppetite === 'STABLE' && "text-btc-glow"
           )}>
             {tileData.riskAppetite}
           </span>
@@ -113,8 +113,8 @@ export const PrimaryDealerPositionsV6Tile = ({
           <span className="text-text-secondary font-mono">SIGNAL:</span>
           <span className={cn(
             "ml-2 font-mono font-semibold",
-            tileData.signal === 'BULLISH' && "text-neon-teal",
-            tileData.signal === 'BEARISH' && "text-neon-orange",
+            tileData.signal === 'BULLISH' && "text-btc-light",
+            tileData.signal === 'BEARISH' && "text-btc-primary",
             tileData.signal === 'NEUTRAL' && "text-text-secondary"
           )}>
             {tileData.signal}

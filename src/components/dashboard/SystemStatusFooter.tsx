@@ -4,7 +4,7 @@ export const SystemStatusFooter = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>
             <span className="text-sm text-text-secondary">All engines operational</span>
           </div>
           <span className="text-xs text-text-muted">

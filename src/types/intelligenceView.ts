@@ -5,7 +5,7 @@ export interface IntelligenceViewData {
     label: string;
     value: string | number;
     unit?: string;
-    color: 'teal' | 'orange' | 'lime' | 'gold' | 'fuchsia' | 'default';
+    color: 'teal' | 'orange' | 'lime' | 'gold' | 'fuchsia' | 'btc' | 'btc-light' | 'btc-glow' | 'btc-muted' | 'default';
   };
   keyMetrics: Array<{
     label: string;

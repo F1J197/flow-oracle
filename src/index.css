@@ -13,12 +13,12 @@
     --noir-surface: 216 7% 12%;     /* #1a1a1a elevated surfaces */
     --noir-border: 216 7% 20%;      /* #2a2a2a subtle borders */
     
-    /* Neon Accents */
-    --neon-teal: 195 100% 50%;      /* #00BFFF bullish/positive */
-    --neon-orange: 16 100% 50%;     /* #FF4500 bearish/negative */
-    --laser-lime: 120 61% 50%;      /* #32CD32 success */
-    --gold: 51 100% 50%;            /* #FFD700 warning */
-    --fuchsia: 300 100% 50%;        /* #FF00FF critical */
+    /* BTC Orange Theme Colors */
+    --btc-primary: 25 100% 50%;     /* #FF6600 Bitcoin Orange */
+    --btc-light: 30 100% 60%;       /* #FF8533 Lighter orange for accents */
+    --btc-dark: 20 100% 40%;        /* #CC5200 Darker orange for depth */
+    --btc-glow: 25 100% 70%;        /* #FFB366 Bright glow effect */
+    --btc-muted: 25 50% 30%;        /* #995C1A Muted orange for subtlety */
     
     /* Typography */
     --text-primary: 0 0% 92%;       /* #EAEAEA off-white primary */
@@ -36,31 +36,31 @@
     --card-foreground: var(--text-primary);
     --popover: var(--noir-surface);
     --popover-foreground: var(--text-primary);
-    --primary: var(--neon-teal);
+    --primary: var(--btc-primary);
     --primary-foreground: var(--noir-bg);
     --secondary: var(--noir-border);
     --secondary-foreground: var(--text-primary);
     --muted: var(--noir-border);
     --muted-foreground: var(--text-secondary);
-    --accent: var(--neon-teal);
+    --accent: var(--btc-light);
     --accent-foreground: var(--noir-bg);
-    --destructive: var(--neon-orange);
+    --destructive: var(--btc-dark);
     --destructive-foreground: var(--text-primary);
     --border: var(--noir-border);
     --input: var(--noir-border);
-    --ring: var(--neon-teal);
+    --ring: var(--btc-primary);
     --radius: 0.5rem;
     
     /* Custom Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--neon-teal)) 0%, hsl(var(--laser-lime)) 100%);
-    --gradient-danger: linear-gradient(135deg, hsl(var(--neon-orange)) 0%, hsl(var(--fuchsia)) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--btc-primary)) 0%, hsl(var(--btc-light)) 100%);
+    --gradient-danger: linear-gradient(135deg, hsl(var(--btc-dark)) 0%, hsl(var(--btc-primary)) 100%);
     --gradient-glass: linear-gradient(135deg, hsl(var(--glass-bg)) 0%, hsl(var(--noir-surface)) 100%);
     
     /* Shadows & Glows */
     --shadow-glass: 0 4px 6px hsl(var(--noir-bg) / 0.3), 0 1px 3px hsl(var(--noir-bg) / 0.1);
-    --glow-teal: 0 0 20px hsl(var(--neon-teal) / 0.3);
-    --glow-orange: 0 0 20px hsl(var(--neon-orange) / 0.3);
-    --glow-lime: 0 0 20px hsl(var(--laser-lime) / 0.3);
+    --glow-btc: 0 0 20px hsl(var(--btc-primary) / 0.3);
+    --glow-btc-intense: 0 0 30px hsl(var(--btc-glow) / 0.4);
+    --glow-btc-subtle: 0 0 15px hsl(var(--btc-muted) / 0.2);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -89,34 +89,36 @@
   }
   
   .glass-tile:hover {
-    box-shadow: var(--shadow-glass), var(--glow-teal);
+    box-shadow: var(--shadow-glass), var(--glow-btc);
     transition: var(--transition-smooth);
+    border-color: hsl(var(--btc-primary) / 0.3);
   }
   
-  /* Neon Text Effects */
-  .neon-teal {
-    color: hsl(var(--neon-teal));
-    text-shadow: 0 0 10px hsl(var(--neon-teal) / 0.5);
+  /* BTC Orange Text Effects */
+  .btc-primary {
+    color: hsl(var(--btc-primary));
+    text-shadow: 0 0 10px hsl(var(--btc-primary) / 0.5);
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 600;
   }
   
-  .neon-orange {
-    color: hsl(var(--neon-orange));
-    text-shadow: 0 0 10px hsl(var(--neon-orange) / 0.5);
+  .btc-light {
+    color: hsl(var(--btc-light));
+    text-shadow: 0 0 8px hsl(var(--btc-light) / 0.4);
   }
   
-  .neon-lime {
-    color: hsl(var(--laser-lime));
-    text-shadow: 0 0 10px hsl(var(--laser-lime) / 0.5);
+  .btc-glow {
+    color: hsl(var(--btc-glow));
+    text-shadow: 0 0 15px hsl(var(--btc-glow) / 0.7);
   }
   
-  .neon-gold {
-    color: hsl(var(--gold));
-    text-shadow: 0 0 10px hsl(var(--gold) / 0.5);
+  .btc-muted {
+    color: hsl(var(--btc-muted));
+    text-shadow: 0 0 5px hsl(var(--btc-muted) / 0.3);
   }
   
-  .neon-fuchsia {
-    color: hsl(var(--fuchsia));
-    text-shadow: 0 0 10px hsl(var(--fuchsia) / 0.5);
+  .btc-pulse {
+    animation: btc-pulse 2s infinite ease-in-out;
   }
   
   /* Gentle Critical Alert Pulse */
@@ -168,11 +170,20 @@
 @keyframes gentle-pulse {
   0%, 100% {
     box-shadow: var(--shadow-glass);
-    border-color: hsl(var(--fuchsia) / 0.3);
+    border-color: hsl(var(--btc-primary) / 0.3);
   }
   50% {
-    box-shadow: var(--shadow-glass), 0 0 20px hsl(var(--fuchsia) / 0.2);
-    border-color: hsl(var(--fuchsia) / 0.6);
+    box-shadow: var(--shadow-glass), 0 0 20px hsl(var(--btc-primary) / 0.2);
+    border-color: hsl(var(--btc-primary) / 0.6);
+  }
+}
+
+@keyframes btc-pulse {
+  0%, 100% {
+    text-shadow: 0 0 10px hsl(var(--btc-primary) / 0.5);
+  }
+  50% {
+    text-shadow: 0 0 20px hsl(var(--btc-glow) / 0.8);
   }
 }
 

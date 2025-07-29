@@ -5,7 +5,7 @@ interface DataDisplayProps {
   label?: string;
   trend?: 'up' | 'down' | 'neutral';
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  color?: 'teal' | 'orange' | 'lime' | 'gold' | 'fuchsia' | 'default';
+  color?: 'teal' | 'orange' | 'lime' | 'gold' | 'fuchsia' | 'btc' | 'btc-light' | 'btc-glow' | 'btc-muted' | 'default';
   suffix?: string;
   loading?: boolean;
 }
@@ -37,9 +37,9 @@ export const DataDisplay = ({
   const getTrendIcon = () => {
     switch (trend) {
       case 'up':
-        return <span className="text-neon-lime">↗</span>;
+        return <span className="btc-light">↗</span>;
       case 'down':
-        return <span className="text-neon-orange">↘</span>;
+        return <span className="btc-muted">↘</span>;
       default:
         return null;
     }
@@ -57,6 +57,14 @@ export const DataDisplay = ({
         return 'neon-gold';
       case 'fuchsia':
         return 'neon-fuchsia';
+      case 'btc':
+        return 'btc-primary';
+      case 'btc-light':
+        return 'btc-light';
+      case 'btc-glow':
+        return 'btc-glow';
+      case 'btc-muted':
+        return 'btc-muted';
       default:
         return 'text-foreground';
     }

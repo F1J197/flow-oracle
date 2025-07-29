@@ -15,11 +15,10 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground border-border",
-        teal: "border-transparent bg-neon-teal/20 text-neon-teal border-neon-teal",
-        orange: "border-transparent bg-neon-orange/20 text-neon-orange border-neon-orange",
-        lime: "border-transparent bg-neon-lime/20 text-neon-lime border-neon-lime",
-        gold: "border-transparent bg-neon-gold/20 text-neon-gold border-neon-gold",
-        fuchsia: "border-transparent bg-neon-fuchsia/20 text-neon-fuchsia border-neon-fuchsia",
+        btc: "border-transparent bg-btc-primary/20 text-btc-primary border-btc-primary",
+        "btc-light": "border-transparent bg-btc-light/20 text-btc-light border-btc-light",
+        "btc-glow": "border-transparent bg-btc-glow/20 text-btc-glow border-btc-glow",
+        "btc-muted": "border-transparent bg-btc-muted/20 text-btc-muted border-btc-muted",
       },
     },
     defaultVariants: {

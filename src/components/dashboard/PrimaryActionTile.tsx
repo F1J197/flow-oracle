@@ -20,7 +20,7 @@ export const PrimaryActionTile = memo(({ loading = false }: PrimaryActionTilePro
       <StableDataDisplay
         value="HOLD POSITIONS"
         size="lg"
-        color="lime"
+        color="btc"
         loading={false} // Always false - static tile
         stabilityConfig={{
           changeThreshold: 1.0, // Never change
@@ -29,7 +29,7 @@ export const PrimaryActionTile = memo(({ loading = false }: PrimaryActionTilePro
         }}
       />
       <div className="flex items-center space-x-2 mt-3">
-        <div className="w-2 h-2 bg-neon-lime rounded-full opacity-60" style={{ animation: 'pulse 4s ease-in-out infinite' }}></div>
+        <div className="w-2 h-2 bg-btc-primary rounded-full opacity-60" style={{ animation: 'pulse 4s ease-in-out infinite' }}></div>
         <span className="text-xs text-text-secondary">
           Confidence: {Math.round(stableConfidence)}%
         </span>

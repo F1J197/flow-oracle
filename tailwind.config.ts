@@ -52,18 +52,18 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Noir & Neon Custom Colors
+				// Noir & BTC Orange Custom Colors
 				noir: {
 					bg: 'hsl(var(--noir-bg))',
 					surface: 'hsl(var(--noir-surface))',
 					border: 'hsl(var(--noir-border))'
 				},
-				neon: {
-					teal: 'hsl(var(--neon-teal))',
-					orange: 'hsl(var(--neon-orange))',
-					lime: 'hsl(var(--laser-lime))',
-					gold: 'hsl(var(--gold))',
-					fuchsia: 'hsl(var(--fuchsia))'
+				btc: {
+					primary: 'hsl(var(--btc-primary))',
+					light: 'hsl(var(--btc-light))',
+					dark: 'hsl(var(--btc-dark))',
+					glow: 'hsl(var(--btc-glow))',
+					muted: 'hsl(var(--btc-muted))'
 				},
 				text: {
 					primary: 'hsl(var(--text-primary))',
@@ -98,7 +98,7 @@ export default {
 						boxShadow: 'var(--shadow-glass)'
 					},
 					'50%': {
-						boxShadow: 'var(--shadow-glass), 0 0 30px hsl(var(--fuchsia) / 0.4)'
+						boxShadow: 'var(--shadow-glass), 0 0 30px hsl(var(--btc-primary) / 0.4)'
 					}
 				},
 				'shimmer': {

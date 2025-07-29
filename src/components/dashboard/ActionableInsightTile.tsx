@@ -40,10 +40,10 @@ export const ActionableInsightTile = memo(({
 
   const getConfidenceColor = (confidence: string) => {
     switch (confidence) {
-      case 'HIGH': return 'text-neon-lime';
-      case 'MED': return 'text-neon-teal';
-      case 'LOW': return 'text-neon-gold';
-      default: return 'text-neon-gold';
+      case 'HIGH': return 'text-btc-light';
+      case 'MED': return 'text-btc-glow';
+      case 'LOW': return 'text-btc-muted';
+      default: return 'text-btc-muted';
     }
   };
 

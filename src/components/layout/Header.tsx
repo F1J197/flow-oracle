@@ -18,17 +18,17 @@ export const Header = () => {
         <div className="flex items-center space-x-6 text-sm">
           <div className="flex items-center space-x-2">
             <span className="text-text-secondary">Net Liquidity:</span>
-            <span className="text-metric neon-teal">$5.626T</span>
+            <span className="text-metric btc-primary">$5.626T</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-text-secondary">Regime:</span>
-            <Badge variant="outline" className="border-neon-orange text-neon-orange">
+            <Badge variant="outline" className="border-btc-light text-btc-light">
               TRANSITION
             </Badge>
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-text-secondary">Primary Action:</span>
-            <Badge variant="outline" className="border-neon-lime text-neon-lime">
+            <Badge variant="outline" className="border-btc-glow text-btc-glow">
               HOLD POSITIONS
             </Badge>
           </div>
@@ -36,7 +36,7 @@ export const Header = () => {
 
         {/* System Status */}
         <div className="flex items-center space-x-3">
-          <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>
           <span className="text-xs text-text-secondary">LIVE</span>
         </div>
       </div>

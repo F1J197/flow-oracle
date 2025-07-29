@@ -22,8 +22,8 @@ export const GlassTile = ({
         "glass-tile p-6 relative overflow-hidden",
         size === 'large' && "col-span-2",
         size === 'xl' && "col-span-2 row-span-2",
-        status === 'critical' && "critical-pulse border-neon-fuchsia",
-        status === 'warning' && "border-neon-gold",
+        status === 'critical' && "critical-pulse border-btc-primary",
+        status === 'warning' && "border-btc-light",
         className
       )}
     >
@@ -33,10 +33,10 @@ export const GlassTile = ({
           {title}
         </h3>
         {status === 'critical' && (
-          <div className="w-2 h-2 bg-neon-fuchsia rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>
         )}
         {status === 'warning' && (
-          <div className="w-2 h-2 bg-neon-gold rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-btc-light rounded-full animate-pulse"></div>
         )}
       </div>
 
@@ -45,8 +45,8 @@ export const GlassTile = ({
         {children}
       </div>
 
-      {/* Subtle glow effect on hover - gentler transition */}
-      <div className="absolute inset-0 opacity-0 hover:opacity-3 transition-opacity duration-500 bg-gradient-to-br from-neon-teal to-neon-lime pointer-events-none"></div>
+      {/* Subtle BTC glow effect on hover */}
+      <div className="absolute inset-0 opacity-0 hover:opacity-5 transition-opacity duration-500 bg-gradient-to-br from-btc-primary to-btc-glow pointer-events-none"></div>
     </div>
   );
 };
