@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { IntelligenceEngine } from "@/pages/IntelligenceEngine";
+import IntelligenceEngine from "@/pages/IntelligenceEngine";
 import { PremiumLayout } from "@/components/layout/PremiumLayout";
 
 const LoadingFallback = () => (

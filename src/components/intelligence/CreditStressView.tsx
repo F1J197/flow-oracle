@@ -145,7 +145,7 @@ export const CreditStressView = ({ loading, className }: CreditStressViewProps) 
               key={index}
               label={alert.severity.toUpperCase()}
               value={alert.message}
-              status={alert.severity === 'critical' ? 'negative' : 'negative'}
+              status="negative"
             />
           ))}
         </DataSection>

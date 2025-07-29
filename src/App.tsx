@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { UnifiedDataDemo } from "./pages/UnifiedDataDemo";
-import { IntelligenceEngine } from "./pages/IntelligenceEngine";
+import IntelligenceEngine from "./pages/IntelligenceEngine";
 import { SystemDashboard } from "./pages/SystemDashboard";
 import { EngineRegistryProvider } from "./components/engines/EngineRegistryProvider";
 

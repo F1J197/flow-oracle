@@ -59,9 +59,11 @@ function IntelligenceEngine() {
             systemHealth={systemHealth}
             activeEngines={activeEngineCount}
             totalEngines={7}
+            dataIntegrity={98.7}
+            refreshRate={30}
+            lastRefresh={new Date()}
+            error={errors.join(', ') || undefined}
             onRefresh={refreshAll}
-            loading={loading}
-            error={errors.join(', ')}
           />
         </div>
 
