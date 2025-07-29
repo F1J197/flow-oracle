@@ -1,6 +1,4 @@
 import { useMemo } from "react";
-import { PremiumLayout } from "@/components/layout/PremiumLayout";
-import { PremiumGrid } from "@/components/premium/PremiumGrid";
 import { IntelligenceHeaderTile } from "@/components/intelligence/IntelligenceHeaderTile";
 import { DevelopmentEngineCard } from "@/components/intelligence/DevelopmentEngineCard";
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
@@ -24,6 +22,9 @@ import {
   PrimaryDealerView,
   CUSIPStealthQEView
 } from "@/components/intelligence";
+
+// Import intelligence styles
+import "@/styles/intelligence.css";
 
 
 function IntelligenceEngine() {
@@ -61,13 +62,10 @@ function IntelligenceEngine() {
   };
 
   return (
-    <PremiumLayout 
-      variant="intelligence"
-      className="min-h-screen bg-bg-primary"
-    >
-      <PremiumGrid density="comfortable" maxWidth="2xl">
+    <div className="min-h-screen bg-bg-primary">
+      <div className="intelligence-container">
         {/* System Header */}
-        <div className="col-span-full mb-6">
+        <div className="intelligence-header">
           <IntelligenceHeaderTile
             systemHealth={systemHealth}
             activeEngines={activeEngineCount}
@@ -81,7 +79,7 @@ function IntelligenceEngine() {
         </div>
 
         {/* Active Engine Views */}
-        <div className="col-span-full grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="intelligence-grid">
           <ErrorBoundary>
             {renderEngineView('netLiquidity', 'Net Liquidity Engine')}
           </ErrorBoundary>
@@ -108,11 +106,11 @@ function IntelligenceEngine() {
         </div>
 
         {/* Development Engine Cards */}
-        <div className="col-span-full mt-12">
-          <h2 className="text-xl font-bold text-btc-primary mb-6 font-mono">
+        <div className="development-section">
+          <h2 className="development-title">
             DEVELOPMENT PIPELINE
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="development-grid">
             <DevelopmentEngineCard
               title="Regime Detection Engine"
               status="design"
@@ -138,8 +136,8 @@ function IntelligenceEngine() {
             />
           </div>
         </div>
-      </PremiumGrid>
-    </PremiumLayout>
+      </div>
+    </div>
   );
 }
 

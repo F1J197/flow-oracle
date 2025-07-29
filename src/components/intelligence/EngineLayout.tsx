@@ -36,17 +36,24 @@ export const EngineLayout = ({ title, status, children, className }: EngineLayou
 
   return (
     <div className={cn(
-      "glass-tile font-mono intelligence-grid",
-      "border border-glass-border bg-glass-tile backdrop-blur-md",
-      "hover:border-btc-primary/30 transition-all duration-300",
+      "engine-tile font-mono",
+      "p-6 rounded-lg",
+      "bg-glass-tile backdrop-blur-md",
+      "border border-glass-border",
+      "hover:border-btc-primary/30 hover:shadow-btc-glow",
+      "transition-all duration-300 ease-out",
+      "min-h-[400px] flex flex-col",
       className
     )}>
       {/* Engine Header */}
-      <div className="mb-6 pb-4 border-b border-glass-border/50">
+      <div className="mb-6 pb-4 border-b border-glass-border/50 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">
           <h2 className={cn(
             "text-lg font-bold uppercase tracking-wider",
-            `text-${getStatusColor(status)}`
+            status === 'active' && "text-btc-primary",
+            status === 'warning' && "text-btc-light", 
+            status === 'critical' && "text-negative",
+            status === 'offline' && "text-text-muted"
           )}>
             {title}
           </h2>
@@ -54,7 +61,10 @@ export const EngineLayout = ({ title, status, children, className }: EngineLayou
             {getStatusDot(status)}
             <span className={cn(
               "text-xs font-medium uppercase tracking-wide",
-              `text-${getStatusColor(status)}`
+              status === 'active' && "text-btc-primary",
+              status === 'warning' && "text-btc-light",
+              status === 'critical' && "text-negative", 
+              status === 'offline' && "text-text-muted"
             )}>
               {status}
             </span>
@@ -72,7 +82,7 @@ export const EngineLayout = ({ title, status, children, className }: EngineLayou
       </div>
 
       {/* Engine Content */}
-      <div className="space-y-6">
+      <div className="space-y-6 flex-grow overflow-hidden">
         {children}
       </div>
     </div>

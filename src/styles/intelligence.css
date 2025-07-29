@@ -1,9 +1,48 @@
-/* Intelligence Engine Premium Styles */
+/* Intelligence Engine Layout System */
 
-/* Monospace Grid Layout */
-.intelligence-grid {
+/* Main Container */
+.intelligence-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
   font-family: 'Roboto Mono', 'Courier New', monospace;
   font-variant-numeric: tabular-nums;
+}
+
+/* Header Section */
+.intelligence-header {
+  margin-bottom: 2rem;
+}
+
+/* Main Engine Grid */
+.intelligence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* Development Section */
+.development-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid hsl(var(--glass-border) / 0.3);
+}
+
+.development-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(var(--btc-primary));
+  margin-bottom: 1.5rem;
+  font-family: 'Roboto Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.development-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
 }
 
 /* Enhanced ASCII-Style Borders */
@@ -143,6 +182,32 @@
   margin-left: 1rem;
 }
 
+/* Engine Tile Enhancement */
+.engine-tile {
+  position: relative;
+  overflow: hidden;
+}
+
+.engine-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--btc-primary) / 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.engine-tile:hover::before {
+  left: 100%;
+}
+
 /* Key Metrics Grid */
 .key-metrics-grid {
   display: grid;
@@ -244,8 +309,27 @@
   100% { background-position: -200% 0; }
 }
 
-/* Terminal-Style Responsive Breakpoints */
+/* Enhanced Responsive Design */
+@media (max-width: 1200px) {
+  .intelligence-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
+  .intelligence-container {
+    padding: 1rem;
+  }
+  
+  .intelligence-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .development-grid {
+    grid-template-columns: 1fr;
+  }
+  
   .data-columns {
     grid-template-columns: 1fr auto;
     gap: 0.5rem;
