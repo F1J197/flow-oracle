@@ -1,10 +1,8 @@
-import { useMemo } from "react";
-import { EngineLayout } from "./EngineLayout";
-import { KeyMetrics } from "./KeyMetrics";
-import { DataSection } from "./DataSection";
-import { DataRow } from "./DataRow";
-import { DataTable } from "./DataTable";
 import { useStableData } from "@/hooks/useStableData";
+import { TerminalLayout } from "./TerminalLayout";
+import { TerminalDataSection } from "./TerminalDataSection";
+import { TerminalDataRow } from "./TerminalDataRow";
+import { TerminalMetricGrid } from "./TerminalMetricGrid";
 
 interface ZScoreViewProps {
   loading?: boolean;
@@ -12,142 +10,75 @@ interface ZScoreViewProps {
 }
 
 export const ZScoreView = ({ loading, className }: ZScoreViewProps) => {
-  // Mock data for Z-Score analysis
   const mockData = useStableData({
-    compositeZScore: 1.85,
-    momentum: 2.1,
-    volatility: -0.8,
-    volume: 1.2,
-    breadth: 0.9,
-    regime: 'EXPANSION',
-    confidence: 0.87,
-    lastUpdate: new Date()
-  });
-
-  const keyMetrics = useMemo(() => [
-    {
-      label: "Composite Z-Score",
-      value: mockData.value.compositeZScore,
-      format: "number" as const,
-      decimals: 2,
-      status: mockData.value.compositeZScore > 1.5 ? 'positive' as const : mockData.value.compositeZScore < -1.5 ? 'critical' as const : 'neutral' as const
+    compositeZScore: -1.85,
+    marketRegime: "Bearish",
+    confidence: 87,
+    distribution: {
+      extreme: 12,
+      high: 23,
+      normal: 45,
+      low: 15,
+      critical: 5
     },
-    {
-      label: "Signal Strength",
-      value: Math.abs(mockData.value.compositeZScore) * 50,
-      format: "percentage" as const,
-      decimals: 1,
-      status: 'positive' as const
-    },
-    {
-      label: "Regime Confidence",
-      value: mockData.value.confidence * 100,
-      format: "percentage" as const,
-      decimals: 1,
-      status: mockData.value.confidence > 0.8 ? 'positive' as const : 'neutral' as const
-    },
-    {
-      label: "Current Regime",
-      value: mockData.value.regime,
-      status: mockData.value.regime === 'EXPANSION' ? 'positive' as const : 'neutral' as const
+    indicators: {
+      momentum: -2.1,
+      liquidity: -1.6,
+      credit: -1.9,
+      volatility: 2.3
     }
-  ], [mockData]);
-
-  // Table data for factor breakdown
-  const tableData = [
-    { factor: 'Momentum', zscore: mockData.value.momentum, percentile: '91st', signal: 'STRONG BUY' },
-    { factor: 'Volatility', zscore: mockData.value.volatility, percentile: '22nd', signal: 'NEUTRAL' },
-    { factor: 'Volume', zscore: mockData.value.volume, percentile: '78th', signal: 'BUY' },
-    { factor: 'Breadth', zscore: mockData.value.breadth, percentile: '68th', signal: 'MILD BUY' },
-  ];
-
-  const tableColumns = [
-    { key: 'factor', label: 'FACTOR', align: 'left' as const },
-    { key: 'zscore', label: 'Z-SCORE', align: 'right' as const },
-    { key: 'percentile', label: 'PERCENTILE', align: 'right' as const },
-    { key: 'signal', label: 'SIGNAL', align: 'right' as const },
-  ];
+  });
 
   if (loading) {
     return (
-      <div className="glass-tile p-6 animate-pulse">
-        <div className="h-6 bg-glass-bg rounded mb-4"></div>
-        <div className="space-y-3">
-          <div className="h-4 bg-glass-bg rounded w-3/4"></div>
-          <div className="h-4 bg-glass-bg rounded w-1/2"></div>
-          <div className="h-4 bg-glass-bg rounded w-2/3"></div>
+      <div className={className}>
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-glass-bg rounded"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-glass-bg rounded w-3/4"></div>
+            <div className="h-4 bg-glass-bg rounded w-1/2"></div>
+            <div className="h-4 bg-glass-bg rounded w-2/3"></div>
+          </div>
         </div>
       </div>
     );
   }
 
+  const keyMetrics = [
+    { label: "Z-Score", value: mockData.value.compositeZScore.toFixed(2), status: "critical" as const },
+    { label: "Regime", value: mockData.value.marketRegime, status: "warning" as const },
+    { label: "Conf", value: `${mockData.value.confidence}%`, status: "positive" as const },
+    { label: "Extreme", value: mockData.value.distribution.extreme, status: "warning" as const }
+  ];
+
   return (
-    <EngineLayout
-      title="Z-SCORE ENGINE"
-      status="active"
+    <TerminalLayout
+      title="Z-SCORE"
+      status="warning"
       className={className}
     >
-      <div className="space-y-6">
-        {/* Key Metrics */}
-        <KeyMetrics metrics={keyMetrics} columns={2} />
+      <TerminalMetricGrid metrics={keyMetrics} columns={2} />
+      
+      <TerminalDataSection title="INDICATORS">
+        <TerminalDataRow label="Momentum" value={mockData.value.indicators.momentum.toFixed(2)} status="critical" />
+        <TerminalDataRow label="Liquidity" value={mockData.value.indicators.liquidity.toFixed(2)} status="critical" />
+        <TerminalDataRow label="Credit" value={mockData.value.indicators.credit.toFixed(2)} status="critical" />
+        <TerminalDataRow label="Volatility" value={mockData.value.indicators.volatility.toFixed(2)} status="warning" />
+      </TerminalDataSection>
 
-        {/* Factor Analysis */}
-        <DataSection title="FACTOR ANALYSIS">
-          <DataRow 
-            label="Momentum Component" 
-            value={mockData.value.momentum} 
-            unit="σ"
-            status={mockData.value.momentum > 0 ? 'positive' : 'negative'}
-          />
-          <DataRow 
-            label="Volatility Regime" 
-            value={mockData.value.volatility} 
-            unit="σ"
-            status={mockData.value.volatility > 0 ? 'negative' : 'positive'}
-          />
-          <DataRow 
-            label="Volume Confirmation" 
-            value={mockData.value.volume} 
-            unit="σ"
-            status={mockData.value.volume > 0 ? 'positive' : 'negative'}
-          />
-          <DataRow 
-            label="Market Breadth" 
-            value={mockData.value.breadth} 
-            unit="σ"
-            status={mockData.value.breadth > 0 ? 'positive' : 'negative'}
-          />
-        </DataSection>
+      <TerminalDataSection title="DISTRIBUTION">
+        <TerminalDataRow label="Critical (<-2σ)" value={mockData.value.distribution.critical} />
+        <TerminalDataRow label="Low (-1-2σ)" value={mockData.value.distribution.low} />
+        <TerminalDataRow label="Normal (<1σ)" value={mockData.value.distribution.normal} />
+        <TerminalDataRow label="High (1-2σ)" value={mockData.value.distribution.high} />
+        <TerminalDataRow label="Extreme (>2σ)" value={mockData.value.distribution.extreme} />
+      </TerminalDataSection>
 
-        {/* Z-Score Breakdown */}
-        <DataSection title="Z-SCORE BREAKDOWN">
-          <DataTable 
-            columns={tableColumns}
-            data={tableData}
-          />
-        </DataSection>
-
-        {/* Regime Analysis */}
-        <DataSection title="REGIME ANALYSIS">
-          <DataRow 
-            label="Current Regime" 
-            value={mockData.value.regime}
-            status={mockData.value.regime === 'EXPANSION' ? 'positive' : 'neutral'}
-          />
-          <DataRow 
-            label="Regime Stability" 
-            value={mockData.value.confidence * 100} 
-            unit="%"
-            status={mockData.value.confidence > 0.8 ? 'positive' : 'neutral'}
-          />
-          <DataRow 
-            label="Days in Regime" 
-            value={23}
-            unit="days"
-            status="neutral"
-          />
-        </DataSection>
-      </div>
-    </EngineLayout>
+      <TerminalDataSection title="ANALYSIS">
+        <TerminalDataRow label="Regime Risk" value="HIGH" status="critical" />
+        <TerminalDataRow label="Divergence" value="MODERATE" status="warning" />
+        <TerminalDataRow label="Stability" value="LOW" status="critical" />
+      </TerminalDataSection>
+    </TerminalLayout>
   );
 };

@@ -1,11 +1,8 @@
-import { useMemo } from "react";
-import { EngineLayout } from "./EngineLayout";
-import { DataSection } from "./DataSection";
-import { DataRow } from "./DataRow";
-import { DataTable } from "./DataTable";
-import { KeyMetrics } from "./KeyMetrics";
 import { useStableData } from "@/hooks/useStableData";
-import { formatCurrency, formatPercentage } from "@/utils/formatting";
+import { TerminalLayout } from "./TerminalLayout";
+import { TerminalDataSection } from "./TerminalDataSection";
+import { TerminalDataRow } from "./TerminalDataRow";
+import { TerminalMetricGrid } from "./TerminalMetricGrid";
 
 interface NetLiquidityViewProps {
   loading?: boolean;
@@ -13,117 +10,71 @@ interface NetLiquidityViewProps {
 }
 
 export const NetLiquidityView = ({ loading, className }: NetLiquidityViewProps) => {
-  // Mock data - replace with actual data service
   const mockData = useStableData({
-    netLiquidity: 5.626e12, // $5.626T
-    monthlyChange: 2.3,
-    weeklyChange: 0.8,
-    dailyChange: -0.2,
-    regime: "EXPANSION",
-    confidence: 0.87,
-    components: {
-      fedBalance: 7.2e12,
-      rrpBalance: -1.4e12,
-      treasuryBalance: -0.18e12
-    },
-    historicalPercentiles: {
-      percentile90: 0.72,
-      percentile50: 0.45,
-      current: 0.68
+    netLiquidity: 5.626,
+    change24h: 2.3,
+    fedAssets: 7.235,
+    rrpFacility: -1.609,
+    bankLiquidity: 3.412,
+    monetaryBase: 5.891,
+    confidence: 94,
+    regime: "Expansion",
+    pillars: {
+      fed: { value: 7.235, status: "positive" as const },
+      treasury: { value: -1.609, status: "negative" as const },
+      credit: { value: 3.412, status: "positive" as const }
     }
   });
 
-  const keyMetrics = useMemo(() => [
-    {
-      label: "Net Liquidity",
-      value: mockData.value.netLiquidity,
-      format: 'currency' as const,
-      status: 'positive' as const,
-      compact: true,
-      decimals: 2
-    },
-    {
-      label: "Monthly Change",
-      value: mockData.value.monthlyChange,
-      format: 'percentage' as const,
-      status: mockData.value.monthlyChange > 0 ? 'positive' as const : 'negative' as const
-    },
-    {
-      label: "Regime",
-      value: mockData.value.regime,
-      format: 'custom' as const,
-      status: 'positive' as const
-    },
-    {
-      label: "Confidence",
-      value: mockData.value.confidence * 100,
-      format: 'percentage' as const,
-      status: 'neutral' as const,
-      decimals: 1
-    }
-  ], [mockData.value]);
-
-  const tableData = [
-    { component: "Fed Balance Sheet", value: formatCurrency(mockData.value.components.fedBalance, { compact: true }), change: "+2.1%" },
-    { component: "RRP Balance", value: formatCurrency(mockData.value.components.rrpBalance, { compact: true }), change: "-0.8%" },
-    { component: "Treasury Balance", value: formatCurrency(mockData.value.components.treasuryBalance, { compact: true }), change: "+1.2%" }
-  ];
-
-  const tableColumns = [
-    { key: 'component', label: 'Component', align: 'left' as const },
-    { key: 'value', label: 'Current Value', align: 'right' as const },
-    { key: 'change', label: '7D Change', align: 'right' as const }
-  ];
-
   if (loading) {
     return (
-      <EngineLayout title="NET LIQUIDITY ENGINE" status="offline" className={className}>
+      <div className={className}>
         <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-glass-bg rounded"></div>
-          <div className="h-4 bg-glass-bg rounded w-3/4"></div>
-          <div className="h-4 bg-glass-bg rounded w-1/2"></div>
+          <div className="h-6 bg-glass-bg rounded"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-glass-bg rounded w-3/4"></div>
+            <div className="h-4 bg-glass-bg rounded w-1/2"></div>
+            <div className="h-4 bg-glass-bg rounded w-2/3"></div>
+          </div>
         </div>
-      </EngineLayout>
+      </div>
     );
   }
 
+  const keyMetrics = [
+    { label: "Net Liq", value: `$${mockData.value.netLiquidity}T`, status: "positive" as const },
+    { label: "24h Δ", value: `${mockData.value.change24h > 0 ? '+' : ''}${mockData.value.change24h}%`, status: mockData.value.change24h > 0 ? "positive" as const : "negative" as const },
+    { label: "Regime", value: mockData.value.regime, status: "neutral" as const },
+    { label: "Conf", value: `${mockData.value.confidence}%`, status: "positive" as const }
+  ];
+
   return (
-    <EngineLayout title="NET LIQUIDITY ENGINE" status="active" className={className}>
-      <KeyMetrics metrics={keyMetrics} columns={4} />
+    <TerminalLayout
+      title="NET LIQUIDITY"
+      status="active"
+      className={className}
+    >
+      <TerminalMetricGrid metrics={keyMetrics} columns={2} />
       
-      <DataSection title="CURRENT LEVELS">
-        <DataRow 
-          label="Daily Change" 
-          value={mockData.value.dailyChange}
-          unit="%" 
-          status={mockData.value.dailyChange > 0 ? 'positive' : 'negative'}
-        />
-        <DataRow 
-          label="Weekly Change" 
-          value={mockData.value.weeklyChange}
-          unit="%" 
-          status={mockData.value.weeklyChange > 0 ? 'positive' : 'negative'}
-        />
-        <DataRow 
-          label="Historical Percentile" 
-          value={mockData.value.historicalPercentiles.current * 100}
-          unit="%" 
-          status="neutral"
-        />
-      </DataSection>
+      <TerminalDataSection title="COMPOSITION">
+        <TerminalDataRow label="Fed Assets" value={`$${mockData.value.fedAssets}T`} status="positive" />
+        <TerminalDataRow label="RRP Facility" value={`$${mockData.value.rrpFacility}T`} status="negative" />
+        <TerminalDataRow label="Bank Liq" value={`$${mockData.value.bankLiquidity}T`} status="positive" />
+        <TerminalDataRow label="Mon Base" value={`$${mockData.value.monetaryBase}T`} status="positive" />
+      </TerminalDataSection>
 
-      <DataSection title="COMPONENT BREAKDOWN">
-        <DataTable 
-          columns={tableColumns}
-          data={tableData}
-        />
-      </DataSection>
+      <TerminalDataSection title="PILLARS">
+        <TerminalDataRow label="Fed" value={`$${mockData.value.pillars.fed.value}T`} status={mockData.value.pillars.fed.status} />
+        <TerminalDataRow label="Treasury" value={`$${mockData.value.pillars.treasury.value}T`} status={mockData.value.pillars.treasury.status} />
+        <TerminalDataRow label="Credit" value={`$${mockData.value.pillars.credit.value}T`} status={mockData.value.pillars.credit.status} />
+      </TerminalDataSection>
 
-      <DataSection title="REGIME ANALYSIS">
-        <DataRow label="Current Regime" value={mockData.value.regime} status="positive" />
-        <DataRow label="Regime Confidence" value={`${(mockData.value.confidence * 100).toFixed(1)}%`} status="neutral" />
-        <DataRow label="Signal Strength" value="STRONG" status="positive" />
-      </DataSection>
-    </EngineLayout>
+      <TerminalDataSection title="FLOWS (24H)">
+        <TerminalDataRow label="Fed BS" value="+2.1%" status="positive" />
+        <TerminalDataRow label="RRP" value="-5.3%" status="negative" />
+        <TerminalDataRow label="Bank Liq" value="+1.8%" status="positive" />
+        <TerminalDataRow label="Mon Base" value="+0.9%" status="positive" />
+      </TerminalDataSection>
+    </TerminalLayout>
   );
 };
