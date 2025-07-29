@@ -1,12 +1,14 @@
-import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
+import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight, IntelligenceViewData, DetailedModalData } from "@/types/engines";
 import { UnifiedDataService } from "@/services/UnifiedDataService";
 import { ResilientBaseEngine } from "./ResilientBaseEngine";
+import { createDefaultIntelligenceView, createDefaultDetailedModal } from "./EngineHelpers";
 
 export class NetLiquidityEngine extends ResilientBaseEngine {
   id = 'net-liquidity';
   name = 'Net Liquidity Engine V6';
   priority = 1;
   pillar = 1 as const;
+  category = 'foundation' as const;
 
   constructor() {
     super({
@@ -242,5 +244,19 @@ export class NetLiquidityEngine extends ResilientBaseEngine {
         }
       ]
     };
+  }
+
+  getIntelligenceView(): IntelligenceViewData {
+    const dashboardData = this.getDashboardData();
+    return createDefaultIntelligenceView(this.name, dashboardData);
+  }
+
+  getDetailedModal(): DetailedModalData {
+    const dashboardData = this.getDashboardData();
+    return createDefaultDetailedModal(
+      this.name,
+      'Tracks global USD liquidity conditions',
+      dashboardData
+    );
   }
 }

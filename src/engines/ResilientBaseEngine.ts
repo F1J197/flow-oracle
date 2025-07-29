@@ -1,4 +1,4 @@
-import { IEngine, EngineReport, ActionableInsight, DashboardTileData, DetailedEngineView } from '@/types/engines';
+import { IEngine, EngineReport, ActionableInsight, DashboardTileData, DetailedEngineView, IntelligenceViewData, DetailedModalData } from '@/types/engines';
 
 export interface ResilientEngineConfig {
   refreshInterval: number;
@@ -26,6 +26,7 @@ export abstract class ResilientBaseEngine implements IEngine {
   abstract readonly name: string;
   abstract readonly priority: number;
   abstract readonly pillar: 1 | 2 | 3;
+  abstract readonly category: 'foundation' | 'core' | 'synthesis' | 'execution';
 
   protected config: ResilientEngineConfig;
   protected state: EngineState;
@@ -209,6 +210,14 @@ export abstract class ResilientBaseEngine implements IEngine {
   abstract getSingleActionableInsight(): ActionableInsight;
   abstract getDashboardData(): DashboardTileData;
   abstract getDetailedView(): DetailedEngineView;
+  
+  // Default implementations that can be overridden
+  getDashboardTile(): DashboardTileData {
+    return this.getDashboardData();
+  }
+  
+  abstract getIntelligenceView(): IntelligenceViewData;
+  abstract getDetailedModal(): DetailedModalData;
 
   // Public status methods
   getState(): EngineState {
