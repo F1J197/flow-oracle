@@ -64,7 +64,7 @@ export const useDashboardData = (engines: EngineManager) => {
       },
       primaryDealerPositions: {
         ...engines.primaryDealerPositions.getDashboardData(),
-        loading: getEngineStatus('primary-dealer-positions')?.status === 'loading'
+        loading: getEngineStatus('primary-dealer-positions-v6')?.status === 'loading'
       },
       cusipStealthQE: {
         ...engines.cusipStealthQE.getDashboardData(),
@@ -79,7 +79,7 @@ export const useDashboardData = (engines: EngineManager) => {
       'credit-stress': 'creditStressV6',
       'enhanced-zscore': 'enhancedZScore',
       'enhanced-momentum': 'enhancedMomentum',
-      'primary-dealer-positions': 'primaryDealerPositions',
+      'primary-dealer-positions-v6': 'primaryDealerPositions',
       'cusip-stealth-qe': 'cusipStealthQE'
     } as const;
 

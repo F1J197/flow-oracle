@@ -47,7 +47,7 @@ export const useEngineManager = () => {
       { id: 'net-liquidity', engine: engines.netLiquidity, timeout: 10000, name: 'Net Liquidity Engine', priority: 'high' as const },
       { id: 'credit-stress', engine: engines.creditStressV6, timeout: 10000, name: 'Credit Stress Engine', priority: 'medium' as const },
       { id: 'cusip-stealth-qe', engine: engines.cusipStealthQE, timeout: 15000, name: 'CUSIP Stealth QE Engine', priority: 'medium' as const },
-      { id: 'primary-dealer-positions', engine: engines.primaryDealerPositions, timeout: 10000, name: 'Primary Dealer Positions Engine', priority: 'medium' as const },
+      { id: 'primary-dealer-positions-v6', engine: engines.primaryDealerPositions, timeout: 10000, name: 'Primary Dealer Positions Engine V6', priority: 'medium' as const },
       { id: 'enhanced-momentum', engine: engines.enhancedMomentum, timeout: 20000, name: 'Enhanced Momentum Engine', priority: 'low' as const },
       { id: 'enhanced-zscore', engine: engines.enhancedZScore, timeout: 25000, name: 'Enhanced Z-Score Engine', priority: 'low' as const },
     ];

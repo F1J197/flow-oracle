@@ -1,9 +1,11 @@
 import { useEngineManager } from "@/hooks/useEngineManager";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { usePeriodicUpdates } from "@/hooks/usePeriodicUpdates";
+import { usePrimaryDealerV6 } from "@/hooks/usePrimaryDealerV6";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { ActionableInsightTile } from "@/components/dashboard/ActionableInsightTile";
 import { PrimaryActionTile } from "@/components/dashboard/PrimaryActionTile";
+import { PrimaryDealerPositionsV6Tile } from "@/components/dashboard/PrimaryDealerPositionsV6Tile";
 import { SystemStatusFooter } from "@/components/dashboard/SystemStatusFooter";
 
 export const Dashboard = () => {
@@ -15,6 +17,9 @@ export const Dashboard = () => {
     updateDashboardData,
     cleanupEngines,
   });
+  
+  // Primary Dealer V6 specific data
+  const { tileData: dealerV6TileData, loading: dealerV6Loading } = usePrimaryDealerV6();
 
   // Generate actionable insights from engines
   const netLiquidityInsight = engines.netLiquidity?.getSingleActionableInsight?.() || {
@@ -50,10 +55,10 @@ export const Dashboard = () => {
   };
 
   const dealerInsight = engines.primaryDealerPositions?.getSingleActionableInsight?.() || {
-    actionText: "Dealer positioning suggests cautious market stance",
-    signalStrength: 60,
-    marketAction: 'WAIT' as const,
-    confidence: 'MED' as const,
+    actionText: "V6 dealer analysis shows risk appetite normalization",
+    signalStrength: 68,
+    marketAction: 'HOLD' as const,
+    confidence: 'HIGH' as const,
     timeframe: 'SHORT_TERM' as const
   };
 
@@ -103,10 +108,10 @@ export const Dashboard = () => {
         loading={loading && overallStatus.successCount === 0}
       />
 
-      <ActionableInsightTile 
-        insight={dealerInsight}
-        engineName="Primary Dealer Positions"
-        loading={loading && overallStatus.successCount === 0}
+      {/* Replace standard insight tile with specialized V6 tile */}
+      <PrimaryDealerPositionsV6Tile 
+        data={dealerV6TileData || undefined}
+        loading={dealerV6Loading || (loading && overallStatus.successCount === 0)}
       />
 
       <ActionableInsightTile 
