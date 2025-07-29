@@ -1,11 +1,21 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from "@/types/engines";
 import { UnifiedDataService } from "@/services/UnifiedDataService";
+import { BaseEngine } from "./BaseEngine";
 
-export class NetLiquidityEngine implements IEngine {
+export class NetLiquidityEngine extends BaseEngine {
   id = 'net-liquidity';
   name = 'Net Liquidity Engine V6';
   priority = 1;
   pillar = 1 as const;
+
+  constructor() {
+    super({
+      refreshInterval: 15000,
+      retryAttempts: 3,
+      timeout: 10000,
+      cacheTimeout: 30000
+    });
+  }
 
   // Core data components (in trillions)
   private walcl = 6.658;       // Fed Balance Sheet - default value
@@ -18,8 +28,6 @@ export class NetLiquidityEngine implements IEngine {
   private regime: 'QE' | 'QT' | 'TRANSITION' = 'TRANSITION';
   private momentum = 0;
   private confidence = 98;
-  private cache = new Map<string, any>();
-  private readonly CACHE_TTL = 30000; // 30 seconds cache
 
   private fetchWithTimeout<T>(fn: () => Promise<T>, timeout: number): Promise<T> {
     return Promise.race([
@@ -30,21 +38,8 @@ export class NetLiquidityEngine implements IEngine {
     ]);
   }
 
-  private getCachedData(key: string): any {
-    const cached = this.cache.get(key);
-    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
-      return cached;
-    }
-    return null;
-  }
+  // Use base class cache methods instead
 
-  private setCachedData(key: string, data: any): void {
-    this.cache.set(key, { ...data, timestamp: Date.now() });
-  }
-
-  private updateFromCachedData(cached: any): void {
-    this.updateFromData(cached);
-  }
 
   private updateFromData(data: any): void {
     this.walcl = data.walcl;
@@ -87,60 +82,48 @@ export class NetLiquidityEngine implements IEngine {
     };
   }
 
-  async execute(): Promise<EngineReport> {
-    try {
-      console.log('Net Liquidity Engine V6 executing...');
-      
-      // Use cached data first to avoid slow API calls
-      const cacheKey = 'net-liquidity-data';
-      const cached = this.getCachedData(cacheKey);
-      if (cached) {
-        this.updateFromCachedData(cached);
-        return this.generateReport();
-      }
-      
-      // Fetch data with timeout and fallbacks
-      const unifiedService = UnifiedDataService.getInstance();
-      const dataPromises = [
-        this.fetchWithTimeout(async () => {
-          const result = await unifiedService.refreshIndicator('WALCL');
-          return result?.current || 6657715;
-        }, 3000).catch(() => 6657715),
-        this.fetchWithTimeout(async () => {
-          const result = await unifiedService.refreshIndicator('WTREGEN');
-          return result?.current || 632000;
-        }, 3000).catch(() => 632000),
-        this.fetchWithTimeout(async () => {
-          const result = await unifiedService.refreshIndicator('RRPONTSYD');
-          return result?.current || 0;
-        }, 3000).catch(() => 0)
-      ];
-      
-      const [walclRaw, wtregenRaw, rrpontsydRaw] = await Promise.all(dataPromises);
-      
-      // Convert to trillions and cache the data
-      const liquidityData = {
-        walcl: walclRaw / 1000000,
-        wtregen: wtregenRaw / 1000000,
-        rrpontsyd: rrpontsydRaw / 1000000,
-        timestamp: Date.now()
-      };
-      
-      this.setCachedData(cacheKey, liquidityData);
-      this.updateFromData(liquidityData);
-      
+  protected async performExecution(): Promise<EngineReport> {
+    console.log('Net Liquidity Engine V6 executing...');
+    
+    // Use cached data first to avoid slow API calls
+    const cacheKey = 'net-liquidity-data';
+    const cached = this.getCacheData(cacheKey);
+    if (cached) {
+      this.updateFromData(cached);
       return this.generateReport();
-    } catch (error) {
-      console.error('Net Liquidity Engine error:', error);
-      return {
-        success: false,
-        confidence: 0,
-        signal: 'neutral',
-        data: null,
-        errors: [error instanceof Error ? error.message : 'Unknown error'],
-        lastUpdated: new Date()
-      };
     }
+    
+    // Fetch data with timeout and fallbacks
+    const unifiedService = UnifiedDataService.getInstance();
+    const dataPromises = [
+      this.fetchWithTimeout(async () => {
+        const result = await unifiedService.refreshIndicator('WALCL');
+        return result?.current || 6657715;
+      }, 3000).catch(() => 6657715),
+      this.fetchWithTimeout(async () => {
+        const result = await unifiedService.refreshIndicator('WTREGEN');
+        return result?.current || 632000;
+      }, 3000).catch(() => 632000),
+      this.fetchWithTimeout(async () => {
+        const result = await unifiedService.refreshIndicator('RRPONTSYD');
+        return result?.current || 0;
+      }, 3000).catch(() => 0)
+    ];
+    
+    const [walclRaw, wtregenRaw, rrpontsydRaw] = await Promise.all(dataPromises);
+    
+    // Convert to trillions and cache the data
+    const liquidityData = {
+      walcl: walclRaw / 1000000,
+      wtregen: wtregenRaw / 1000000,
+      rrpontsyd: rrpontsydRaw / 1000000,
+      timestamp: Date.now()
+    };
+    
+    this.setCacheData(cacheKey, liquidityData);
+    this.updateFromData(liquidityData);
+    
+    return this.generateReport();
   }
 
   private getMarketSignal(): 'bullish' | 'bearish' | 'neutral' {
