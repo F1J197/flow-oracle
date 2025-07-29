@@ -183,6 +183,42 @@ export type Database = {
           },
         ]
       }
+      engine_execution_logs: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          data_quality_score: number | null
+          engine_id: string
+          error_message: string | null
+          execution_time_ms: number | null
+          fallback_used: boolean | null
+          id: string
+          success: boolean
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          data_quality_score?: number | null
+          engine_id: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          fallback_used?: boolean | null
+          id?: string
+          success: boolean
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          data_quality_score?: number | null
+          engine_id?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          fallback_used?: boolean | null
+          id?: string
+          success?: boolean
+        }
+        Relationships: []
+      }
       engine_executions: {
         Row: {
           confidence: number | null
@@ -264,6 +300,9 @@ export type Database = {
           created_at: string
           data_source: string
           description: string | null
+          fallback_enabled: boolean | null
+          fallback_value: number | null
+          health_check_endpoint: string | null
           id: string
           is_active: boolean | null
           last_updated: string | null
@@ -280,6 +319,9 @@ export type Database = {
           created_at?: string
           data_source: string
           description?: string | null
+          fallback_enabled?: boolean | null
+          fallback_value?: number | null
+          health_check_endpoint?: string | null
           id?: string
           is_active?: boolean | null
           last_updated?: string | null
@@ -296,6 +338,9 @@ export type Database = {
           created_at?: string
           data_source?: string
           description?: string | null
+          fallback_enabled?: boolean | null
+          fallback_value?: number | null
+          health_check_endpoint?: string | null
           id?: string
           is_active?: boolean | null
           last_updated?: string | null
@@ -476,6 +521,33 @@ export type Database = {
           pattern_name?: string
           pattern_type?: string
           success_rate?: number | null
+        }
+        Relationships: []
+      }
+      system_health_metrics: {
+        Row: {
+          component: string
+          id: string
+          metric_name: string
+          metric_unit: string | null
+          metric_value: number | null
+          timestamp: string | null
+        }
+        Insert: {
+          component: string
+          id?: string
+          metric_name: string
+          metric_unit?: string | null
+          metric_value?: number | null
+          timestamp?: string | null
+        }
+        Update: {
+          component?: string
+          id?: string
+          metric_name?: string
+          metric_unit?: string | null
+          metric_value?: number | null
+          timestamp?: string | null
         }
         Relationships: []
       }
