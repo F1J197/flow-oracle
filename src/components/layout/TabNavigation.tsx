@@ -6,10 +6,10 @@ interface TabNavigationProps {
 }
 
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', description: 'Executive overview' },
-  { id: 'engines', label: 'Intelligence', description: '28 processing engines' },
-  { id: 'charts', label: 'Charts', description: '50+ live indicators' },
-  { id: 'showcase', label: 'Premium', description: 'Tile showcase' }
+  { id: 'dashboard', label: 'DASHBOARD' },
+  { id: 'engines', label: 'INTELLIGENCE' },
+  { id: 'charts', label: 'CHARTS' },
+  { id: 'showcase', label: 'PREMIUM' }
 ];
 
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
@@ -22,17 +22,14 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "px-6 py-4 text-sm font-medium border-b-2 transition-all duration-200",
-                "hover:text-primary hover:border-primary/50",
+                "px-8 py-4 text-lg font-bold border-b-2 transition-all duration-200",
+                "hover:text-primary hover:border-primary/50 tracking-wider",
                 activeTab === tab.id
                   ? "text-primary border-primary bg-noir-border/20"
                   : "text-text-secondary border-transparent"
               )}
             >
-              <div className="flex flex-col items-start">
-                <span className="font-semibold tracking-wide">{tab.label}</span>
-                <span className="text-xs text-text-muted mt-0.5">{tab.description}</span>
-              </div>
+              <span className="font-mono">{tab.label}</span>
             </button>
           ))}
         </div>

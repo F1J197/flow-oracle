@@ -5,12 +5,12 @@ export const Header = () => {
     <header className="w-full bg-noir-bg border-b border-noir-border px-6 py-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         {/* Platform Title */}
-        <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-primary tracking-wider">
+        <div className="flex flex-col items-start space-y-1">
+          <h1 className="text-4xl font-bold text-primary tracking-wider btc-glow">
             Liquidity²
           </h1>
-          <div className="hidden md:flex items-center space-x-2 text-sm text-secondary">
-            <span>Global Intelligence Platform V6</span>
+          <div className="text-sm text-btc-primary font-mono tracking-wide">
+            liquido movet mundum
           </div>
         </div>
 

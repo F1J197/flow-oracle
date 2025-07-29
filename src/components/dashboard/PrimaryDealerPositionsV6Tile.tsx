@@ -34,7 +34,7 @@ export const PrimaryDealerPositionsV6Tile = ({
 
   if (loading) {
     return (
-      <div className="glass-tile p-6 col-span-2">
+      <div className="glass-tile p-6 col-span-2 border border-glass-border">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-text-secondary tracking-wider uppercase">
             PRIMARY DEALER POSITIONS V6
@@ -81,7 +81,7 @@ export const PrimaryDealerPositionsV6Tile = ({
 
   return (
     <div className={cn(
-      "glass-tile p-6 col-span-2",
+      "glass-tile p-6 col-span-2 border border-glass-border hover:border-glass-border/60 transition-all duration-300",
       tileData.status === 'critical' && "critical-pulse border-btc-primary",
       tileData.status === 'warning' && "border-btc-light"
     )}>

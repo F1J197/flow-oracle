@@ -18,7 +18,7 @@ export const PrimaryActionTile = memo(({ loading = false }: PrimaryActionTilePro
 
   return (
     <div className={cn(
-      "glass-tile p-6 col-span-2 min-h-[280px] flex flex-col"
+      "glass-tile p-6 col-span-2 min-h-[280px] flex flex-col border border-glass-border hover:border-glass-border/60 transition-all duration-300"
     )}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
