@@ -18,9 +18,9 @@ export const PrimaryDealerIntelligenceTile = ({
   const getStatusColor = () => {
     if (!tileData) return 'border-glass-border';
     switch (tileData.status) {
-      case 'normal': return 'border-neon-lime';
-      case 'warning': return 'border-neon-gold';
-      case 'critical': return 'border-neon-orange';
+      case 'normal': return 'border-btc-orange-bright';
+      case 'warning': return 'border-btc-orange-light';
+      case 'critical': return 'border-btc-orange-dark';
       default: return 'border-glass-border';
     }
   };
@@ -28,9 +28,9 @@ export const PrimaryDealerIntelligenceTile = ({
   const getStatusIndicator = () => {
     if (!tileData) return <div className="w-2 h-2 bg-text-secondary rounded-full"></div>;
     switch (tileData.status) {
-      case 'normal': return <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>;
-      case 'warning': return <div className="w-2 h-2 bg-neon-gold rounded-full animate-pulse"></div>;
-      case 'critical': return <div className="w-2 h-2 bg-neon-orange rounded-full animate-pulse"></div>;
+      case 'normal': return <div className="w-2 h-2 bg-btc-orange-bright rounded-full animate-pulse"></div>;
+      case 'warning': return <div className="w-2 h-2 bg-btc-orange-light rounded-full animate-pulse"></div>;
+      case 'critical': return <div className="w-2 h-2 bg-btc-orange-dark rounded-full animate-pulse"></div>;
       default: return <div className="w-2 h-2 bg-text-secondary rounded-full"></div>;
     }
   };
@@ -38,11 +38,11 @@ export const PrimaryDealerIntelligenceTile = ({
   const getPrimaryMetricColor = () => {
     if (!tileData) return 'text-foreground';
     switch (tileData.color) {
-      case 'teal': return 'text-neon-teal';
-      case 'orange': return 'text-neon-orange';
-      case 'lime': return 'text-neon-lime';
-      case 'gold': return 'text-neon-gold';
-      case 'fuchsia': return 'text-neon-fuchsia';
+      case 'teal': return 'text-btc-orange';
+      case 'orange': return 'text-btc-orange-dark';
+      case 'lime': return 'text-btc-orange-bright';
+      case 'gold': return 'text-btc-orange-light';
+      case 'fuchsia': return 'text-btc-orange-muted';
       default: return 'text-foreground';
     }
   };
@@ -85,7 +85,7 @@ export const PrimaryDealerIntelligenceTile = ({
         </h3>
         <div className="flex items-center space-x-2">
           {getStatusIndicator()}
-          <Badge variant="outline" className="text-xs font-mono border-neon-lime text-neon-lime">
+          <Badge variant="outline" className="text-xs font-mono border-btc-orange-bright text-btc-orange-bright">
             LIVE
           </Badge>
         </div>
@@ -93,7 +93,7 @@ export const PrimaryDealerIntelligenceTile = ({
 
       {/* Primary Section */}
       <div className="space-y-1">
-        <div className="text-xs text-neon-teal uppercase tracking-wider font-mono font-semibold">
+        <div className="text-xs text-btc-orange uppercase tracking-wider font-mono font-semibold">
           {detailedView.primarySection.title}
         </div>
         <div className={cn(
@@ -111,7 +111,7 @@ export const PrimaryDealerIntelligenceTile = ({
       {/* Position Insights Section */}
       {detailedView.sections[0] && (
         <div className="space-y-2 flex-1">
-          <div className="text-xs text-neon-teal uppercase tracking-wider font-mono font-semibold">
+          <div className="text-xs text-btc-orange uppercase tracking-wider font-mono font-semibold">
             {detailedView.sections[0].title}
           </div>
           <div className="space-y-1">
@@ -130,7 +130,7 @@ export const PrimaryDealerIntelligenceTile = ({
       {/* Risk Assessment Section */}
       {detailedView.sections[1] && (
         <div className="space-y-2">
-          <div className="text-xs text-neon-teal uppercase tracking-wider font-mono font-semibold">
+          <div className="text-xs text-btc-orange uppercase tracking-wider font-mono font-semibold">
             {detailedView.sections[1].title}
           </div>
           <div className="space-y-1">
@@ -149,7 +149,7 @@ export const PrimaryDealerIntelligenceTile = ({
       {/* System Status Section */}
       {detailedView.sections[4] && (
         <div className="space-y-2 mt-auto">
-          <div className="text-xs text-neon-teal uppercase tracking-wider font-mono font-semibold">
+          <div className="text-xs text-btc-orange uppercase tracking-wider font-mono font-semibold">
             {detailedView.sections[4].title}
           </div>
           <div className="space-y-1">

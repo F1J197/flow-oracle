@@ -71,13 +71,13 @@ export default {
 					glow: 'hsl(var(--btc-glow))',
 					muted: 'hsl(var(--btc-muted))'
 				},
-				// Neon accent colors for special states
+				// Legacy neon colors mapped to BTC orange system for consistency
 				neon: {
-					teal: '#00BFFF',
-					orange: '#FF4500', 
-					lime: '#32CD32',
-					gold: '#FFD700',
-					fuchsia: '#FF00FF'
+					teal: 'hsl(var(--btc-orange))',      // Primary state -> BTC orange
+					orange: 'hsl(var(--btc-orange-dark))', // Warning/negative -> BTC dark
+					lime: 'hsl(var(--btc-orange-bright))',  // Success/positive -> BTC bright
+					gold: 'hsl(var(--btc-orange-light))',   // Neutral/info -> BTC light
+					fuchsia: 'hsl(var(--btc-orange-muted))' // Muted/inactive -> BTC muted
 				},
 				text: {
 					primary: 'hsl(var(--text-primary))',

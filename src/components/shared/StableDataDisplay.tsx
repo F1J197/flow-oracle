@@ -76,15 +76,15 @@ export const StableDataDisplay = ({
   const getColorClass = () => {
     switch (color) {
       case 'teal':
-        return 'neon-teal';
+        return 'btc-orange';
       case 'orange':
-        return 'neon-orange';
+        return 'btc-orange-dark';
       case 'lime':
-        return 'neon-lime';
+        return 'btc-orange-bright';
       case 'gold':
-        return 'neon-gold';
+        return 'btc-orange-light';
       case 'fuchsia':
-        return 'neon-fuchsia';
+        return 'btc-orange-muted';
       case 'btc':
         return 'btc-primary';
       case 'btc-light':

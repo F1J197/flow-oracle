@@ -48,15 +48,15 @@ export const DataDisplay = ({
   const getColorClass = () => {
     switch (color) {
       case 'teal':
-        return 'text-neon-teal';
+        return 'text-btc-orange';
       case 'orange':
-        return 'text-neon-orange';
+        return 'text-btc-orange-dark';
       case 'lime':
-        return 'text-neon-lime';
+        return 'text-btc-orange-bright';
       case 'gold':
-        return 'text-neon-gold';
+        return 'text-btc-orange-light';
       case 'fuchsia':
-        return 'text-neon-fuchsia';
+        return 'text-btc-orange-muted';
       case 'btc':
         return 'btc-primary';
       case 'btc-light':

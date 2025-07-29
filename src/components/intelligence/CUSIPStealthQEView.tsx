@@ -149,7 +149,7 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
             </div>
             <div>
               <div className="text-xs text-text-secondary">CONFIDENCE</div>
-              <div className="text-sm font-bold text-neon-teal">
+              <div className="text-sm font-bold text-btc-orange">
                 {detailedView.primarySection?.metrics?.['Detection Confidence'] || '0%'}
               </div>
             </div>

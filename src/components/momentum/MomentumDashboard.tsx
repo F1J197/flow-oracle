@@ -47,40 +47,40 @@ export const MomentumDashboard = ({
   
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'EXPLODING': return 'neon-lime';
-      case 'BUILDING': return 'neon-teal';
-      case 'SLOWING': return 'neon-gold';
-      case 'DECLINING': return 'neon-orange';
-      default: return 'text-secondary';
+      case 'EXPLODING': return 'btc-orange-bright';
+      case 'BUILDING': return 'btc-orange';
+      case 'SLOWING': return 'btc-orange-light';
+      case 'DECLINING': return 'btc-orange-dark';
+      default: return 'btc-orange';
     }
   };
 
   const getRegimeColor = (regime: string) => {
     switch (regime) {
-      case 'BULL_ACCEL': return 'neon-lime';
-      case 'BULL_DECEL': return 'neon-teal';
-      case 'BEAR_ACCEL': return 'neon-orange';
-      case 'BEAR_DECEL': return 'neon-fuchsia';
-      default: return 'text-secondary';
+      case 'BULL_ACCEL': return 'btc-orange-bright';
+      case 'BULL_DECEL': return 'btc-orange';
+      case 'BEAR_ACCEL': return 'btc-orange-dark';
+      case 'BEAR_DECEL': return 'btc-orange-muted';
+      default: return 'btc-orange';
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'CRITICAL': return 'neon-fuchsia';
-      case 'HIGH': return 'neon-orange';
-      case 'MEDIUM': return 'neon-gold';
-      case 'LOW': return 'neon-teal';
-      default: return 'text-secondary';
+      case 'CRITICAL': return 'btc-orange-muted';
+      case 'HIGH': return 'btc-orange-dark';
+      case 'MEDIUM': return 'btc-orange-light';
+      case 'LOW': return 'btc-orange';
+      default: return 'btc-orange';
     }
   };
 
   const getMomentumDirection = (value: number) => {
-    if (value > 50) return { text: 'EXPLOSIVE ↗', color: 'neon-lime' };
-    if (value > 20) return { text: 'BULLISH ↗', color: 'neon-teal' };
-    if (value > -20) return { text: 'NEUTRAL →', color: 'neon-gold' };
-    if (value > -50) return { text: 'BEARISH ↘', color: 'neon-orange' };
-    return { text: 'DECLINING ↓', color: 'neon-fuchsia' };
+    if (value > 50) return { text: 'EXPLOSIVE ↗', color: 'btc-orange-bright' };
+    if (value > 20) return { text: 'BULLISH ↗', color: 'btc-orange' };
+    if (value > -20) return { text: 'NEUTRAL →', color: 'btc-orange-light' };
+    if (value > -50) return { text: 'BEARISH ↘', color: 'btc-orange-dark' };
+    return { text: 'DECLINING ↓', color: 'btc-orange-muted' };
   };
 
   const direction = getMomentumDirection(composite.value);
@@ -139,9 +139,9 @@ export const MomentumDashboard = ({
                 <div className="w-full bg-noir-border rounded-full h-2">
                   <div 
                     className={`h-2 rounded-full transition-all duration-300 ${
-                      composite.confidence > 80 ? 'bg-neon-lime' :
-                      composite.confidence > 60 ? 'bg-neon-teal' :
-                      composite.confidence > 40 ? 'bg-neon-gold' : 'bg-neon-orange'
+                      composite.confidence > 80 ? 'bg-btc-orange-bright' :
+                      composite.confidence > 60 ? 'bg-btc-orange' :
+                      composite.confidence > 40 ? 'bg-btc-orange-light' : 'bg-btc-orange-dark'
                     }`}
                     style={{ width: `${composite.confidence}%` }}
                   ></div>
@@ -209,7 +209,7 @@ export const MomentumDashboard = ({
           {/* Short Term */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-neon-teal">SHORT TERM (2W)</h4>
+              <h4 className="text-sm font-medium text-btc-orange">SHORT TERM (2W)</h4>
               <div className="text-sm font-bold text-text-data">
                 {multiscale.short.roc.toFixed(2)}%
               </div>
@@ -233,7 +233,7 @@ export const MomentumDashboard = ({
           {/* Medium Term */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-neon-lime">MEDIUM TERM (6W)</h4>
+              <h4 className="text-sm font-medium text-btc-orange-bright">MEDIUM TERM (6W)</h4>
               <div className="text-sm font-bold text-text-data">
                 {multiscale.medium.roc.toFixed(2)}%
               </div>
@@ -257,7 +257,7 @@ export const MomentumDashboard = ({
           {/* Long Term */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-neon-gold">LONG TERM (12W)</h4>
+              <h4 className="text-sm font-medium text-btc-orange-light">LONG TERM (12W)</h4>
               <div className="text-sm font-bold text-text-data">
                 {multiscale.long.roc.toFixed(2)}%
               </div>
@@ -284,7 +284,7 @@ export const MomentumDashboard = ({
       <Card className="bg-glass-bg border-glass-border p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-3 h-3 bg-neon-lime rounded-full animate-pulse"></div>
+            <div className="w-3 h-3 bg-btc-orange-bright rounded-full animate-pulse"></div>
             <span className="text-sm font-medium text-text-primary">
               Enhanced Momentum Engine V6 • Real-time Processing
             </span>

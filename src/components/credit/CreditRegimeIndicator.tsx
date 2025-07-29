@@ -16,25 +16,25 @@ export const CreditRegimeIndicator = ({
       case 'QE_SUPPORTIVE':
         return { 
           label: compact ? 'QE' : 'QE Supportive', 
-          color: 'neon-lime',
+          color: 'btc-bright',
           icon: '▲'
         };
       case 'QT_STRESS':
         return { 
           label: compact ? 'QT' : 'QT Stress', 
-          color: 'neon-orange',
+          color: 'btc-dark',
           icon: '▼'
         };
       case 'CRISIS_MODE':
         return { 
           label: compact ? 'Crisis' : 'Crisis Mode', 
-          color: 'neon-fuchsia',
+          color: 'btc-muted',
           icon: '⚠'
         };
       case 'NEUTRAL':
         return { 
           label: 'Neutral', 
-          color: 'neon-teal',
+          color: 'btc',
           icon: '○'
         };
     }
