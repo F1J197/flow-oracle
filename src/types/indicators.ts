@@ -37,6 +37,7 @@ export interface IndicatorValue {
   confidence?: number;
   quality?: number;
   volume?: number;
+  synthetic?: boolean;
 }
 
 export interface IndicatorState {

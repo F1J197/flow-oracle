@@ -76,38 +76,93 @@ serve(async (req) => {
           .select()
           .single();
 
-        // Fetch data from FRED API with rate limiting and retry logic
+        // Fetch data from FRED API with enhanced rate limiting and fallback
         const seriesId = indicator.api_endpoint?.replace('/observations?series_id=', '') || indicator.symbol;
         const fredUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${fredApiKey}&file_type=json&limit=100&sort_order=desc`;
         
-        const retryHandler = new RetryHandler();
-        const data: FredApiResponse = await globalAPIQueue.enqueue(
-          async () => {
-            // Wait for rate limit token
-            await rateLimiters.fred.waitForToken();
-            
-            // Execute with retry logic
-            return await retryHandler.executeWithRetry(async () => {
-              console.log(`Fetching FRED data for ${indicator.symbol} from: ${fredUrl}`);
-              const response = await fetch(fredUrl);
+        let data: FredApiResponse;
+        
+        try {
+          const retryHandler = new RetryHandler({
+            maxRetries: 2, // Reduced retries to avoid hitting rate limits
+            initialDelay: 3000, // Increased delay
+            maxDelay: 15000,
+            backoffMultiplier: 2
+          });
+          
+          data = await globalAPIQueue.enqueue(
+            async () => {
+              // Enhanced rate limiting - wait longer for FRED API
+              await rateLimiters.fred.waitForToken();
               
-              if (!response.ok) {
-                const error = new Error(`FRED API error: ${response.status} ${response.statusText}`) as any;
-                error.status = response.status;
-                throw error;
-              }
+              // Additional delay for FRED API
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              
+              // Execute with enhanced retry logic
+              return await retryHandler.executeWithRetry(async () => {
+                const response = await fetch(fredUrl, {
+                  method: 'GET',
+                  headers: {
+                    'User-Agent': 'LiquiditySquared/1.0',
+                    'Accept': 'application/json'
+                  }
+                });
+                
+                if (!response.ok) {
+                  if (response.status === 429) {
+                    // Rate limited - wait longer and throw retryable error
+                    await new Promise(resolve => setTimeout(resolve, 10000));
+                    const error = new Error(`FRED API rate limited: ${response.status}`) as any;
+                    error.status = response.status;
+                    error.retryable = true;
+                    throw error;
+                  }
+                  
+                  const error = new Error(`FRED API error: ${response.status} ${response.statusText}`) as any;
+                  error.status = response.status;
+                  error.retryable = response.status >= 500; // Only retry server errors
+                  throw error;
+                }
 
-              const result = await response.json();
-              console.log(`Successfully fetched FRED data for ${indicator.symbol}`);
-              return result;
-            }, `fred-${indicator.symbol}`);
-          },
-          {
-            priority: 2, // High priority for FRED data
-            context: `fred-${indicator.symbol}`,
-            maxRetries: 3
+                const result = await response.json();
+                return result;
+              }, `fred-${indicator.symbol}`);
+            },
+            {
+              priority: 1, // Lower priority to reduce pressure
+              context: `fred-${indicator.symbol}`,
+              maxRetries: 1 // Reduced retries at queue level
+            }
+          );
+        } catch (error) {
+          // Fallback to cached data if available
+          const { data: cachedData } = await supabaseClient
+            .from('data_points')
+            .select('*')
+            .eq('indicator_id', indicator.id)
+            .order('timestamp', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+            
+          if (cachedData) {
+            // Create mock response from cached data
+            data = {
+              observations: [{
+                date: cachedData.timestamp.split('T')[0],
+                value: cachedData.value.toString()
+              }]
+            };
+          } else {
+            // Skip this indicator if no cache available
+            results.push({
+              symbol: indicator.symbol,
+              status: 'failed',
+              error: `Rate limited and no cached data available: ${error.message}`,
+              execution_time_ms: Date.now() - startTime
+            });
+            continue;
           }
-        );
+        }
         let processedCount = 0;
 
         for (const observation of data.observations) {

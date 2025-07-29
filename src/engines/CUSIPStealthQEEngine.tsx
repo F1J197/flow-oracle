@@ -1,6 +1,6 @@
-import { IEngine, EngineReport, ActionableInsight, DashboardTileData, DetailedEngineView } from '../types/engines';
-import { BaseEngine } from './BaseEngine';
-import { supabase } from '../integrations/supabase/client';
+import { IEngine, EngineReport, ActionableInsight, DashboardTileData, DetailedEngineView } from '@/types/engines';
+import { BaseEngine } from '@/engines/BaseEngine';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CUSIPData {
   cusip: string;
