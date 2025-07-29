@@ -15,8 +15,8 @@ interface SelfHealingAction {
 }
 
 export class DataIntegrityEngine {
-  id = 'DATA_INTEGRITY';
-  name = 'Data Integrity & Self-Healing Engine V6';
+  id = 'data-integrity-v6';
+  name = 'Data Integrity Engine V6';
   priority = 1;
   pillar = 1;
 

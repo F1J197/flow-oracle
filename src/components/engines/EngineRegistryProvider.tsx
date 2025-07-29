@@ -3,7 +3,7 @@ import { EngineRegistry } from '@/engines/EngineRegistry';
 import { NetLiquidityEngine } from '@/engines/NetLiquidityEngine';
 import { CreditStressEngineV6 } from '@/engines/CreditStressEngineV6';
 import { CUSIPStealthQEEngine } from '@/engines/CUSIPStealthQEEngine';
-import { DataIntegrityEngine } from '@/engines/DataIntegrityEngine';
+import { SimplifiedDataIntegrityEngine } from '@/engines/SimplifiedDataIntegrityEngine';
 import { EnhancedMomentumEngine } from '@/engines/EnhancedMomentumEngine';
 import { PrimaryDealerPositionsEngineV6 } from '@/engines/PrimaryDealerPositionsEngineV6';
 import { EnhancedZScoreEngine } from '@/engines/EnhancedZScoreEngine';
@@ -31,11 +31,11 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
 
   useEffect(() => {
     // Register all engines on startup
-    console.log('🚀 Initializing Engine Registry with all V6 engines...');
+    console.log('🚀 Initializing Engine Registry with consolidated V6 engines...');
     
     // Foundation Engines
     const netLiquidityEngine = new NetLiquidityEngine();
-    const dataIntegrityEngine = new DataIntegrityEngine();
+    const dataIntegrityEngine = new SimplifiedDataIntegrityEngine();
     const enhancedMomentumEngine = new EnhancedMomentumEngine();
     const enhancedZScoreEngine = new EnhancedZScoreEngine();
     
@@ -53,7 +53,7 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
     });
     
     registry.register(dataIntegrityEngine, {
-      description: 'Real-time data validation and automatic healing across 15+ sources',
+      description: 'Simplified data integrity monitoring with resilient architecture',
       version: '6.0',
       category: 'foundation',
       dependencies: ['WALCL', 'WTREGEN', 'RRPONTSYD', 'DGS10']

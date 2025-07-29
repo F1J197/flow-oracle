@@ -82,7 +82,7 @@ export const useUnifiedDashboard = (options: UseUnifiedDashboardOptions = {}) =>
       momentum: createTileData('Market Momentum', 'MOMENTUM_SCORE', '0'),
       zScore: createTileData('Z-Score Analysis', 'ZSCORE_COMPOSITE', '0.0'),
       primaryDealer: createTileData('Primary Dealer', 'DEALER_POSITIONS', '$0B'),
-      dataIntegrity: createTileData('Data Integrity', 'DATA_QUALITY', '0%'),
+      dataIntegrity: createTileData('Data Integrity', 'DATA_INTEGRITY', '95.0%'),
       cusipStealth: createTileData('CUSIP Stealth QE', 'STEALTH_QE', '$0B')
     };
   }, [indicators, indicatorsLoading]);

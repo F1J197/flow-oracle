@@ -13,24 +13,25 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
   const getStatusIcon = () => {
     switch (data.status) {
       case 'normal':
-        return <CheckCircle className="w-4 h-4 text-neon-teal" />;
+        return <CheckCircle className="w-4 h-4 text-btc-success" />;
       case 'warning':
-        return <AlertTriangle className="w-4 h-4 text-neon-gold" />;
+        return <AlertTriangle className="w-4 h-4 text-btc-warning" />;
       case 'critical':
-        return <AlertTriangle className="w-4 h-4 text-neon-orange" />;
+        return <AlertTriangle className="w-4 h-4 text-btc-error" />;
       default:
-        return <Shield className="w-4 h-4 text-text-secondary" />;
+        return <Shield className="w-4 h-4 text-text-muted" />;
     }
   };
 
   const getTrendIcon = () => {
     switch (data.trend) {
       case 'up':
-        return <TrendingUp className="w-4 h-4 text-neon-teal" />;
+        return <TrendingUp className="w-3 h-3 text-btc-success" />;
       case 'down':
-        return <TrendingDown className="w-4 h-4 text-neon-orange" />;
+        return <TrendingDown className="w-3 h-3 text-btc-error" />;
+      case 'neutral':
       default:
-        return <Minus className="w-4 h-4 text-text-secondary" />;
+        return <Minus className="w-3 h-3 text-text-muted" />;
     }
   };
 
@@ -48,13 +49,13 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
   const getMetricColor = () => {
     switch (data.color) {
       case 'success':
-        return 'text-neon-teal';
+        return 'text-btc-success';
       case 'warning':
-        return 'text-neon-gold';
+        return 'text-btc-warning';
       case 'critical':
-        return 'text-neon-orange';
+        return 'text-btc-error';
       case 'info':
-        return 'text-neon-lime';
+        return 'text-btc-accent';
       default:
         return 'text-text-primary';
     }
@@ -63,11 +64,11 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
   const getBorderColor = () => {
     switch (data.status) {
       case 'critical':
-        return 'border-neon-orange/50 hover:border-neon-orange';
+        return 'border-btc-error/20 hover:border-btc-error/40';
       case 'warning':
-        return 'border-neon-gold/50 hover:border-neon-gold';
+        return 'border-btc-warning/20 hover:border-btc-warning/40';
       default:
-        return 'border-glass-border hover:border-neon-teal/50';
+        return 'border-border-subtle hover:border-btc-primary/40';
     }
   };
 
@@ -83,12 +84,12 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Shield className="w-5 h-5 text-neon-teal" />
-          <h3 className="text-sm font-medium text-text-secondary">{data.title}</h3>
+          <Shield className="w-5 h-5 text-btc-primary" />
+          <h3 className="text-sm font-medium text-text-muted">{data.title}</h3>
         </div>
         <div className="flex items-center gap-2">
           {getStatusIcon()}
-          <div className="w-2 h-2 rounded-full bg-neon-teal animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-btc-success animate-pulse" />
         </div>
       </div>
 
@@ -100,11 +101,11 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
           </span>
           <div className="flex items-center gap-1">
             {getTrendIcon()}
-            <span className="text-xs text-text-secondary">{getTrendText()}</span>
+            <span className="text-xs text-text-muted">{getTrendText()}</span>
           </div>
         </div>
         {data.secondaryMetric && (
-          <p className="text-sm text-text-secondary mt-1">
+          <p className="text-sm text-text-muted mt-1">
             {data.secondaryMetric}
           </p>
         )}
@@ -122,11 +123,11 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
 
       {/* Mini Chart/Visual (Integrity Score Bar) */}
       <div className="mb-4">
-        <div className="h-2 bg-bg-secondary rounded-full overflow-hidden">
+        <div className="h-2 bg-surface-accent rounded-full overflow-hidden">
           <div 
             className={`h-full transition-all duration-1000 ${
-              data.status === 'critical' ? 'bg-neon-orange' :
-              data.status === 'warning' ? 'bg-neon-gold' : 'bg-neon-teal'
+              data.status === 'critical' ? 'bg-btc-error' :
+              data.status === 'warning' ? 'bg-btc-warning' : 'bg-btc-success'
             }`}
             style={{ 
               width: `${typeof data.primaryMetric === 'string' ? 
@@ -135,7 +136,7 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
             }}
           />
         </div>
-        <div className="flex justify-between text-xs text-text-secondary mt-1">
+        <div className="flex justify-between text-xs text-text-muted mt-1">
           <span>0%</span>
           <span>100%</span>
         </div>
@@ -143,7 +144,7 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
 
       {/* Action Text */}
       {data.actionText && (
-        <div className="mt-4 p-3 rounded bg-glass-bg border border-glass-border">
+        <div className="mt-4 p-3 rounded bg-surface-accent/50 border border-border-subtle">
           <p className="text-xs text-text-primary leading-relaxed">
             {data.actionText}
           </p>
@@ -154,15 +155,15 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
       <div className="mt-4 flex justify-between items-center text-xs">
         <div className="flex items-center gap-1">
           <div className={`w-2 h-2 rounded-full ${
-            data.status === 'normal' ? 'bg-neon-teal' :
-            data.status === 'warning' ? 'bg-neon-gold' : 'bg-neon-orange'
+            data.status === 'normal' ? 'bg-btc-success' :
+            data.status === 'warning' ? 'bg-btc-warning' : 'bg-btc-error'
           }`} />
-          <span className="text-text-secondary">
+          <span className="text-text-muted">
             {data.status === 'normal' ? 'OPTIMAL' : 
              data.status === 'warning' ? 'DEGRADED' : 'CRITICAL'}
           </span>
         </div>
-        <span className="text-text-secondary">
+        <span className="text-text-muted">
           LIVE
         </span>
       </div>
