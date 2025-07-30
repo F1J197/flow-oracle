@@ -18,7 +18,7 @@ class UniversalIndicatorService {
   private static instance: UniversalIndicatorService;
   private indicators = new Map<string, IndicatorState>();
   private subscriptions = new Map<string, Set<(state: IndicatorState) => void>>();
-  private fredService = FREDService.getInstance();
+  private fredService = FREDService;
   private updateInterval: NodeJS.Timeout | null = null;
 
   private constructor() {

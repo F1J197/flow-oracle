@@ -294,6 +294,54 @@ export type Database = {
         }
         Relationships: []
       }
+      indicator_data: {
+        Row: {
+          change_percent: number | null
+          change_value: number | null
+          confidence: number | null
+          created_at: string
+          current_value: number | null
+          id: string
+          metadata: Json | null
+          previous_value: number | null
+          provider: string
+          source: string
+          symbol: string
+          timestamp: string
+          updated_at: string
+        }
+        Insert: {
+          change_percent?: number | null
+          change_value?: number | null
+          confidence?: number | null
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          metadata?: Json | null
+          previous_value?: number | null
+          provider: string
+          source: string
+          symbol: string
+          timestamp?: string
+          updated_at?: string
+        }
+        Update: {
+          change_percent?: number | null
+          change_value?: number | null
+          confidence?: number | null
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          metadata?: Json | null
+          previous_value?: number | null
+          provider?: string
+          source?: string
+          symbol?: string
+          timestamp?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       indicators: {
         Row: {
           api_endpoint: string | null

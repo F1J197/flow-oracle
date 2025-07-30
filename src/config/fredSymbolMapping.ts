@@ -22,9 +22,9 @@ export const FRED_SYMBOL_MAP: Record<string, string> = {
   'yields-10y': 'DGS10',                  // 10-Year Treasury Rate
   'yields-2y': 'DGS2',                    // 2-Year Treasury Rate
 
-  // Crypto (Note: FRED has limited crypto data)
-  'btc-price': 'CBBTCUSD',                // Coinbase Bitcoin Price (if available)
-  'btc-market-cap': 'MKTCAP',             // Market Cap proxy
+  // Crypto (Note: FRED doesn't have crypto data - use null for non-FRED symbols)
+  'btc-price': null,                      // Not available in FRED
+  'btc-market-cap': null,                 // Not available in FRED
 
   // Economic Indicators
   'unemployment': 'UNRATE',               // Unemployment Rate
@@ -131,10 +131,19 @@ export function getFREDMetadata(seriesId: string): typeof SYMBOL_METADATA[string
 }
 
 /**
- * Validates if a symbol has a FRED mapping
+ * Validates if a symbol has a FRED mapping and is not null
  */
 export function hasValidFREDMapping(symbol: string): boolean {
-  return symbol in FRED_SYMBOL_MAP;
+  return symbol in FRED_SYMBOL_MAP && FRED_SYMBOL_MAP[symbol] !== null;
+}
+
+/**
+ * Gets symbols that should NOT be sent to FRED API
+ */
+export function getNonFREDSymbols(): string[] {
+  return Object.entries(FRED_SYMBOL_MAP)
+    .filter(([_, fredId]) => fredId === null)
+    .map(([symbol, _]) => symbol);
 }
 
 /**

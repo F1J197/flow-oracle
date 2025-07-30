@@ -5,6 +5,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { FREDService } from './FREDService';
+import { getFREDSeriesId, hasValidFREDMapping } from '@/config/fredSymbolMapping';
 
 export interface UniversalIndicatorData {
   symbol: string;
@@ -168,7 +169,22 @@ class UniversalDataServiceV2 {
 
   private async fetchFREDIndicator(symbol: string): Promise<UniversalIndicatorData | null> {
     try {
-      const data = await this.fredService.fetchSeries(symbol);
+      // Check if symbol has valid FRED mapping
+      if (!hasValidFREDMapping(symbol)) {
+        console.warn(`Symbol ${symbol} does not have a valid FRED mapping, skipping FRED fetch`);
+        return null;
+      }
+
+      // Get the actual FRED series ID
+      const fredSeriesId = getFREDSeriesId(symbol);
+      if (!fredSeriesId) {
+        console.warn(`No FRED series ID found for symbol ${symbol}`);
+        return null;
+      }
+
+      this.updateRateLimit('fred');
+      
+      const data = await this.fredService.fetchSeries(fredSeriesId);
       
       if (data.length === 0) {
         return null;

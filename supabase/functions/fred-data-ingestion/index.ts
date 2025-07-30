@@ -37,6 +37,11 @@ class FREDDataIngestion {
     try {
       console.log(`Fetching FRED series: ${seriesId}`);
       
+      // Validate series ID format (FRED requirement: 25 or less alphanumeric characters)
+      if (!seriesId || seriesId.length > 25 || !/^[A-Za-z0-9]+$/.test(seriesId)) {
+        throw new Error(`Invalid FRED series ID format: ${seriesId}. Must be 25 or less alphanumeric characters.`);
+      }
+      
       if (!this.fredApiKey) {
         throw new Error('FRED API key not configured');
       }

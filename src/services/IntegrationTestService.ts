@@ -169,7 +169,7 @@ class IntegrationTestService {
   private async testFREDService(): Promise<TestSuite> {
     const tests: TestResult[] = [];
     const suiteName = 'FRED Service';
-    const fredService = FREDService.getInstance();
+    const fredService = FREDService;
 
     // Test 1: Single series fetch
     tests.push(await this.runTest('Fetch Single FRED Series', async () => {
@@ -187,7 +187,7 @@ class IntegrationTestService {
       const series = ['WALCL', 'WTREGEN', 'DGS10'];
       const data = await fredService.fetchMultipleSeries(series);
       
-      const successful = Object.values(data).filter(d => d.length > 0).length;
+      const successful = Object.values(data).filter(d => Array.isArray(d) && d.length > 0).length;
       
       return { 
         requestedSeries: series.length,

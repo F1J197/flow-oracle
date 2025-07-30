@@ -101,6 +101,12 @@ class UniversalDataProxy {
       url.searchParams.append('api_key', apiKey);
       url.searchParams.append('file_type', 'json');
       
+      // Validate series_id parameter if present
+      const seriesId = request.params?.series_id;
+      if (seriesId && (!seriesId || seriesId.length > 25 || !/^[A-Za-z0-9]+$/.test(seriesId))) {
+        throw new Error(`Invalid FRED series ID format: ${seriesId}. Must be 25 or less alphanumeric characters.`);
+      }
+      
       // Set appropriate defaults based on endpoint
       if (endpoint === '/series/observations') {
         url.searchParams.append('limit', '1000');

@@ -142,7 +142,7 @@ class DataRecoveryService {
             if (fallbackData && fallbackData.length > 0) {
               data = fallbackData.map(item => ({
                 date: item.timestamp.split('T')[0],
-                value: parseFloat(item.value)
+                value: parseFloat(String(item.value))
               }));
               sourceUsed = 'database-fallback';
               report.alternativeSourcesUsed[symbol] = 'database-fallback';
