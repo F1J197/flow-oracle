@@ -5,6 +5,7 @@
 
 export { NetLiquidityEngine } from '../NetLiquidityEngine';
 export { PrimaryDealerPositionsEngineV6 } from '../PrimaryDealerPositionsEngineV6';
+export { GlobalFinancialPlumbingEngine } from './GlobalFinancialPlumbingEngine';
 
 // Placeholder for additional Pillar 1 engines
 // TODO: Implement remaining engines:
