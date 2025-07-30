@@ -34,7 +34,7 @@ export interface HistogramBin {
   count: number;
   percentage: number;
   isHighlighted: boolean;
-  color: 'btc' | 'btc-light' | 'btc-glow' | 'btc-muted';
+  color: 'btc' | 'btc-light' | 'btc-glow' | 'btc-muted' | 'neon-orange' | 'neon-teal' | 'neon-lime' | 'text-muted';
 }
 
 export interface ExtremeValue {

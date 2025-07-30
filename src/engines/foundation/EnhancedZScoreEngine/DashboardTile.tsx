@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Activity, AlertTriangle } from 'lucide-react';
-import { StaticTileWrapper } from '@/components/dashboard/StaticTileWrapper';
+import { TerminalTile } from '@/components/terminal/TerminalTile';
 import { ZScoreHistogram } from '@/components/intelligence/ZScoreHistogram';
 import { useZScoreData } from '@/hooks/useZScoreData';
 import { MarketRegime } from '@/types/zscoreTypes';
@@ -18,19 +18,19 @@ export const ZScoreFoundationTile: React.FC<ZScoreFoundationTileProps> = ({
     includeDistribution: true 
   });
 
-  // Terminal-compliant status mapping
+  // Terminal-compliant status mapping  
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'extreme_positive':
       case 'positive':
-        return <TrendingUp className="h-3 w-3 text-btc" />;
+        return <TrendingUp className="h-3 w-3 text-neon-lime" />;
       case 'extreme_negative':
       case 'negative':
-        return <TrendingDown className="h-3 w-3 text-btc-orange" />;
+        return <TrendingDown className="h-3 w-3 text-neon-orange" />;
       case 'neutral':
-        return <Activity className="h-3 w-3 text-btc-muted" />;
+        return <Activity className="h-3 w-3 text-text-muted" />;
       default:
-        return <AlertTriangle className="h-3 w-3 text-btc-gold" />;
+        return <AlertTriangle className="h-3 w-3 text-neon-gold" />;
     }
   };
 
@@ -38,148 +38,138 @@ export const ZScoreFoundationTile: React.FC<ZScoreFoundationTileProps> = ({
     switch (status) {
       case 'extreme_positive':
       case 'positive':
-        return 'text-btc';
+        return 'text-neon-lime';
       case 'extreme_negative':
       case 'negative':
-        return 'text-btc-orange';
+        return 'text-neon-orange';
       case 'neutral':
-        return 'text-btc-muted';
+        return 'text-text-muted';
       default:
-        return 'text-btc-gold';
+        return 'text-neon-gold';
     }
   };
 
   const getRegimeColor = (regime: MarketRegime): string => {
     switch (regime) {
       case 'SUMMER':
-        return 'text-btc';
+        return 'text-neon-lime';
       case 'SPRING':
-        return 'text-btc-light';
+        return 'text-neon-teal';
       case 'WINTER':
-        return 'text-btc-muted';
+        return 'text-text-muted';
       case 'AUTUMN':
-        return 'text-btc-orange';
+        return 'text-neon-orange';
       default:
-        return 'text-btc-muted';
+        return 'text-text-muted';
     }
   };
 
-  const getRegimeEmoji = (regime: MarketRegime): string => {
+  const getRegimeSymbol = (regime: MarketRegime): string => {
     switch (regime) {
       case 'SUMMER':
-        return '☀️';
+        return '█';
       case 'SPRING':
-        return '🌱';
+        return '▲';
       case 'WINTER':
-        return '❄️';
+        return '○';
       case 'AUTUMN':
-        return '🍂';
+        return '▼';
       default:
-        return '🔄';
+        return '~';
     }
   };
 
   if (loading || !tileData) {
     return (
-      <StaticTileWrapper>
-        <div className="glass-tile p-6">
-          <div className="text-xs text-btc-muted font-mono mb-4">
-            ENHANCED Z-SCORE ENGINE
-          </div>
-          <div className="space-y-4">
-            <div className="h-16 bg-btc-muted/10 rounded animate-pulse" />
-            <div className="h-20 bg-btc-muted/10 rounded animate-pulse" />
-          </div>
+      <TerminalTile
+        title="ENHANCED Z-SCORE ENGINE"
+        status="loading"
+        className={className}
+      >
+        <div className="space-y-4">
+          <div className="h-16 bg-glass-bg animate-pulse" />
+          <div className="h-20 bg-glass-bg animate-pulse" />
         </div>
-      </StaticTileWrapper>
+      </TerminalTile>
     );
   }
 
   if (error) {
     return (
-      <StaticTileWrapper>
-        <div className="glass-tile p-6">
-          <div className="text-xs text-btc-muted font-mono mb-4">
-            ENHANCED Z-SCORE ENGINE
-          </div>
-          <div className="flex items-center justify-center h-32 text-btc-orange">
-            <AlertTriangle className="h-6 w-6 mr-2" />
-            <span className="text-sm">Engine Offline</span>
-          </div>
+      <TerminalTile
+        title="ENHANCED Z-SCORE ENGINE"
+        status="critical"
+        className={className}
+      >
+        <div className="flex items-center justify-center h-32 text-neon-orange">
+          <AlertTriangle className="h-6 w-6 mr-2" />
+          <span className="text-sm font-mono">ENGINE OFFLINE</span>
         </div>
-      </StaticTileWrapper>
+      </TerminalTile>
     );
   }
 
   return (
-    <StaticTileWrapper>
-      <div className="glass-tile p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-xs text-btc-muted font-mono">
-            ENHANCED Z-SCORE ENGINE
+    <TerminalTile
+      title="ENHANCED Z-SCORE ENGINE"
+      status="active"
+      className={className}
+    >
+      <div className="space-y-4">
+        {/* Primary Metric Display */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            {getStatusIcon(tileData.primaryMetric.status)}
+            <span className="terminal-label">
+              COMPOSITE
+            </span>
           </div>
-          <div className="flex items-center space-x-2 text-xs font-mono">
-            <div className="w-2 h-2 bg-btc-glow rounded-full animate-pulse" />
-            <span className="text-btc-glow">LIVE</span>
+          <div className="text-right">
+            <div className={`terminal-data text-2xl ${getStatusColor(tileData.primaryMetric.status)}`}>
+              {tileData.primaryMetric.formatted}
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          {/* Primary Metric Display */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              {getStatusIcon(tileData.primaryMetric.status)}
-              <span className="text-xs text-btc-muted font-mono">
-                COMPOSITE
-              </span>
-            </div>
-            <div className="text-right">
-              <div className={`text-2xl font-mono font-bold ${getStatusColor(tileData.primaryMetric.status)}`}>
-                {tileData.primaryMetric.formatted}
-              </div>
-            </div>
+        {/* Z-Score Distribution Histogram */}
+        <div className="bg-glass-bg border border-glass-border p-3">
+          <div className="terminal-label mb-2">
+            DISTRIBUTION
           </div>
+          <ZScoreHistogram
+            bins={tileData.histogram.bins}
+            currentValue={tileData.histogram.currentValue}
+            extremeThreshold={tileData.histogram.extremeThreshold}
+            height={60}
+          />
+        </div>
 
-          {/* Z-Score Distribution Histogram */}
-          <div className="bg-btc-dark/30 rounded p-3">
-            <div className="text-xs text-btc-muted mb-2 font-mono">
-              DISTRIBUTION
+        {/* Market Regime & Confidence */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="terminal-label mb-1">
+              REGIME
             </div>
-            <ZScoreHistogram
-              bins={tileData.histogram.bins}
-              currentValue={tileData.histogram.currentValue}
-              extremeThreshold={tileData.histogram.extremeThreshold}
-              height={60}
-            />
+            <div className={`terminal-data ${getRegimeColor(tileData.regime.current)}`}>
+              {getRegimeSymbol(tileData.regime.current)} {tileData.regime.current}
+            </div>
           </div>
+          <div>
+            <div className="terminal-label mb-1">
+              CONFIDENCE
+            </div>
+            <div className="terminal-data text-neon-teal">
+              {(tileData.confidence * 100).toFixed(0)}%
+            </div>
+          </div>
+        </div>
 
-          {/* Market Regime & Confidence */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="text-xs text-btc-muted font-mono mb-1">
-                REGIME
-              </div>
-              <div className={`text-sm font-mono ${getRegimeColor(tileData.regime.current)}`}>
-                {getRegimeEmoji(tileData.regime.current)} {tileData.regime.current}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-btc-muted font-mono mb-1">
-                CONFIDENCE
-              </div>
-              <div className="text-sm font-mono text-btc">
-                {(tileData.confidence * 100).toFixed(0)}%
-              </div>
-            </div>
-          </div>
-
-          {/* Last Update */}
-          <div className="flex justify-between items-center text-xs text-btc-muted font-mono">
-            <span>LAST UPDATE</span>
-            <span>{tileData.lastUpdate.toLocaleTimeString()}</span>
-          </div>
+        {/* Last Update */}
+        <div className="flex justify-between items-center terminal-label">
+          <span>LAST UPDATE</span>
+          <span>{tileData.lastUpdate.toLocaleTimeString()}</span>
         </div>
       </div>
-    </StaticTileWrapper>
+    </TerminalTile>
   );
 };

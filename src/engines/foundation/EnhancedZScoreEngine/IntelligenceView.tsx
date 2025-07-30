@@ -62,13 +62,13 @@ export const ZScoreFoundationIntelligence: React.FC<ZScoreFoundationIntelligence
     multiTimeframe: [],
     distribution: {
       histogram: [
-        { range: [-4, -3] as [number, number], count: 2, percentage: 3.1, isHighlighted: false, color: 'btc-orange' as const },
-        { range: [-3, -2] as [number, number], count: 8, percentage: 12.5, isHighlighted: false, color: 'btc-orange' as const },
-        { range: [-2, -1] as [number, number], count: 15, percentage: 23.4, isHighlighted: true, color: 'btc-light' as const },
-        { range: [-1, 0] as [number, number], count: 18, percentage: 28.1, isHighlighted: true, color: 'btc' as const },
-        { range: [0, 1] as [number, number], count: 12, percentage: 18.8, isHighlighted: false, color: 'btc-light' as const },
-        { range: [1, 2] as [number, number], count: 7, percentage: 10.9, isHighlighted: false, color: 'btc-muted' as const },
-        { range: [2, 3] as [number, number], count: 2, percentage: 3.1, isHighlighted: false, color: 'btc-muted' as const }
+      { range: [-4, -3] as [number, number], count: 2, percentage: 3.1, isHighlighted: false, color: 'neon-orange' as const },
+      { range: [-3, -2] as [number, number], count: 8, percentage: 12.5, isHighlighted: false, color: 'neon-orange' as const },
+      { range: [-2, -1] as [number, number], count: 15, percentage: 23.4, isHighlighted: true, color: 'neon-teal' as const },
+      { range: [-1, 0] as [number, number], count: 18, percentage: 28.1, isHighlighted: true, color: 'neon-lime' as const },
+      { range: [0, 1] as [number, number], count: 12, percentage: 18.8, isHighlighted: false, color: 'neon-teal' as const },
+      { range: [1, 2] as [number, number], count: 7, percentage: 10.9, isHighlighted: false, color: 'text-muted' as const },
+      { range: [2, 3] as [number, number], count: 2, percentage: 3.1, isHighlighted: false, color: 'text-muted' as const }
       ] as HistogramBin[],
       skewness: -0.23,
       kurtosis: 1.87,
@@ -115,9 +115,9 @@ export const ZScoreFoundationIntelligence: React.FC<ZScoreFoundationIntelligence
         className={className}
       >
         <div className="space-y-6">
-          <div className="h-20 bg-btc-muted/10 rounded animate-pulse" />
-          <div className="h-32 bg-btc-muted/10 rounded animate-pulse" />
-          <div className="h-24 bg-btc-muted/10 rounded animate-pulse" />
+          <div className="h-20 bg-glass-bg animate-pulse" />
+          <div className="h-32 bg-glass-bg animate-pulse" />
+          <div className="h-24 bg-glass-bg animate-pulse" />
         </div>
       </TerminalLayout>
     );
@@ -130,9 +130,9 @@ export const ZScoreFoundationIntelligence: React.FC<ZScoreFoundationIntelligence
         status="critical"
         className={className}
       >
-        <div className="flex items-center justify-center h-32 text-btc-orange">
+        <div className="flex items-center justify-center h-32 text-neon-orange">
           <AlertTriangle className="h-6 w-6 mr-2" />
-          <span>Engine Intelligence Offline</span>
+          <span className="font-mono">ENGINE INTELLIGENCE OFFLINE</span>
         </div>
       </TerminalLayout>
     );
@@ -158,7 +158,7 @@ export const ZScoreFoundationIntelligence: React.FC<ZScoreFoundationIntelligence
           />
         <TerminalDataRow
           label="Market Regime"
-          value={`🌱 ${actualData.composite.regime}`}
+          value={`▲ ${actualData.composite.regime}`}
           status="neutral"
         />
         <TerminalDataRow
@@ -213,8 +213,8 @@ export const ZScoreFoundationIntelligence: React.FC<ZScoreFoundationIntelligence
 
         {/* Distribution Analysis */}
         <TerminalDataSection title="DISTRIBUTION ANALYSIS">
-          <div className="bg-btc-dark/30 rounded p-4 mb-4">
-            <div className="text-xs text-btc-muted mb-3 font-mono">
+          <div className="bg-glass-bg border border-glass-border p-4 mb-4">
+            <div className="terminal-label mb-3">
               Z-SCORE DISTRIBUTION HISTOGRAM
             </div>
             <ZScoreHistogram
