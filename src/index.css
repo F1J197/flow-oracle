@@ -217,7 +217,7 @@
     font-family: 'JetBrains Mono', monospace;
   }
 
-  /* Terminal ASCII Colors */
+  /* Terminal ASCII Colors - Complete Implementation */
   .text-neon-teal { color: hsl(var(--neon-teal)); }
   .text-neon-orange { color: hsl(var(--neon-orange)); }
   .text-neon-lime { color: hsl(var(--neon-lime)); }
@@ -225,6 +225,24 @@
   .text-neon-fuchsia { color: hsl(var(--neon-fuchsia)); }
   .text-neon-blue { color: hsl(var(--neon-blue)); }
   .text-neon-amber { color: hsl(var(--neon-amber)); }
+
+  /* Background Neon Colors */
+  .bg-neon-teal { background-color: hsl(var(--neon-teal)); }
+  .bg-neon-orange { background-color: hsl(var(--neon-orange)); }
+  .bg-neon-lime { background-color: hsl(var(--neon-lime)); }
+  .bg-neon-gold { background-color: hsl(var(--neon-gold)); }
+  .bg-neon-fuchsia { background-color: hsl(var(--neon-fuchsia)); }
+  .bg-neon-blue { background-color: hsl(var(--neon-blue)); }
+  .bg-neon-amber { background-color: hsl(var(--neon-amber)); }
+
+  /* Border Neon Colors */
+  .border-neon-teal { border-color: hsl(var(--neon-teal)); }
+  .border-neon-orange { border-color: hsl(var(--neon-orange)); }
+  .border-neon-lime { border-color: hsl(var(--neon-lime)); }
+  .border-neon-gold { border-color: hsl(var(--neon-gold)); }
+  .border-neon-fuchsia { border-color: hsl(var(--neon-fuchsia)); }
+  .border-neon-blue { border-color: hsl(var(--neon-blue)); }
+  .border-neon-amber { border-color: hsl(var(--neon-amber)); }
 
   /* ASCII Terminal Elements */
   .terminal-divider {
@@ -259,6 +277,135 @@
   .terminal-spacing-sm { margin: var(--terminal-spacing-sm); }
   .terminal-spacing-md { margin: var(--terminal-spacing-md); }
   .terminal-spacing-lg { margin: var(--terminal-spacing-lg); }
+
+  /* Terminal Section Components */
+  .terminal-section {
+    margin-bottom: 16px;
+  }
+
+  .terminal-section-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: hsl(var(--neon-teal));
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .terminal-section-divider {
+    height: 1px;
+    background: hsl(var(--neon-teal) / 0.3);
+    margin-bottom: 8px;
+  }
+
+  .terminal-section-content {
+    padding-left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  /* Terminal Data Rows */
+  .terminal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  .terminal-label {
+    color: hsl(var(--text-secondary));
+    font-weight: 400;
+  }
+
+  .terminal-value {
+    color: hsl(var(--text-data));
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Terminal Metric Grid */
+  .terminal-metric-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .terminal-metric-grid-1 { grid-template-columns: 1fr; }
+  .terminal-metric-grid-2 { grid-template-columns: 1fr 1fr; }
+  .terminal-metric-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .terminal-metric-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .terminal-metric-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    color: hsl(var(--text-secondary));
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .terminal-metric-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: hsl(var(--text-data));
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Terminal Table Components */
+  .mono-table {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    width: 100%;
+  }
+
+  .mono-table-row {
+    display: flex;
+    border-bottom: 1px solid hsl(var(--glass-border) / 0.3);
+  }
+
+  .mono-table-header {
+    background: hsl(var(--bg-secondary));
+    font-weight: 600;
+    color: hsl(var(--neon-teal));
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .mono-table-cell {
+    flex: 1;
+    padding: 6px 8px;
+    color: hsl(var(--text-primary));
+  }
+
+  /* Section Dividers */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    margin: 12px 0 8px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: hsl(var(--neon-teal));
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: hsl(var(--neon-teal) / 0.3);
+    margin-left: 12px;
+  }
 }
 
 /* ASCII Terminal Only Keyframes */

@@ -87,6 +87,15 @@ export default {
 				'text-accent': 'hsl(var(--text-accent))',
 				'text-data': 'hsl(var(--text-data))',
 				
+				// Terminal Neon Colors - Complete Implementation
+				'neon-teal': 'hsl(var(--neon-teal))',
+				'neon-orange': 'hsl(var(--neon-orange))',
+				'neon-lime': 'hsl(var(--neon-lime))',
+				'neon-gold': 'hsl(var(--neon-gold))',
+				'neon-fuchsia': 'hsl(var(--neon-fuchsia))',
+				'neon-blue': 'hsl(var(--neon-blue))',
+				'neon-amber': 'hsl(var(--neon-amber))',
+				
 				// Legacy Compatibility
 				noir: {
 					bg: 'hsl(var(--bg-primary))',
@@ -107,11 +116,15 @@ export default {
 				}
 			},
 			borderRadius: {
-				lg: '0',
-				md: '0', 
-				sm: '0',
+				DEFAULT: '0',
 				none: '0',
-				DEFAULT: '0'
+				sm: '0',
+				md: '0',
+				lg: '0',
+				xl: '0',
+				'2xl': '0',
+				'3xl': '0',
+				full: '0'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -129,11 +142,26 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'terminal-glow': {
+					'0%': { boxShadow: '0 0 10px hsl(var(--neon-teal) / 0.3)' },
+					'100%': { boxShadow: '0 0 20px hsl(var(--neon-teal) / 0.6)' }
+				},
+				'terminal-pulse': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.8' }
+				},
+				'neon-flicker': {
+					'0%': { opacity: '1' },
+					'100%': { opacity: '0.95' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'terminal-glow': 'terminal-glow 2s ease-in-out infinite alternate',
+				'terminal-pulse': 'terminal-pulse 1.5s ease-in-out infinite',
+				'neon-flicker': 'neon-flicker 0.15s ease-in-out infinite alternate'
 			},
 			fontFamily: {
 				mono: ['JetBrains Mono', 'IBM Plex Mono', 'Roboto Mono', 'monospace'],

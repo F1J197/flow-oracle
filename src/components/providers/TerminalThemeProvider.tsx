@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useContext, useEffect } from 'react';
 import { TERMINAL_THEME, globalStyles } from '@/config/terminal.theme';
+import { initializeTerminalCompliance } from '@/utils/terminalCompliance';
 
 interface TerminalThemeContextType {
   theme: typeof TERMINAL_THEME;
@@ -39,6 +40,9 @@ export const TerminalThemeProvider = ({
       
       // Add terminal mode class to body
       document.body.classList.add('terminal-mode');
+      
+      // Initialize terminal compliance enforcement
+      initializeTerminalCompliance();
       
       return () => {
         styleElement.remove();

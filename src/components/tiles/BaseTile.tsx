@@ -4,13 +4,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 const baseTileVariants = cva(
   [
-    // Enhanced base styling with new design system
+    // Bloomberg Terminal Strict Styling - Zero Rounded Corners
     "relative overflow-hidden transition-all duration-300",
-    "bg-bg-tile backdrop-blur-premium border border-glass-border",
-    "rounded-xl shadow-md hover:shadow-lg",
-    "group cursor-default",
-    // Tile-specific animations
-    "animate-tileEntry"
+    "bg-bg-tile border border-glass-border font-mono",
+    "shadow-md hover:shadow-lg",
+    "group cursor-default terminal-panel"
   ],
   {
     variants: {
@@ -22,24 +20,24 @@ const baseTileVariants = cva(
       },
       variant: {
         default: "",
-        primary: "border-btc-primary/30 bg-gradient-to-br from-btc-primary/5 to-transparent",
-        warning: "border-warning/30 bg-gradient-to-br from-warning/5 to-transparent", 
-        critical: "border-critical/30 bg-gradient-to-br from-critical/5 to-transparent",
-        success: "border-success/30 bg-gradient-to-br from-success/5 to-transparent",
-        positive: "border-positive/30 bg-gradient-to-br from-positive/5 to-transparent",
-        negative: "border-negative/30 bg-gradient-to-br from-negative/5 to-transparent"
+        primary: "border-btc-primary/30 bg-btc-primary/5",
+        warning: "border-warning/30 bg-warning/5", 
+        critical: "border-critical/30 bg-critical/5",
+        success: "border-success/30 bg-success/5",
+        positive: "border-positive/30 bg-positive/5",
+        negative: "border-negative/30 bg-negative/5"
       },
       status: {
         normal: "",
-        active: "ring-1 ring-btc-primary/30 shadow-btc-glow",
-        warning: "ring-1 ring-warning/30 animate-statusPulse",
-        critical: "ring-1 ring-critical/30 animate-statusPulse",
+        active: "ring-1 ring-btc-primary/30 shadow-glow",
+        warning: "ring-1 ring-warning/30 animate-pulse",
+        critical: "ring-1 ring-critical/30 animate-pulse",
         loading: "animate-pulse opacity-75"
       },
       interactive: {
         none: "",
-        hover: "hover:scale-[1.02] hover:border-btc-primary/20 hover:shadow-btc-glow",
-        clickable: "hover:scale-[1.02] hover:border-btc-primary/30 hover:shadow-btc-glow cursor-pointer active:scale-[0.98] transition-transform"
+        hover: "hover:border-neon-teal/50 hover:bg-glass-surface/20",
+        clickable: "hover:border-neon-teal/50 hover:bg-glass-surface/20 cursor-pointer active:border-neon-teal/70"
       }
     },
     defaultVariants: {
@@ -67,20 +65,20 @@ export const BaseTile = forwardRef<HTMLDivElement, BaseTileProps>(
         onClick={onClick}
         {...props}
       >
-        {/* Enhanced premium glow effect */}
+        {/* Terminal Glow Effect - No Gradients, Pure Neon */}
         <div className={cn(
-          "absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none",
-          "bg-gradient-to-br from-btc-primary/10 via-transparent to-btc-glow/5"
+          "absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none",
+          "bg-neon-teal/5"
         )} />
         
-        {/* Animated border gradient */}
+        {/* Terminal Border Enhancement - Active State */}
         <div className={cn(
-          "absolute inset-0 rounded-xl border border-transparent opacity-0 group-hover:opacity-100 transition-all duration-500",
-          "bg-gradient-to-r from-btc-primary/30 via-btc-bright/20 to-btc-light/30 p-[1px]"
+          "absolute inset-0 border border-transparent opacity-0 group-hover:opacity-100 transition-all duration-300",
+          "border-neon-teal/50"
         )} />
         
-        {/* Inner content container */}
-        <div className="absolute inset-[1px] rounded-xl bg-bg-tile group-hover:bg-glass-surface/50 transition-colors duration-500" />
+        {/* Terminal Content Background */}
+        <div className="absolute inset-[1px] bg-bg-tile group-hover:bg-glass-surface/30 transition-colors duration-300" />
 
         {/* Content */}
         <div className="relative z-10">

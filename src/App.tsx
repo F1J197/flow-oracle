@@ -9,27 +9,30 @@ import { UnifiedDataDemo } from "./pages/UnifiedDataDemo";
 import IntelligenceEngine from "./pages/IntelligenceEngine";
 import { SystemDashboard } from "./pages/SystemDashboard";
 import { EngineRegistryProvider } from "./components/engines/EngineRegistryProvider";
+import { TerminalThemeProvider } from "./components/providers/TerminalThemeProvider";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <EngineRegistryProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/unified-demo" element={<UnifiedDataDemo />} />
-            <Route path="/intelligence" element={<IntelligenceEngine />} />
-            <Route path="/system" element={<SystemDashboard />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </EngineRegistryProvider>
-    </TooltipProvider>
+    <TerminalThemeProvider>
+      <TooltipProvider>
+        <EngineRegistryProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/unified-demo" element={<UnifiedDataDemo />} />
+              <Route path="/intelligence" element={<IntelligenceEngine />} />
+              <Route path="/system" element={<SystemDashboard />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </EngineRegistryProvider>
+      </TooltipProvider>
+    </TerminalThemeProvider>
   </QueryClientProvider>
 );
 
