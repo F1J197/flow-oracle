@@ -3,10 +3,10 @@
  * Core data processing and validation engines that other engines depend on
  */
 
-// New V6 Foundation Data Integrity Engine
-export * from './DataIntegrityEngine';
+// Enhanced Z-Score Engine - Foundation Tier
+export * from './EnhancedZScoreEngine';
 
-// Keep enhanced Z-Score engine
+// Keep legacy engine for backward compatibility  
 export { EnhancedZScoreEngineV6 } from '../EnhancedZScoreEngineV6';
 
 // Re-export types for foundation engines
