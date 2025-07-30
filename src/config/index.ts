@@ -21,20 +21,37 @@ export const CONFIG = {
     HEALTH_CHECK_INTERVAL: 10000,
   },
 
-  // Data Sources
+  // Data Sources - Using Universal Proxy
   DATA_SOURCES: {
+    PROXY: {
+      ENDPOINT: 'universal-data-proxy',
+      TIMEOUT: 30000,
+      RETRY_ATTEMPTS: 3,
+    },
     FRED: {
-      BASE_URL: 'https://api.stlouisfed.org/fred',
-      TIMEOUT: 10000,
-      RATE_LIMIT: 100, // requests per minute
+      PROVIDER: 'fred',
+      RATE_LIMIT: 120, // requests per minute
     },
     COINBASE: {
+      PROVIDER: 'coinbase',
       WS_URL: 'wss://ws-feed.pro.coinbase.com',
-      REST_URL: 'https://api.pro.coinbase.com',
+      REST_URL: 'https://api.exchange.coinbase.com',
     },
     GLASSNODE: {
-      BASE_URL: 'https://api.glassnode.com',
+      PROVIDER: 'glassnode',
       TIMEOUT: 15000,
+    },
+    BINANCE: {
+      PROVIDER: 'binance',
+      RATE_LIMIT: 1200,
+    },
+    POLYGON: {
+      PROVIDER: 'polygon',
+      RATE_LIMIT: 5,
+    },
+    FINNHUB: {
+      PROVIDER: 'finnhub',
+      RATE_LIMIT: 60,
     },
   },
 

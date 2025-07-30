@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { UnifiedDataService } from '@/services/UnifiedDataService';
+import UniversalDataService from '@/services/UniversalDataService';
 import { DataPoint, HistoricalDataRequest, TimeFrame } from '@/types/indicators';
 import { useCircuitBreaker } from '@/components/ui/circuit-breaker';
 
@@ -44,7 +44,7 @@ export function useHistoricalData({
   const [totalPoints, setTotalPoints] = useState(0);
   const [offset, setOffset] = useState(0);
 
-  const dataService = UnifiedDataService.getInstance();
+  const dataService = UniversalDataService.getInstance();
   const circuitBreaker = useCircuitBreaker({ maxFailures: 3, resetTimeout: 30000 });
 
   const aggregatedData = useMemo(() => {

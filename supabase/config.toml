@@ -26,8 +26,14 @@ port = 54325
 enabled = true
 port = 54326
 
-[functions.fred-data-ingestion]
+[functions.universal-data-proxy]
 verify_jwt = false
 
 [functions.realtime-indicators]
+verify_jwt = false
+
+[functions.engine-execution]
+verify_jwt = false
+
+[functions.live-data-fetch]
 verify_jwt = false

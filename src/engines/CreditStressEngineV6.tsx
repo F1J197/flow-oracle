@@ -1,6 +1,6 @@
 import { IEngine, EngineReport, DashboardTileData, DetailedEngineView, ActionableInsight } from '@/types/engines';
 import { ResilientBaseEngine } from './ResilientBaseEngine';
-import { UnifiedDataService } from '@/services/UnifiedDataService';
+import UniversalDataService from '@/services/UniversalDataService';
 
 // ============= INTERFACES =============
 
@@ -139,7 +139,7 @@ class CreditSpreadCalculator {
     console.log('🔍 Credit Spread Calculator: Starting composite calculation...');
     
     // Fetch all spreads in parallel with fallbacks
-    const unifiedService = UnifiedDataService.getInstance();
+    const unifiedService = UniversalDataService.getInstance();
     const spreadPromises = Object.values(this.sources).map(async (source) => {
       try {
         const result = await unifiedService.refreshIndicator(source.id);

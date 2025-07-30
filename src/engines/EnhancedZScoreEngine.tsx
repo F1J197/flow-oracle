@@ -1,6 +1,6 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from '@/types/engines';
 import { BaseEngine } from '@/engines/BaseEngine';
-import { UnifiedDataService } from '@/services/UnifiedDataService';
+import UniversalDataService from '@/services/UniversalDataService';
 
 // Core interfaces for Z-Score calculations
 interface TimeSeriesData {
@@ -880,7 +880,7 @@ export class EnhancedZScoreEngine extends BaseEngine {
       }
 
       // Fetch data points from UnifiedDataService  
-      const unifiedService = UnifiedDataService.getInstance();
+      const unifiedService = UniversalDataService.getInstance();
       const result = await unifiedService.getHistoricalData({
         indicatorId: symbol,
         timeFrame: '1d',

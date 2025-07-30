@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ZScoreCalculator } from '@/services/ZScoreCalculator';
-import { UnifiedDataService } from '@/services/UnifiedDataService';
+import UniversalDataService from '@/services/UniversalDataService';
 import { 
   ZScoreData, 
   MarketRegime, 
@@ -44,7 +44,7 @@ export const useZScoreData = (options: UseZScoreDataOptions = {}): UseZScoreData
   const [cacheHit, setCacheHit] = useState(false);
 
   const calculator = ZScoreCalculator.getInstance();
-  const dataService = UnifiedDataService.getInstance();
+  const dataService = UniversalDataService.getInstance();
   const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(true);
 

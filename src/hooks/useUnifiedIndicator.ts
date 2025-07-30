@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { IndicatorState, IndicatorSubscription, HistoricalDataRequest, DataPoint } from '@/types/indicators';
-import { UnifiedDataService } from '@/services/UnifiedDataService';
+import UniversalDataService from '@/services/UniversalDataService';
 
 interface UseUnifiedIndicatorOptions {
   includeHistorical?: boolean;
@@ -30,7 +30,7 @@ export const useUnifiedIndicator = (
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const dataService = UnifiedDataService.getInstance();
+  const dataService = UniversalDataService.getInstance();
 
   const {
     includeHistorical = false,

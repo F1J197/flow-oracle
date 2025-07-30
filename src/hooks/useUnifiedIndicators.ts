@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { IndicatorState, IndicatorFilter, IndicatorMetadata } from '@/types/indicators';
-import { UnifiedDataService } from '@/services/UnifiedDataService';
+import UniversalDataService from '@/services/UniversalDataService';
 import { IndicatorRegistry } from '@/services/IndicatorRegistry';
 
 interface UseUnifiedIndicatorsOptions {
@@ -42,7 +42,7 @@ export const useUnifiedIndicators = (
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const dataService = UnifiedDataService.getInstance();
+  const dataService = UniversalDataService.getInstance();
   const registry = IndicatorRegistry.getInstance();
 
   const {

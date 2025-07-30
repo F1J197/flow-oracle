@@ -1,5 +1,5 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight, IntelligenceViewData, DetailedModalData } from "@/types/engines";
-import { UnifiedDataService } from "@/services/UnifiedDataService";
+import UniversalDataService from "@/services/UniversalDataService";
 import { ResilientBaseEngine } from "./ResilientBaseEngine";
 import { createDefaultIntelligenceView, createDefaultDetailedModal } from "./EngineHelpers";
 
@@ -97,7 +97,7 @@ export class NetLiquidityEngine extends ResilientBaseEngine {
     }
     
     // Fetch data with timeout and fallbacks
-    const unifiedService = UnifiedDataService.getInstance();
+    const unifiedService = UniversalDataService.getInstance();
     const dataPromises = [
       this.fetchWithTimeout(async () => {
         const result = await unifiedService.refreshIndicator('WALCL');

@@ -1,6 +1,6 @@
 import { IEngine, DashboardTileData, DetailedEngineView, EngineReport, ActionableInsight } from '@/types/engines';
 import { BaseEngine } from './BaseEngine';
-import { UnifiedDataService } from '@/services/UnifiedDataService';
+import UniversalDataService from '@/services/UniversalDataService';
 
 // Core interfaces for momentum calculations
 interface TimeSeriesPoint {
@@ -631,7 +631,7 @@ export class EnhancedMomentumEngine extends BaseEngine {
         }
 
         // Get limited data points for faster processing
-        const unifiedService = UnifiedDataService.getInstance();
+        const unifiedService = UniversalDataService.getInstance();
         const dataPoints = await unifiedService.getHistoricalData({
           indicatorId: indicator,
           timeFrame: '1d',

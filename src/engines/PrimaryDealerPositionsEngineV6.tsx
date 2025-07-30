@@ -1,6 +1,6 @@
 import { IEngine, EngineReport, DashboardTileData, DetailedEngineView, ActionableInsight } from '@/types/engines';
 import { BaseEngine } from './BaseEngine';
-import { UnifiedDataService } from '@/services/UnifiedDataService';
+import UniversalDataService from '@/services/UniversalDataService';
 import { DealerPositionData, DealerRegime, DealerAlert, DealerInsight } from '@/types/dealerPositions';
 import { PrimaryDealerTileData } from '@/types/primaryDealerTile';
 
@@ -11,7 +11,7 @@ export class PrimaryDealerPositionsEngineV6 extends BaseEngine {
   readonly priority = 20;
   readonly pillar = 2 as const;
 
-  private unifiedService = UnifiedDataService.getInstance();
+  private unifiedService = UniversalDataService.getInstance();
   private currentData: DealerPositionData | null = null;
   private lastSuccessfulUpdate = new Date();
   private errorCount = 0;
