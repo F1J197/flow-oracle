@@ -81,95 +81,77 @@ export const ZScoreFoundationTile: React.FC<ZScoreFoundationTileProps> = ({
 
   if (loading || !tileData) {
     return (
-      <TerminalTile
-        title="ENHANCED Z-SCORE ENGINE"
-        status="loading"
-        className={className}
-      >
-        <div className="space-y-4">
-          <div className="h-16 bg-glass-bg animate-pulse" />
-          <div className="h-20 bg-glass-bg animate-pulse" />
-        </div>
-      </TerminalTile>
+      <div className="space-y-4">
+        <div className="h-16 bg-glass-bg animate-pulse" />
+        <div className="h-20 bg-glass-bg animate-pulse" />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <TerminalTile
-        title="ENHANCED Z-SCORE ENGINE"
-        status="critical"
-        className={className}
-      >
-        <div className="flex items-center justify-center h-32 text-neon-orange">
-          <AlertTriangle className="h-6 w-6 mr-2" />
-          <span className="text-sm font-mono">ENGINE OFFLINE</span>
-        </div>
-      </TerminalTile>
+      <div className="flex items-center justify-center h-32 text-neon-orange">
+        <AlertTriangle className="h-6 w-6 mr-2" />
+        <span className="text-sm font-mono">ENGINE OFFLINE</span>
+      </div>
     );
   }
 
   return (
-    <TerminalTile
-      title="ENHANCED Z-SCORE ENGINE"
-      status="active"
-      className={className}
-    >
-      <div className="space-y-4">
-        {/* Primary Metric Display */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {getStatusIcon(tileData.primaryMetric.status)}
-            <span className="terminal-label">
-              COMPOSITE
-            </span>
-          </div>
-          <div className="text-right">
-            <div className={`terminal-data text-2xl ${getStatusColor(tileData.primaryMetric.status)}`}>
-              {tileData.primaryMetric.formatted}
-            </div>
-          </div>
+    <div className="space-y-4">
+      {/* Primary Metric Display */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          {getStatusIcon(tileData.primaryMetric.status)}
+          <span className="terminal-label">
+            COMPOSITE
+          </span>
         </div>
-
-        {/* Z-Score Distribution Histogram */}
-        <div className="bg-glass-bg border border-glass-border p-3">
-          <div className="terminal-label mb-2">
-            DISTRIBUTION
+        <div className="text-right">
+          <div className={`terminal-data text-2xl ${getStatusColor(tileData.primaryMetric.status)}`}>
+            {tileData.primaryMetric.formatted}
           </div>
-          <ZScoreHistogram
-            bins={tileData.histogram.bins}
-            currentValue={tileData.histogram.currentValue}
-            extremeThreshold={tileData.histogram.extremeThreshold}
-            height={60}
-          />
-        </div>
-
-        {/* Market Regime & Confidence */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="terminal-label mb-1">
-              REGIME
-            </div>
-            <div className={`terminal-data ${getRegimeColor(tileData.regime.current)}`}>
-              {getRegimeSymbol(tileData.regime.current)} {tileData.regime.current}
-            </div>
-          </div>
-          <div>
-            <div className="terminal-label mb-1">
-              CONFIDENCE
-            </div>
-            <div className="terminal-data text-neon-teal">
-              {(tileData.confidence * 100).toFixed(0)}%
-            </div>
-          </div>
-        </div>
-
-        {/* Last Update */}
-        <div className="flex justify-between items-center terminal-label">
-          <span>LAST UPDATE</span>
-          <span>{tileData.lastUpdate.toLocaleTimeString()}</span>
         </div>
       </div>
-    </TerminalTile>
+
+      {/* Z-Score Distribution Histogram */}
+      <div className="bg-glass-bg border border-glass-border p-3">
+        <div className="terminal-label mb-2">
+          DISTRIBUTION
+        </div>
+        <ZScoreHistogram
+          bins={tileData.histogram.bins}
+          currentValue={tileData.histogram.currentValue}
+          extremeThreshold={tileData.histogram.extremeThreshold}
+          height={60}
+        />
+      </div>
+
+      {/* Market Regime & Confidence */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <div className="terminal-label mb-1">
+            REGIME
+          </div>
+          <div className={`terminal-data ${getRegimeColor(tileData.regime.current)}`}>
+            {getRegimeSymbol(tileData.regime.current)} {tileData.regime.current}
+          </div>
+        </div>
+        <div>
+          <div className="terminal-label mb-1">
+            CONFIDENCE
+          </div>
+          <div className="terminal-data text-neon-teal">
+            {(tileData.confidence * 100).toFixed(0)}%
+          </div>
+        </div>
+      </div>
+
+      {/* Last Update */}
+      <div className="flex justify-between items-center terminal-label">
+        <span>LAST UPDATE</span>
+        <span>{tileData.lastUpdate.toLocaleTimeString()}</span>
+      </div>
+    </div>
   );
 };
