@@ -122,18 +122,18 @@ export class MockDataProvider {
     }));
 
     // Data Integrity
-    states.set('DATA_QUALITY', this.createMockState({
-      id: 'data-quality',
-      symbol: 'DATA_QUALITY',
-      name: 'Data Quality Score',
-      description: 'Overall data integrity metric',
+    states.set('DATA_INTEGRITY', this.createMockState({
+      id: 'data-integrity',
+      symbol: 'DATA_INTEGRITY',
+      name: 'Data Integrity',
+      description: 'Foundation Data Integrity Engine - Monitors data source health and system integrity',
       source: 'ENGINE',
-      category: 'System',
-      pillar: 1,
-      priority: 6,
-      updateFrequency: '1m',
-      unit: 'percentage',
-      precision: 2
+      category: 'foundation',
+      pillar: 0,
+      priority: 0,
+      updateFrequency: '15m',
+      unit: 'Score',
+      precision: 1
     }, {
       current: 99.87,
       change: 0.03,

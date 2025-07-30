@@ -305,6 +305,21 @@ export class IndicatorRegistry {
         dependencies: ['high-yield-spread', 'investment-grade-spread'],
         transformFunction: 'creditStress',
         tags: ['credit', 'stress', 'composite']
+      },
+      {
+        id: 'data-integrity',
+        symbol: 'DATA_INTEGRITY',
+        name: 'Data Integrity',
+        description: 'Foundation Data Integrity Engine - Monitors data source health and system integrity',
+        source: 'ENGINE',
+        category: 'foundation',
+        pillar: 0,
+        priority: 0,
+        updateFrequency: '15m',
+        unit: 'Score',
+        precision: 1,
+        transformFunction: 'dataIntegrity',
+        tags: ['foundation', 'integrity', 'monitoring']
       }
     ];
 

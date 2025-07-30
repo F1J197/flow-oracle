@@ -15,7 +15,7 @@ const Index = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <PremiumDashboard />;
+        return <Dashboard />;
       case 'engines':
         return <IntelligenceEngineWrapper />;
       case 'charts':
@@ -23,7 +23,7 @@ const Index = () => {
       case 'showcase':
         return <PremiumShowcase />;
       default:
-        return <PremiumDashboard />;
+        return <Dashboard />;
     }
   };
 

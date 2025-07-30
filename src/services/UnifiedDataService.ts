@@ -591,7 +591,35 @@ export class UnifiedDataService {
 
   private async calculateEngineData(metadata: IndicatorMetadata): Promise<IndicatorValue | null> {
     try {
-      // Use existing engine execution system
+      // Handle Data Integrity Engine locally
+      if (metadata.symbol === 'DATA_INTEGRITY') {
+        const { DataIntegrityEngine } = await import('@/engines/foundation/DataIntegrityEngine');
+        const engine = new DataIntegrityEngine();
+        
+        try {
+          await engine.execute();
+          const metrics = engine.getDataIntegrityMetrics();
+          
+          return {
+            current: metrics.integrityScore,
+            confidence: 1.0,
+            timestamp: new Date(),
+            quality: metrics.integrityScore / 100, // Convert to 0-1 range
+            synthetic: true
+          };
+        } catch (engineError) {
+          console.error('Data Integrity Engine execution failed:', engineError);
+          return {
+            current: 0,
+            confidence: 0.5,
+            timestamp: new Date(),
+            quality: 0,
+            synthetic: true
+          };
+        }
+      }
+
+      // Use existing engine execution system for other engines
       const { data, error } = await supabase.functions.invoke('engine-execution', {
         body: { 
           engineId: metadata.symbol,
