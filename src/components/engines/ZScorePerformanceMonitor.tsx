@@ -102,7 +102,7 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
           </div>
 
           <div className="flex items-center space-x-2 mt-3">
-            <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-btc-orange-bright animate-pulse' : 'bg-btc-orange-dark'}`}></div>
+            <div className={`w-2 h-2 terminal-panel ${isLive ? 'bg-btc-orange-bright animate-pulse' : 'bg-btc-orange-dark'}`}></div>
             <span className="text-xs text-text-secondary">
               {isLive ? 'Live' : 'Stale'}
             </span>
@@ -165,7 +165,7 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
           </div>
 
           <div className="mt-3">
-            <div className="w-full h-1.5 bg-noir-border rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-noir-border overflow-hidden terminal-panel">
               <div 
                 className="h-full bg-gradient-to-r from-btc-orange-dark via-btc-orange to-btc-orange-bright transition-all duration-500"
                 style={{ width: `${metrics.cacheHitRate}%` }}
@@ -201,11 +201,11 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
 
           <div className="grid grid-cols-2 gap-1 mt-3">
             <div className="flex items-center space-x-1">
-              <div className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-btc-orange-bright' : 'bg-btc-orange-dark'}`}></div>
+              <div className={`w-1.5 h-1.5 terminal-panel ${isLive ? 'bg-btc-orange-bright' : 'bg-btc-orange-dark'}`}></div>
               <span className="text-xs text-text-muted">Engine</span>
             </div>
             <div className="flex items-center space-x-1">
-              <div className="w-1.5 h-1.5 bg-btc-orange-bright rounded-full"></div>
+              <div className="w-1.5 h-1.5 bg-btc-orange-bright terminal-panel"></div>
               <span className="text-xs text-text-muted">Data</span>
             </div>
           </div>

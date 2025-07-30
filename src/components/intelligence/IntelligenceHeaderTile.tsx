@@ -170,7 +170,7 @@ export const IntelligenceHeaderTile = memo(({
 
       {/* Live indicator */}
       <div className="absolute top-4 right-4 flex items-center space-x-2">
-        <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse" />
+        <div className="w-2 h-2 bg-btc-primary animate-pulse terminal-panel" />
         <span className="text-xs text-btc-primary font-mono font-medium">LIVE</span>
       </div>
     </BaseTile>

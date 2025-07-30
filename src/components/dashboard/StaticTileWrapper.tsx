@@ -32,8 +32,8 @@ export const StaticTileWrapper = memo(({
   if (isolateFromEngines && !isStable) {
     return (
       <div className="glass-tile p-6 animate-pulse">
-        <div className="h-4 bg-glass-surface rounded w-1/3 mb-4"></div>
-        <div className="h-8 bg-glass-bg rounded w-1/2"></div>
+        <div className="h-4 bg-glass-surface w-1/3 mb-4 terminal-panel"></div>
+        <div className="h-8 bg-glass-bg w-1/2 terminal-panel"></div>
       </div>
     );
   }

@@ -113,10 +113,10 @@ export const EngineStatusTile = memo(({
             )}>
               {dataIntegrity.toFixed(1)}%
             </div>
-            <div className="w-16 h-1 bg-glass-surface rounded-full mt-1">
+            <div className="w-16 h-1 bg-glass-surface mt-1 terminal-panel">
               <div 
                 className={cn(
-                  "h-full rounded-full transition-all duration-300",
+                  "h-full transition-all duration-300 terminal-panel",
                   dataIntegrity >= 95 ? "bg-btc-primary" :
                   dataIntegrity >= 85 ? "bg-warning" : "bg-critical"
                 )}
@@ -147,7 +147,7 @@ export const EngineStatusTile = memo(({
 
       {/* Status Indicator Pulse */}
       {getOverallStatus() === "normal" && (
-        <div className="absolute top-4 right-4 w-2 h-2 bg-btc-primary rounded-full animate-pulse" />
+        <div className="absolute top-4 right-4 w-2 h-2 bg-btc-primary animate-pulse terminal-panel" />
       )}
     </BaseTile>
   );

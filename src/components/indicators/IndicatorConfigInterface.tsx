@@ -281,7 +281,7 @@ export function IndicatorConfigInterface({
                     <div
                       key={source.value}
                       className={cn(
-                        "p-3 rounded-lg border cursor-pointer transition-colors",
+                        "p-3 border cursor-pointer transition-colors terminal-panel",
                         config.source === source.value
                           ? "border-primary bg-primary/10"
                           : "border-glass-border hover:border-glass-border-hover"

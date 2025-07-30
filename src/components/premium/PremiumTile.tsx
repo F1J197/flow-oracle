@@ -59,7 +59,7 @@ export const PremiumTile = ({
         {/* Status Indicator */}
         {status !== 'normal' && (
           <div className={cn(
-            "w-2 h-2 rounded-full animate-pulse",
+            "w-2 h-2 animate-pulse terminal-panel",
             status === 'active' && "bg-btc-primary",
             status === 'warning' && "bg-warning",
             status === 'critical' && "bg-critical"

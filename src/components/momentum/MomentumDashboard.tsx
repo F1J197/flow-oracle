@@ -145,9 +145,9 @@ export const MomentumDashboard = ({
                   <span className="text-text-secondary">Confidence</span>
                   <span className="text-text-primary font-medium">{composite.confidence}%</span>
                 </div>
-                <div className="w-full bg-noir-border rounded-full h-2">
+                <div className="w-full bg-noir-border h-2 terminal-panel">
                   <div 
-                    className={`h-2 rounded-full transition-all duration-300 ${
+                    className={`h-2 transition-all duration-300 terminal-panel ${
                       composite.confidence > 80 ? 'bg-btc-orange-bright' :
                       composite.confidence > 60 ? 'bg-btc-orange' :
                       composite.confidence > 40 ? 'bg-btc-orange-light' : 'bg-btc-orange-dark'
@@ -182,7 +182,7 @@ export const MomentumDashboard = ({
                 alerts.map((alert, index) => (
                   <div key={index} className="space-y-1">
                     <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${getSeverityColorClass(alert.severity)}`}></div>
+                      <div className={`w-2 h-2 terminal-panel ${getSeverityColorClass(alert.severity)}`}></div>
                       <span className="text-xs font-medium text-text-primary">
                         {alert.type}
                       </span>

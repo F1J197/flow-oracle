@@ -135,7 +135,7 @@ export const EngineMonitor: React.FC<EngineMonitorProps> = ({
 
       <CardContent>
         {error && (
-          <div className="mb-4 p-3 rounded-md bg-destructive/10 border border-destructive/20">
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 terminal-panel">
             <div className="flex items-center gap-2 text-destructive">
               <AlertCircle className="w-4 h-4" />
               <span className="text-sm">{error}</span>
@@ -151,7 +151,7 @@ export const EngineMonitor: React.FC<EngineMonitorProps> = ({
               <div
                 key={engine.id}
                 className={cn(
-                  "flex items-center justify-between p-3 rounded-lg border",
+                  "flex items-center justify-between p-3 border terminal-panel",
                   "bg-card hover:bg-accent/50 transition-colors"
                 )}
               >

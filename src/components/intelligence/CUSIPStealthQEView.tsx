@@ -85,9 +85,9 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
     return (
       <EngineLayout title="CUSIP STEALTH QE ENGINE" status="active">
         <div className="space-y-4 animate-pulse">
-          <div className="h-4 bg-glass-surface rounded" />
-          <div className="h-4 bg-glass-surface rounded w-3/4" />
-          <div className="h-4 bg-glass-surface rounded w-1/2" />
+          <div className="h-4 bg-glass-surface terminal-panel" />
+          <div className="h-4 bg-glass-surface w-3/4 terminal-panel" />
+          <div className="h-4 bg-glass-surface w-1/2 terminal-panel" />
         </div>
       </EngineLayout>
     );
@@ -141,7 +141,7 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
 
         {/* Alerts */}
         {detailedView.alerts && detailedView.alerts.length > 0 && (
-          <div className="border border-btc-orange/30 bg-btc-orange/5 rounded-lg p-3">
+          <div className="border border-btc-orange/30 bg-btc-orange/5 p-3 terminal-panel">
             <div className="text-xs font-medium text-btc-orange mb-2">STEALTH OPERATION ALERT</div>
             {detailedView.alerts.map((alert: any, index: number) => (
               <div key={index} className="text-xs text-text-secondary">

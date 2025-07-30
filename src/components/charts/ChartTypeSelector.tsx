@@ -97,7 +97,7 @@ export function ChartTypeSelector({
     <div className={cn("space-y-2", className)}>
       {/* Current Selection */}
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-glass-bg border border-glass-border">
+        <div className="flex items-center gap-2 px-3 py-2 bg-glass-bg border border-glass-border terminal-panel">
           {chartTypeConfig[value].icon}
           <span className="text-sm font-medium">{chartTypeConfig[value].label}</span>
           <Badge variant="secondary" className="text-xs">

@@ -21,7 +21,7 @@ export const PrimaryDealerPositionsV6Tile = ({
   };
 
   const getStatusIndicator = (status?: 'normal' | 'warning' | 'critical') => {
-    const baseClasses = "w-2 h-2 rounded-full";
+    const baseClasses = "w-2 h-2 terminal-panel";
     switch (status) {
       case 'critical':
         return <div className={cn(baseClasses, "bg-btc-primary animate-pulse")} />;
@@ -41,12 +41,12 @@ export const PrimaryDealerPositionsV6Tile = ({
           </h3>
         </div>
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-glass-bg rounded"></div>
-          <div className="h-4 bg-glass-bg rounded w-3/4"></div>
+          <div className="h-8 bg-glass-bg terminal-panel"></div>
+          <div className="h-4 bg-glass-bg w-3/4 terminal-panel"></div>
           <div className="space-y-2">
-            <div className="h-2 bg-glass-bg rounded"></div>
-            <div className="h-2 bg-glass-bg rounded"></div>
-            <div className="h-2 bg-glass-bg rounded"></div>
+            <div className="h-2 bg-glass-bg terminal-panel"></div>
+            <div className="h-2 bg-glass-bg terminal-panel"></div>
+            <div className="h-2 bg-glass-bg terminal-panel"></div>
           </div>
         </div>
       </div>
@@ -91,10 +91,10 @@ export const PrimaryDealerPositionsV6Tile = ({
           PRIMARY DEALER POSITIONS V6
         </h3>
         {tileData.status === 'critical' && (
-          <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-btc-primary animate-pulse terminal-panel"></div>
         )}
         {tileData.status === 'warning' && (
-          <div className="w-2 h-2 bg-btc-light rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-btc-light animate-pulse terminal-panel"></div>
         )}
       </div>
       {/* Header with net position and status */}

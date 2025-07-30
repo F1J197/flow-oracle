@@ -194,15 +194,15 @@ export const TerminalDashboard = () => {
             <div className="mt-3 pt-2 border-t border-neon-teal/20">
               <div className="text-xs space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-neon-lime rounded-full"></div>
+                  <div className="w-2 h-2 bg-neon-lime terminal-panel"></div>
                   <span className="text-text-secondary">DATA_FEEDS</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-neon-lime rounded-full"></div>
+                  <div className="w-2 h-2 bg-neon-lime terminal-panel"></div>
                   <span className="text-text-secondary">CALCULATIONS</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-neon-gold rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-neon-gold animate-pulse terminal-panel"></div>
                   <span className="text-text-secondary">ALERTS</span>
                 </div>
               </div>

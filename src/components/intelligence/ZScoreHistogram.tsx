@@ -87,7 +87,7 @@ export const ZScoreHistogram: React.FC<ZScoreHistogramProps> = ({
                 {/* Current value indicator */}
                 {bin.isHighlighted && (
                   <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
-                    <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse shadow-glow" />
+                    <div className="w-2 h-2 bg-neon-lime animate-pulse shadow-glow terminal-panel" />
                     <div className="absolute top-3 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                       <span className="text-xs font-medium text-neon-lime bg-bg-secondary px-1 rounded">
                         {currentValue.toFixed(2)}σ

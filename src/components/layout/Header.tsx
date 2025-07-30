@@ -36,7 +36,7 @@ export const Header = () => {
         {/* Terminal Status */}
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-neon-lime animate-pulse terminal-panel"></div>
             <span className="text-xs text-neon-lime font-mono font-bold tracking-wider">LIVE</span>
           </div>
           <div className="text-neon-teal">│</div>

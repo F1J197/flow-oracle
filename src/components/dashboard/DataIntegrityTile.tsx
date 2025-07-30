@@ -89,7 +89,7 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
         </div>
         <div className="flex items-center gap-2">
           {getStatusIcon()}
-          <div className="w-2 h-2 rounded-full bg-btc-success animate-pulse" />
+          <div className="w-2 h-2 bg-btc-success animate-pulse terminal-panel" />
         </div>
       </div>
 
@@ -123,7 +123,7 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
 
       {/* Mini Chart/Visual (Integrity Score Bar) */}
       <div className="mb-4">
-        <div className="h-2 bg-surface-accent rounded-full overflow-hidden">
+        <div className="h-2 bg-surface-accent overflow-hidden terminal-panel">
           <div 
             className={`h-full transition-all duration-1000 ${
               data.status === 'critical' ? 'bg-btc-error' :
@@ -144,7 +144,7 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
 
       {/* Action Text */}
       {data.actionText && (
-        <div className="mt-4 p-3 rounded bg-surface-accent/50 border border-border-subtle">
+        <div className="mt-4 p-3 bg-surface-accent/50 border border-border-subtle terminal-panel">
           <p className="text-xs text-text-primary leading-relaxed">
             {data.actionText}
           </p>
@@ -154,7 +154,7 @@ export const DataIntegrityTile: React.FC<DataIntegrityTileProps> = ({ data, onCl
       {/* Bottom Status Indicators */}
       <div className="mt-4 flex justify-between items-center text-xs">
         <div className="flex items-center gap-1">
-          <div className={`w-2 h-2 rounded-full ${
+          <div className={`w-2 h-2 terminal-panel ${
             data.status === 'normal' ? 'bg-btc-success' :
             data.status === 'warning' ? 'bg-btc-warning' : 'bg-btc-error'
           }`} />

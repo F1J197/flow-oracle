@@ -26,7 +26,7 @@ export const PrimaryActionTile = memo(({ loading = false }: PrimaryActionTilePro
           PRIMARY ACTION
         </h3>
         <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-btc-primary animate-pulse terminal-panel"></div>
           <Shield className="w-4 h-4 text-btc-primary" />
         </div>
       </div>

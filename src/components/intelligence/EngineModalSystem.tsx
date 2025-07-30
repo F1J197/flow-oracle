@@ -65,7 +65,7 @@ export const EngineModalSystem: React.FC<EngineModalSystemProps> = ({
                 <ul className="space-y-2">
                   {data.keyInsights.map((insight, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-btc-primary rounded-full mt-2 flex-shrink-0" />
+                      <div className="w-2 h-2 bg-btc-primary mt-2 flex-shrink-0 terminal-panel" />
                       <span className="text-text-primary text-sm leading-relaxed">
                         {insight}
                       </span>

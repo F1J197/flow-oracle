@@ -51,8 +51,8 @@ export const ActionableInsightTile = memo(({
     return (
       <BaseTile status="loading" className="cursor-pointer hover:scale-[1.02] transition-all duration-300">
         <div className="animate-pulse space-y-3">
-          <div className="h-8 bg-noir-border rounded w-3/4"></div>
-          <div className="h-4 bg-noir-border rounded w-1/2"></div>
+          <div className="h-8 bg-noir-border w-3/4 terminal-panel"></div>
+          <div className="h-4 bg-noir-border w-1/2 terminal-panel"></div>
         </div>
       </BaseTile>
     );
@@ -84,7 +84,7 @@ export const ActionableInsightTile = memo(({
             {insight.confidence}
           </span>
         </div>
-        <div className="w-full bg-noir-border rounded-full h-2 overflow-hidden">
+        <div className="w-full bg-noir-border h-2 overflow-hidden terminal-panel">
           <div 
             className="h-full bg-btc-orange transition-all duration-500 ease-out"
             style={{ width: `${stableSignalStrength}%` }}

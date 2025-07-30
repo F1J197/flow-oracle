@@ -24,7 +24,7 @@ export const EngineLayout = ({ title, status, children, className }: EngineLayou
     return (
       <div 
         className={cn(
-          "w-2 h-2 rounded-full",
+          "w-2 h-2 terminal-panel",
           status === 'active' && "bg-btc-primary animate-pulse",
           status === 'warning' && "bg-btc-light animate-pulse",
           status === 'critical' && "bg-btc-error animate-pulse",

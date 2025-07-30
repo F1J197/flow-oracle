@@ -79,7 +79,7 @@ export const MomentumChart = ({
         
         {/* Momentum indicator */}
         <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: getTimeframeColor() }}></div>
+          <div className="w-2 h-2 animate-pulse terminal-panel" style={{ backgroundColor: getTimeframeColor() }}></div>
           <span className="text-xs text-text-secondary">LIVE</span>
         </div>
       </div>

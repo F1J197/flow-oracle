@@ -26,12 +26,12 @@ export const PrimaryDealerIntelligenceTile = ({
   };
 
   const getStatusIndicator = () => {
-    if (!tileData) return <div className="w-2 h-2 bg-text-secondary rounded-full"></div>;
+    if (!tileData) return <div className="w-2 h-2 bg-text-secondary terminal-panel"></div>;
     switch (tileData.status) {
-      case 'normal': return <div className="w-2 h-2 bg-btc-bright rounded-full animate-pulse"></div>;
-      case 'warning': return <div className="w-2 h-2 bg-btc-light rounded-full animate-pulse"></div>;
-      case 'critical': return <div className="w-2 h-2 bg-btc-dark rounded-full animate-pulse"></div>;
-      default: return <div className="w-2 h-2 bg-text-secondary rounded-full"></div>;
+      case 'normal': return <div className="w-2 h-2 bg-btc-bright animate-pulse terminal-panel"></div>;
+      case 'warning': return <div className="w-2 h-2 bg-btc-light animate-pulse terminal-panel"></div>;
+      case 'critical': return <div className="w-2 h-2 bg-btc-dark animate-pulse terminal-panel"></div>;
+      default: return <div className="w-2 h-2 bg-text-secondary terminal-panel"></div>;
     }
   };
 

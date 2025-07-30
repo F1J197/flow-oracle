@@ -71,9 +71,9 @@ export function DataIntegrityEngineView({ loading: externalLoading, className }:
     return (
       <TerminalLayout title="DATA INTEGRITY ENGINE" status="offline" className={className}>
         <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-glass-bg rounded"></div>
-          <div className="h-4 bg-glass-bg rounded w-3/4"></div>
-          <div className="h-4 bg-glass-bg rounded w-1/2"></div>
+          <div className="h-4 bg-glass-bg terminal-panel"></div>
+          <div className="h-4 bg-glass-bg w-3/4 terminal-panel"></div>
+          <div className="h-4 bg-glass-bg w-1/2 terminal-panel"></div>
         </div>
       </TerminalLayout>
     );

@@ -21,10 +21,10 @@ export const IntelligenceTile = memo(({ data, loading = false }: IntelligenceTil
 
   const getStatusIndicator = () => {
     switch (data.status) {
-      case 'active': return <div className="w-2 h-2 bg-btc-light rounded-full animate-pulse"></div>;
-      case 'warning': return <div className="w-2 h-2 bg-btc-glow rounded-full animate-pulse"></div>;
-      case 'critical': return <div className="w-2 h-2 bg-btc-primary rounded-full animate-pulse"></div>;
-      case 'offline': return <div className="w-2 h-2 bg-text-secondary rounded-full"></div>;
+      case 'active': return <div className="w-2 h-2 bg-btc-light animate-pulse terminal-panel"></div>;
+      case 'warning': return <div className="w-2 h-2 bg-btc-glow animate-pulse terminal-panel"></div>;
+      case 'critical': return <div className="w-2 h-2 bg-btc-primary animate-pulse terminal-panel"></div>;
+      case 'offline': return <div className="w-2 h-2 bg-text-secondary terminal-panel"></div>;
     }
   };
 
@@ -51,7 +51,7 @@ export const IntelligenceTile = memo(({ data, loading = false }: IntelligenceTil
       )}>
         <div className="flex items-center justify-between">
           <div className="h-4 bg-glass-surface rounded w-2/3 animate-pulse"></div>
-          <div className="w-2 h-2 bg-glass-bg rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-glass-bg animate-pulse terminal-panel"></div>
         </div>
         <div className="space-y-3">
           <div className="h-6 bg-glass-bg rounded w-1/2 animate-pulse"></div>

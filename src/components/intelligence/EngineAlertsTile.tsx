@@ -80,7 +80,7 @@ export const EngineAlertsTile = memo(({
         <div className="flex items-center space-x-4">
           {criticalCount > 0 && (
             <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-critical rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-critical animate-pulse terminal-panel" />
               <span className="text-xs font-mono text-critical font-bold">
                 {criticalCount} Critical
               </span>
@@ -88,7 +88,7 @@ export const EngineAlertsTile = memo(({
           )}
           {warningCount > 0 && (
             <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-warning rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-warning animate-pulse terminal-panel" />
               <span className="text-xs font-mono text-warning font-bold">
                 {warningCount} Warning
               </span>

@@ -90,8 +90,8 @@ export const ZScoreDashboardTile: React.FC<ZScoreDashboardTileProps> = ({ classN
       <div className={className}>
         <StaticTileWrapper>
           <div className="glass-tile p-6 animate-pulse">
-            <div className="h-4 bg-glass-bg rounded w-1/3 mb-4"></div>
-            <div className="h-8 bg-glass-bg rounded w-1/2"></div>
+            <div className="h-4 bg-glass-bg w-1/3 mb-4 terminal-panel"></div>
+            <div className="h-8 bg-glass-bg w-1/2 terminal-panel"></div>
           </div>
         </StaticTileWrapper>
       </div>
@@ -111,7 +111,7 @@ export const ZScoreDashboardTile: React.FC<ZScoreDashboardTileProps> = ({ classN
             {getStatusIcon()}
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-neon-lime rounded-full animate-pulse" />
+            <div className="w-2 h-2 bg-neon-lime animate-pulse terminal-panel" />
             <span className="text-xs text-text-secondary">LIVE</span>
           </div>
         </div>

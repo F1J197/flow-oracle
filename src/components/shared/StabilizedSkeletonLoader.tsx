@@ -19,7 +19,7 @@ export const StabilizedSkeletonLoader = memo(({
       )}>
         <div className="flex items-center justify-between">
           <div className="h-4 bg-bg-elevated/60 rounded w-2/3 soft-shimmer"></div>
-          <div className="w-2 h-2 bg-btc-primary/50 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-btc-primary/50 animate-pulse terminal-panel"></div>
         </div>
         
         <div className="space-y-4 flex-1">
@@ -64,7 +64,7 @@ export const StabilizedSkeletonLoader = memo(({
     )}>
       <div className="flex items-center justify-between">
         <div className="h-4 bg-bg-elevated/60 rounded w-1/2 soft-shimmer"></div>
-        <div className="w-2 h-2 bg-btc-primary/50 rounded-full animate-pulse"></div>
+        <div className="w-2 h-2 bg-btc-primary/50 animate-pulse terminal-panel"></div>
       </div>
       
       <div className="space-y-3">

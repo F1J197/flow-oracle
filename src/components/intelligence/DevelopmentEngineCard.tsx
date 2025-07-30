@@ -65,7 +65,7 @@ export const DevelopmentEngineCard = memo(({
           <div className="flex items-center space-x-2">
             {config.icon}
             <span className={cn(
-              "text-xs font-mono font-bold uppercase px-2 py-1 rounded",
+              "text-xs font-mono font-bold uppercase px-2 py-1 terminal-panel",
               `text-${config.color} bg-${config.bgColor}`
             )}>
               {status}
@@ -107,9 +107,9 @@ export const DevelopmentEngineCard = memo(({
                 {progress}%
               </span>
             </div>
-            <div className="w-full h-1 bg-glass-surface rounded-full">
+            <div className="w-full h-1 bg-glass-surface terminal-panel">
               <div 
-                className="h-full bg-btc-light rounded-full transition-all duration-300"
+                className="h-full bg-btc-light transition-all duration-300 terminal-panel"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -130,7 +130,7 @@ export const DevelopmentEngineCard = memo(({
       </div>
 
       {/* Development indicator */}
-      <div className="absolute top-3 left-3 w-1 h-1 bg-btc-light rounded-full animate-pulse" />
+      <div className="absolute top-3 left-3 w-1 h-1 bg-btc-light animate-pulse terminal-panel" />
     </BaseTile>
   );
 });

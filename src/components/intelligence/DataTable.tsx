@@ -20,7 +20,7 @@ interface DataTableProps {
 
 export const DataTable = ({ columns, data, className }: DataTableProps) => {
   return (
-    <div className={cn("mono-table border border-glass-border/50 rounded-md overflow-hidden", className)}>
+    <div className={cn("mono-table border border-glass-border/50 overflow-hidden terminal-panel", className)}>
       {/* Table Header */}
       <div className="mono-table-row">
         {columns.map((column) => (
