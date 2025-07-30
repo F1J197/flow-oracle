@@ -7,55 +7,64 @@ interface SafeZScoreTileProps {
   className?: string;
 }
 
-const ZScoreContent: React.FC = () => {
+// Lazy load the Z-Score component
+const LazyZScoreFoundationTile = React.lazy(async () => {
   try {
-    // Import the real ZScoreFoundationTile only if available
-    const { ZScoreFoundationTile } = require('@/engines/foundation/EnhancedZScoreEngine');
-    return <ZScoreFoundationTile />;
+    const module = await import('@/engines/foundation/EnhancedZScoreEngine');
+    return { default: module.ZScoreFoundationTile };
   } catch (error) {
-    console.warn('🟡 ZScoreFoundationTile not available, using fallback:', error);
-    
-    // Fallback tile with mock data
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="terminal-label">COMPOSITE</span>
+    console.warn('🟡 ZScoreFoundationTile not available, using fallback');
+    // Return a fallback component
+    return { 
+      default: () => (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="terminal-label">COMPOSITE</span>
+            </div>
+            <div className="text-right">
+              <div className="terminal-data text-2xl text-neon-teal">+1.23σ</div>
+            </div>
           </div>
-          <div className="text-right">
-            <div className="terminal-data text-2xl text-neon-teal">+1.23σ</div>
-          </div>
-        </div>
 
-        <div className="bg-glass-bg border border-glass-border p-3">
-          <div className="terminal-label mb-2">DISTRIBUTION</div>
-          <div className="h-12 bg-neon-teal/20 rounded-none flex items-end justify-center">
-            <div className="w-1 h-8 bg-neon-teal mx-1"></div>
-            <div className="w-1 h-6 bg-neon-teal mx-1"></div>
-            <div className="w-1 h-10 bg-neon-lime mx-1"></div>
-            <div className="w-1 h-4 bg-neon-teal mx-1"></div>
-            <div className="w-1 h-2 bg-neon-teal mx-1"></div>
+          <div className="bg-glass-bg border border-glass-border p-3">
+            <div className="terminal-label mb-2">DISTRIBUTION</div>
+            <div className="h-12 bg-neon-teal/20 rounded-none flex items-end justify-center">
+              <div className="w-1 h-8 bg-neon-teal mx-1"></div>
+              <div className="w-1 h-6 bg-neon-teal mx-1"></div>
+              <div className="w-1 h-10 bg-neon-lime mx-1"></div>
+              <div className="w-1 h-4 bg-neon-teal mx-1"></div>
+              <div className="w-1 h-2 bg-neon-teal mx-1"></div>
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="terminal-label mb-1">REGIME</div>
-            <div className="terminal-data text-neon-teal">🌱 SPRING</div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="terminal-label mb-1">REGIME</div>
+              <div className="terminal-data text-neon-teal">🌱 SPRING</div>
+            </div>
+            <div>
+              <div className="terminal-label mb-1">CONFIDENCE</div>
+              <div className="terminal-data text-neon-teal">87%</div>
+            </div>
           </div>
-          <div>
-            <div className="terminal-label mb-1">CONFIDENCE</div>
-            <div className="terminal-data text-neon-teal">87%</div>
-          </div>
-        </div>
 
-        <div className="flex justify-between items-center terminal-label">
-          <span>LAST UPDATE</span>
-          <span>{new Date().toLocaleTimeString()}</span>
+          <div className="flex justify-between items-center terminal-label">
+            <span>LAST UPDATE</span>
+            <span>{new Date().toLocaleTimeString()}</span>
+          </div>
         </div>
-      </div>
-    );
+      )
+    };
   }
+});
+
+const ZScoreContent: React.FC = () => {
+  return (
+    <React.Suspense fallback={<div className="text-center text-neon-teal">Loading...</div>}>
+      <LazyZScoreFoundationTile />
+    </React.Suspense>
+  );
 };
 
 export const SafeZScoreTile: React.FC<SafeZScoreTileProps> = ({ className }) => {

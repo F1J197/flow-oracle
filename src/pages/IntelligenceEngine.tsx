@@ -20,7 +20,7 @@ import {
   MomentumView
 } from "@/components/intelligence";
 import { DataIntegrityIntelligenceView } from "@/engines/foundation/DataIntegrityEngine";
-import { ZScoreIntelligenceView } from "@/components/intelligence/ZScoreIntelligenceView";
+import { ZScoreFoundationIntelligence } from "@/engines/foundation/EnhancedZScoreEngine";
 import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
 import { StableDataTest } from "@/components/testing/StableDataTest";
 
@@ -60,7 +60,7 @@ function IntelligenceEngine() {
       case 'momentum':
         return <MomentumView loading={loading} />;
       case 'zScore':
-        return <ZScoreIntelligenceView loading={loading} />;
+        return <ZScoreFoundationIntelligence loading={loading} />;
       case 'primaryDealer':
         return <PrimaryDealerPositionsView loading={loading} />;
       case 'cusipStealth':

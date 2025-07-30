@@ -57,9 +57,9 @@ export const TerminalDashboard = () => {
 
   console.log('🎨 Rendering TerminalDashboard...');
   return (
-    <div className="bg-bg-primary text-text-primary font-mono h-screen overflow-hidden">
+    <div className="bg-bg-primary text-text-primary font-mono min-h-screen flex flex-col">
       {/* Terminal Header */}
-      <div className="border-b border-neon-teal/30 bg-bg-secondary p-3">
+      <div className="border-b border-neon-teal/30 bg-bg-secondary p-3 flex-shrink-0">
         <div className="flex justify-between items-center text-xs">
           <div className="flex items-center space-x-6">
             <div className="text-neon-teal font-bold text-sm tracking-widest">LIQUIDITY² V6.0</div>
@@ -82,9 +82,9 @@ export const TerminalDashboard = () => {
       </div>
 
       {/* Main Terminal Grid */}
-      <div className="p-4 grid grid-cols-4 gap-4 h-full">
+      <div className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-4 gap-4 auto-rows-min">
         {/* Net Liquidity Panel */}
-        <div className="col-span-1 bg-bg-tile border border-neon-teal/30 p-3">
+        <div className="col-span-1 bg-bg-tile border border-neon-teal/30 p-3 min-h-[200px]">
           <div className="border-b border-neon-teal/20 pb-2 mb-3">
             <div className="text-neon-teal text-xs font-bold tracking-wider">NET LIQUIDITY</div>
           </div>
@@ -195,7 +195,7 @@ export const TerminalDashboard = () => {
         </div>
 
         {/* Primary Action Panel - Large */}
-        <div className="col-span-2 bg-bg-tile border border-neon-amber/50 p-4">
+        <div className="col-span-1 lg:col-span-2 bg-bg-tile border border-neon-amber/50 p-4 min-h-[250px]">
           <div className="border-b border-neon-amber/30 pb-2 mb-4">
             <div className="text-neon-amber text-sm font-bold tracking-wider">PRIMARY ACTION</div>
           </div>
@@ -229,7 +229,7 @@ export const TerminalDashboard = () => {
         </div>
 
         {/* Alert Feed Panel */}
-        <div className="col-span-2 bg-bg-tile border border-neon-teal/30 p-3">
+        <div className="col-span-1 lg:col-span-2 bg-bg-tile border border-neon-teal/30 p-3 min-h-[200px]">
           <div className="border-b border-neon-teal/20 pb-2 mb-3">
             <div className="text-neon-teal text-xs font-bold tracking-wider">ALERT FEED</div>
           </div>
@@ -269,7 +269,7 @@ export const TerminalDashboard = () => {
       </div>
 
       {/* Terminal Footer */}
-      <div className="border-t border-neon-teal/30 bg-bg-secondary p-2">
+      <div className="border-t border-neon-teal/30 bg-bg-secondary p-2 flex-shrink-0">
         <div className="flex justify-between items-center text-xs">
           <div className="flex items-center space-x-4">
             <span className="text-text-secondary">LAST_UPDATE:</span>
