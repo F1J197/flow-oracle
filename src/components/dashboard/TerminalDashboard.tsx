@@ -265,9 +265,10 @@ export const TerminalDashboard = () => {
         {/* Global Financial Plumbing Panel */}
         <div className="col-span-1">
           <GlobalPlumbingTile
-            efficiency={parseFloat(String(efficiency || '0').replace('%', ''))}
+            efficiency={typeof efficiency === 'number' ? efficiency : 
+                       typeof efficiency === 'string' ? parseFloat(efficiency.replace('%', '')) : 85.7}
             systemicRisk={String(systemicRisk || 'low').toLowerCase() as 'low' | 'moderate' | 'high' | 'critical'}
-            trend={trend}
+            trend={trend || 'neutral'}
             loading={plumbingLoading}
             className="h-full"
           />
