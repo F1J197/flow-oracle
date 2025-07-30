@@ -12,39 +12,46 @@ import { UnifiedEngineTestPage } from "./pages/UnifiedEngineTest";
 import { EngineRegistryProvider } from "./components/engines/EngineRegistryProvider";
 import { TerminalThemeProvider } from "./components/providers/TerminalThemeProvider";
 import { ConsoleLogger } from "./components/debug/ConsoleLogger";
+import { AppErrorBoundary } from "./components/error/AppErrorBoundary";
+import { debugLogger, appLogger } from "./utils/debugLogger";
 
 const queryClient = new QueryClient();
 
+// Initialize app logging
+appLogger.initialization('Starting LIQUIDITY² application');
+
 const App = () => {
-  console.log('🔧 App component initializing...');
+  appLogger.initialization('App component initializing...');
   
   try {
     return (
-      <QueryClientProvider client={queryClient}>
-        <TerminalThemeProvider>
-          <TooltipProvider>
-            <EngineRegistryProvider>
-              <ConsoleLogger />
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/unified-demo" element={<UnifiedDataDemo />} />
-                  <Route path="/intelligence" element={<IntelligenceEngine />} />
-                  <Route path="/system" element={<SystemDashboard />} />
-                  <Route path="/unified-test" element={<UnifiedEngineTestPage />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </EngineRegistryProvider>
-          </TooltipProvider>
-        </TerminalThemeProvider>
-      </QueryClientProvider>
+      <AppErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <TerminalThemeProvider>
+            <TooltipProvider>
+              <EngineRegistryProvider>
+                <ConsoleLogger />
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/unified-demo" element={<UnifiedDataDemo />} />
+                    <Route path="/intelligence" element={<IntelligenceEngine />} />
+                    <Route path="/system" element={<SystemDashboard />} />
+                    <Route path="/unified-test" element={<UnifiedEngineTestPage />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </EngineRegistryProvider>
+            </TooltipProvider>
+          </TerminalThemeProvider>
+        </QueryClientProvider>
+      </AppErrorBoundary>
     );
   } catch (error) {
-    console.error('🚨 App component error:', error);
+    appLogger.error('App component error', error);
     return (
       <div style={{ 
         color: 'white', 
