@@ -37,9 +37,16 @@ class FREDDataIngestion {
     try {
       console.log(`Fetching FRED series: ${seriesId}`);
       
-      // Validate series ID format (FRED requirement: 25 or less alphanumeric characters)
-      if (!seriesId || seriesId.length > 25 || !/^[A-Za-z0-9]+$/.test(seriesId)) {
-        throw new Error(`Invalid FRED series ID format: ${seriesId}. Must be 25 or less alphanumeric characters.`);
+      // Enhanced validation: Check if this is an internal symbol that needs mapping
+      const mappedSeriesId = this.mapSymbolToFREDSeries(seriesId);
+      if (!mappedSeriesId) {
+        console.warn(`Symbol ${seriesId} not available in FRED, skipping`);
+        return [];
+      }
+      
+      // Validate FRED series ID format (FRED requirement: 25 or less alphanumeric characters)
+      if (!mappedSeriesId || mappedSeriesId.length > 25 || !/^[A-Za-z0-9_-]+$/.test(mappedSeriesId)) {
+        throw new Error(`Invalid FRED series ID format: ${mappedSeriesId}. Must be 25 or less alphanumeric characters.`);
       }
       
       if (!this.fredApiKey) {
@@ -47,7 +54,7 @@ class FREDDataIngestion {
       }
 
       const url = new URL('https://api.stlouisfed.org/fred/series/observations');
-      url.searchParams.set('series_id', seriesId);
+      url.searchParams.set('series_id', mappedSeriesId);
       url.searchParams.set('api_key', this.fredApiKey);
       url.searchParams.set('file_type', 'json');
       url.searchParams.set('limit', '1000');
@@ -85,9 +92,9 @@ class FREDDataIngestion {
         .filter(obs => !isNaN(obs.value))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-      console.log(`Successfully processed ${processedData.length} observations for ${seriesId}`);
+      console.log(`Successfully processed ${processedData.length} observations for ${mappedSeriesId}`);
 
-      // Store in database
+      // Store in database using original symbol for consistency
       await this.storeIndicatorData('fred', seriesId, processedData);
 
       return processedData;
@@ -132,14 +139,62 @@ class FREDDataIngestion {
     return results;
   }
 
+  private mapSymbolToFREDSeries(internalSymbol: string): string | null {
+    // FRED Symbol Mapping - matches fredSymbolMapping.ts
+    const FRED_SYMBOL_MAP: Record<string, string | null> = {
+      // Credit & Interest Rates
+      'credit-stress-score': 'NFCI',
+      'high-yield-spread': 'BAMLH0A0HYM2',
+      'investment-grade-spread': 'BAMLC0A0CM',
+      'vix': 'VIXCLS',
+      
+      // Federal Reserve Data
+      'fed-balance-sheet': 'WALCL',
+      'treasury-account': 'WTREGEN',
+      'reverse-repo': 'RRPONTSYD',
+      'net-liquidity': 'WALCL',
+      
+      // Market Data
+      'spx': 'SP500',
+      'dxy': 'DEXUSEU',
+      'yields-10y': 'DGS10',
+      'yields-2y': 'DGS2',
+      
+      // Crypto (Not available in FRED)
+      'btc-price': null,
+      'btc-market-cap': null,
+      
+      // Economic Indicators
+      'unemployment': 'UNRATE',
+      'inflation': 'CPIAUCSL',
+      'gdp': 'GDP',
+      'money-supply': 'M2SL',
+      
+      // Dealer Positions & Repo
+      'primary-dealer-positions': 'PDCMPY',
+      'repo-rates': 'SOFR'
+    };
+
+    // Check if symbol is already a FRED series ID
+    if (/^[A-Z0-9_-]{1,25}$/.test(internalSymbol) && !FRED_SYMBOL_MAP[internalSymbol]) {
+      return internalSymbol; // Already a FRED series ID
+    }
+
+    // Map internal symbol to FRED series ID
+    return FRED_SYMBOL_MAP[internalSymbol] || null;
+  }
+
   private async storeIndicatorData(provider: string, symbol: string, observations: FREDDataPoint[]): Promise<void> {
     try {
       const dataPoints = observations.map(obs => ({
         provider,
         symbol,
         timestamp: new Date(obs.date).toISOString(),
-        value: obs.value,
-        metadata: { source: 'fred-data-ingestion' }
+        current_value: obs.value,
+        metadata: { 
+          source: 'fred-data-ingestion',
+          mapped_series: this.mapSymbolToFREDSeries(symbol)
+        }
       }));
 
       const { error } = await this.supabase

@@ -4,7 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { FREDService } from './FREDService';
+import { UniversalDataProxy } from './UniversalDataProxyV3';
 import { getFREDSeriesId, hasValidFREDMapping } from '@/config/fredSymbolMapping';
 
 export interface UniversalIndicatorData {
@@ -43,7 +43,7 @@ export interface HealthStatus {
 
 class UniversalDataServiceV2 {
   private static instance: UniversalDataServiceV2;
-  private fredService: typeof FREDService;
+  private universalProxy: typeof UniversalDataProxy;
   private cache = new Map<string, { data: UniversalIndicatorData; expiry: number }>();
   private healthMetrics = {
     totalRequests: 0,
@@ -66,7 +66,7 @@ class UniversalDataServiceV2 {
   };
 
   private constructor() {
-    this.fredService = FREDService;
+    this.universalProxy = UniversalDataProxy;
     this.startHealthMonitoring();
   }
 
@@ -169,49 +169,8 @@ class UniversalDataServiceV2 {
 
   private async fetchFREDIndicator(symbol: string): Promise<UniversalIndicatorData | null> {
     try {
-      // Check if symbol has valid FRED mapping
-      if (!hasValidFREDMapping(symbol)) {
-        console.warn(`Symbol ${symbol} does not have a valid FRED mapping, skipping FRED fetch`);
-        return null;
-      }
-
-      // Get the actual FRED series ID
-      const fredSeriesId = getFREDSeriesId(symbol);
-      if (!fredSeriesId) {
-        console.warn(`No FRED series ID found for symbol ${symbol}`);
-        return null;
-      }
-
-      this.updateRateLimit('fred');
-      
-      const data = await this.fredService.fetchSeries(fredSeriesId);
-      
-      if (data.length === 0) {
-        return null;
-      }
-
-      const latest = data[0];
-      const previous = data[1];
-      
-      const current = latest.value;
-      const prev = previous ? previous.value : current * 0.99;
-      const change = current - prev;
-      const changePercent = prev !== 0 ? (change / prev) * 100 : 0;
-
-      return {
-        symbol,
-        current,
-        previous: prev,
-        change,
-        changePercent,
-        timestamp: new Date(latest.date),
-        confidence: 0.9,
-        source: 'fred_api',
-        provider: 'fred',
-        metadata: { 
-          source: 'fred-data-ingestion'
-        }
-      };
+      // Use the Universal Data Proxy V3 for FRED data
+      return await this.universalProxy.fetchIndicator(symbol, 'fred');
     } catch (error) {
       console.error(`FRED indicator fetch failed for ${symbol}:`, error);
       throw error;
@@ -220,33 +179,8 @@ class UniversalDataServiceV2 {
 
   private async fetchCoinbaseIndicator(symbol: string): Promise<UniversalIndicatorData | null> {
     try {
-      const { data, error } = await supabase.functions.invoke('universal-data-proxy', {
-        body: {
-          provider: 'coinbase',
-          endpoint: `/products/${symbol}/ticker`,
-          symbol
-        }
-      });
-
-      if (error || !data.success) {
-        throw new Error(data?.error || 'Coinbase API request failed');
-      }
-
-      const ticker = data.data;
-      const current = parseFloat(ticker.price);
-
-      return {
-        symbol,
-        current,
-        previous: current * 0.999,
-        change: current * 0.001,
-        changePercent: 0.1,
-        timestamp: new Date(ticker.time),
-        confidence: 0.95,
-        source: 'coinbase_api',
-        provider: 'coinbase',
-        metadata: { volume: parseFloat(ticker.volume) }
-      };
+      // Use the Universal Data Proxy V3 for Coinbase data
+      return await this.universalProxy.fetchIndicator(symbol, 'coinbase');
     } catch (error) {
       console.error(`Coinbase indicator fetch failed for ${symbol}:`, error);
       throw error;
@@ -255,35 +189,8 @@ class UniversalDataServiceV2 {
 
   private async fetchBinanceIndicator(symbol: string): Promise<UniversalIndicatorData | null> {
     try {
-      const { data, error } = await supabase.functions.invoke('universal-data-proxy', {
-        body: {
-          provider: 'binance',
-          endpoint: '/api/v3/ticker/24hr',
-          symbol: symbol.replace('-', '')
-        }
-      });
-
-      if (error || !data.success) {
-        throw new Error(data?.error || 'Binance API request failed');
-      }
-
-      const ticker = data.data;
-      const current = parseFloat(ticker.lastPrice);
-      const change = parseFloat(ticker.priceChange);
-      const changePercent = parseFloat(ticker.priceChangePercent);
-
-      return {
-        symbol,
-        current,
-        previous: current - change,
-        change,
-        changePercent,
-        timestamp: new Date(),
-        confidence: 0.95,
-        source: 'binance_api',
-        provider: 'binance',
-        metadata: { volume: parseFloat(ticker.volume) }
-      };
+      // Use the Universal Data Proxy V3 for Binance data
+      return await this.universalProxy.fetchIndicator(symbol, 'binance');
     } catch (error) {
       console.error(`Binance indicator fetch failed for ${symbol}:`, error);
       throw error;
@@ -292,36 +199,8 @@ class UniversalDataServiceV2 {
 
   private async fetchGlassnodeIndicator(symbol: string): Promise<UniversalIndicatorData | null> {
     try {
-      const { data, error } = await supabase.functions.invoke('universal-data-proxy', {
-        body: {
-          provider: 'glassnode',
-          endpoint: 'addresses/active_count',
-          symbol: symbol || 'BTC',
-          parameters: {
-            since: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-            until: new Date().toISOString()
-          }
-        }
-      });
-
-      if (error || !data.success) {
-        throw new Error(data?.error || 'Glassnode API request failed');
-      }
-
-      const latest = data.data?.[0];
-      if (!latest) return null;
-
-      return {
-        symbol,
-        current: latest.v,
-        previous: latest.v * 0.99,
-        change: latest.v * 0.01,
-        changePercent: 1,
-        timestamp: new Date(latest.t),
-        confidence: 0.9,
-        source: 'glassnode_api',
-        provider: 'glassnode'
-      };
+      // Use the Universal Data Proxy V3 for Glassnode data
+      return await this.universalProxy.fetchIndicator(symbol, 'glassnode');
     } catch (error) {
       console.error(`Glassnode indicator fetch failed for ${symbol}:`, error);
       throw error;
@@ -513,7 +392,7 @@ class UniversalDataServiceV2 {
 
   clearCache(): void {
     this.cache.clear();
-    this.fredService.clearCache();
+    this.universalProxy.clearCache();
     console.log('Universal data service V2 cache cleared');
   }
 }
