@@ -7,7 +7,7 @@
 export * from './EnhancedZScoreEngine';
 
 // Keep legacy engine for backward compatibility  
-export { EnhancedZScoreEngineV6 } from '../EnhancedZScoreEngineV6';
+// Legacy export removed - EnhancedZScoreEngineV6 has been replaced by EnhancedZScoreEngine
 
 // Re-export types for foundation engines
 export type { EngineReport, ActionableInsight, DashboardTileData } from '@/types/engines';

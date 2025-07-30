@@ -3,7 +3,7 @@ import { BaseTile } from '@/components/tiles';
 import { DataDisplay } from '@/components/shared/DataDisplay';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { EnhancedZScoreEngine } from '@/engines/EnhancedZScoreEngine';
+import { EnhancedZScoreEngine } from '@/engines/foundation/EnhancedZScoreEngine';
 
 interface PerformanceMetrics {
   lastUpdateTime: number;

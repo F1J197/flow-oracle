@@ -6,7 +6,7 @@ import { PrimaryDealerIntelligenceTile } from "@/components/intelligence/Primary
 import { SystemStatusFooter } from "@/components/dashboard/SystemStatusFooter";
 import { StaticTileWrapper } from "@/components/dashboard/StaticTileWrapper";
 import { Activity, TrendingUp, Shield, Database, Target, BarChart3 } from "lucide-react";
-import { ZScoreDashboardTile } from "@/components/dashboard/ZScoreDashboardTile";
+import { SafeZScoreTile } from "@/components/dashboard/SafeZScoreTile";
 
 export const PremiumDashboard = () => {
   const {
@@ -142,8 +142,8 @@ export const PremiumDashboard = () => {
         </StaticTileWrapper>
       )}
 
-      {/* Enhanced Z-Score Engine V6 */}
-      <ZScoreDashboardTile />
+      {/* Enhanced Z-Score Engine */}
+      <SafeZScoreTile />
 
       {/* Primary Dealer Intelligence */}
       <div className="col-span-full sm:col-span-2">
