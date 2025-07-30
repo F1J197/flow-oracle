@@ -5,7 +5,7 @@
 
 import { ResilientBaseEngine } from '../ResilientBaseEngine';
 import { EngineReport, ActionableInsight, DashboardTileData, DetailedEngineView, IntelligenceViewData, DetailedModalData } from '@/types/engines';
-import CryptoDataService from '@/services/CryptoDataService';
+import UniversalDataService from '@/services/UniversalDataService';
 
 export class CryptoLiquidityEngine extends ResilientBaseEngine {
   readonly category = 'core' as const;
@@ -31,23 +31,23 @@ export class CryptoLiquidityEngine extends ResilientBaseEngine {
   }
 
   protected async performExecution(): Promise<EngineReport> {
-    const cryptoService = CryptoDataService.getInstance();
+    const cryptoService = UniversalDataService.getInstance();
     
     try {
       // Fetch crypto market data
-      const [btcData, defiMetrics, ethMetrics] = await Promise.all([
+      const [btcPrice, defiMetrics, onChainMetrics] = await Promise.all([
         cryptoService.getRealtimeBTCPrice(),
         cryptoService.getDeFiMetrics(),
-        cryptoService.getOnChainMetrics('ethereum')
+        cryptoService.getOnChainMetrics()
       ]);
 
       // Update internal state
-      this.btcPrice = btcData.price;
-      this.totalVolume = btcData.volume;
-      this.defiTvl = defiMetrics.reduce((sum, metric) => sum + metric.tvl, 0);
+      this.btcPrice = btcPrice;
+      this.totalVolume = onChainMetrics.transactionCount;
+      this.defiTvl = defiMetrics.totalValueLocked;
       
       // Calculate liquidity score (0-100)
-      this.liquidityScore = this.calculateLiquidityScore(btcData, defiMetrics, ethMetrics);
+      this.liquidityScore = this.calculateLiquidityScore(btcPrice, defiMetrics, onChainMetrics);
       this.lastValidation = new Date();
 
       return {
@@ -69,14 +69,13 @@ export class CryptoLiquidityEngine extends ResilientBaseEngine {
     }
   }
 
-  private calculateLiquidityScore(btcData: any, defiMetrics: any[], ethMetrics: any[]): number {
-    // Simple liquidity scoring based on volume, TVL, and on-chain activity
-    const volumeScore = Math.min(btcData.volume / 2000000000 * 100, 100); // Normalize volume
+  private calculateLiquidityScore(btcPrice: number, defiMetrics: any, onChainMetrics: any): number {
+    // Simple liquidity scoring based on price stability, TVL, and on-chain activity
+    const priceScore = btcPrice > 40000 ? 80 : 60; // Basic price stability check
     const tvlScore = Math.min(this.defiTvl / 20000000000 * 100, 100); // Normalize TVL
-    const activityScore = ethMetrics.length > 0 ? 
-      Math.min(ethMetrics[0].value / 1000000 * 100, 100) : 50; // Normalize activity
+    const activityScore = Math.min(onChainMetrics.activeAddresses / 800000 * 100, 100); // Normalize activity
 
-    return (volumeScore * 0.4 + tvlScore * 0.4 + activityScore * 0.2);
+    return (priceScore * 0.3 + tvlScore * 0.4 + activityScore * 0.3);
   }
 
   private calculateConfidence(): number {

@@ -415,14 +415,14 @@ class UniversalDataProxy {
 
   private getProviderRateLimit(provider: string): number {
     const limits = {
-      fred: 120,      // 120 requests per minute
-      glassnode: 150, // 150 requests per 10 minutes
-      binance: 1200,  // 1200 requests per minute
-      coinbase: 10,   // 10 requests per second
+      fred: 50,       // Conservative: 50 requests per minute (aligned with client)
+      glassnode: 30,  // Conservative: 30 requests per 10 minutes
+      binance: 600,   // Conservative: 600 requests per minute
+      coinbase: 5,    // Conservative: 5 requests per second
       polygon: 5,     // 5 requests per minute for free tier
-      finnhub: 60     // 60 requests per minute
+      finnhub: 30     // Conservative: 30 requests per minute
     };
-    return limits[provider] || 60;
+    return limits[provider] || 30;
   }
 
   private getRateLimitInfo(provider: string) {

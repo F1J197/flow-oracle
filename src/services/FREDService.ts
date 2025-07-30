@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { getFREDSeriesId, hasValidFREDMapping } from '@/config/fredSymbolMapping';
 
 export interface FREDDataPoint {
   date: string;
@@ -35,21 +36,29 @@ class FREDService {
   }
 
   async fetchSeries(seriesId: string): Promise<FREDDataPoint[]> {
+    // Map internal symbol to FRED series ID
+    const fredSeriesId = getFREDSeriesId(seriesId);
+    
+    // Check if we have a valid mapping
+    if (!hasValidFREDMapping(seriesId) && seriesId === fredSeriesId) {
+      console.warn(`No FRED mapping found for symbol: ${seriesId}`);
+    }
+    
     // Check cache first
-    const cached = this.getCachedData(seriesId);
+    const cached = this.getCachedData(fredSeriesId);
     if (cached) {
-      console.log(`Using cached FRED data for ${seriesId}`);
+      console.log(`Using cached FRED data for ${seriesId} (${fredSeriesId})`);
       return cached;
     }
 
     try {
-      console.log(`Fetching FRED data for ${seriesId} via universal proxy`);
+      console.log(`Fetching FRED data for ${seriesId} -> ${fredSeriesId} via universal proxy`);
       
       const { data, error } = await supabase.functions.invoke('universal-data-proxy', {
         body: {
           provider: 'fred',
           endpoint: '/series/observations',
-          symbol: seriesId,
+          symbol: fredSeriesId,
           parameters: {
             limit: 10,
             sort_order: 'desc'
@@ -71,9 +80,9 @@ class FREDService {
       const validData = this.processObservations(observations);
       
       // Cache the result
-      this.setCachedData(seriesId, validData);
+      this.setCachedData(fredSeriesId, validData);
       
-      console.log(`✅ Successfully fetched ${validData.length} data points for ${seriesId}`);
+      console.log(`✅ Successfully fetched ${validData.length} data points for ${seriesId} (${fredSeriesId})`);
       return validData;
 
     } catch (error) {

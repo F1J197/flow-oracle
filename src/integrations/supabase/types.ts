@@ -297,6 +297,7 @@ export type Database = {
       indicators: {
         Row: {
           api_endpoint: string | null
+          category: string
           created_at: string
           data_source: string
           description: string | null
@@ -310,12 +311,14 @@ export type Database = {
           name: string
           pillar: number | null
           priority: number | null
+          subcategory: string
           symbol: string
           update_frequency: string | null
           updated_at: string
         }
         Insert: {
           api_endpoint?: string | null
+          category?: string
           created_at?: string
           data_source: string
           description?: string | null
@@ -329,12 +332,14 @@ export type Database = {
           name: string
           pillar?: number | null
           priority?: number | null
+          subcategory?: string
           symbol: string
           update_frequency?: string | null
           updated_at?: string
         }
         Update: {
           api_endpoint?: string | null
+          category?: string
           created_at?: string
           data_source?: string
           description?: string | null
@@ -348,6 +353,7 @@ export type Database = {
           name?: string
           pillar?: number | null
           priority?: number | null
+          subcategory?: string
           symbol?: string
           update_frequency?: string | null
           updated_at?: string
