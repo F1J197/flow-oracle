@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ResponsiveLayout } from '@/components/layout/ResponsiveLayout';
 import { TerminalGrid, TerminalContainer, TerminalHeader } from "@/components/Terminal";
 import { TerminalTile } from "@/components/Terminal";
 import { TrendingUp, TrendingDown, Activity, DollarSign, Zap } from "lucide-react";
@@ -208,123 +209,125 @@ const ChartsView = () => {
     : indicators.filter(ind => ind.category === selectedCategory);
 
   return (
-    <TerminalContainer className="min-h-screen">
-      <TerminalHeader 
-        title="LIVE MARKET INDICATORS"
-        subtitle={`Real-time tracking of ${indicators.length}+ financial indicators`}
-        status="active"
-      />
+    <ResponsiveLayout currentPage="charts">
+      <TerminalContainer className="min-h-screen">
+        <TerminalHeader 
+          title="LIVE MARKET INDICATORS"
+          subtitle={`Real-time tracking of ${indicators.length}+ financial indicators`}
+          status="active"
+        />
 
-      {/* Category Filter */}
-      <div className="terminal-section mb-6">
-        <div className="terminal-section-header mb-3">CATEGORY FILTER</div>
-        <div className="flex flex-wrap gap-2">
-          {categories.map(category => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-3 py-1 text-xs font-mono transition-all border ${
-                selectedCategory === category
-                  ? 'bg-neon-teal text-bg-primary border-neon-teal'
-                  : 'bg-transparent text-text-secondary border-glass-border hover:text-neon-teal hover:border-neon-teal'
-              }`}
-            >
-              {category.toUpperCase()}
-            </button>
-          ))}
+        {/* Category Filter */}
+        <div className="terminal-section mb-6">
+          <div className="terminal-section-header mb-3">CATEGORY FILTER</div>
+          <div className="flex flex-wrap gap-2">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-3 py-1 text-xs font-mono transition-all border ${
+                  selectedCategory === category
+                    ? 'bg-neon-teal text-bg-primary border-neon-teal'
+                    : 'bg-transparent text-text-secondary border-glass-border hover:text-neon-teal hover:border-neon-teal'
+                }`}
+              >
+                {category.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Indicators Grid */}
-      <TerminalGrid columns={4} gap="md">
-        {loading ? (
-          Array.from({ length: 8 }).map((_, index) => (
-            <TerminalTile key={index} title="LOADING..." status="warning" size="md">
-              <div className="space-y-3">
-                <div className="h-6 bg-glass-surface animate-pulse"></div>
-                <div className="h-4 bg-glass-surface animate-pulse w-2/3"></div>
+        {/* Indicators Grid */}
+        <TerminalGrid columns={4} gap="md">
+          {loading ? (
+            Array.from({ length: 8 }).map((_, index) => (
+              <TerminalTile key={index} title="LOADING..." status="warning" size="md">
+                <div className="space-y-3">
+                  <div className="h-6 bg-glass-surface animate-pulse"></div>
+                  <div className="h-4 bg-glass-surface animate-pulse w-2/3"></div>
+                </div>
+              </TerminalTile>
+            ))
+          ) : (
+            filteredIndicators.map(indicator => (
+              <TerminalTile 
+                key={indicator.id} 
+                title={indicator.name.toUpperCase()}
+                status={indicator.status === 'bullish' ? 'active' : indicator.status === 'bearish' ? 'critical' : 'normal'}
+                size="md"
+                interactive="clickable"
+              >
+                <div className="space-y-3">
+                  {/* Value and Change */}
+                  <div className="flex items-center justify-between">
+                    <div className="terminal-data text-2xl text-text-data">
+                      {indicator.value}
+                    </div>
+                    <div className={`flex items-center space-x-1 ${getStatusColorClass(indicator.status)}`}>
+                      {indicator.change > 0 ? (
+                        <TrendingUp className="w-3 h-3" />
+                      ) : indicator.change < 0 ? (
+                        <TrendingDown className="w-3 h-3" />
+                      ) : (
+                        <Activity className="w-3 h-3" />
+                      )}
+                      <span className="terminal-text text-xs">
+                        {indicator.change > 0 ? '+' : ''}{indicator.change.toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Category and Status */}
+                  <div className="flex items-center justify-between">
+                    <div className={`flex items-center space-x-1 ${getCategoryColorClass(indicator.category)}`}>
+                      {getCategoryIcon(indicator.category)}
+                      <span className="terminal-label text-xs">
+                        {indicator.category}
+                      </span>
+                    </div>
+                    <div className={`terminal-text text-xs ${getStatusColorClass(indicator.status)}`}>
+                      {indicator.status.toUpperCase()}
+                    </div>
+                  </div>
+
+                  {/* Update Info */}
+                  <div className="terminal-divider"></div>
+                  <div className="terminal-text text-xs text-text-muted space-y-1">
+                    <div className="flex justify-between">
+                      <span>FREQ:</span>
+                      <span>{indicator.updateFreq}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>LAST:</span>
+                      <span>{indicator.lastUpdate.toLocaleTimeString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </TerminalTile>
+            ))
+          )}
+        </TerminalGrid>
+
+        {/* Footer Status */}
+        <div className="terminal-section mt-6">
+          <div className="terminal-divider"></div>
+          <div className="flex items-center justify-between terminal-text text-xs text-text-secondary mt-4">
+            <div className="flex items-center space-x-4">
+              <span>
+                SHOWING {filteredIndicators.length} OF {indicators.length} INDICATORS
+              </span>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-neon-lime animate-pulse"></div>
+                <span>REAL-TIME ACTIVE</span>
               </div>
-            </TerminalTile>
-          ))
-        ) : (
-          filteredIndicators.map(indicator => (
-            <TerminalTile 
-              key={indicator.id} 
-              title={indicator.name.toUpperCase()}
-              status={indicator.status === 'bullish' ? 'active' : indicator.status === 'bearish' ? 'critical' : 'normal'}
-              size="md"
-              interactive="clickable"
-            >
-              <div className="space-y-3">
-                {/* Value and Change */}
-                <div className="flex items-center justify-between">
-                  <div className="terminal-data text-2xl text-text-data">
-                    {indicator.value}
-                  </div>
-                  <div className={`flex items-center space-x-1 ${getStatusColorClass(indicator.status)}`}>
-                    {indicator.change > 0 ? (
-                      <TrendingUp className="w-3 h-3" />
-                    ) : indicator.change < 0 ? (
-                      <TrendingDown className="w-3 h-3" />
-                    ) : (
-                      <Activity className="w-3 h-3" />
-                    )}
-                    <span className="terminal-text text-xs">
-                      {indicator.change > 0 ? '+' : ''}{indicator.change.toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
-
-                {/* Category and Status */}
-                <div className="flex items-center justify-between">
-                  <div className={`flex items-center space-x-1 ${getCategoryColorClass(indicator.category)}`}>
-                    {getCategoryIcon(indicator.category)}
-                    <span className="terminal-label text-xs">
-                      {indicator.category}
-                    </span>
-                  </div>
-                  <div className={`terminal-text text-xs ${getStatusColorClass(indicator.status)}`}>
-                    {indicator.status.toUpperCase()}
-                  </div>
-                </div>
-
-                {/* Update Info */}
-                <div className="terminal-divider"></div>
-                <div className="terminal-text text-xs text-text-muted space-y-1">
-                  <div className="flex justify-between">
-                    <span>FREQ:</span>
-                    <span>{indicator.updateFreq}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>LAST:</span>
-                    <span>{indicator.lastUpdate.toLocaleTimeString()}</span>
-                  </div>
-                </div>
-              </div>
-            </TerminalTile>
-          ))
-        )}
-      </TerminalGrid>
-
-      {/* Footer Status */}
-      <div className="terminal-section mt-6">
-        <div className="terminal-divider"></div>
-        <div className="flex items-center justify-between terminal-text text-xs text-text-secondary mt-4">
-          <div className="flex items-center space-x-4">
-            <span>
-              SHOWING {filteredIndicators.length} OF {indicators.length} INDICATORS
-            </span>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-neon-lime animate-pulse"></div>
-              <span>REAL-TIME ACTIVE</span>
+            </div>
+            <div>
+              REFRESH: EVERY 15S
             </div>
           </div>
-          <div>
-            REFRESH: EVERY 15S
-          </div>
         </div>
-      </div>
-    </TerminalContainer>
+      </TerminalContainer>
+    </ResponsiveLayout>
   );
 };
 

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { ResponsiveLayout } from '@/components/layout/ResponsiveLayout';
 import { TerminalGrid, TerminalContainer, TerminalHeader } from "@/components/Terminal";
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { useResilientEngine } from "@/hooks/useResilientEngine";
@@ -86,47 +87,49 @@ function IntelligenceEngine() {
   };
 
   return (
-    <TerminalContainer className="min-h-screen">
-      <TerminalHeader 
-        title="INTELLIGENCE ENGINE"
-        subtitle="ENGINE EXECUTION MATRIX"
-        status={systemHealth === 'healthy' ? 'active' : 'warning'}
-      />
+    <ResponsiveLayout currentPage="intelligence">
+      <TerminalContainer className="min-h-screen">
+        <TerminalHeader 
+          title="INTELLIGENCE ENGINE"
+          subtitle="ENGINE EXECUTION MATRIX"
+          status={systemHealth === 'healthy' ? 'active' : 'warning'}
+        />
 
-      <TerminalGrid columns={2} gap="lg">
-        <ErrorBoundary>
-          {renderEngineView('dataIntegrity', 'Data Integrity Engine')}
-        </ErrorBoundary>
-        
-        <ErrorBoundary>
-          {renderEngineView('netLiquidity', 'Net Liquidity Engine')}
-        </ErrorBoundary>
-        
-        <ErrorBoundary>
-          {renderEngineView('creditStress', 'Credit Stress Engine')}
-        </ErrorBoundary>
-        
-        <ErrorBoundary>
-          {renderEngineView('momentum', 'Momentum Engine')}
-        </ErrorBoundary>
-        
-        <ErrorBoundary>
-          {renderEngineView('zScore', 'Z-Score Engine')}
-        </ErrorBoundary>
-        
-        <ErrorBoundary>
-          {renderEngineView('primaryDealer', 'Primary Dealer Engine')}
-        </ErrorBoundary>
-        
-        <ErrorBoundary>
-          {renderEngineView('cusipStealth', 'CUSIP Stealth QE Engine')}
-        </ErrorBoundary>
-        
-        <ErrorBoundary>
-          {renderEngineView('globalPlumbing', 'Global Financial Plumbing Engine')}
-        </ErrorBoundary>
-      </TerminalGrid>
-    </TerminalContainer>
+        <TerminalGrid columns={2} gap="lg">
+          <ErrorBoundary>
+            {renderEngineView('dataIntegrity', 'Data Integrity Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('netLiquidity', 'Net Liquidity Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('creditStress', 'Credit Stress Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('momentum', 'Momentum Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('zScore', 'Z-Score Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('primaryDealer', 'Primary Dealer Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('cusipStealth', 'CUSIP Stealth QE Engine')}
+          </ErrorBoundary>
+          
+          <ErrorBoundary>
+            {renderEngineView('globalPlumbing', 'Global Financial Plumbing Engine')}
+          </ErrorBoundary>
+        </TerminalGrid>
+      </TerminalContainer>
+    </ResponsiveLayout>
   );
 }
 
