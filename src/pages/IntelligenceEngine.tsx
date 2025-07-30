@@ -8,7 +8,7 @@ import { useFoundationDataIntegrity } from "@/hooks/useFoundationDataIntegrity";
 import { DataIntegrityEngine } from "@/engines/foundation/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
-import { EnhancedZScoreEngineV6 } from "@/engines/EnhancedZScoreEngineV6";
+import { EnhancedZScoreEngine } from "@/engines/foundation/EnhancedZScoreEngine";
 import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
 import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";

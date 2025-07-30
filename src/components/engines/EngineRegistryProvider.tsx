@@ -8,7 +8,7 @@ import { CUSIPStealthQEEngine } from '@/engines/CUSIPStealthQEEngine';
 import { DataIntegrityEngine } from '@/engines/foundation/DataIntegrityEngine';
 import { EnhancedMomentumEngine } from '@/engines/EnhancedMomentumEngine';
 import { PrimaryDealerPositionsEngineV6 } from '@/engines/PrimaryDealerPositionsEngineV6';
-import { EnhancedZScoreEngineV6 } from '@/engines/EnhancedZScoreEngineV6';
+import { EnhancedZScoreEngine } from '@/engines/foundation/EnhancedZScoreEngine';
 
 interface EngineRegistryContextType {
   registry: EngineRegistry;
@@ -47,7 +47,7 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
     const netLiquidityEngine = new NetLiquidityEngine();
     const dataIntegrityEngine = new DataIntegrityEngine();
     const enhancedMomentumEngine = new EnhancedMomentumEngine();
-    const enhancedZScoreEngine = new EnhancedZScoreEngineV6();
+    const enhancedZScoreEngine = new EnhancedZScoreEngine();
     
     // Pillar 2 Engines  
     const creditStressEngine = new CreditStressEngineV6();
