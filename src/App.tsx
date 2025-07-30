@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import IntelligenceEngine from "./pages/IntelligenceEngine";
 import { SystemDashboard } from "./pages/SystemDashboard";
+import { Dashboard } from "./pages/Dashboard";
+import ChartsView from "./pages/ChartsView";
 import { EngineRegistryProvider } from "./components/engines/EngineRegistryProvider";
 import { TerminalThemeProvider } from "./components/providers/TerminalThemeProvider";
 import { ConsoleLogger } from "./components/debug/ConsoleLogger";
@@ -33,9 +35,11 @@ const App = () => {
                 <Sonner />
                 <BrowserRouter>
                   <Routes>
-                    <Route path="/" element={<Index />} />
+                    <Route path="/" element={<Dashboard />} />
                     <Route path="/intelligence" element={<IntelligenceEngine />} />
+                    <Route path="/charts" element={<ChartsView />} />
                     <Route path="/system" element={<SystemDashboard />} />
+                    <Route path="/legacy" element={<Index />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>

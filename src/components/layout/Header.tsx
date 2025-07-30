@@ -1,6 +1,11 @@
 import { Badge } from "@/components/ui/badge";
+import { TabNavigation } from './TabNavigation';
 
-export const Header = () => {
+interface HeaderProps {
+  currentPage?: 'dashboard' | 'intelligence' | 'charts' | 'system';
+}
+
+export const Header = ({ currentPage = 'dashboard' }: HeaderProps) => {
   return (
     <header className="w-full bg-bg-primary border-b border-neon-teal/30 px-6 py-3">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -48,6 +53,9 @@ export const Header = () => {
           </span>
         </div>
       </div>
+      
+      {/* Navigation Tabs */}
+      <TabNavigation currentPage={currentPage} />
     </header>
   );
 };

@@ -114,7 +114,7 @@ const Index = () => {
       return (
         <div className="min-h-screen bg-background">
           <Header />
-          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+          <TabNavigation onTabChange={setActiveTab} />
           <main className="py-6">
             <AppErrorBoundary fallbackTitle="Content Error">
               {renderTabContent()}

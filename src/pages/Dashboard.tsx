@@ -1,15 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useEngineRegistry } from '@/hooks/useEngineRegistry';
 import { useEngineStore } from '@/stores/engineStore';
-import { useTerminalTheme } from '@/hooks/useTerminalTheme';
+import { ResponsiveLayout } from '@/components/layout/ResponsiveLayout';
+import { ResponsiveGrid } from '@/components/Dashboard/ResponsiveGrid';
 import { DashboardHeader } from '@/components/Dashboard/DashboardHeader';
-import { SmartTile } from '@/components/Dashboard/SmartTile';
+import { EnhancedSmartTile } from '@/components/Dashboard/EnhancedSmartTile';
+import { ProgressiveLoader } from '@/components/Dashboard/ProgressiveLoader';
 import { ErrorBoundary } from '@/components/intelligence/ErrorBoundary';
 import { LoadingDiagnostics } from '@/components/debug/LoadingDiagnostics';
 
 export const Dashboard = () => {
-  const { theme } = useTerminalTheme();
   const [lastUpdate, setLastUpdate] = useState<Date>();
+  const [errors, setErrors] = useState<string[]>([]);
   
   // Engine registry integration
   const {
@@ -58,96 +60,52 @@ export const Dashboard = () => {
     return () => clearInterval(interval);
   }, [sortTilesByImportance]);
 
-  // Calculate system health
-  const systemHealth = status.total > 0 
-    ? ((status.completed / status.total) * 100) 
-    : 0;
+  // Memoized calculations for performance
+  const systemHealth = useMemo(() => 
+    status.total > 0 ? ((status.completed / status.total) * 100) : 0,
+    [status.completed, status.total]
+  );
 
   const activeEngines = status.completed;
   const totalEngines = status.total;
 
-  if (registryError) {
+  // Track errors for progressive loader
+  useEffect(() => {
+    if (registryError) {
+      setErrors(prev => [...prev, registryError].slice(-5)); // Keep last 5 errors
+    }
+  }, [registryError]);
+
+  // Loading state with progressive loader
+  if (registryLoading && tiles.length === 0) {
     return (
-      <div 
-        className="h-screen flex items-center justify-center"
-        style={{ 
-          backgroundColor: theme.colors.background.primary,
-          color: theme.colors.text.primary,
-          fontFamily: theme.typography.terminal.mono.fontFamily,
-        }}
-      >
-        <div className="text-center space-y-4">
-          <div 
-            className="text-2xl"
-            style={{ color: theme.colors.semantic.critical }}
-          >
-            ⚠️ ENGINE REGISTRY ERROR
-          </div>
-          <div style={{ color: theme.colors.text.secondary }}>
-            {registryError}
-          </div>
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 border"
-            style={{
-              backgroundColor: `${theme.colors.neon.teal}20`,
-              color: theme.colors.neon.teal,
-              borderColor: `${theme.colors.neon.teal}30`,
-              fontFamily: theme.typography.terminal.mono.fontFamily,
-            }}
-          >
-            RELOAD DASHBOARD
-          </button>
-        </div>
-      </div>
+      <ResponsiveLayout currentPage="dashboard">
+        <ProgressiveLoader
+          totalEngines={engines.length || 0}
+          loadedEngines={status.completed}
+          currentEngine={status.running > 0 ? "Initializing engines..." : undefined}
+          errors={errors}
+        />
+      </ResponsiveLayout>
     );
   }
 
   return (
     <>
       <LoadingDiagnostics />
-      <ErrorBoundary
-        onError={(error, errorInfo) => {
-          console.error('🚨 Dashboard ErrorBoundary caught error:', error, errorInfo);
-        }}
-        fallback={
-          <div 
-            className="h-screen flex items-center justify-center"
-            style={{ 
-              backgroundColor: theme.colors.background.primary,
-              color: theme.colors.text.primary,
-              fontFamily: theme.typography.terminal.mono.fontFamily,
-            }}
-          >
-            <div className="text-center space-y-4">
-              <div 
-                className="text-2xl"
-                style={{ color: theme.colors.semantic.critical }}
-              >
-                ⚠️ TERMINAL ERROR
-              </div>
-              <div style={{ color: theme.colors.text.secondary }}>
-                Dashboard failed to initialize
-              </div>
-              <button 
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 border"
-                style={{
-                  backgroundColor: `${theme.colors.neon.teal}20`,
-                  color: theme.colors.neon.teal,
-                  borderColor: `${theme.colors.neon.teal}30`,
-                  fontFamily: theme.typography.terminal.mono.fontFamily,
-                }}
-              >
-                RELOAD TERMINAL
-              </button>
-            </div>
-          </div>
-        }
-      >
-        <div 
-          className="min-h-screen"
-          style={{ backgroundColor: theme.colors.background.primary }}
+      <ResponsiveLayout currentPage="dashboard">
+        <ErrorBoundary
+          onError={(error, errorInfo) => {
+            console.error('🚨 Dashboard ErrorBoundary caught error:', error, errorInfo);
+            setErrors(prev => [...prev, error.message].slice(-5));
+          }}
+          fallback={
+            <ProgressiveLoader
+              totalEngines={0}
+              loadedEngines={0}
+              errors={['Dashboard failed to initialize']}
+            />
+          }
         >
           {/* Dashboard Header */}
           <DashboardHeader
@@ -157,73 +115,39 @@ export const Dashboard = () => {
             lastUpdate={lastUpdate}
           />
 
-          {/* Smart Tiles Grid */}
-          <div 
-            className="p-4"
-            style={{ padding: theme.layout.spacing.lg }}
-          >
-            <div 
-              className="grid auto-rows-fr gap-4"
-              style={{
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gridAutoFlow: 'dense',
-                gap: theme.layout.spacing.md,
-              }}
-            >
-              {tiles.map((tile) => (
-                <SmartTile
-                  key={tile.id}
-                  id={tile.id}
-                  title={tile.title}
-                  size={tile.size}
-                  status={tile.status}
-                  primaryMetric={tile.primaryMetric}
-                  secondaryMetric={tile.secondaryMetric}
-                  trend={tile.trend}
-                  loading={tile.loading}
-                  lastUpdated={tile.lastUpdated}
-                  onClick={() => {
-                    // Navigate to engine detail or intelligence view
-                    console.log(`Clicked tile: ${tile.engineId}`);
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Loading State */}
-            {registryLoading && tiles.length === 0 && (
-              <div 
-                className="flex items-center justify-center py-12"
-                style={{ color: theme.colors.text.secondary }}
-              >
-                <div className="text-center">
-                  <div 
-                    className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-4"
-                    style={{ borderColor: theme.colors.neon.teal }}
-                  />
-                  <div style={{ fontFamily: theme.typography.terminal.mono.fontFamily }}>
-                    Initializing Engines...
-                  </div>
-                </div>
-              </div>
-            )}
+          {/* Responsive Smart Tiles Grid */}
+          <ResponsiveGrid>
+            {tiles.map((tile) => (
+              <EnhancedSmartTile
+                key={tile.id}
+                id={tile.id}
+                title={tile.title}
+                size={tile.size}
+                status={tile.status}
+                primaryMetric={tile.primaryMetric}
+                secondaryMetric={tile.secondaryMetric}
+                trend={tile.trend}
+                loading={tile.loading}
+                lastUpdated={tile.lastUpdated}
+                onClick={() => {
+                  // Navigate to engine detail or intelligence view
+                  console.log(`Clicked tile: ${tile.engineId}`);
+                }}
+                aria-label={`${tile.title} engine tile showing ${tile.primaryMetric}`}
+              />
+            ))}
 
             {/* Empty State */}
             {!registryLoading && tiles.length === 0 && !registryError && (
-              <div 
-                className="flex items-center justify-center py-12"
-                style={{ color: theme.colors.text.muted }}
-              >
-                <div className="text-center">
-                  <div style={{ fontFamily: theme.typography.terminal.mono.fontFamily }}>
-                    No engines configured
-                  </div>
+              <div className="col-span-full flex items-center justify-center py-12 text-text-muted">
+                <div className="text-center font-mono">
+                  No engines configured
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      </ErrorBoundary>
+          </ResponsiveGrid>
+        </ErrorBoundary>
+      </ResponsiveLayout>
     </>
   );
 };
