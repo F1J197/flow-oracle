@@ -3,7 +3,7 @@ import { StableDataDisplay } from "@/components/shared/StableDataDisplay";
 import { useStableData } from "@/hooks/useStableData";
 import { memo } from "react";
 import { Shield, TrendingUp } from "lucide-react";
-import { TerminalContainer } from "@/components/terminal/TerminalContainer";
+import { TerminalContainer } from "@/components/Terminal";
 import { getTerminalStatusColor } from "@/utils/terminalCompliance";
 
 interface PrimaryActionTileProps {

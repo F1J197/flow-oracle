@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { TerminalGrid } from '@/components/Terminal';
-import { TerminalContainer, TerminalHeader } from '@/components/terminal';
-import { TerminalTile } from '@/components/terminal/TerminalTile';
+import { TerminalTile } from '@/components/Terminal';
 import { Button } from '@/components/ui/button';
 import { 
   ChevronLeft, 

@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useRef } from "react";
-import { TerminalContainer } from "@/components/terminal/TerminalContainer";
+import { TerminalContainer } from "@/components/Terminal";
 
 interface StaticTileWrapperProps {
   children: React.ReactNode;

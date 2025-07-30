@@ -5,7 +5,7 @@
 
 import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import type { IEngine } from '../../types/engines';
-import { EngineAdapter } from '../../utils/engineAdapter';
+// Engine adapter removed - using direct registration
 
 export interface UnifiedEngineMetadata {
   id: string;
@@ -70,11 +70,8 @@ export class UnifiedEngineRegistry extends BrowserEventEmitter {
     return UnifiedEngineRegistry.instance;
   }
 
-  // Enhanced registration with automatic adaptation
+  // Direct registration without adaptation
   register(engine: IEngine, metadata?: Partial<UnifiedEngineMetadata>): void {
-    // Adapt legacy engines to work with enhanced patterns
-    const adaptedEngine = EngineAdapter.adaptLegacyEngine(engine);
-    const enhancedEngine = EngineAdapter.wrapExecution(adaptedEngine);
 
     const engineMetadata: UnifiedEngineMetadata = {
       id: engine.id,
@@ -89,16 +86,16 @@ export class UnifiedEngineRegistry extends BrowserEventEmitter {
       ...metadata
     };
 
-    this.engines.set(engine.id, enhancedEngine);
+    this.engines.set(engine.id, engine);
     this.metadata.set(engine.id, engineMetadata);
 
-    // Set up event forwarding for enhanced engines
-    if ('on' in enhancedEngine && typeof enhancedEngine.on === 'function') {
-      enhancedEngine.on('execution:success', (data: any) => {
+    // Set up event forwarding for engines
+    if ('on' in engine && typeof engine.on === 'function') {
+      engine.on('execution:success', (data: any) => {
         this.handleEngineEvent('success', engine.id, data);
       });
       
-      enhancedEngine.on('execution:error', (data: any) => {
+      engine.on('execution:error', (data: any) => {
         this.handleEngineEvent('error', engine.id, data);
       });
     }

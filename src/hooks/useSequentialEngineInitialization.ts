@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { debugLogger, engineLogger } from '@/utils/debugLogger';
 import { EngineRegistry } from '@/engines/EngineRegistry';
 import { UnifiedEngineRegistry } from '@/engines/base/UnifiedEngineRegistry';
-import { EngineMigrationService } from '@/services/EngineMigrationService';
+// Migration service removed - using simplified initialization
 
 // Import engines
 import { DataIntegrityEngine } from '@/engines/foundation/DataIntegrityEngine';
@@ -26,7 +26,6 @@ export interface UseSequentialEngineInitializationReturn {
   currentStep: string | null;
   registry: EngineRegistry | null;
   unifiedRegistry: UnifiedEngineRegistry | null;
-  migrationService: EngineMigrationService | null;
   retryInitialization: () => void;
 }
 
@@ -38,7 +37,7 @@ export function useSequentialEngineInitialization(): UseSequentialEngineInitiali
   const [currentStep, setCurrentStep] = useState<string | null>(null);
   const [registry, setRegistry] = useState<EngineRegistry | null>(null);
   const [unifiedRegistry, setUnifiedRegistry] = useState<UnifiedEngineRegistry | null>(null);
-  const [migrationService, setMigrationService] = useState<EngineMigrationService | null>(null);
+  // Migration service removed
 
   // Define initialization steps
   const initializationSteps: EngineInitializationStep[] = [
@@ -53,13 +52,11 @@ export function useSequentialEngineInitialization(): UseSequentialEngineInitiali
         
         const legacyRegistry = EngineRegistry.getInstance();
         const modernRegistry = UnifiedEngineRegistry.getInstance();
-        const migration = EngineMigrationService.getInstance();
         
         setRegistry(legacyRegistry);
         setUnifiedRegistry(modernRegistry);
-        setMigrationService(migration);
         
-        return { legacyRegistry, modernRegistry, migration };
+        return { legacyRegistry, modernRegistry };
       }
     },
     {
@@ -104,7 +101,7 @@ export function useSequentialEngineInitialization(): UseSequentialEngineInitiali
       engineCreator: async () => {
         engineLogger.registry('Registering engines with both systems');
         
-        if (!registry || !unifiedRegistry || !migrationService) {
+        if (!registry || !unifiedRegistry) {
           throw new Error('Registries not initialized');
         }
         
@@ -121,11 +118,7 @@ export function useSequentialEngineInitialization(): UseSequentialEngineInitiali
       engineCreator: async () => {
         engineLogger.registry('Setting up migration and compatibility layer');
         
-        if (!migrationService) {
-          throw new Error('Migration service not initialized');
-        }
-        
-        await migrationService.validateMigration();
+        // Simplified setup without migration service
         
         return { migrationReady: true };
       }
@@ -228,7 +221,6 @@ export function useSequentialEngineInitialization(): UseSequentialEngineInitiali
     currentStep,
     registry,
     unifiedRegistry,
-    migrationService,
     retryInitialization
   };
 }

@@ -11,7 +11,7 @@ import {
 } from '@/types/indicators';
 import { IndicatorRegistry } from './IndicatorRegistry';
 import { CacheManager } from './CacheManager';
-import { MockDataProvider } from './MockDataProvider';
+// Mock data provider removed - using production data only
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -40,12 +40,7 @@ export class UnifiedDataService {
    * Initialize with mock data for testing/development
    */
   private initializeMockData(): void {
-    const mockProvider = MockDataProvider.getInstance();
-    const mockStates = mockProvider.generateMockIndicatorStates();
-    
-    mockStates.forEach((state, indicatorId) => {
-      this.indicatorStates.set(indicatorId, state);
-    });
+    // Mock data provider removed - using production data only
   }
 
   static getInstance(): UnifiedDataService {

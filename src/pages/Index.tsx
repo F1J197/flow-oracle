@@ -4,7 +4,7 @@ import { TabNavigation } from "@/components/layout/TabNavigation";
 import { Dashboard } from "./Dashboard";
 import { IntelligenceEngineWrapper } from "@/components/intelligence/IntelligenceEngineWrapper";
 import { UnifiedChartsView } from "@/components/charts/UnifiedChartsView";
-import { PremiumShowcase } from "./PremiumShowcase";
+// Premium showcase removed
 import { ProgressiveLoader, LoadingStep } from "@/components/initialization/ProgressiveLoader";
 import { useSequentialEngineInitialization } from "@/hooks/useSequentialEngineInitialization";
 import { AppErrorBoundary } from "@/components/error/AppErrorBoundary";
@@ -85,7 +85,7 @@ const Index = () => {
         case 'charts':
           return <UnifiedChartsView />;
         case 'showcase':
-          return <PremiumShowcase />;
+          return <Dashboard />;
         default:
           return <Dashboard />;
       }

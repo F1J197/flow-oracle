@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { TerminalTile } from '@/components/terminal/TerminalTile';
+import { TerminalTile } from '@/components/Terminal';
 import { ErrorBoundary } from '@/components/intelligence/ErrorBoundary';
 
 interface SafeZScoreTileProps {

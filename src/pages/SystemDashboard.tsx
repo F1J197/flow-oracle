@@ -1,6 +1,6 @@
 import React from 'react';
 import { Header } from '@/components/layout/Header';
-import { PremiumLayout } from '@/components/layout/PremiumLayout';
+import { StandardLayout } from '@/components/layout/StandardLayout';
 import { EngineMonitor } from '@/components/engines/EngineMonitor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,7 @@ export const SystemDashboard: React.FC = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <PremiumLayout variant="intelligence" maxWidth="full" className="pt-8">
+      <StandardLayout variant="intelligence" maxWidth="full" className="pt-8">
         {/* System Overview */}
         <div className="col-span-full mb-8">
           <Card>
@@ -89,7 +89,7 @@ export const SystemDashboard: React.FC = () => {
             <EngineMonitor category="core" compact />
           </div>
         </div>
-      </PremiumLayout>
+      </StandardLayout>
     </div>
   );
 };

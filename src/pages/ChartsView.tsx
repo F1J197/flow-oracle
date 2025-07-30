@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { TerminalGrid } from "@/components/Terminal";
-import { TerminalContainer, TerminalHeader } from "@/components/terminal";
-import { TerminalTile } from "@/components/terminal/TerminalTile";
+import { TerminalGrid, TerminalContainer, TerminalHeader } from "@/components/Terminal";
+import { TerminalTile } from "@/components/Terminal";
 import { TrendingUp, TrendingDown, Activity, DollarSign, Zap } from "lucide-react";
 
 interface Indicator {

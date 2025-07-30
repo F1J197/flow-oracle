@@ -1,5 +1,4 @@
 // Premium Intelligence Components
-export { PremiumEngineView } from './PremiumEngineView';
 export { IntelligenceMetricTile } from './IntelligenceMetricTile';
 export { EngineStatusTile } from './EngineStatusTile';
 export { EngineAlertsTile } from './EngineAlertsTile';

@@ -4,3 +4,6 @@
 export { TerminalBox } from './TerminalBox';
 export { TerminalGrid } from './TerminalGrid';
 export { TerminalTable } from './TerminalTable';
+export { TerminalContainer } from './TerminalContainer';
+export { TerminalHeader } from './TerminalHeader';
+export { TerminalTile } from './TerminalTile';

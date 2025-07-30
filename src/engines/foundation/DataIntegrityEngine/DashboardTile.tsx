@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { TerminalTile } from "@/components/terminal/TerminalTile";
+import { TerminalTile } from "@/components/Terminal";
 import { useStableData } from "@/hooks/useStableData";
 import { cn } from "@/lib/utils";
 import type { DashboardTileData } from "@/types/engines";
@@ -61,7 +61,6 @@ function DataIntegrityDashboardTileComponent({
     <TerminalTile
       title={tileData.title}
       status={tileData.status}
-      variant={statusVariant}
       size="md"
       onClick={onClick}
       className={className}

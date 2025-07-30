@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-interface PremiumLayoutProps {
+interface StandardLayoutProps {
   children: ReactNode;
   density?: 'compact' | 'comfortable' | 'spacious';
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
@@ -9,17 +9,17 @@ interface PremiumLayoutProps {
   variant?: 'standard' | 'intelligence' | 'dashboard';
 }
 
-export const PremiumLayout = ({ 
+export const StandardLayout = ({ 
   children, 
   density = 'comfortable',
   maxWidth = '2xl',
   className,
   variant = 'dashboard'
-}: PremiumLayoutProps) => {
+}: StandardLayoutProps) => {
   return (
     <div className={cn(
       "mx-auto transition-all duration-300",
-      // Max width variants optimized for LIQUIDITY²
+      // Max width variants
       maxWidth === 'sm' && "max-w-4xl",
       maxWidth === 'md' && "max-w-6xl", 
       maxWidth === 'lg' && "max-w-7xl",
@@ -35,7 +35,7 @@ export const PremiumLayout = ({
       className
     )}>
       <div className={cn(
-        // Base responsive grid optimized for financial tiles
+        // Base responsive grid
         "grid auto-rows-min transition-all duration-300",
         
         // Variant-specific layouts

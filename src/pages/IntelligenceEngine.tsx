@@ -1,6 +1,5 @@
 import { useMemo } from "react";
-import { TerminalGrid } from "@/components/Terminal";
-import { TerminalContainer, TerminalHeader } from "@/components/terminal";
+import { TerminalGrid, TerminalContainer, TerminalHeader } from "@/components/Terminal";
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { useResilientEngine } from "@/hooks/useResilientEngine";
 import { useFoundationDataIntegrity } from "@/hooks/useFoundationDataIntegrity";
@@ -25,7 +24,7 @@ import { DataIntegrityIntelligenceView } from "@/engines/foundation/DataIntegrit
 import { ZScoreFoundationIntelligence } from "@/engines/foundation/EnhancedZScoreEngine";
 import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
 import { GlobalPlumbingIntelligence } from "@/engines/pillar1/GlobalFinancialPlumbingEngine";
-import { StableDataTest } from "@/components/testing/StableDataTest";
+// Testing components removed
 
 // Import intelligence styles
 import "@/styles/intelligence.css";

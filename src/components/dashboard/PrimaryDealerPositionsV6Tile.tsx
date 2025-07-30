@@ -2,7 +2,7 @@ import { PositionBars } from "@/components/shared/PositionBars";
 import { PrimaryDealerTileData } from "@/types/primaryDealerTile";
 import { TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TerminalContainer } from "@/components/terminal/TerminalContainer";
+import { TerminalContainer } from "@/components/Terminal";
 
 interface PrimaryDealerPositionsV6TileProps {
   data?: PrimaryDealerTileData;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Activity, AlertTriangle } from 'lucide-react';
-import { TerminalTile } from '@/components/terminal/TerminalTile';
+import { TerminalTile } from '@/components/Terminal';
 import { ZScoreHistogram } from '@/components/intelligence/ZScoreHistogram';
 import { useZScoreData } from '@/hooks/useZScoreData';
 import { MarketRegime } from '@/types/zscoreTypes';

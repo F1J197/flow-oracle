@@ -8,8 +8,7 @@ interface TabNavigationProps {
 const tabs = [
   { id: 'dashboard', label: 'DASHBOARD' },
   { id: 'engines', label: 'INTELLIGENCE' },
-  { id: 'charts', label: 'CHARTS' },
-  { id: 'showcase', label: 'PREMIUM' }
+  { id: 'charts', label: 'CHARTS' }
 ];
 
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {

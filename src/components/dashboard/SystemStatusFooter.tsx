@@ -1,8 +1,8 @@
-import { TerminalContainer } from "@/components/terminal/TerminalContainer";
+import { TerminalContainer } from "@/components/Terminal";
 
 export const SystemStatusFooter = () => {
   return (
-    <TerminalContainer variant="header" className="mt-8">
+    <TerminalContainer variant="default" className="mt-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">

@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import IntelligenceEngine from "@/pages/IntelligenceEngine";
-import { PremiumLayout } from "@/components/layout/PremiumLayout";
+import { StandardLayout } from "@/components/layout/StandardLayout";
 
 const LoadingFallback = () => (
-  <PremiumLayout 
+  <StandardLayout 
     variant="intelligence" 
     density="comfortable" 
     maxWidth="2xl"
@@ -49,7 +49,7 @@ const LoadingFallback = () => (
         </div>
       </div>
     </div>
-  </PremiumLayout>
+  </StandardLayout>
 );
 
 export const IntelligenceEngineWrapper = () => (
