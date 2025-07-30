@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { TerminalContainer, TerminalHeader, TerminalGrid } from "@/components/terminal";
+import { TerminalContainer, TerminalHeader } from "@/components/terminal";
+import { TerminalGrid } from "@/components/TerminalSystem";
 import { TerminalTile } from "@/components/terminal/TerminalTile";
 import { TrendingUp, TrendingDown, Activity, DollarSign, Zap } from "lucide-react";
 
@@ -236,7 +237,7 @@ const ChartsView = () => {
       </div>
 
       {/* Indicators Grid */}
-      <TerminalGrid columns={4} spacing="md">
+      <TerminalGrid columns={4} gap="12px">
         {loading ? (
           Array.from({ length: 8 }).map((_, index) => (
             <TerminalTile key={index} title="LOADING..." status="warning" size="md">

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { TerminalGrid, TerminalContainer, TerminalHeader } from "@/components/terminal";
+import { TerminalContainer, TerminalHeader } from "@/components/terminal";
+import { TerminalGrid } from "@/components/TerminalSystem";
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { useResilientEngine } from "@/hooks/useResilientEngine";
 import { useFoundationDataIntegrity } from "@/hooks/useFoundationDataIntegrity";
@@ -93,7 +94,7 @@ function IntelligenceEngine() {
         status={systemHealth === 'healthy' ? 'active' : 'warning'}
       />
 
-      <TerminalGrid columns={2} spacing="lg">
+      <TerminalGrid columns={2} gap="16px">
         <ErrorBoundary>
           {renderEngineView('dataIntegrity', 'Data Integrity Engine')}
         </ErrorBoundary>
