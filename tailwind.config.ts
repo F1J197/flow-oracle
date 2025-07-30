@@ -108,8 +108,10 @@ export default {
 			},
 			borderRadius: {
 				lg: '0',
-				md: '0',
-				sm: '0'
+				md: '0', 
+				sm: '0',
+				none: '0',
+				DEFAULT: '0'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -134,7 +136,12 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out'
 			},
 			fontFamily: {
-				mono: ['JetBrains Mono', 'IBM Plex Mono', 'monospace']
+				mono: ['JetBrains Mono', 'IBM Plex Mono', 'Roboto Mono', 'monospace'],
+				terminal: ['JetBrains Mono', 'monospace']
+			},
+			// Bloomberg Terminal Extensions  
+			backdropBlur: {
+				none: 'none'  // Override backdrop blur for terminal mode
 			}
 		}
 	},

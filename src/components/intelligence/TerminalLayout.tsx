@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { TERMINAL_THEME } from "@/config/terminal.theme";
 
 interface TerminalLayoutProps {
   title: string;
@@ -12,7 +13,7 @@ export const TerminalLayout = ({ title, status, children, className }: TerminalL
   const getStatusColor = () => {
     switch (status) {
       case 'active': return 'border-neon-lime';
-      case 'warning': return 'border-neon-gold';
+      case 'warning': return 'border-neon-gold';  
       case 'critical': return 'border-neon-orange';
       case 'offline': return 'border-text-muted';
       default: return 'border-neon-teal';
@@ -47,7 +48,7 @@ export const TerminalLayout = ({ title, status, children, className }: TerminalL
           {getStatusIndicator()}
         </span>
       </div>
-      <div className="terminal-header-divider"></div>
+      <div className="terminal-divider"></div>
       <div className="terminal-content">
         {children}
       </div>

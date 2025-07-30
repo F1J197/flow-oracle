@@ -10,10 +10,12 @@
 @import './styles/intelligence.css';
 
 /* LIQUIDITY² V6 - Bloomberg Terminal Design System */
+/* Enhanced with strict terminal theme compliance */
 
 @layer base {
   :root {
     /* LIQUIDITY² V6 - Bloomberg Terminal Design System */
+    /* Unified with terminal.theme.ts configuration */
     
     /* Terminal Background Hierarchy - Pure Black Base */
     --bg-primary: 0 0% 0%;          /* #000000 Pure black terminal */
@@ -39,9 +41,11 @@
     --btc-muted: 28 70% 34%;        /* #B87416 Muted state */
     --btc-glow: 31 100% 64%;        /* #FF9F33 Glow effect */
     
-    /* ASCII Terminal Borders */
+    /* ASCII Terminal Borders - Enhanced */
     --glass-bg: 0 0% 4%;            /* Terminal background */
-    --glass-border: 180 100% 50% / 0.3; /* Cyan border */
+    --glass-border: 180 100% 50% / 0.3; /* Cyan border default */
+    --glass-border-active: 180 100% 50% / 0.5; /* Active state */
+    --glass-border-muted: 180 100% 50% / 0.1;  /* Subtle state */
     --glass-surface: 0 0% 6%;       /* Surface background */
     
     /* Semantic Terminal Colors */
@@ -80,6 +84,13 @@
     --input: var(--glass-border);
     --ring: var(--btc-primary);
     --radius: 0;
+    
+    /* Terminal Theme Compliance */
+    --terminal-border-radius: 0px;
+    --terminal-spacing-xs: 4px;
+    --terminal-spacing-sm: 8px;
+    --terminal-spacing-md: 12px;
+    --terminal-spacing-lg: 16px;
   }
 }
 
@@ -135,6 +146,12 @@
     font-size: 12px;
     font-weight: bold;
     font-family: 'JetBrains Mono', monospace;
+  }
+  
+  .terminal-content {
+    padding: 12px;
+    flex: 1;
+    overflow: auto;
   }
   
   /* ASCII Text Only */
@@ -213,11 +230,35 @@
   .terminal-divider {
     border-top: 1px solid hsl(var(--neon-teal) / 0.3);
     height: 1px;
+    background: hsl(var(--neon-teal) / 0.1);
   }
 
   .terminal-border {
     border: 1px solid hsl(var(--neon-teal) / 0.4);
   }
+
+  /* Terminal Panel Base Style */
+  .terminal-panel {
+    border-radius: 0 !important;
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Backdrop Blur Override - Disabled for Terminal Theme */
+  .backdrop-blur-premium {
+    backdrop-filter: none;
+  }
+
+  /* Terminal Shadow Effects */
+  .shadow-glow {
+    box-shadow: 0 0 20px hsl(var(--neon-teal) / 0.3);
+  }
+
+  /* Terminal Data Spacing */
+  .terminal-spacing-xs { margin: var(--terminal-spacing-xs); }
+  .terminal-spacing-sm { margin: var(--terminal-spacing-sm); }
+  .terminal-spacing-md { margin: var(--terminal-spacing-md); }
+  .terminal-spacing-lg { margin: var(--terminal-spacing-lg); }
 }
 
 /* ASCII Terminal Only Keyframes */
