@@ -1,6 +1,7 @@
 import { TerminalDashboard } from "@/components/dashboard/TerminalDashboard";
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { LoadingDiagnostics } from "@/components/debug/LoadingDiagnostics";
+import { ContextDebugger } from "@/components/dashboard/ContextDebugger";
 
 export const Dashboard = () => {
   console.log('📊 Dashboard component initializing...');
@@ -29,6 +30,7 @@ export const Dashboard = () => {
         }
       >
         <TerminalDashboard />
+        <ContextDebugger />
       </ErrorBoundary>
     </>
   );

@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { EngineRegistry } from '@/engines/EngineRegistry';
 import { UnifiedEngineRegistry } from '@/engines/base/UnifiedEngineRegistry';
-import { EngineMigrationService, BackwardCompatibilityLayer } from '@/utils/engineMigration';
+import { EngineMigrationService } from '@/services/EngineMigrationService';
+import { BackwardCompatibilityLayer } from '@/utils/engineMigration';
 import { NetLiquidityEngine } from '@/engines/NetLiquidityEngine';
 import { CreditStressEngineV6 } from '@/engines/CreditStressEngineV6';
 import { CUSIPStealthQEEngine } from '@/engines/CUSIPStealthQEEngine';
@@ -15,6 +16,8 @@ interface EngineRegistryContextType {
   registry: EngineRegistry;
   unifiedRegistry: UnifiedEngineRegistry;
   migrationService: EngineMigrationService;
+  isInitialized: boolean;
+  initializationError: Error | null;
 }
 
 const EngineRegistryContext = createContext<EngineRegistryContextType | null>(null);
@@ -32,17 +35,24 @@ interface EngineRegistryProviderProps {
 }
 
 export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ children }) => {
+  const [isInitialized, setIsInitialized] = React.useState(false);
+  const [initializationError, setInitializationError] = React.useState<Error | null>(null);
   const registry = EngineRegistry.getInstance();
   const unifiedRegistry = UnifiedEngineRegistry.getInstance();
   const migrationService = EngineMigrationService.getInstance();
 
   useEffect(() => {
-    // Initialize the unified engine system
-    console.log('🚀 Initializing Unified Engine Registry V6 with enhanced patterns...');
-    
-    // Set up backward compatibility layer
-    BackwardCompatibilityLayer.wrapLegacyRegistry();
-    BackwardCompatibilityLayer.addLegacyAliases(unifiedRegistry);
+    const initializeEngines = async () => {
+      try {
+        setIsInitialized(false);
+        setInitializationError(null);
+        
+        // Initialize the unified engine system
+        console.log('🚀 Initializing Unified Engine Registry V6 with enhanced patterns...');
+        
+        // Set up backward compatibility layer
+        BackwardCompatibilityLayer.wrapLegacyRegistry();
+        BackwardCompatibilityLayer.addLegacyAliases(unifiedRegistry);
     
     // Foundation Engines
     const netLiquidityEngine = new NetLiquidityEngine();
@@ -180,24 +190,79 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
       console.log(`📊 Registered: ${metadata.name} (${metadata.category}) - v${metadata.version}${metadata.isLegacy ? ' [LEGACY]' : ''}`);
     });
     
-    // Initiate migration process
-    migrationService.migrateExistingEngines().then(() => {
-      console.log('🎯 Engine migration completed successfully');
-      
-      // Validate migration
-      if (migrationService.validateMigration()) {
-        console.log('✅ Migration validation passed');
-      } else {
-        console.warn('⚠️ Migration validation failed - some engines may not be properly migrated');
+        // Initiate migration process - register engines with compatibility
+        const allEngines = [
+          netLiquidityEngine,
+          dataIntegrityEngine, 
+          enhancedMomentumEngine,
+          enhancedZScoreEngine,
+          globalPlumbingEngine,
+          creditStressEngine,
+          cusipStealthEngine,
+          primaryDealerEngine
+        ];
+        
+        migrationService.registerWithCompatibility(allEngines);
+        console.log('🎯 Engine migration completed successfully');
+        
+        // Validate migration
+        const validation = await migrationService.validateMigration();
+        if (validation.success) {
+          console.log('✅ Migration validation passed');
+        } else {
+          console.warn('⚠️ Migration validation issues:', validation.issues);
+        }
+        
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('❌ Engine initialization failed:', error);
+        setInitializationError(error instanceof Error ? error : new Error(String(error)));
       }
-    }).catch(error => {
-      console.error('❌ Engine migration failed:', error);
-    });
+    };
     
+    initializeEngines();
   }, [registry, unifiedRegistry, migrationService]);
 
+  // Show loading state during initialization
+  if (!isInitialized && !initializationError) {
+    return (
+      <div className="bg-bg-primary text-text-primary font-mono h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="text-neon-teal text-2xl">⚡ LIQUIDITY²</div>
+          <div className="text-text-secondary">Initializing Engine Registry...</div>
+          <div className="animate-pulse text-neon-lime">▶ Loading financial intelligence engines</div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show error state if initialization failed
+  if (initializationError) {
+    return (
+      <div className="bg-bg-primary text-text-primary font-mono h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="text-neon-orange text-2xl">⚠️ INITIALIZATION ERROR</div>
+          <div className="text-text-secondary">Engine registry failed to initialize</div>
+          <div className="text-sm text-text-muted">{initializationError.message}</div>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-neon-teal/20 text-neon-teal border border-neon-teal/30 px-4 py-2 font-mono"
+          >
+            RELOAD TERMINAL
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <EngineRegistryContext.Provider value={{ registry, unifiedRegistry, migrationService }}>
+    <EngineRegistryContext.Provider value={{ 
+      registry, 
+      unifiedRegistry, 
+      migrationService, 
+      isInitialized, 
+      initializationError 
+    }}>
       {children}
     </EngineRegistryContext.Provider>
   );

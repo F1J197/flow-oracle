@@ -14,7 +14,30 @@ interface GlobalPlumbingEngineState {
 
 export const useGlobalPlumbingEngine = (options: { autoRefresh?: boolean; refreshInterval?: number } = {}) => {
   const { autoRefresh = true, refreshInterval = 15000 } = options;
-  const { unifiedRegistry } = useEngineRegistryContext();
+  const context = useEngineRegistryContext();
+  
+  // Gracefully handle uninitialized context
+  if (!context.isInitialized) {
+    return {
+      dashboardData: null,
+      intelligenceData: null,
+      actionableInsight: null,
+      loading: true,
+      error: context.initializationError?.message || 'Engine registry not initialized',
+      lastUpdated: null,
+      engine: null,
+      refresh: () => Promise.resolve(),
+      efficiency: 'N/A',
+      systemicRisk: 'N/A',
+      riskLevel: 1,
+      isHealthy: false,
+      isStressed: false,
+      isCritical: false,
+      trend: 'neutral' as const
+    };
+  }
+  
+  const { unifiedRegistry } = context;
   const [state, setState] = useState<GlobalPlumbingEngineState>({
     dashboardData: null,
     intelligenceData: null,
