@@ -100,23 +100,23 @@ export const formatZScore = (value: number): string => {
 
 export const getStatusColor = (status: 'positive' | 'negative' | 'neutral' | 'warning' | 'critical'): string => {
   switch (status) {
-    case 'positive': return 'text-btc-primary';
-    case 'negative': return 'text-btc-error';
-    case 'warning': return 'text-btc-light';
-    case 'critical': return 'text-btc-error';
+    case 'positive': return 'text-neon-lime';
+    case 'negative': return 'text-neon-orange';
+    case 'warning': return 'text-neon-gold';
+    case 'critical': return 'text-neon-fuchsia';
     case 'neutral':
-    default: return 'text-text-primary';
+    default: return 'text-text-data';
   }
 };
 
 // Semantic value color helper for numeric values
 export const getValueColor = (value: number, threshold?: { positive?: number; negative?: number }): string => {
   if (threshold) {
-    if (threshold.positive && value >= threshold.positive) return 'text-btc-primary';
-    if (threshold.negative && value <= threshold.negative) return 'text-btc-error';
+    if (threshold.positive && value >= threshold.positive) return 'text-neon-lime';
+    if (threshold.negative && value <= threshold.negative) return 'text-neon-orange';
   } else {
-    if (value > 0) return 'text-btc-primary';
-    if (value < 0) return 'text-btc-error';
+    if (value > 0) return 'text-neon-lime';
+    if (value < 0) return 'text-neon-orange';
   }
-  return 'text-text-primary';
+  return 'text-text-data';
 };
