@@ -8,8 +8,8 @@ const corsHeaders = {
 };
 
 interface DataRequest {
-  provider: 'fred' | 'glassnode' | 'binance' | 'coinbase' | 'polygon' | 'finnhub';
-  endpoint: string;
+  provider: 'fred' | 'glassnode' | 'binance' | 'coinbase' | 'polygon' | 'finnhub' | 'coingecko' | 'alpha-vantage' | 'yahoo-finance' | 'coindesk';
+  endpoint?: string;
   symbol?: string;
   parameters?: Record<string, any>;
 }
@@ -59,6 +59,14 @@ class UniversalDataProxy {
           return await this.handlePolygonRequest(request);
         case 'finnhub':
           return await this.handleFinnhubRequest(request);
+        case 'coingecko':
+          return await this.handleCoinGeckoRequest(request);
+        case 'alpha-vantage':
+          return await this.handleAlphaVantageRequest(request);
+        case 'yahoo-finance':
+          return await this.handleYahooFinanceRequest(request);
+        case 'coindesk':
+          return await this.handleCoinDeskRequest(request);
         default:
           throw new Error(`Unsupported provider: ${request.provider}`);
       }
@@ -318,6 +326,150 @@ class UniversalDataProxy {
     };
   }
 
+  private async handleCoinGeckoRequest(request: DataRequest): Promise<DataResponse> {
+    this.updateRateLimit('coingecko');
+
+    // CoinGecko doesn't require API key for basic requests
+    const symbol = request.symbol || 'bitcoin';
+    const url = new URL(`https://api.coingecko.com/api/v3/simple/price`);
+    url.searchParams.append('ids', symbol);
+    url.searchParams.append('vs_currencies', 'usd');
+    url.searchParams.append('include_market_cap', 'true');
+    url.searchParams.append('include_24hr_change', 'true');
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'User-Agent': 'LIQUIDITY2-Terminal/1.0'
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        this.setRateLimited('coingecko', 60000);
+        throw new Error('CoinGecko API rate limit exceeded');
+      }
+      throw new Error(`CoinGecko API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      success: true,
+      data,
+      timestamp: new Date().toISOString(),
+      provider: 'coingecko',
+      rateLimitInfo: this.getRateLimitInfo('coingecko')
+    };
+  }
+
+  private async handleAlphaVantageRequest(request: DataRequest): Promise<DataResponse> {
+    const apiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
+    if (!apiKey) {
+      throw new Error('Alpha Vantage API key not configured');
+    }
+
+    this.updateRateLimit('alpha-vantage');
+
+    const url = new URL('https://www.alphavantage.co/query');
+    url.searchParams.append('apikey', apiKey);
+    
+    if (request.symbol) {
+      url.searchParams.append('symbol', request.symbol);
+      url.searchParams.append('function', 'GLOBAL_QUOTE');
+    }
+
+    if (request.parameters) {
+      Object.entries(request.parameters).forEach(([key, value]) => {
+        url.searchParams.append(key, String(value));
+      });
+    }
+
+    const response = await fetch(url.toString());
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        this.setRateLimited('alpha-vantage', 60000);
+        throw new Error('Alpha Vantage API rate limit exceeded');
+      }
+      throw new Error(`Alpha Vantage API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      success: true,
+      data,
+      timestamp: new Date().toISOString(),
+      provider: 'alpha-vantage',
+      rateLimitInfo: this.getRateLimitInfo('alpha-vantage')
+    };
+  }
+
+  private async handleYahooFinanceRequest(request: DataRequest): Promise<DataResponse> {
+    this.updateRateLimit('yahoo-finance');
+
+    // Using a public Yahoo Finance API endpoint
+    const symbol = request.symbol || '^GSPC';
+    const url = new URL(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`);
+    url.searchParams.append('interval', '1d');
+    url.searchParams.append('range', '1d');
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'User-Agent': 'LIQUIDITY2-Terminal/1.0'
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        this.setRateLimited('yahoo-finance', 300000); // 5 minute cooldown
+        throw new Error('Yahoo Finance API rate limit exceeded');
+      }
+      throw new Error(`Yahoo Finance API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      success: true,
+      data,
+      timestamp: new Date().toISOString(),
+      provider: 'yahoo-finance',
+      rateLimitInfo: this.getRateLimitInfo('yahoo-finance')
+    };
+  }
+
+  private async handleCoinDeskRequest(request: DataRequest): Promise<DataResponse> {
+    this.updateRateLimit('coindesk');
+
+    // CoinDesk Bitcoin Price Index (no API key required)
+    const url = new URL('https://api.coindesk.com/v1/bpi/currentprice.json');
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'User-Agent': 'LIQUIDITY2-Terminal/1.0'
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        this.setRateLimited('coindesk', 60000);
+        throw new Error('CoinDesk API rate limit exceeded');
+      }
+      throw new Error(`CoinDesk API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      success: true,
+      data,
+      timestamp: new Date().toISOString(),
+      provider: 'coindesk',
+      rateLimitInfo: this.getRateLimitInfo('coindesk')
+    };
+  }
+
   private async storeIndicatorData(provider: string, symbol: string, observations: any[]) {
     try {
       // First, ensure the indicator exists
@@ -415,12 +567,16 @@ class UniversalDataProxy {
 
   private getProviderRateLimit(provider: string): number {
     const limits = {
-      fred: 50,       // Conservative: 50 requests per minute (aligned with client)
-      glassnode: 30,  // Conservative: 30 requests per 10 minutes
-      binance: 600,   // Conservative: 600 requests per minute
-      coinbase: 5,    // Conservative: 5 requests per second
-      polygon: 5,     // 5 requests per minute for free tier
-      finnhub: 30     // Conservative: 30 requests per minute
+      fred: 50,           // Conservative: 50 requests per minute
+      glassnode: 30,      // Conservative: 30 requests per 10 minutes
+      binance: 600,       // Conservative: 600 requests per minute
+      coinbase: 5,        // Conservative: 5 requests per second
+      polygon: 5,         // 5 requests per minute for free tier
+      finnhub: 30,        // Conservative: 30 requests per minute
+      coingecko: 50,      // 50 requests per minute for free tier
+      'alpha-vantage': 5, // 5 requests per minute for free tier
+      'yahoo-finance': 10, // Conservative: 10 requests per minute
+      coindesk: 30        // 30 requests per minute (no official limit)
     };
     return limits[provider] || 30;
   }

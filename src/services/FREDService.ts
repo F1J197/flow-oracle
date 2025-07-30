@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { getFredSeriesId, isValidFredSymbol } from '@/config/fredSymbols';
+import AlternativeDataService from './AlternativeDataService';
 
 export interface FREDDataPoint {
   date: string;
@@ -87,6 +88,31 @@ class FREDService {
 
     } catch (error) {
       console.error(`❌ FRED service error for ${fredSeriesId}:`, error);
+      
+      // Try alternative data sources for non-FRED symbols
+      if (seriesId !== fredSeriesId) {
+        console.log(`🔄 Trying alternative data sources for ${seriesId}...`);
+        try {
+          const alternativeService = AlternativeDataService.getInstance();
+          const altData = await alternativeService.fetchFromMultipleSources(seriesId);
+          
+          if (altData.length > 0) {
+            // Convert alternative data to FRED format
+            const convertedData = altData.map(dp => ({
+              date: dp.date,
+              value: dp.value,
+              realtime_start: dp.date,
+              realtime_end: dp.date
+            }));
+            
+            console.log(`✅ Using alternative data source for ${seriesId}`);
+            this.setCachedData(fredSeriesId, convertedData);
+            return convertedData;
+          }
+        } catch (altError) {
+          console.error(`❌ Alternative data sources also failed for ${seriesId}:`, altError);
+        }
+      }
       
       // Try fallback to cached data or database
       const fallbackData = await this.getFallbackData(fredSeriesId);

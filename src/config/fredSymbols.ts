@@ -4,10 +4,23 @@
  */
 
 export const FRED_SYMBOL_MAP = {
-  // Federal Reserve Balance Sheet
+  // Internal symbol mappings to FRED series IDs
+  'fed-balance-sheet': 'WALCL',           // Fed Total Assets
+  'treasury-account': 'WTREGEN',          // Treasury General Account
+  'reverse-repo': 'RRPONTSYD',            // Overnight Reverse Repo
+  'high-yield-spread': 'BAMLH0A0HYM2',    // High Yield Spread
+  'investment-grade-spread': 'BAMLC0A0CM', // Investment Grade Spread
+  'net-liquidity': 'WALCL',               // Using Fed Balance Sheet as proxy
+  'vix': 'VIXCLS',                        // VIX Volatility Index
+  'spx': 'SP500',                         // S&P 500 Index
+  'credit-stress-score': 'BAMLH0A0HYM2',  // Using HY spread as proxy
+  
+  // Direct FRED symbol mappings (existing)
   'WALCL': 'WALCL',           // Total Assets (Fed Balance Sheet)
   'WTREGEN': 'WTREGEN',       // Treasury General Account
   'RRPONTSYD': 'RRPONTSYD',   // Overnight Reverse Repo Operations
+  'VIXCLS': 'VIXCLS',         // VIX Volatility Index
+  'SP500': 'SP500',           // S&P 500 Index
   
   // Treasury Yields
   'DGS10': 'DGS10',           // 10-Year Treasury Constant Maturity Rate
