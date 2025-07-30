@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import { TerminalGrid } from '@/components/Terminal';
 import { TerminalContainer, TerminalHeader } from '@/components/terminal';
-import { TerminalGrid } from '@/components/TerminalSystem';
 import { TerminalTile } from '@/components/terminal/TerminalTile';
 import { Button } from '@/components/ui/button';
 import { 
@@ -176,7 +176,7 @@ export const IntelligenceGrid: React.FC<IntelligenceGridProps> = ({
 
   if (loading) {
     return (
-      <TerminalGrid columns={3} gap="12px">
+      <TerminalGrid columns={3} gap="md">
         {[...Array(9)].map((_, i) => (
           <TerminalTile key={i} title="LOADING..." status="warning" size="md">
             <div className="space-y-2">
@@ -192,7 +192,7 @@ export const IntelligenceGrid: React.FC<IntelligenceGridProps> = ({
   return (
     <div className="space-y-6">
       {/* Grid */}
-      <TerminalGrid columns={3} gap="12px">
+      <TerminalGrid columns={3} gap="md">
         {currentEngines.map((engine, index) => renderEngineCard(engine, index))}
       </TerminalGrid>
 

@@ -19,85 +19,38 @@ export const TerminalTable = ({
     color: TERMINAL_THEME.colors.text.primary,
     borderCollapse: 'collapse' as const,
     width: '100%',
+    border: `1px solid ${TERMINAL_THEME.colors.border.default}`,
   };
 
   const headerStyle: React.CSSProperties = {
     backgroundColor: TERMINAL_THEME.colors.background.primary,
     color: TERMINAL_THEME.colors.text.primary,
     fontWeight: TERMINAL_THEME.fonts.weights.semibold,
-    padding: TERMINAL_THEME.layout.spacing.xs,
+    padding: TERMINAL_THEME.layout.spacing.sm,
     borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
     textAlign: 'left' as const,
   };
 
   const cellStyle: React.CSSProperties = {
-    padding: TERMINAL_THEME.layout.spacing.xs,
+    padding: TERMINAL_THEME.layout.spacing.sm,
     borderBottom: `1px solid ${TERMINAL_THEME.colors.border.muted}`,
+    borderRight: `1px solid ${TERMINAL_THEME.colors.border.muted}`,
   };
 
   const getHighlightedCellStyle = (rowIndex: number, cellValue: string): React.CSSProperties => {
-    if (highlight && highlight(rowIndex, cellValue)) {
+    if (highlight?.(rowIndex, cellValue)) {
       return {
         ...cellStyle,
-        backgroundColor: TERMINAL_THEME.colors.semantic.warning + '20',
+        backgroundColor: `${TERMINAL_THEME.colors.semantic.warning}20`,
         color: TERMINAL_THEME.colors.semantic.warning,
+        fontWeight: TERMINAL_THEME.fonts.weights.semibold,
       };
     }
     return cellStyle;
   };
 
-  // Create ASCII border characters
-  const createTopBorder = () => {
-    const headerWidths = headers.map(h => Math.max(h.length, 12));
-    let border = '┌';
-    headerWidths.forEach((width, index) => {
-      border += '─'.repeat(width + 2);
-      if (index < headerWidths.length - 1) {
-        border += '┬';
-      }
-    });
-    border += '┐';
-    return border;
-  };
-
-  const createMiddleBorder = () => {
-    const headerWidths = headers.map(h => Math.max(h.length, 12));
-    let border = '├';
-    headerWidths.forEach((width, index) => {
-      border += '─'.repeat(width + 2);
-      if (index < headerWidths.length - 1) {
-        border += '┼';
-      }
-    });
-    border += '┤';
-    return border;
-  };
-
-  const createBottomBorder = () => {
-    const headerWidths = headers.map(h => Math.max(h.length, 12));
-    let border = '└';
-    headerWidths.forEach((width, index) => {
-      border += '─'.repeat(width + 2);
-      if (index < headerWidths.length - 1) {
-        border += '┴';
-      }
-    });
-    border += '┘';
-    return border;
-  };
-
-  const asciiBorderStyle: React.CSSProperties = {
-    fontFamily: 'monospace',
-    color: TERMINAL_THEME.colors.border.default,
-    fontSize: '12px',
-    lineHeight: '1',
-    whiteSpace: 'pre' as const,
-    margin: 0,
-  };
-
   return (
     <div className={`terminal-table ${className}`}>
-      <pre style={asciiBorderStyle}>{createTopBorder()}</pre>
       <table style={tableStyle}>
         <thead>
           <tr>
@@ -123,7 +76,6 @@ export const TerminalTable = ({
           ))}
         </tbody>
       </table>
-      <pre style={asciiBorderStyle}>{createBottomBorder()}</pre>
     </div>
   );
 };
