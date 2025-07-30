@@ -18,6 +18,8 @@ export interface UnifiedEngineMetadata {
   version?: string;
   isLegacy?: boolean;
   migrated?: boolean;
+  estimatedDuration?: number;
+  tags?: string[];
 }
 
 export interface RegistryConfig {
@@ -33,6 +35,7 @@ export interface ExecutionContext {
   category?: 'foundation' | 'core' | 'synthesis' | 'execution';
   dependencies?: string[];
   parallel?: boolean;
+  tags?: string[];
 }
 
 export class UnifiedEngineRegistry extends BrowserEventEmitter {
