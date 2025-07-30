@@ -3,6 +3,7 @@ import { Clock, Activity, TrendingUp, TrendingDown, AlertTriangle } from 'lucide
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useFoundationDataIntegrity } from '@/hooks/useFoundationDataIntegrity';
 import { DataIntegrityDashboardTile } from '@/engines/foundation/DataIntegrityEngine';
+import { ZScoreFoundationTile } from '@/engines/foundation/EnhancedZScoreEngine';
 
 export const TerminalDashboard = () => {
   const { dashboardData, loading, stats } = useUnifiedDashboard({ autoRefresh: true });
@@ -172,14 +173,9 @@ export const TerminalDashboard = () => {
           </div>
         </div>
 
-        {/* Data Integrity Panel - Foundation Engine */}
+        {/* Enhanced Z-Score Engine Panel */}
         <div className="col-span-1">
-          <DataIntegrityDashboardTile
-            data={dataIntegrityMetrics}
-            loading={dataIntegrityLoading}
-            error={dataIntegrityError}
-            className="h-full"
-          />
+          <ZScoreFoundationTile className="h-full" />
         </div>
 
         {/* Primary Action Panel - Large */}
@@ -243,6 +239,16 @@ export const TerminalDashboard = () => {
               <span className="text-text-secondary">DEALER: Positioning adjusted</span>
             </div>
           </div>
+        </div>
+
+        {/* Data Integrity Panel - Foundation Engine */}
+        <div className="col-span-1">
+          <DataIntegrityDashboardTile
+            data={dataIntegrityMetrics}
+            loading={dataIntegrityLoading}
+            error={dataIntegrityError}
+            className="h-full"
+          />
         </div>
       </div>
 

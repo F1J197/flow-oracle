@@ -81,14 +81,15 @@ export const ZScoreFoundationTile: React.FC<ZScoreFoundationTileProps> = ({
 
   if (loading || !tileData) {
     return (
-      <StaticTileWrapper
-        title="ENHANCED Z-SCORE ENGINE"
-        isLoading={true}
-        className={className}
-      >
-        <div className="space-y-4">
-          <div className="h-16 bg-btc-muted/10 rounded animate-pulse" />
-          <div className="h-20 bg-btc-muted/10 rounded animate-pulse" />
+      <StaticTileWrapper>
+        <div className="glass-tile p-6">
+          <div className="text-xs text-btc-muted font-mono mb-4">
+            ENHANCED Z-SCORE ENGINE
+          </div>
+          <div className="space-y-4">
+            <div className="h-16 bg-btc-muted/10 rounded animate-pulse" />
+            <div className="h-20 bg-btc-muted/10 rounded animate-pulse" />
+          </div>
         </div>
       </StaticTileWrapper>
     );
@@ -96,78 +97,87 @@ export const ZScoreFoundationTile: React.FC<ZScoreFoundationTileProps> = ({
 
   if (error) {
     return (
-      <StaticTileWrapper
-        title="ENHANCED Z-SCORE ENGINE"
-        className={className}
-      >
-        <div className="flex items-center justify-center h-32 text-btc-orange">
-          <AlertTriangle className="h-6 w-6 mr-2" />
-          <span className="text-sm">Engine Offline</span>
+      <StaticTileWrapper>
+        <div className="glass-tile p-6">
+          <div className="text-xs text-btc-muted font-mono mb-4">
+            ENHANCED Z-SCORE ENGINE
+          </div>
+          <div className="flex items-center justify-center h-32 text-btc-orange">
+            <AlertTriangle className="h-6 w-6 mr-2" />
+            <span className="text-sm">Engine Offline</span>
+          </div>
         </div>
       </StaticTileWrapper>
     );
   }
 
   return (
-    <StaticTileWrapper
-      title="ENHANCED Z-SCORE ENGINE"
-      className={className}
-      status="live"
-    >
-      <div className="space-y-4">
-        {/* Primary Metric Display */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {getStatusIcon(tileData.primaryMetric.status)}
-            <span className="text-xs text-btc-muted font-mono">
-              COMPOSITE
-            </span>
+    <StaticTileWrapper>
+      <div className="glass-tile p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-xs text-btc-muted font-mono">
+            ENHANCED Z-SCORE ENGINE
           </div>
-          <div className="text-right">
-            <div className={`text-2xl font-mono font-bold ${getStatusColor(tileData.primaryMetric.status)}`}>
-              {tileData.primaryMetric.formatted}
-            </div>
+          <div className="flex items-center space-x-2 text-xs font-mono">
+            <div className="w-2 h-2 bg-btc-glow rounded-full animate-pulse" />
+            <span className="text-btc-glow">LIVE</span>
           </div>
         </div>
 
-        {/* Z-Score Distribution Histogram */}
-        <div className="bg-btc-dark/30 rounded p-3">
-          <div className="text-xs text-btc-muted mb-2 font-mono">
-            DISTRIBUTION
+        <div className="space-y-4">
+          {/* Primary Metric Display */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              {getStatusIcon(tileData.primaryMetric.status)}
+              <span className="text-xs text-btc-muted font-mono">
+                COMPOSITE
+              </span>
+            </div>
+            <div className="text-right">
+              <div className={`text-2xl font-mono font-bold ${getStatusColor(tileData.primaryMetric.status)}`}>
+                {tileData.primaryMetric.formatted}
+              </div>
+            </div>
           </div>
-          <ZScoreHistogram
-            data={tileData.histogram.bins}
-            currentValue={tileData.histogram.currentValue}
-            extremeThreshold={tileData.histogram.extremeThreshold}
-            height={60}
-            compact={true}
-          />
-        </div>
 
-        {/* Market Regime & Confidence */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="text-xs text-btc-muted font-mono mb-1">
-              REGIME
+          {/* Z-Score Distribution Histogram */}
+          <div className="bg-btc-dark/30 rounded p-3">
+            <div className="text-xs text-btc-muted mb-2 font-mono">
+              DISTRIBUTION
             </div>
-            <div className={`text-sm font-mono ${getRegimeColor(tileData.regime.current)}`}>
-              {getRegimeEmoji(tileData.regime.current)} {tileData.regime.current}
-            </div>
+            <ZScoreHistogram
+              bins={tileData.histogram.bins}
+              currentValue={tileData.histogram.currentValue}
+              extremeThreshold={tileData.histogram.extremeThreshold}
+              height={60}
+            />
           </div>
-          <div>
-            <div className="text-xs text-btc-muted font-mono mb-1">
-              CONFIDENCE
-            </div>
-            <div className="text-sm font-mono text-btc">
-              {(tileData.confidence * 100).toFixed(0)}%
-            </div>
-          </div>
-        </div>
 
-        {/* Last Update */}
-        <div className="flex justify-between items-center text-xs text-btc-muted font-mono">
-          <span>LAST UPDATE</span>
-          <span>{tileData.lastUpdate.toLocaleTimeString()}</span>
+          {/* Market Regime & Confidence */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-xs text-btc-muted font-mono mb-1">
+                REGIME
+              </div>
+              <div className={`text-sm font-mono ${getRegimeColor(tileData.regime.current)}`}>
+                {getRegimeEmoji(tileData.regime.current)} {tileData.regime.current}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-btc-muted font-mono mb-1">
+                CONFIDENCE
+              </div>
+              <div className="text-sm font-mono text-btc">
+                {(tileData.confidence * 100).toFixed(0)}%
+              </div>
+            </div>
+          </div>
+
+          {/* Last Update */}
+          <div className="flex justify-between items-center text-xs text-btc-muted font-mono">
+            <span>LAST UPDATE</span>
+            <span>{tileData.lastUpdate.toLocaleTimeString()}</span>
+          </div>
         </div>
       </div>
     </StaticTileWrapper>

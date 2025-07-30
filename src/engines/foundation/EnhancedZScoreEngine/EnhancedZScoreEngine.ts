@@ -102,7 +102,7 @@ export class EnhancedZScoreEngine extends UnifiedBaseEngine {
   private async calculateZScoreData(): Promise<ZScoreData> {
     // Check cache first
     const cacheKey = 'enhanced_zscore_foundation_v6';
-    const cached = this.getCacheData<ZScoreData>(cacheKey);
+    const cached = this.getCacheData(cacheKey);
     if (cached) {
       return { ...cached, cacheHit: true };
     }
@@ -158,10 +158,7 @@ export class EnhancedZScoreEngine extends UnifiedBaseEngine {
     for (const indicator of this.CORE_INDICATORS) {
       try {
         // Attempt to fetch real data
-        const data = await this.dataService.getHistoricalData(indicator, {
-          period: '2y',
-          interval: 'daily'
-        });
+        const data = await this.dataService.getHistoricalData(indicator);
         
         if (data && data.length > 0) {
           indicatorData.set(indicator, data.map(d => d.value));
