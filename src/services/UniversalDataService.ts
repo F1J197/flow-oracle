@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import FREDService from './FREDService';
+import { FREDService } from './FREDService';
 
 export interface UniversalIndicatorData {
   symbol: string;
@@ -22,12 +22,12 @@ export interface DataProviderRequest {
 
 class UniversalDataService {
   private static instance: UniversalDataService;
-  private fredService: FREDService;
+  private fredService: typeof FREDService;
   private cache = new Map<string, { data: UniversalIndicatorData; expiry: number }>();
   private readonly CACHE_TTL = 300000; // 5 minutes
 
   private constructor() {
-    this.fredService = FREDService.getInstance();
+    this.fredService = FREDService;
   }
 
   static getInstance(): UniversalDataService {

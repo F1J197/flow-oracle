@@ -12,7 +12,7 @@ import type {
   IndicatorMetadata,
   IndicatorValue
 } from '@/types/indicators';
-import FREDService from './FREDService';
+import { FREDService } from './FREDService';
 
 class UniversalIndicatorService {
   private static instance: UniversalIndicatorService;

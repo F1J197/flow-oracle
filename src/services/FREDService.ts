@@ -1,216 +1,150 @@
-import { supabase } from '@/integrations/supabase/client';
-import { getFredSeriesId, isValidFredSymbol } from '@/config/fredSymbols';
-import AlternativeDataService from './AlternativeDataService';
+/**
+ * LIQUIDITY² Terminal - FRED Data Service V2
+ * Federal Reserve Economic Data integration using Supabase Edge Functions
+ */
 
-export interface FREDDataPoint {
+import { supabase } from '@/integrations/supabase/client';
+
+interface FREDDataPoint {
   date: string;
   value: number;
-  realtime_start: string;
-  realtime_end: string;
 }
 
-export interface FREDResponse {
+interface FREDResponse {
   success: boolean;
-  data?: {
-    observations: FREDDataPoint[];
-  };
+  data?: FREDDataPoint[];
   error?: string;
-  timestamp: string;
-  rateLimitInfo?: {
-    remaining: number;
-    resetTime: number;
-  };
+  timestamp?: string;
 }
 
-class FREDService {
-  private static instance: FREDService;
+/**
+ * FRED Data Service V2 - Now using dedicated Edge Functions
+ * Features: Dedicated FRED ingestion, Enhanced caching, Improved error handling
+ */
+class FREDServiceV2 {
+  private static instance: FREDServiceV2;
   private cache = new Map<string, { data: FREDDataPoint[]; expiry: number }>();
+  private lastActivity = Date.now();
   private readonly CACHE_TTL = 300000; // 5 minutes
+
+  static getInstance(): FREDServiceV2 {
+    if (!FREDServiceV2.instance) {
+      FREDServiceV2.instance = new FREDServiceV2();
+    }
+    return FREDServiceV2.instance;
+  }
 
   private constructor() {}
 
-  static getInstance(): FREDService {
-    if (!FREDService.instance) {
-      FREDService.instance = new FREDService();
-    }
-    return FREDService.instance;
-  }
-
+  /**
+   * Fetch a single FRED series using dedicated edge function
+   */
   async fetchSeries(seriesId: string): Promise<FREDDataPoint[]> {
-    // Map internal symbol to FRED series ID
-    const fredSeriesId = getFredSeriesId(seriesId);
-    
-    // Check if we have a valid mapping
-    if (!isValidFredSymbol(seriesId) && seriesId === fredSeriesId) {
-      console.warn(`No FRED mapping found for symbol: ${seriesId}`);
-    }
-    
-    // Check cache first
-    const cached = this.getCachedData(fredSeriesId);
-    if (cached) {
-      console.log(`Using cached FRED data for ${seriesId} (${fredSeriesId})`);
-      return cached;
-    }
-
     try {
-      console.log(`Fetching FRED data for ${seriesId} -> ${fredSeriesId} via universal proxy`);
-      
-      const { data, error } = await supabase.functions.invoke('universal-data-proxy', {
+      this.lastActivity = Date.now();
+
+      // Check cache first
+      const cached = this.getCachedData(seriesId);
+      if (cached) {
+        return cached;
+      }
+
+      // Use dedicated FRED ingestion edge function
+      const { data, error } = await supabase.functions.invoke('fred-data-ingestion', {
         body: {
-          provider: 'fred',
-          endpoint: '/series/observations',
-          symbol: fredSeriesId,
-          parameters: {
-            limit: 10,
-            sort_order: 'desc'
-          }
+          action: 'fetchSeries',
+          seriesId: seriesId
         }
       });
 
       if (error) {
-        throw new Error(`Supabase function error: ${error.message}`);
+        console.error(`FRED ingestion error for ${seriesId}:`, error);
+        return await this.getFallbackData(seriesId);
       }
 
-      const response = data as FREDResponse;
-      
-      if (!response.success) {
-        throw new Error(response.error || 'FRED API request failed');
+      if (data.success && data.data) {
+        this.setCachedData(seriesId, data.data);
+        return data.data;
+      } else {
+        console.warn(`FRED ingestion failed for ${seriesId}:`, data.error);
+        return await this.getFallbackData(seriesId);
       }
-
-      const observations = response.data?.observations || [];
-      const validData = this.processObservations(observations);
-      
-      // Cache the result
-      this.setCachedData(fredSeriesId, validData);
-      
-      console.log(`✅ Successfully fetched ${validData.length} data points for ${seriesId} (${fredSeriesId})`);
-      return validData;
 
     } catch (error) {
-      console.error(`❌ FRED service error for ${fredSeriesId}:`, error);
-      
-      // Try alternative data sources for non-FRED symbols
-      if (seriesId !== fredSeriesId) {
-        console.log(`🔄 Trying alternative data sources for ${seriesId}...`);
-        try {
-          const alternativeService = AlternativeDataService.getInstance();
-          const altData = await alternativeService.fetchFromMultipleSources(seriesId);
-          
-          if (altData.length > 0) {
-            // Convert alternative data to FRED format
-            const convertedData = altData.map(dp => ({
-              date: dp.date,
-              value: dp.value,
-              realtime_start: dp.date,
-              realtime_end: dp.date
-            }));
-            
-            console.log(`✅ Using alternative data source for ${seriesId}`);
-            this.setCachedData(fredSeriesId, convertedData);
-            return convertedData;
-          }
-        } catch (altError) {
-          console.error(`❌ Alternative data sources also failed for ${seriesId}:`, altError);
-        }
-      }
-      
-      // Try fallback to cached data or database
-      const fallbackData = await this.getFallbackData(fredSeriesId);
-      if (fallbackData.length > 0) {
-        console.log(`📦 Using fallback data for ${fredSeriesId}`);
-        return fallbackData;
-      }
-      
-      throw error;
+      console.error(`Error fetching FRED series ${seriesId}:`, error);
+      return await this.getFallbackData(seriesId);
     }
   }
 
+  /**
+   * Fetch multiple FRED series using dedicated edge function
+   */
   async fetchMultipleSeries(seriesIds: string[]): Promise<Record<string, FREDDataPoint[]>> {
-    const results: Record<string, FREDDataPoint[]> = {};
-    
-    console.log(`🔄 Fetching ${seriesIds.length} FRED series...`);
-    
-    // Process in parallel with controlled concurrency
-    const chunks = this.chunkArray(seriesIds, 2); // Reduced concurrency for better rate limiting
-    
-    for (const chunk of chunks) {
-      const promises = chunk.map(async (seriesId) => {
-        try {
-          const data = await this.fetchSeries(seriesId);
-          return { seriesId, data, success: true };
-        } catch (error) {
-          console.error(`Failed to fetch ${seriesId}:`, error);
-          return { seriesId, data: [], success: false };
+    try {
+      this.lastActivity = Date.now();
+
+      // Check cache for all series first
+      const results: Record<string, FREDDataPoint[]> = {};
+      const uncachedIds: string[] = [];
+
+      for (const seriesId of seriesIds) {
+        const cached = this.getCachedData(seriesId);
+        if (cached) {
+          results[seriesId] = cached;
+        } else {
+          uncachedIds.push(seriesId);
+        }
+      }
+
+      if (uncachedIds.length === 0) {
+        return results;
+      }
+
+      // Use dedicated FRED ingestion edge function for uncached series
+      const { data, error } = await supabase.functions.invoke('fred-data-ingestion', {
+        body: {
+          action: 'fetchMultipleSeries',
+          seriesIds: uncachedIds
         }
       });
-      
-      const chunkResults = await Promise.all(promises);
-      chunkResults.forEach(({ seriesId, data }) => {
-        results[seriesId] = data;
-      });
-      
-      // Add delay between chunks to respect rate limits
-      if (chunks.indexOf(chunk) < chunks.length - 1) {
-        await this.delay(2000); // Increased delay for better rate limiting
-      }
-    }
-    
-    return results;
-  }
 
-  private processObservations(observations: any[]): FREDDataPoint[] {
-    return observations
-      .filter(obs => obs.value !== '.' && obs.value !== null && !isNaN(parseFloat(obs.value)))
-      .map(obs => ({
-        date: obs.date,
-        value: parseFloat(obs.value),
-        realtime_start: obs.realtime_start || obs.date,
-        realtime_end: obs.realtime_end || obs.date
-      }));
-  }
-
-  private async getFallbackData(seriesId: string): Promise<FREDDataPoint[]> {
-    try {
-      const { data: indicator } = await supabase
-        .from('indicators')
-        .select('id')
-        .eq('symbol', seriesId)
-        .eq('data_source', 'FRED')
-        .single();
-
-      if (!indicator) {
-        return [];
+      if (error) {
+        console.error('FRED multi-series ingestion error:', error);
+        // Get fallback data for uncached series
+        for (const seriesId of uncachedIds) {
+          results[seriesId] = await this.getFallbackData(seriesId);
+        }
+      } else if (data.success && data.data) {
+        // Cache and merge results
+        for (const [seriesId, seriesData] of Object.entries(data.data)) {
+          const typedData = seriesData as FREDDataPoint[];
+          this.setCachedData(seriesId, typedData);
+          results[seriesId] = typedData;
+        }
+      } else {
+        console.warn('FRED multi-series ingestion failed:', data.error);
+        // Get fallback data for uncached series
+        for (const seriesId of uncachedIds) {
+          results[seriesId] = await this.getFallbackData(seriesId);
+        }
       }
 
-      const { data: dataPoints } = await supabase
-        .from('data_points')
-        .select('*')
-        .eq('indicator_id', indicator.id)
-        .order('timestamp', { ascending: false })
-        .limit(10);
+      return results;
 
-      if (dataPoints && dataPoints.length > 0) {
-        return dataPoints.map(dp => ({
-          date: dp.timestamp.split('T')[0],
-          value: dp.value,
-          realtime_start: dp.timestamp.split('T')[0],
-          realtime_end: dp.timestamp.split('T')[0]
-        }));
-      }
     } catch (error) {
-      console.error(`Failed to get fallback data for ${seriesId}:`, error);
+      console.error('Error fetching multiple FRED series:', error);
+      const results: Record<string, FREDDataPoint[]> = {};
+      for (const seriesId of seriesIds) {
+        results[seriesId] = await this.getFallbackData(seriesId);
+      }
+      return results;
     }
-
-    return [];
   }
 
   private getCachedData(seriesId: string): FREDDataPoint[] | null {
     const cached = this.cache.get(seriesId);
-    if (cached && Date.now() < cached.expiry) {
+    if (cached && cached.expiry > Date.now()) {
       return cached.data;
-    }
-    if (cached) {
-      this.cache.delete(seriesId);
     }
     return null;
   }
@@ -222,33 +156,44 @@ class FREDService {
     });
   }
 
-  private chunkArray<T>(array: T[], size: number): T[][] {
-    const chunks: T[][] = [];
-    for (let i = 0; i < array.length; i += size) {
-      chunks.push(array.slice(i, i + size));
+  private async getFallbackData(seriesId: string): Promise<FREDDataPoint[]> {
+    try {
+      // Try to get historical data from database
+      const { data } = await supabase
+        .from('data_points')
+        .select('timestamp, value')
+        .order('timestamp', { ascending: true })
+        .limit(1000);
+
+      if (data && data.length > 0) {
+        return data.map(item => ({
+          date: item.timestamp.split('T')[0],
+          value: typeof item.value === 'string' ? parseFloat(item.value) : item.value
+        }));
+      }
+    } catch (error) {
+      console.error(`Database fallback failed for ${seriesId}:`, error);
     }
-    return chunks;
+
+    return [];
   }
 
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  // Health check
-  getHealthStatus(): {
-    cacheSize: number;
-    lastActivity: number;
-  } {
+  /**
+   * Get service health status
+   */
+  getHealthStatus(): { cacheSize: number; lastActivity: number } {
     return {
       cacheSize: this.cache.size,
-      lastActivity: Date.now()
+      lastActivity: this.lastActivity,
     };
   }
 
+  /**
+   * Clear the cache
+   */
   clearCache(): void {
     this.cache.clear();
-    console.log('FRED service cache cleared');
   }
 }
 
-export default FREDService;
+export const FREDService = FREDServiceV2.getInstance();

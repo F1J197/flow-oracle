@@ -8,7 +8,7 @@ export { default as UniversalDataService } from './UniversalDataServiceV2';
 export { default as UniversalDataServiceV1 } from './UniversalDataService';
 
 // Specialized services
-export { default as FREDService } from './FREDService';
+export { FREDService } from './FREDService';
 
 // Legacy services (deprecated - use UniversalDataService)
 export { default as ProductionDataService } from './ProductionDataService';

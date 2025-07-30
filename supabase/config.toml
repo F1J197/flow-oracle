@@ -37,3 +37,6 @@ verify_jwt = false
 
 [functions.live-data-fetch]
 verify_jwt = false
+
+[functions.fred-data-ingestion]
+verify_jwt = false

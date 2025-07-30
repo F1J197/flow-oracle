@@ -4,7 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import FREDService from './FREDService';
+import { FREDService } from './FREDService';
 import UniversalDataService from './UniversalDataService';
 import UniversalIndicatorService from './UniversalIndicatorService';
 import ErrorHandlingService, { ErrorLevel } from './ErrorHandlingService';

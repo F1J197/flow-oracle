@@ -82,59 +82,90 @@ class UniversalDataProxy {
   }
 
   private async handleFredRequest(request: DataRequest): Promise<DataResponse> {
-    const apiKey = Deno.env.get('FRED_API_KEY');
-    if (!apiKey) {
-      throw new Error('FRED API key not configured');
-    }
+    try {
+      console.log('Processing fred request for', request.endpoint || '/series/observations');
+      
+      const apiKey = Deno.env.get('FRED_API_KEY');
+      if (!apiKey) {
+        console.error('FRED API key not configured');
+        throw new Error('FRED API key not configured');
+      }
 
-    // Update rate limit tracking
-    this.updateRateLimit('fred');
+      // Update rate limit tracking
+      this.updateRateLimit('fred');
 
-    const url = new URL('https://api.stlouisfed.org/fred/series/observations');
-    url.searchParams.append('api_key', apiKey);
-    url.searchParams.append('file_type', 'json');
-    url.searchParams.append('limit', '10');
-    url.searchParams.append('sort_order', 'desc');
-    
-    if (request.symbol) {
-      url.searchParams.append('series_id', request.symbol);
-    }
+      const baseUrl = 'https://api.stlouisfed.org/fred';
+      const endpoint = request.endpoint || '/series/observations';
+      const url = new URL(`${baseUrl}${endpoint}`);
+      
+      url.searchParams.append('api_key', apiKey);
+      url.searchParams.append('file_type', 'json');
+      
+      // Set appropriate defaults based on endpoint
+      if (endpoint === '/series/observations') {
+        url.searchParams.append('limit', '1000');
+        url.searchParams.append('sort_order', 'desc');
+        url.searchParams.append('observation_start', '2020-01-01');
+      }
+      
+      if (request.symbol) {
+        url.searchParams.append('series_id', request.symbol);
+      }
 
-    // Add any additional parameters
-    if (request.parameters) {
-      Object.entries(request.parameters).forEach(([key, value]) => {
-        url.searchParams.append(key, String(value));
+      // Add any additional parameters
+      if (request.parameters) {
+        Object.entries(request.parameters).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) {
+            url.searchParams.append(key, String(value));
+          }
+        });
+      }
+
+      console.log(`Making FRED request to: ${url.toString().replace(apiKey, '[REDACTED]')}`);
+
+      const response = await fetch(url.toString(), {
+        headers: {
+          'User-Agent': 'LIQUIDITY2-Terminal/1.0',
+          'Accept': 'application/json'
+        }
       });
-    }
 
-    const response = await fetch(url.toString(), {
-      headers: {
-        'User-Agent': 'LIQUIDITY2-Terminal/1.0'
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`FRED API error: ${response.status} ${response.statusText}`, errorText);
+        
+        if (response.status === 429) {
+          this.setRateLimited('fred', 60000); // 1 minute cooldown
+          throw new Error('FRED API rate limit exceeded');
+        }
+        throw new Error(`FRED API error: ${response.status} ${response.statusText}`);
       }
-    });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        this.setRateLimited('fred', 60000); // 1 minute cooldown
-        throw new Error('FRED API rate limit exceeded');
+      const data = await response.json();
+      
+      if (!data) {
+        console.error('Empty response from FRED API');
+        throw new Error('Empty response from FRED API');
       }
-      throw new Error(`FRED API error: ${response.status} ${response.statusText}`);
-    }
 
-    const data = await response.json();
-    
-    // Store successful data in Supabase
-    if (data.observations && data.observations.length > 0) {
-      await this.storeIndicatorData('fred', request.symbol || 'unknown', data.observations);
-    }
+      console.log(`FRED API response received for ${request.symbol || 'unknown'}`);
+      
+      // Store successful data in Supabase
+      if (data.observations && data.observations.length > 0 && request.symbol) {
+        await this.storeIndicatorData('fred', request.symbol, data.observations);
+      }
 
-    return {
-      success: true,
-      data,
-      timestamp: new Date().toISOString(),
-      provider: 'fred',
-      rateLimitInfo: this.getRateLimitInfo('fred')
-    };
+      return {
+        success: true,
+        data,
+        timestamp: new Date().toISOString(),
+        provider: 'fred',
+        rateLimitInfo: this.getRateLimitInfo('fred')
+      };
+    } catch (error) {
+      console.error('Error processing fred request:', error);
+      throw error;
+    }
   }
 
   private async handleGlassnodeRequest(request: DataRequest): Promise<DataResponse> {

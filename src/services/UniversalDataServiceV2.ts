@@ -4,8 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import FREDService from './FREDService';
-import { getFREDSeriesId, hasValidFREDMapping } from '@/config/fredSymbolMapping';
+import { FREDService } from './FREDService';
 
 export interface UniversalIndicatorData {
   symbol: string;
@@ -43,7 +42,7 @@ export interface HealthStatus {
 
 class UniversalDataServiceV2 {
   private static instance: UniversalDataServiceV2;
-  private fredService: FREDService;
+  private fredService: typeof FREDService;
   private cache = new Map<string, { data: UniversalIndicatorData; expiry: number }>();
   private healthMetrics = {
     totalRequests: 0,
@@ -66,7 +65,7 @@ class UniversalDataServiceV2 {
   };
 
   private constructor() {
-    this.fredService = FREDService.getInstance();
+    this.fredService = FREDService;
     this.startHealthMonitoring();
   }
 
@@ -194,8 +193,7 @@ class UniversalDataServiceV2 {
         source: 'fred_api',
         provider: 'fred',
         metadata: { 
-          fredSeriesId: getFREDSeriesId(symbol),
-          hasValidMapping: hasValidFREDMapping(symbol)
+          source: 'fred-data-ingestion'
         }
       };
     } catch (error) {

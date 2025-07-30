@@ -21,7 +21,7 @@ export const CONFIG = {
     HEALTH_CHECK_INTERVAL: 10000,
   },
 
-  // Data Sources - Using Universal Proxy
+  // Data Sources - Using Edge Functions
   DATA_SOURCES: {
     PROXY: {
       ENDPOINT: 'universal-data-proxy',
@@ -30,6 +30,7 @@ export const CONFIG = {
     },
     FRED: {
       PROVIDER: 'fred',
+      ENDPOINT: 'fred-data-ingestion',
       RATE_LIMIT: 120, // requests per minute
     },
     COINBASE: {

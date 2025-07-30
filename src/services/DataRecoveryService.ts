@@ -1,6 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import FREDService from './FREDService';
-import AlternativeDataService from './AlternativeDataService';
+import { FREDService } from './FREDService';
 
 export interface DataRecoveryOptions {
   forceRefresh?: boolean;
@@ -21,12 +20,10 @@ export interface RecoveryReport {
 
 class DataRecoveryService {
   private static instance: DataRecoveryService;
-  private fredService: FREDService;
-  private altService: AlternativeDataService;
+  private fredService: any;
 
   private constructor() {
-    this.fredService = FREDService.getInstance();
-    this.altService = AlternativeDataService.getInstance();
+    this.fredService = FREDService;
   }
 
   static getInstance(): DataRecoveryService {
@@ -130,29 +127,28 @@ class DataRecoveryService {
         // First try primary data source
         if (data_source === 'FRED') {
           data = await this.fredService.fetchSeries(symbol);
-        } else if (data_source === 'ALTERNATIVE' && useAlternativeSources) {
-          data = await this.altService.fetchFromMultipleSources(symbol);
-          const altSources = metadata?.alternative_sources || [];
-          if (altSources.length > 0) {
-            sourceUsed = altSources[0];
-          }
         }
 
-        // If primary source failed and alternatives are enabled, try them
-        if (data.length === 0 && useAlternativeSources) {
-          const altSources = metadata?.alternative_sources || [];
-          for (const altSource of altSources) {
-            try {
-              console.log(`🔄 Trying alternative source ${altSource} for ${symbol}`);
-              data = await this.altService.fetchFromMultipleSources(symbol);
-              if (data.length > 0) {
-                sourceUsed = altSource;
-                report.alternativeSourcesUsed[symbol] = altSource;
-                break;
-              }
-            } catch (altError) {
-              console.warn(`Alternative source ${altSource} failed for ${symbol}:`, altError);
+        // If no data and fallback is available, try database fallback
+        if (data.length === 0) {
+          console.log(`🔄 Trying database fallback for ${symbol}`);
+          try {
+            const { data: fallbackData } = await supabase
+              .from('data_points')
+              .select('timestamp, value')
+              .order('timestamp', { ascending: false })
+              .limit(100);
+
+            if (fallbackData && fallbackData.length > 0) {
+              data = fallbackData.map(item => ({
+                date: item.timestamp.split('T')[0],
+                value: parseFloat(item.value)
+              }));
+              sourceUsed = 'database-fallback';
+              report.alternativeSourcesUsed[symbol] = 'database-fallback';
             }
+          } catch (fallbackError) {
+            console.warn(`Database fallback failed for ${symbol}:`, fallbackError);
           }
         }
 
