@@ -3,7 +3,7 @@ import { Clock, Activity, TrendingUp, TrendingDown, AlertTriangle } from 'lucide
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useFoundationDataIntegrity } from '@/hooks/useFoundationDataIntegrity';
 import { DataIntegrityDashboardTile } from '@/engines/foundation/DataIntegrityEngine';
-import { ZScoreFoundationTile } from '@/engines/foundation/EnhancedZScoreEngine';
+import { SafeZScoreTile } from '@/components/dashboard/SafeZScoreTile';
 
 export const TerminalDashboard = () => {
   console.log('🖥️ TerminalDashboard component initializing...');
@@ -14,6 +14,13 @@ export const TerminalDashboard = () => {
     
     const { metrics: dataIntegrityMetrics, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
     console.log('🔐 Data integrity loaded:', { loading: dataIntegrityLoading, hasMetrics: !!dataIntegrityMetrics, error: dataIntegrityError });
+    
+    console.log('🎨 TerminalDashboard rendering with data:', { 
+      dashboardLoading: loading, 
+      dataIntegrityLoading,
+      hasStats: !!stats,
+      renderTime: new Date().toISOString()
+    });
 
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString('en-US', { 
@@ -184,7 +191,7 @@ export const TerminalDashboard = () => {
 
         {/* Enhanced Z-Score Engine Panel */}
         <div className="col-span-1">
-          <ZScoreFoundationTile className="h-full" />
+          <SafeZScoreTile className="h-full" />
         </div>
 
         {/* Primary Action Panel - Large */}

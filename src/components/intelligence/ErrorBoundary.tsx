@@ -1,5 +1,4 @@
 import React, { Component, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -27,58 +26,50 @@ export class ErrorBoundary extends Component<Props, State> {
     };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    this.setState({
-      hasError: true,
-      error,
-      errorInfo
-    });
-
-    // Log the error
-    console.error('Intelligence Engine Error:', error, errorInfo);
-
-    // Call optional error handler
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo);
-    }
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    console.error('🚨 ErrorBoundary caught an error:', error, errorInfo);
+    this.setState({ errorInfo });
+    this.props.onError?.(error, errorInfo);
   }
 
-  handleReset = () => {
+  handleReset = (): void => {
     this.setState({ hasError: false, error: null, errorInfo: null });
   };
 
-  render() {
+  render(): ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
       return (
-        <div className="glass-tile p-6 border border-critical/30 bg-critical/5">
-          <div className="flex items-center space-x-3 mb-4">
-            <AlertTriangle className="w-5 h-5 text-critical" />
-            <h3 className="text-lg font-semibold text-critical">
-              Intelligence Engine Error
-            </h3>
-          </div>
-          
-          <div className="space-y-3">
-            <p className="text-text-secondary text-sm">
-              An error occurred in the Intelligence Engine. The system will attempt to recover automatically.
-            </p>
+        <div className="bg-bg-primary text-text-primary font-mono p-6 border border-neon-orange/30">
+          <div className="space-y-4">
+            <div className="text-neon-orange text-lg font-bold">
+              ⚠️ COMPONENT ERROR
+            </div>
             
-            {this.state.error && (
-              <div className="bg-bg-secondary p-3 rounded font-mono text-xs text-text-muted">
-                <strong>Error:</strong> {this.state.error.message}
+            <div className="bg-bg-secondary p-4 border border-glass-border">
+              <div className="text-sm text-text-secondary mb-2">ERROR MESSAGE:</div>
+              <div className="text-neon-orange text-sm font-mono">
+                {this.state.error?.message || 'Unknown error occurred'}
+              </div>
+            </div>
+
+            {this.state.errorInfo && (
+              <div className="bg-bg-secondary p-4 border border-glass-border">
+                <div className="text-sm text-text-secondary mb-2">STACK TRACE:</div>
+                <pre className="text-xs text-text-muted overflow-auto max-h-32">
+                  {this.state.errorInfo.componentStack}
+                </pre>
               </div>
             )}
-            
+
             <button
               onClick={this.handleReset}
-              className="flex items-center space-x-2 px-4 py-2 bg-btc-primary/20 hover:bg-btc-primary/30 border border-btc-primary/30 rounded text-btc-primary text-sm transition-all duration-200"
+              className="bg-neon-teal/20 text-neon-teal border border-neon-teal/30 px-4 py-2 text-sm font-mono hover:bg-neon-teal/30 transition-colors"
             >
-              <RefreshCw className="w-4 h-4" />
-              <span>Retry Engine</span>
+              RETRY COMPONENT
             </button>
           </div>
         </div>

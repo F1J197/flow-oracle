@@ -1,22 +1,35 @@
 import { TerminalDashboard } from "@/components/dashboard/TerminalDashboard";
+import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
+import { LoadingDiagnostics } from "@/components/debug/LoadingDiagnostics";
 
 export const Dashboard = () => {
   console.log('📊 Dashboard component initializing...');
-  try {
-    return <TerminalDashboard />;
-  } catch (error) {
-    console.error('🚨 Dashboard component error:', error);
-    return (
-      <div style={{ 
-        color: 'white', 
-        backgroundColor: 'black', 
-        padding: '20px', 
-        fontFamily: 'monospace' 
-      }}>
-        <h1>Dashboard Error</h1>
-        <p>An error occurred while loading the dashboard:</p>
-        <pre>{error instanceof Error ? error.message : String(error)}</pre>
-      </div>
-    );
-  }
+  console.log('🎯 Dashboard route loaded, rendering TerminalDashboard...');
+  
+  return (
+    <>
+      <LoadingDiagnostics />
+      <ErrorBoundary
+        onError={(error, errorInfo) => {
+          console.error('🚨 Dashboard ErrorBoundary caught error:', error, errorInfo);
+        }}
+        fallback={
+          <div className="bg-bg-primary text-text-primary font-mono h-screen flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="text-neon-orange text-2xl">⚠️ TERMINAL ERROR</div>
+              <div className="text-text-secondary">Dashboard failed to initialize</div>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="bg-neon-teal/20 text-neon-teal border border-neon-teal/30 px-4 py-2 font-mono"
+              >
+                RELOAD TERMINAL
+              </button>
+            </div>
+          </div>
+        }
+      >
+        <TerminalDashboard />
+      </ErrorBoundary>
+    </>
+  );
 };

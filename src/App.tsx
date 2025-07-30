@@ -11,6 +11,7 @@ import { SystemDashboard } from "./pages/SystemDashboard";
 import { UnifiedEngineTestPage } from "./pages/UnifiedEngineTest";
 import { EngineRegistryProvider } from "./components/engines/EngineRegistryProvider";
 import { TerminalThemeProvider } from "./components/providers/TerminalThemeProvider";
+import { ConsoleLogger } from "./components/debug/ConsoleLogger";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => {
         <TerminalThemeProvider>
           <TooltipProvider>
             <EngineRegistryProvider>
+              <ConsoleLogger />
               <Toaster />
               <Sonner />
               <BrowserRouter>
