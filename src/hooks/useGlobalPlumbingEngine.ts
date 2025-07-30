@@ -14,7 +14,31 @@ interface GlobalPlumbingEngineState {
 
 export const useGlobalPlumbingEngine = (options: { autoRefresh?: boolean; refreshInterval?: number } = {}) => {
   const { autoRefresh = true, refreshInterval = 15000 } = options;
-  const context = useEngineRegistryContext();
+  
+  // Safe context access with error boundary
+  let context;
+  try {
+    context = useEngineRegistryContext();
+  } catch (error) {
+    console.warn('🔧 EngineRegistryContext not available, returning default state');
+    return {
+      dashboardData: null,
+      intelligenceData: null,
+      actionableInsight: null,
+      loading: true,
+      error: 'Engine registry context not available',
+      lastUpdated: null,
+      engine: null,
+      refresh: () => Promise.resolve(),
+      efficiency: 'N/A',
+      systemicRisk: 'N/A',
+      riskLevel: 1,
+      isHealthy: false,
+      isStressed: false,
+      isCritical: false,
+      trend: 'neutral' as const
+    };
+  }
   
   // Gracefully handle uninitialized context
   if (!context.isInitialized) {
