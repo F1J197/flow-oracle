@@ -3,7 +3,7 @@
  * Combines existing registry functionality with enhanced patterns
  */
 
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import type { IEngine } from '../../types/engines';
 import { EngineAdapter } from '../../utils/engineAdapter';
 
@@ -35,7 +35,7 @@ export interface ExecutionContext {
   parallel?: boolean;
 }
 
-export class UnifiedEngineRegistry extends EventEmitter {
+export class UnifiedEngineRegistry extends BrowserEventEmitter {
   private static instance: UnifiedEngineRegistry;
   private engines: Map<string, IEngine> = new Map();
   private metadata: Map<string, UnifiedEngineMetadata> = new Map();

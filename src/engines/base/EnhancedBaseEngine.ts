@@ -3,7 +3,7 @@
  * Combines resilient patterns with event-driven architecture
  */
 
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import type { 
   IEngine, 
   EngineReport, 
@@ -33,7 +33,7 @@ export interface EnhancedEngineState {
   isHealthy: boolean;
 }
 
-export abstract class EnhancedBaseEngine extends EventEmitter implements IEngine {
+export abstract class EnhancedBaseEngine extends BrowserEventEmitter implements IEngine {
   // Abstract properties that must be implemented
   abstract readonly id: string;
   abstract readonly name: string;

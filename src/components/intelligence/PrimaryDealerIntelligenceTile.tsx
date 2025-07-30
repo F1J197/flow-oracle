@@ -38,11 +38,9 @@ export const PrimaryDealerIntelligenceTile = ({
   const getPrimaryMetricColor = () => {
     if (!tileData) return 'text-foreground';
     switch (tileData.color) {
-      case 'success': return 'text-btc-primary';
-      case 'critical': return 'text-btc-dark';
-      case 'success': return 'text-btc-bright';
-      case 'warning': return 'text-btc-light';
-      case 'critical': return 'text-btc-muted';
+        case 'success': return 'text-btc-primary';
+        case 'warning': return 'text-btc-light';  
+        case 'critical': return 'text-btc-dark';
       default: return 'text-foreground';
     }
   };

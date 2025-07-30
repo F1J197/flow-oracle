@@ -38,9 +38,17 @@ export class EngineAdapter {
 
     // Add event emitter capabilities if not present
     if (!engine.on && !engine.emit) {
-      const EventEmitter = require('events');
-      Object.setPrototypeOf(engine, EventEmitter.prototype);
-      EventEmitter.call(engine);
+      // Use a simple event system instead of Node.js EventEmitter
+      const listeners = new Map();
+      engine.on = function(event: string, callback: Function) {
+        if (!listeners.has(event)) listeners.set(event, new Set());
+        listeners.get(event).add(callback);
+      };
+      engine.emit = function(event: string, ...args: any[]) {
+        if (listeners.has(event)) {
+          listeners.get(event).forEach((cb: Function) => cb(...args));
+        }
+      };
     }
 
     // Ensure all required IEngine methods exist
