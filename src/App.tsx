@@ -1,70 +1,59 @@
+import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import IntelligenceEngine from "./pages/IntelligenceEngine";
-import { SystemDashboard } from "./pages/SystemDashboard";
 import { Dashboard } from "./pages/Dashboard";
-import ChartsView from "./pages/ChartsView";
+import Intelligence from "./pages/Intelligence";
+import Charts from "./pages/Charts";
+import { SystemDashboard } from "./pages/SystemDashboard";
+import NotFound from "./pages/NotFound";
 import { EngineRegistryProvider } from "./components/engines/EngineRegistryProvider";
 import { TerminalThemeProvider } from "./components/providers/TerminalThemeProvider";
-import { ConsoleLogger } from "./components/debug/ConsoleLogger";
+import { DataOrchestratorProvider } from "./components/providers/DataOrchestratorProvider";
 import { AppErrorBoundary } from "./components/error/AppErrorBoundary";
-import { debugLogger, appLogger } from "./utils/debugLogger";
+import { debugLogger } from "./utils/debugLogger";
+import './index.css';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
-// Initialize app logging
-appLogger.initialization('Starting LIQUIDITY² application');
+debugLogger.info('APP_INIT', 'LIQUIDITY² Application Starting...');
 
-const App = () => {
-  appLogger.initialization('App component initializing...');
-  
-  try {
-    return (
-      <AppErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <TerminalThemeProvider>
-            <TooltipProvider>
-              <EngineRegistryProvider>
-                <ConsoleLogger />
-                <Toaster />
-                <Sonner />
+const App: React.FC = () => {
+  return (
+    <AppErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TerminalThemeProvider>
+          <DataOrchestratorProvider>
+            <EngineRegistryProvider>
+              <TooltipProvider>
                 <BrowserRouter>
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
-                    <Route path="/intelligence" element={<IntelligenceEngine />} />
-                    <Route path="/charts" element={<ChartsView />} />
+                    <Route path="/intelligence" element={<Intelligence />} />
+                    <Route path="/charts" element={<Charts />} />
                     <Route path="/system" element={<SystemDashboard />} />
-                    <Route path="/legacy" element={<Index />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
-              </EngineRegistryProvider>
-            </TooltipProvider>
-          </TerminalThemeProvider>
-        </QueryClientProvider>
-      </AppErrorBoundary>
-    );
-  } catch (error) {
-    appLogger.error('App component error', error);
-    return (
-      <div style={{ 
-        color: 'white', 
-        backgroundColor: 'black', 
-        padding: '20px', 
-        fontFamily: 'monospace' 
-      }}>
-        <h1>Application Error</h1>
-        <p>An error occurred while loading the application:</p>
-        <pre>{error instanceof Error ? error.message : String(error)}</pre>
-      </div>
-    );
-  }
+                <Toaster />
+                <Sonner />
+              </TooltipProvider>
+            </EngineRegistryProvider>
+          </DataOrchestratorProvider>
+        </TerminalThemeProvider>
+      </QueryClientProvider>
+    </AppErrorBoundary>
+  );
 };
 
 export default App;
