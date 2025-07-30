@@ -6,8 +6,14 @@ import { DataIntegrityDashboardTile } from '@/engines/foundation/DataIntegrityEn
 import { ZScoreFoundationTile } from '@/engines/foundation/EnhancedZScoreEngine';
 
 export const TerminalDashboard = () => {
-  const { dashboardData, loading, stats } = useUnifiedDashboard({ autoRefresh: true });
-  const { metrics: dataIntegrityMetrics, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
+  console.log('🖥️ TerminalDashboard component initializing...');
+  
+  try {
+    const { dashboardData, loading, stats } = useUnifiedDashboard({ autoRefresh: true });
+    console.log('📊 Dashboard data loaded:', { loading, hasData: !!dashboardData });
+    
+    const { metrics: dataIntegrityMetrics, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
+    console.log('🔐 Data integrity loaded:', { loading: dataIntegrityLoading, hasMetrics: !!dataIntegrityMetrics, error: dataIntegrityError });
 
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString('en-US', { 
@@ -29,8 +35,10 @@ export const TerminalDashboard = () => {
   };
 
   const marketStatus = getMarketStatus();
+  console.log('📈 Market status:', marketStatus);
 
   if (loading) {
+    console.log('⏳ Dashboard loading...');
     return (
       <div className="bg-bg-primary text-text-primary font-mono h-screen overflow-hidden">
         <div className="p-4">
@@ -40,6 +48,7 @@ export const TerminalDashboard = () => {
     );
   }
 
+  console.log('🎨 Rendering TerminalDashboard...');
   return (
     <div className="bg-bg-primary text-text-primary font-mono h-screen overflow-hidden">
       {/* Terminal Header */}
@@ -269,4 +278,21 @@ export const TerminalDashboard = () => {
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('🚨 TerminalDashboard error:', error);
+    return (
+      <div style={{ 
+        color: '#00FFFF', 
+        backgroundColor: '#000000', 
+        padding: '20px', 
+        fontFamily: 'monospace',
+        minHeight: '100vh'
+      }}>
+        <h1>Terminal Dashboard Error</h1>
+        <p>An error occurred while loading the terminal dashboard:</p>
+        <pre>{error instanceof Error ? error.message : String(error)}</pre>
+        <p>Please check the console for more details.</p>
+      </div>
+    );
+  }
 };

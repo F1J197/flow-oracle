@@ -41,8 +41,8 @@ export const TerminalThemeProvider = ({
       // Add terminal mode class to body
       document.body.classList.add('terminal-mode');
       
-      // Initialize terminal compliance enforcement
-      initializeTerminalCompliance();
+      // Initialize terminal compliance enforcement - commented out temporarily
+      // initializeTerminalCompliance();
       
       return () => {
         styleElement.remove();
