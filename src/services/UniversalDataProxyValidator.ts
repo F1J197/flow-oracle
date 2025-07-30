@@ -79,9 +79,9 @@ export class UniversalDataProxyValidator {
       const testData = {
         provider: 'test',
         symbol: 'TEST_VALIDATION',
-        current_value: 100,
-        source: 'validation_test',
-        timestamp: new Date().toISOString()
+        value: 100,
+        date: new Date().toISOString().split('T')[0],
+        metadata: { source: 'validation_test' }
       };
 
       const { data, error } = await supabase

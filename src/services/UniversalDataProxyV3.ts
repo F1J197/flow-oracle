@@ -671,15 +671,15 @@ class UniversalDataProxyV3 {
 
       return {
         symbol,
-        current: latest.current_value || 0,
-        previous: previous?.current_value || latest.current_value * 0.99,
-        change: latest.change_value || 0,
-        changePercent: latest.change_percent || 0,
-        timestamp: new Date(latest.timestamp),
-        confidence: latest.confidence || 0.8,
+        current: latest.value || 0,
+        previous: previous?.value || latest.value * 0.99,
+        change: 0, // Calculate from current and previous
+        changePercent: 0, // Calculate from current and previous
+        timestamp: new Date(latest.created_at),
+        confidence: 0.8,
         source: 'database_fallback',
         provider: provider,
-        metadata: { fallback: true, age: Date.now() - new Date(latest.timestamp).getTime() }
+        metadata: { fallback: true, age: Date.now() - new Date(latest.created_at).getTime() }
       };
     } catch (error) {
       console.error(`Database fallback failed for ${symbol}:`, error);

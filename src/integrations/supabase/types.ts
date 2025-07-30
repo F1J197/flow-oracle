@@ -296,49 +296,34 @@ export type Database = {
       }
       indicator_data: {
         Row: {
-          change_percent: number | null
-          change_value: number | null
-          confidence: number | null
-          created_at: string
-          current_value: number | null
+          created_at: string | null
+          date: string
           id: string
           metadata: Json | null
-          previous_value: number | null
           provider: string
-          source: string
           symbol: string
-          timestamp: string
-          updated_at: string
+          updated_at: string | null
+          value: number
         }
         Insert: {
-          change_percent?: number | null
-          change_value?: number | null
-          confidence?: number | null
-          created_at?: string
-          current_value?: number | null
+          created_at?: string | null
+          date: string
           id?: string
           metadata?: Json | null
-          previous_value?: number | null
           provider: string
-          source: string
           symbol: string
-          timestamp?: string
-          updated_at?: string
+          updated_at?: string | null
+          value: number
         }
         Update: {
-          change_percent?: number | null
-          change_value?: number | null
-          confidence?: number | null
-          created_at?: string
-          current_value?: number | null
+          created_at?: string | null
+          date?: string
           id?: string
           metadata?: Json | null
-          previous_value?: number | null
           provider?: string
-          source?: string
           symbol?: string
-          timestamp?: string
-          updated_at?: string
+          updated_at?: string | null
+          value?: number
         }
         Relationships: []
       }
