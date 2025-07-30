@@ -36,8 +36,8 @@ export { IntelligenceTile } from './IntelligenceTile';
 export { PrimaryDealerIntelligenceTile } from './PrimaryDealerIntelligenceTile';
 export { PrimaryDealerPositionsView } from './PrimaryDealerPositionsView';
 export { CUSIPStealthQEView } from './CUSIPStealthQEView';
-export { StandardDataIntegrityView } from './StandardDataIntegrityView';
-export { DataIntegrityEngineView } from './DataIntegrityEngineView';
+
+
 
 // Types
 export type { IntelligenceViewData } from '@/types/intelligenceView';

@@ -1,9 +1,12 @@
 import React from 'react';
 import { Clock, Activity, TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
+import { useFoundationDataIntegrity } from '@/hooks/useFoundationDataIntegrity';
+import { DataIntegrityDashboardTile } from '@/engines/foundation/DataIntegrityEngine';
 
 export const TerminalDashboard = () => {
   const { dashboardData, loading, stats } = useUnifiedDashboard({ autoRefresh: true });
+  const { metrics: dataIntegrityMetrics, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
 
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString('en-US', { 
@@ -169,45 +172,14 @@ export const TerminalDashboard = () => {
           </div>
         </div>
 
-        {/* System Status Panel */}
-        <div className="col-span-1 bg-bg-tile border border-neon-teal/30 p-3">
-          <div className="border-b border-neon-teal/20 pb-2 mb-3">
-            <div className="text-neon-teal text-xs font-bold tracking-wider">SYSTEM STATUS</div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-text-secondary text-xs">ENGINES:</span>
-              <span className="text-neon-lime font-bold text-sm">28/28</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary text-xs">HEALTH:</span>
-              <span className="text-neon-lime text-sm">100%</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary text-xs">LATENCY:</span>
-              <span className="text-neon-teal text-sm">12ms</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary text-xs">UPTIME:</span>
-              <span className="text-neon-lime text-sm">99.9%</span>
-            </div>
-            <div className="mt-3 pt-2 border-t border-neon-teal/20">
-              <div className="text-xs space-y-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-neon-lime terminal-panel"></div>
-                  <span className="text-text-secondary">DATA_FEEDS</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-neon-lime terminal-panel"></div>
-                  <span className="text-text-secondary">CALCULATIONS</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-neon-gold animate-pulse terminal-panel"></div>
-                  <span className="text-text-secondary">ALERTS</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Data Integrity Panel - Foundation Engine */}
+        <div className="col-span-1">
+          <DataIntegrityDashboardTile
+            data={dataIntegrityMetrics}
+            loading={dataIntegrityLoading}
+            error={dataIntegrityError}
+            className="h-full"
+          />
         </div>
 
         {/* Primary Action Panel - Large */}

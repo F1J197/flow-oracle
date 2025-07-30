@@ -3,6 +3,7 @@ import { IntelligenceHeaderTile } from "@/components/intelligence/IntelligenceHe
 import { DevelopmentEngineCard } from "@/components/intelligence/DevelopmentEngineCard";
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { useResilientEngine } from "@/hooks/useResilientEngine";
+import { useFoundationDataIntegrity } from "@/hooks/useFoundationDataIntegrity";
 
 // Engine implementations
 import { DataIntegrityEngine } from "@/engines/foundation/DataIntegrityEngine";
@@ -17,9 +18,9 @@ import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";
 import { 
   NetLiquidityView,
   CreditStressView,
-  MomentumView,
-  DataIntegrityEngineView
+  MomentumView
 } from "@/components/intelligence";
+import { DataIntegrityIntelligenceView } from "@/engines/foundation/DataIntegrityEngine";
 import { ZScoreIntelligenceView } from "@/components/intelligence/ZScoreIntelligenceView";
 import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
 import { StableDataTest } from "@/components/testing/StableDataTest";
@@ -33,6 +34,9 @@ function IntelligenceEngine() {
   const cusipEngine = useMemo(() => new CUSIPStealthQEEngine(), []);
   const dataIntegrityEngine = useMemo(() => new DataIntegrityEngine(), []);
   
+  // Foundation Data Integrity hook
+  const { metrics: dataIntegrityMetrics, sources: dataIntegritySources, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
+  
   const loading = false;
   const systemHealth = 'healthy' as const;
   const activeEngineCount = 7;
@@ -42,7 +46,14 @@ function IntelligenceEngine() {
   const renderEngineView = (engineKey: string, title: string) => {
     switch (engineKey) {
       case 'dataIntegrity':
-        return <DataIntegrityEngineView loading={loading} />;
+        return (
+          <DataIntegrityIntelligenceView 
+            data={dataIntegrityMetrics} 
+            sources={dataIntegritySources}
+            loading={dataIntegrityLoading}
+            error={dataIntegrityError}
+          />
+        );
       case 'netLiquidity':
         return <NetLiquidityView loading={loading} />;
       case 'creditStress':
