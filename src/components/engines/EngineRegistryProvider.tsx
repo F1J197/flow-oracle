@@ -9,6 +9,7 @@ import { DataIntegrityEngine } from '@/engines/foundation/DataIntegrityEngine';
 import { EnhancedMomentumEngine } from '@/engines/EnhancedMomentumEngine';
 import { PrimaryDealerPositionsEngineV6 } from '@/engines/PrimaryDealerPositionsEngineV6';
 import { EnhancedZScoreEngine } from '@/engines/foundation/EnhancedZScoreEngine';
+import { GlobalFinancialPlumbingEngine } from '@/engines/pillar1/GlobalFinancialPlumbingEngine';
 
 interface EngineRegistryContextType {
   registry: EngineRegistry;
@@ -48,6 +49,9 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
     const dataIntegrityEngine = new DataIntegrityEngine();
     const enhancedMomentumEngine = new EnhancedMomentumEngine();
     const enhancedZScoreEngine = new EnhancedZScoreEngine();
+    
+    // Pillar 1 Engines
+    const globalPlumbingEngine = new GlobalFinancialPlumbingEngine();
     
     // Pillar 2 Engines  
     const creditStressEngine = new CreditStressEngineV6();
@@ -109,6 +113,21 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
       version: '6.0',
       category: 'foundation',
       dependencies: ['DGS10', 'DGS2', 'VIXCLS', 'T10Y2Y', 'BAMLH0A0HYM2']
+    });
+    
+    // Register Pillar 1 Engines
+    registry.register(globalPlumbingEngine, {
+      description: 'Monitors global financial plumbing and cross-currency funding markets',
+      version: '6.0',
+      category: 'core',
+      dependencies: ['BASIS_SWAPS', 'FED_SWAP_LINES', 'LIBOR_OIS']
+    });
+    
+    unifiedRegistry.register(globalPlumbingEngine, {
+      description: 'Monitors global financial plumbing and cross-currency funding markets',
+      version: '6.0',
+      category: 'core',
+      dependencies: ['BASIS_SWAPS', 'FED_SWAP_LINES', 'LIBOR_OIS']
     });
     
     // Register Pillar 2 Engines

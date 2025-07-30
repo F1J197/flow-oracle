@@ -2,8 +2,10 @@ import React from 'react';
 import { Clock, Activity, TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useFoundationDataIntegrity } from '@/hooks/useFoundationDataIntegrity';
+import { useGlobalPlumbingEngine } from '@/hooks/useGlobalPlumbingEngine';
 import { DataIntegrityDashboardTile } from '@/engines/foundation/DataIntegrityEngine';
 import { SafeZScoreTile } from '@/components/dashboard/SafeZScoreTile';
+import { GlobalPlumbingTile } from '@/engines/pillar1/GlobalFinancialPlumbingEngine';
 
 export const TerminalDashboard = () => {
   console.log('🖥️ TerminalDashboard component initializing...');
@@ -14,6 +16,9 @@ export const TerminalDashboard = () => {
     
     const { metrics: dataIntegrityMetrics, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
     console.log('🔐 Data integrity loaded:', { loading: dataIntegrityLoading, hasMetrics: !!dataIntegrityMetrics, error: dataIntegrityError });
+    
+    const { efficiency, systemicRisk, trend, loading: plumbingLoading } = useGlobalPlumbingEngine({ autoRefresh: true });
+    console.log('🔧 Global plumbing loaded:', { efficiency, systemicRisk, trend, loading: plumbingLoading });
     
     console.log('🎨 TerminalDashboard rendering with data:', { 
       dashboardLoading: loading, 
@@ -255,6 +260,17 @@ export const TerminalDashboard = () => {
               <span className="text-text-secondary">DEALER: Positioning adjusted</span>
             </div>
           </div>
+        </div>
+
+        {/* Global Financial Plumbing Panel */}
+        <div className="col-span-1">
+          <GlobalPlumbingTile
+            efficiency={parseFloat(String(efficiency || '0').replace('%', ''))}
+            systemicRisk={String(systemicRisk || 'low').toLowerCase() as 'low' | 'moderate' | 'high' | 'critical'}
+            trend={trend}
+            loading={plumbingLoading}
+            className="h-full"
+          />
         </div>
 
         {/* Data Integrity Panel - Foundation Engine */}

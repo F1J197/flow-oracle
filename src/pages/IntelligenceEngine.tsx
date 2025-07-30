@@ -12,6 +12,7 @@ import { EnhancedZScoreEngine } from "@/engines/foundation/EnhancedZScoreEngine"
 import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
 import { CUSIPStealthQEEngine } from "@/engines/CUSIPStealthQEEngine";
+import { GlobalFinancialPlumbingEngine } from "@/engines/pillar1/GlobalFinancialPlumbingEngine";
 
 // Engine Views
 import { 
@@ -22,6 +23,7 @@ import {
 import { DataIntegrityIntelligenceView } from "@/engines/foundation/DataIntegrityEngine";
 import { ZScoreFoundationIntelligence } from "@/engines/foundation/EnhancedZScoreEngine";
 import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
+import { GlobalPlumbingIntelligence } from "@/engines/pillar1/GlobalFinancialPlumbingEngine";
 import { StableDataTest } from "@/components/testing/StableDataTest";
 
 // Import intelligence styles
@@ -32,6 +34,7 @@ function IntelligenceEngine() {
   // Engine instances
   const cusipEngine = useMemo(() => new CUSIPStealthQEEngine(), []);
   const dataIntegrityEngine = useMemo(() => new DataIntegrityEngine(), []);
+  const globalPlumbingEngine = useMemo(() => new GlobalFinancialPlumbingEngine(), []);
   
   // Foundation Data Integrity hook
   const { metrics: dataIntegrityMetrics, sources: dataIntegritySources, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
@@ -70,6 +73,8 @@ function IntelligenceEngine() {
             <div className="terminal-text text-text-secondary">Engine coming soon...</div>
           </TerminalContainer>
         );
+      case 'globalPlumbing':
+        return <GlobalPlumbingIntelligence loading={loading} />;
       default:
         return (
           <TerminalContainer variant="tile">
@@ -115,6 +120,10 @@ function IntelligenceEngine() {
         
         <ErrorBoundary>
           {renderEngineView('cusipStealth', 'CUSIP Stealth QE Engine')}
+        </ErrorBoundary>
+        
+        <ErrorBoundary>
+          {renderEngineView('globalPlumbing', 'Global Financial Plumbing Engine')}
         </ErrorBoundary>
       </TerminalGrid>
     </TerminalContainer>
