@@ -1,9 +1,9 @@
 import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { AlertTriangle, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { useGlobalPlumbingEngine } from '@/hooks/useGlobalPlumbingEngine';
+import { TerminalLayout } from '@/components/intelligence/TerminalLayout';
+import { TerminalDataSection } from '@/components/intelligence/TerminalDataSection';
+import { TerminalDataRow } from '@/components/intelligence/TerminalDataRow';
+import { TerminalMetricGrid } from '@/components/intelligence/TerminalMetricGrid';
 
 interface GlobalPlumbingIntelligenceProps {
   loading?: boolean;
@@ -18,9 +18,15 @@ export const GlobalPlumbingIntelligence: React.FC<GlobalPlumbingIntelligenceProp
   
   if (loading || hookLoading || !intelligenceData) {
     return (
-      <Card className={cn("glass-tile terminal-container p-6", className)}>
-        <div className="text-text-secondary font-mono">Loading Global Plumbing Intelligence...</div>
-      </Card>
+      <TerminalLayout 
+        title="GLOBAL FINANCIAL PLUMBING" 
+        status="offline" 
+        className={className}
+      >
+        <div className="terminal-content">
+          <div className="text-text-secondary">Loading Global Plumbing Intelligence...</div>
+        </div>
+      </TerminalLayout>
     );
   }
 
@@ -51,191 +57,110 @@ export const GlobalPlumbingIntelligence: React.FC<GlobalPlumbingIntelligenceProp
     eurodollarFutures: 125.4,
     stress: 'low' as const
   };
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'critical':
-      case 'crisis':
-      case 'extreme':
-        return 'text-neon-orange';
-      case 'high':
-      case 'stressed':
-      case 'elevated':
-        return 'text-neon-gold';
-      case 'moderate':
-        return 'text-neon-teal';
-      default:
-        return 'text-neon-lime';
-    }
-  };
 
-  const getBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'critical':
-      case 'crisis':
-      case 'extreme':
-        return 'destructive';
-      case 'high':
-      case 'stressed':
-      case 'elevated':
-        return 'secondary';
-      default:
-        return 'default';
+  // Determine engine status based on systemic risk
+  const engineStatus = systemicRisk === 'critical' ? 'critical' : 
+                      systemicRisk === 'high' ? 'warning' : 'active';
+
+  // Prepare metrics for TerminalMetricGrid
+  const primaryMetrics = [
+    {
+      label: 'Plumbing Efficiency',
+      value: `${efficiency.toFixed(1)}%`,
+      status: (efficiency > 80 ? 'positive' : efficiency > 60 ? 'warning' : 'negative') as 'positive' | 'negative' | 'neutral' | 'warning' | 'critical'
+    },
+    {
+      label: 'Systemic Risk',
+      value: systemicRisk.toUpperCase(),
+      status: (systemicRisk === 'low' ? 'positive' : 
+              systemicRisk === 'moderate' ? 'warning' : 'critical') as 'positive' | 'negative' | 'neutral' | 'warning' | 'critical'
+    },
+    {
+      label: 'Confidence',
+      value: `${confidence}%`,
+      status: 'neutral' as 'positive' | 'negative' | 'neutral' | 'warning' | 'critical'
+    },
+    {
+      label: 'Last Update',
+      value: lastUpdate.toLocaleTimeString(),
+      status: 'neutral' as 'positive' | 'negative' | 'neutral' | 'warning' | 'critical'
     }
-  };
+  ];
 
   return (
-    <Card className={cn(
-      "glass-tile terminal-container p-6",
-      "border-glass-border bg-bg-tile backdrop-blur-md",
-      className
-    )}>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-glass-border pb-4">
-          <div className="flex items-center gap-3">
-            <Activity className="w-5 h-5 text-neon-teal" />
-            <h2 className="text-lg font-mono font-bold text-text-data">
-              GLOBAL FINANCIAL PLUMBING
-            </h2>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge variant={getBadgeVariant(systemicRisk)}>
-              {systemicRisk.toUpperCase()}
-            </Badge>
-            <div className="text-xs text-text-secondary font-mono">
-              {confidence}% CONF
-            </div>
-          </div>
-        </div>
+    <TerminalLayout 
+      title="GLOBAL FINANCIAL PLUMBING" 
+      status={engineStatus} 
+      className={className}
+    >
+      <TerminalMetricGrid metrics={primaryMetrics} columns={2} />
+      
+      <TerminalDataSection title="CROSS-CURRENCY BASIS SWAPS">
+        <TerminalDataRow 
+          label="USD/EUR" 
+          value={`${crossCurrencyBasisSwaps.usdEur > 0 ? '+' : ''}${crossCurrencyBasisSwaps.usdEur.toFixed(1)} bps`}
+          status={crossCurrencyBasisSwaps.usdEur < -10 ? 'negative' : 'neutral'}
+        />
+        <TerminalDataRow 
+          label="USD/JPY" 
+          value={`${crossCurrencyBasisSwaps.usdJpy > 0 ? '+' : ''}${crossCurrencyBasisSwaps.usdJpy.toFixed(1)} bps`}
+          status={crossCurrencyBasisSwaps.usdJpy < -10 ? 'negative' : 'neutral'}
+        />
+        <TerminalDataRow 
+          label="USD/GBP" 
+          value={`${crossCurrencyBasisSwaps.usdGbp > 0 ? '+' : ''}${crossCurrencyBasisSwaps.usdGbp.toFixed(1)} bps`}
+          status={crossCurrencyBasisSwaps.usdGbp < -10 ? 'negative' : 'neutral'}
+        />
+      </TerminalDataSection>
 
-        {/* Primary Metrics */}
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <div className="text-xs text-text-secondary font-mono uppercase tracking-wider">
-              Plumbing Efficiency
-            </div>
-            <div className="text-2xl font-mono font-bold text-text-data">
-              {efficiency.toFixed(1)}%
-            </div>
-            <div className="h-2 bg-glass-bg rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-neon-lime transition-all duration-500"
-                style={{ width: `${efficiency}%` }}
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-xs text-text-secondary font-mono uppercase tracking-wider">
-              Systemic Risk Level
-            </div>
-            <div className={cn("text-2xl font-mono font-bold uppercase", getStatusColor(systemicRisk))}>
-              {systemicRisk}
-            </div>
-            <div className="flex items-center gap-2 text-xs text-text-muted font-mono">
-              <AlertTriangle className="w-3 h-3" />
-              <span>Updated {lastUpdate.toLocaleTimeString()}</span>
-            </div>
-          </div>
-        </div>
+      <TerminalDataSection title="FED SWAP LINES">
+        <TerminalDataRow 
+          label="Outstanding" 
+          value={`$${fedSwapLines.totalOutstanding.toFixed(0)}B`}
+          status="neutral"
+        />
+        <TerminalDataRow 
+          label="Utilization" 
+          value={`${fedSwapLines.utilizationRate.toFixed(1)}%`}
+          status={fedSwapLines.utilizationRate > 25 ? 'warning' : 'neutral'}
+        />
+        <TerminalDataRow 
+          label="Counterparties" 
+          value={fedSwapLines.activeCounterparties}
+          status="neutral"
+        />
+      </TerminalDataSection>
 
-        {/* Cross-Currency Basis Swaps */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-mono font-bold text-text-data uppercase tracking-wider">
-              Cross-Currency Basis Swaps
-            </h3>
-            <Badge variant={getBadgeVariant(crossCurrencyBasisSwaps.status)}>
-              {crossCurrencyBasisSwaps.status.toUpperCase()}
-            </Badge>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="terminal-data-row">
-              <div className="terminal-label">USD/EUR</div>
-              <div className="terminal-value">
-                {crossCurrencyBasisSwaps.usdEur > 0 ? '+' : ''}{crossCurrencyBasisSwaps.usdEur.toFixed(1)} bps
-              </div>
-            </div>
-            <div className="terminal-data-row">
-              <div className="terminal-label">USD/JPY</div>
-              <div className="terminal-value">
-                {crossCurrencyBasisSwaps.usdJpy > 0 ? '+' : ''}{crossCurrencyBasisSwaps.usdJpy.toFixed(1)} bps
-              </div>
-            </div>
-            <div className="terminal-data-row">
-              <div className="terminal-label">USD/GBP</div>
-              <div className="terminal-value">
-                {crossCurrencyBasisSwaps.usdGbp > 0 ? '+' : ''}{crossCurrencyBasisSwaps.usdGbp.toFixed(1)} bps
-              </div>
-            </div>
-          </div>
-        </div>
+      <TerminalDataSection title="DOLLAR FUNDING MARKETS">
+        <TerminalDataRow 
+          label="LIBOR-OIS" 
+          value={`${dollarFunding.liborOisSpread.toFixed(1)} bps`}
+          status={dollarFunding.liborOisSpread > 50 ? 'warning' : 'neutral'}
+        />
+        <TerminalDataRow 
+          label="CD 3M Spread" 
+          value={`${dollarFunding.cd3mSpread.toFixed(1)} bps`}
+          status={dollarFunding.cd3mSpread > 40 ? 'warning' : 'neutral'}
+        />
+        <TerminalDataRow 
+          label="Eurodollar" 
+          value={`${dollarFunding.eurodollarFutures.toFixed(1)} bps`}
+          status="neutral"
+        />
+      </TerminalDataSection>
 
-        {/* Fed Swap Lines */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-mono font-bold text-text-data uppercase tracking-wider">
-              Fed Swap Lines
-            </h3>
-            <Badge variant={getBadgeVariant(fedSwapLines.status)}>
-              {fedSwapLines.status.toUpperCase()}
-            </Badge>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="terminal-data-row">
-              <div className="terminal-label">Outstanding</div>
-              <div className="terminal-value">${fedSwapLines.totalOutstanding.toFixed(0)}B</div>
-            </div>
-            <div className="terminal-data-row">
-              <div className="terminal-label">Utilization</div>
-              <div className="terminal-value">{fedSwapLines.utilizationRate.toFixed(1)}%</div>
-            </div>
-            <div className="terminal-data-row">
-              <div className="terminal-label">Counterparties</div>
-              <div className="terminal-value">{fedSwapLines.activeCounterparties}</div>
-            </div>
-          </div>
+      <TerminalDataSection title="ANALYSIS">
+        <div className="terminal-content text-xs leading-relaxed">
+          {systemicRisk === 'critical' ? 
+            "CRITICAL: Severe stress in global dollar funding infrastructure. Cross-currency basis swaps showing extreme dislocation. Monitor Fed intervention." :
+           systemicRisk === 'high' ?
+            "HIGH RISK: Elevated tensions in global plumbing. Increased demand for dollar funding via swap lines. Watch for further deterioration." :
+           systemicRisk === 'moderate' ?
+            "MODERATE: Some pressure in cross-border funding markets. Normal operational stress but monitor for escalation." :
+            "HEALTHY: Global financial plumbing operating efficiently. Cross-currency funding markets stable with normal spreads."
+          }
         </div>
-
-        {/* Dollar Funding Stress */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-mono font-bold text-text-data uppercase tracking-wider">
-              Dollar Funding Markets
-            </h3>
-            <Badge variant={getBadgeVariant(dollarFunding.stress)}>
-              {dollarFunding.stress.toUpperCase()}
-            </Badge>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="terminal-data-row">
-              <div className="terminal-label">LIBOR-OIS</div>
-              <div className="terminal-value">{dollarFunding.liborOisSpread.toFixed(1)} bps</div>
-            </div>
-            <div className="terminal-data-row">
-              <div className="terminal-label">CD 3M Spread</div>
-              <div className="terminal-value">{dollarFunding.cd3mSpread.toFixed(1)} bps</div>
-            </div>
-            <div className="terminal-data-row">
-              <div className="terminal-label">Eurodollar</div>
-              <div className="terminal-value">{dollarFunding.eurodollarFutures.toFixed(1)} bps</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Analysis Insight */}
-        <div className="pt-4 border-t border-glass-border">
-          <div className="text-xs text-text-secondary font-mono leading-relaxed">
-            {systemicRisk === 'critical' ? 
-              "🔴 CRITICAL: Severe stress in global dollar funding infrastructure. Cross-currency basis swaps showing extreme dislocation. Monitor Fed intervention." :
-             systemicRisk === 'high' ?
-              "🟡 HIGH RISK: Elevated tensions in global plumbing. Increased demand for dollar funding via swap lines. Watch for further deterioration." :
-             systemicRisk === 'moderate' ?
-              "🔵 MODERATE: Some pressure in cross-border funding markets. Normal operational stress but monitor for escalation." :
-              "🟢 HEALTHY: Global financial plumbing operating efficiently. Cross-currency funding markets stable with normal spreads."
-            }
-          </div>
-        </div>
-      </div>
-    </Card>
+      </TerminalDataSection>
+    </TerminalLayout>
   );
 };
