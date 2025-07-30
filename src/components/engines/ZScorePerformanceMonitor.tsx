@@ -102,7 +102,7 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
           </div>
 
           <div className="flex items-center space-x-2 mt-3">
-            <div className={`w-2 h-2 terminal-panel ${isLive ? 'bg-btc-orange-bright animate-pulse' : 'bg-btc-orange-dark'}`}></div>
+            <div className={`w-2 h-2 ${isLive ? 'bg-neon-lime animate-pulse' : 'bg-neon-orange'}`}></div>
             <span className="text-xs text-text-secondary">
               {isLive ? 'Live' : 'Stale'}
             </span>
@@ -165,9 +165,9 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
           </div>
 
           <div className="mt-3">
-            <div className="w-full h-1.5 bg-noir-border overflow-hidden terminal-panel">
+            <div className="w-full h-1.5 bg-bg-secondary overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-btc-orange-dark via-btc-orange to-btc-orange-bright transition-all duration-500"
+                className="h-full bg-gradient-to-r from-neon-orange via-neon-teal to-neon-lime transition-all duration-500"
                 style={{ width: `${metrics.cacheHitRate}%` }}
               ></div>
             </div>
@@ -201,11 +201,11 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
 
           <div className="grid grid-cols-2 gap-1 mt-3">
             <div className="flex items-center space-x-1">
-              <div className={`w-1.5 h-1.5 terminal-panel ${isLive ? 'bg-btc-orange-bright' : 'bg-btc-orange-dark'}`}></div>
+              <div className={`w-1.5 h-1.5 ${isLive ? 'bg-neon-lime' : 'bg-neon-orange'}`}></div>
               <span className="text-xs text-text-muted">Engine</span>
             </div>
             <div className="flex items-center space-x-1">
-              <div className="w-1.5 h-1.5 bg-btc-orange-bright terminal-panel"></div>
+              <div className="w-1.5 h-1.5 bg-neon-lime"></div>
               <span className="text-xs text-text-muted">Data</span>
             </div>
           </div>
@@ -235,7 +235,7 @@ export const ZScorePerformanceMonitor = ({ engine, className }: ZScorePerformanc
             </div>
           </div>
           
-          <div className="mt-4 pt-4 border-t border-glass-border">
+          <div className="mt-4 pt-4 border-t border-neon-teal/20">
             <div className="text-xs text-text-secondary space-y-1">
               <div>• Multi-indicator analysis across 10 financial metrics</div>
               <div>• Real-time Z-score calculations with outlier detection</div>

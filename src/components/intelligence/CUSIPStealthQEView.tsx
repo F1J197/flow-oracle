@@ -75,19 +75,19 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
   };
 
   const getStealthScoreColorClass = (score: number) => {
-    if (score > 75) return 'text-btc-orange-bright';
-    if (score > 50) return 'text-btc-orange';
-    if (score > 25) return 'text-btc-orange-light';
-    return 'text-btc-orange-muted';
+    if (score > 75) return 'text-neon-lime';
+    if (score > 50) return 'text-neon-teal';
+    if (score > 25) return 'text-neon-gold';
+    return 'text-neon-orange';
   };
 
   if (loading) {
     return (
       <EngineLayout title="CUSIP STEALTH QE ENGINE" status="active">
         <div className="space-y-4 animate-pulse">
-          <div className="h-4 bg-glass-surface terminal-panel" />
-          <div className="h-4 bg-glass-surface w-3/4 terminal-panel" />
-          <div className="h-4 bg-glass-surface w-1/2 terminal-panel" />
+          <div className="h-4 bg-bg-secondary" />
+          <div className="h-4 bg-bg-secondary w-3/4" />
+          <div className="h-4 bg-bg-secondary w-1/2" />
         </div>
       </EngineLayout>
     );
@@ -141,8 +141,8 @@ export const CUSIPStealthQEView = memo<CUSIPStealthQEViewProps>(({
 
         {/* Alerts */}
         {detailedView.alerts && detailedView.alerts.length > 0 && (
-          <div className="border border-btc-orange/30 bg-btc-orange/5 p-3 terminal-panel">
-            <div className="text-xs font-medium text-btc-orange mb-2">STEALTH OPERATION ALERT</div>
+          <div className="border border-neon-orange/30 bg-neon-orange/5 p-3">
+            <div className="text-xs font-medium text-neon-orange mb-2">STEALTH OPERATION ALERT</div>
             {detailedView.alerts.map((alert: any, index: number) => (
               <div key={index} className="text-xs text-text-secondary">
                 {alert.message}

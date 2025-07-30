@@ -3,6 +3,8 @@ import { StableDataDisplay } from "@/components/shared/StableDataDisplay";
 import { useStableData } from "@/hooks/useStableData";
 import { memo } from "react";
 import { Shield, TrendingUp } from "lucide-react";
+import { TerminalContainer } from "@/components/terminal/TerminalContainer";
+import { getTerminalStatusColor } from "@/utils/terminalCompliance";
 
 interface PrimaryActionTileProps {
   loading?: boolean; // Ignored for static tile
@@ -17,17 +19,15 @@ export const PrimaryActionTile = memo(({ loading = false }: PrimaryActionTilePro
   });
 
   return (
-    <div className={cn(
-      "glass-tile p-6 col-span-2 min-h-[280px] flex flex-col border border-glass-border hover:border-glass-border/60 transition-all duration-300"
-    )}>
+    <TerminalContainer variant="tile" className="col-span-2 min-h-[280px] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-sm font-semibold text-text-secondary tracking-wider uppercase">
           PRIMARY ACTION
         </h3>
         <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-btc-primary animate-pulse terminal-panel"></div>
-          <Shield className="w-4 h-4 text-btc-primary" />
+          <div className="w-2 h-2 bg-neon-lime animate-pulse"></div>
+          <Shield className="w-4 h-4 text-neon-lime" />
         </div>
       </div>
 
@@ -49,30 +49,30 @@ export const PrimaryActionTile = memo(({ loading = false }: PrimaryActionTilePro
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-text-secondary font-mono">Confidence:</span>
-            <span className="text-btc-primary font-bold font-mono">
+            <span className="text-neon-lime font-bold font-mono">
               {Math.round(stableConfidence)}%
             </span>
           </div>
           
           <div className="flex items-center justify-between text-sm">
             <span className="text-text-secondary font-mono">Risk Level:</span>
-            <span className="text-btc-light font-bold font-mono">MODERATE</span>
+            <span className="text-neon-gold font-bold font-mono">MODERATE</span>
           </div>
           
           <div className="flex items-center justify-between text-sm">
             <span className="text-text-secondary font-mono">Time Horizon:</span>
-            <span className="text-btc-bright font-bold font-mono">24-48H</span>
+            <span className="text-neon-teal font-bold font-mono">24-48H</span>
           </div>
         </div>
       </div>
 
       {/* Footer Indicator */}
-      <div className="mt-4 pt-4 border-t border-glass-border/30">
+      <div className="mt-4 pt-4 border-t border-neon-teal/30">
         <div className="flex items-center justify-center space-x-3 text-xs text-text-muted">
           <TrendingUp className="w-3 h-3" />
           <span className="font-mono">POSITION MANAGEMENT SYSTEM</span>
         </div>
       </div>
-    </div>
+    </TerminalContainer>
   );
 });

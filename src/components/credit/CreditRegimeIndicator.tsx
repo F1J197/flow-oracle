@@ -14,13 +14,13 @@ export const CreditRegimeIndicator = ({
   const getRegimeColor = (regime: EnhancedCreditData['regime']) => {
     switch (regime) {
       case 'QE_SUPPORTIVE':
-        return 'text-btc-orange-bright';
+        return 'text-neon-lime';
       case 'QT_STRESS':
-        return 'text-btc-orange-dark';
+        return 'text-neon-orange';
       case 'CRISIS_MODE':
-        return 'text-btc-orange-muted';
+        return 'text-neon-fuchsia';
       case 'NEUTRAL':
-        return 'text-btc-orange';
+        return 'text-neon-teal';
     }
   };
 

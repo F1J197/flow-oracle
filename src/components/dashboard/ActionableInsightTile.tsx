@@ -30,20 +30,20 @@ export const ActionableInsightTile = memo(({
   }, [insight.signalStrength, stableSignalStrength]);
   const getActionColorClass = (action: string) => {
     switch (action) {
-      case 'BUY': return 'btc-orange-bright';
-      case 'SELL': return 'btc-orange-dark'; 
-      case 'HOLD': return 'btc-orange';
-      case 'WAIT': return 'btc-orange-muted';
-      default: return 'btc-orange-muted';
+      case 'BUY': return 'neon-lime';
+      case 'SELL': return 'neon-orange'; 
+      case 'HOLD': return 'neon-teal';
+      case 'WAIT': return 'neon-gold';
+      default: return 'neon-gold';
     }
   };
 
   const getConfidenceColor = (confidence: string) => {
     switch (confidence) {
-      case 'HIGH': return 'text-btc-orange-light';
-      case 'MED': return 'text-btc-orange';
-      case 'LOW': return 'text-btc-orange-muted';
-      default: return 'text-btc-orange-muted';
+      case 'HIGH': return 'text-neon-lime';
+      case 'MED': return 'text-neon-teal';
+      case 'LOW': return 'text-neon-orange';
+      default: return 'text-neon-orange';
     }
   };
 
@@ -51,8 +51,8 @@ export const ActionableInsightTile = memo(({
     return (
       <BaseTile status="loading" className="cursor-pointer hover:scale-[1.02] transition-all duration-300">
         <div className="animate-pulse space-y-3">
-          <div className="h-8 bg-noir-border w-3/4 terminal-panel"></div>
-          <div className="h-4 bg-noir-border w-1/2 terminal-panel"></div>
+          <div className="h-8 bg-bg-secondary w-3/4"></div>
+          <div className="h-4 bg-bg-secondary w-1/2"></div>
         </div>
       </BaseTile>
     );
@@ -84,9 +84,9 @@ export const ActionableInsightTile = memo(({
             {insight.confidence}
           </span>
         </div>
-        <div className="w-full bg-noir-border h-2 overflow-hidden terminal-panel">
+        <div className="w-full bg-bg-secondary h-2 overflow-hidden">
           <div 
-            className="h-full bg-btc-orange transition-all duration-500 ease-out"
+            className="h-full bg-neon-teal transition-all duration-500 ease-out"
             style={{ width: `${stableSignalStrength}%` }}
           />
         </div>
@@ -101,7 +101,7 @@ export const ActionableInsightTile = memo(({
       </p>
 
       {/* Timeframe */}
-      <div className="pt-3 border-t border-noir-border">
+      <div className="pt-3 border-t border-neon-teal/20">
         <span className="text-xs text-text-secondary uppercase tracking-wider">
           {insight.timeframe.replace('_', ' ')}
         </span>

@@ -1,4 +1,5 @@
 import { memo, useState, useEffect, useRef } from "react";
+import { TerminalContainer } from "@/components/terminal/TerminalContainer";
 
 interface StaticTileWrapperProps {
   children: React.ReactNode;
@@ -31,10 +32,10 @@ export const StaticTileWrapper = memo(({
   // If we're isolating from engines and not yet stable, show minimal loading
   if (isolateFromEngines && !isStable) {
     return (
-      <div className="glass-tile p-6 animate-pulse">
-        <div className="h-4 bg-glass-surface w-1/3 mb-4 terminal-panel"></div>
-        <div className="h-8 bg-glass-bg w-1/2 terminal-panel"></div>
-      </div>
+      <TerminalContainer variant="tile" className="animate-pulse">
+        <div className="h-4 bg-bg-secondary w-1/3 mb-4"></div>
+        <div className="h-8 bg-bg-secondary w-1/2"></div>
+      </TerminalContainer>
     );
   }
 

@@ -35,11 +35,11 @@ export const CreditStressView = ({ loading, className }: CreditStressViewProps) 
     return (
       <div className={className}>
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-glass-bg terminal-panel"></div>
+          <div className="h-6 bg-bg-secondary"></div>
           <div className="space-y-2">
-            <div className="h-4 bg-glass-bg w-3/4 terminal-panel"></div>
-            <div className="h-4 bg-glass-bg w-1/2 terminal-panel"></div>
-            <div className="h-4 bg-glass-bg w-2/3 terminal-panel"></div>
+            <div className="h-4 bg-bg-secondary w-3/4"></div>
+            <div className="h-4 bg-bg-secondary w-1/2"></div>
+            <div className="h-4 bg-bg-secondary w-2/3"></div>
           </div>
         </div>
       </div>

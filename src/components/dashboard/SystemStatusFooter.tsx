@@ -1,10 +1,12 @@
+import { TerminalContainer } from "@/components/terminal/TerminalContainer";
+
 export const SystemStatusFooter = () => {
   return (
-    <div className="mt-8 glass-tile p-4">
+    <TerminalContainer variant="header" className="mt-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-btc-primary animate-pulse terminal-panel"></div>
+            <div className="w-2 h-2 bg-neon-lime animate-pulse"></div>
             <span className="text-sm text-text-secondary">All engines operational</span>
           </div>
           <span className="text-xs text-text-muted">
@@ -17,6 +19,6 @@ export const SystemStatusFooter = () => {
           <span>Integrity: 99.98%</span>
         </div>
       </div>
-    </div>
+    </TerminalContainer>
   );
 };

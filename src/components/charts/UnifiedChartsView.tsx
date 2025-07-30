@@ -39,7 +39,7 @@ export const UnifiedChartsView = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'text-btc-bright';
-      case 'loading': return 'text-btc-light';
+      case 'loading': return 'text-neon-gold';
       case 'error': return 'text-btc-dark';
       case 'stale': return 'text-btc-muted';
       default: return 'text-text-muted';
@@ -105,7 +105,7 @@ export const UnifiedChartsView = () => {
             <Badge variant="btc-dark">
               Error: {stats.error}
             </Badge>
-            <Badge variant="btc-light">
+            <Badge variant="secondary">
               Loading: {stats.loading}
             </Badge>
           </div>
@@ -199,10 +199,10 @@ export const UnifiedChartsView = () => {
                         <Line 
                           type="monotone" 
                           dataKey="value" 
-                          stroke="hsl(var(--btc-primary))" 
+                          stroke="hsl(var(--neon-teal))" 
                           strokeWidth={2}
                           dot={false}
-                          activeDot={{ r: 6, fill: 'hsl(var(--btc-primary))' }}
+                          activeDot={{ r: 6, fill: 'hsl(var(--neon-teal))' }}
                         />
                       </LineChart>
                     </ResponsiveContainer>
