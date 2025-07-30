@@ -5,7 +5,7 @@ import { EngineMigrationService, BackwardCompatibilityLayer } from '@/utils/engi
 import { NetLiquidityEngine } from '@/engines/NetLiquidityEngine';
 import { CreditStressEngineV6 } from '@/engines/CreditStressEngineV6';
 import { CUSIPStealthQEEngine } from '@/engines/CUSIPStealthQEEngine';
-import { DataIntegrityEngineV6 } from '@/engines/DataIntegrityEngineV6';
+import { DataIntegrityEngine } from '@/engines/foundation/DataIntegrityEngine';
 import { EnhancedMomentumEngine } from '@/engines/EnhancedMomentumEngine';
 import { PrimaryDealerPositionsEngineV6 } from '@/engines/PrimaryDealerPositionsEngineV6';
 import { EnhancedZScoreEngineV6 } from '@/engines/EnhancedZScoreEngineV6';
@@ -45,7 +45,7 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
     
     // Foundation Engines
     const netLiquidityEngine = new NetLiquidityEngine();
-    const dataIntegrityEngine = new DataIntegrityEngineV6();
+    const dataIntegrityEngine = new DataIntegrityEngine();
     const enhancedMomentumEngine = new EnhancedMomentumEngine();
     const enhancedZScoreEngine = new EnhancedZScoreEngineV6();
     

@@ -5,7 +5,7 @@ import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { useResilientEngine } from "@/hooks/useResilientEngine";
 
 // Engine implementations
-import { SimplifiedDataIntegrityEngine } from "@/engines/SimplifiedDataIntegrityEngine";
+import { DataIntegrityEngine } from "@/engines/foundation/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
 import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
 import { EnhancedZScoreEngineV6 } from "@/engines/EnhancedZScoreEngineV6";
@@ -31,6 +31,7 @@ import "@/styles/intelligence.css";
 function IntelligenceEngine() {
   // Engine instances
   const cusipEngine = useMemo(() => new CUSIPStealthQEEngine(), []);
+  const dataIntegrityEngine = useMemo(() => new DataIntegrityEngine(), []);
   
   const loading = false;
   const systemHealth = 'healthy' as const;
