@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useEngineRegistry } from '@/hooks/useEngineRegistry';
 import { useEngineStore } from '@/stores/engineStore';
+import { useApplicationIntegrator } from '@/hooks/useApplicationIntegrator';
 import { ResponsiveLayout } from '@/components/layout/ResponsiveLayout';
 import { ResponsiveGrid } from '@/components/Dashboard/ResponsiveGrid';
 import { DashboardHeader } from '@/components/Dashboard/DashboardHeader';
@@ -8,11 +9,28 @@ import { EnhancedSmartTile } from '@/components/Dashboard/EnhancedSmartTile';
 import { ProgressiveLoader } from '@/components/Dashboard/ProgressiveLoader';
 import { ErrorBoundary } from '@/components/intelligence/ErrorBoundary';
 import { LoadingDiagnostics } from '@/components/debug/LoadingDiagnostics';
+import SystemMonitor from '@/components/system/SystemMonitor';
 
 export const Dashboard = () => {
   const [lastUpdate, setLastUpdate] = useState<Date>();
   const [errors, setErrors] = useState<string[]>([]);
+  const [realTimeDataCount, setRealTimeDataCount] = useState(0);
   
+  // Application Integrator - Central system coordination
+  const {
+    systemStatus,
+    isInitialized: integratorInitialized,
+    isLoading: integratorLoading,
+    error: integratorError,
+    realtimeData,
+    initialize: initializeIntegrator,
+    refreshData,
+    executeEngines: executeIntegratedEngines
+  } = useApplicationIntegrator({
+    autoInitialize: true,
+    enableRealtimeUpdates: true
+  });
+
   // Engine registry integration
   const {
     engines,
@@ -69,21 +87,33 @@ export const Dashboard = () => {
   const activeEngines = status.completed;
   const totalEngines = status.total;
 
+  // Track real-time data updates
+  useEffect(() => {
+    if (realtimeData) {
+      setRealTimeDataCount(prev => prev + 1);
+      setLastUpdate(new Date());
+    }
+  }, [realtimeData]);
+
   // Track errors for progressive loader
   useEffect(() => {
-    if (registryError) {
-      setErrors(prev => [...prev, registryError].slice(-5)); // Keep last 5 errors
+    const allErrors = [registryError, integratorError].filter(Boolean);
+    if (allErrors.length > 0) {
+      setErrors(prev => [...prev, ...allErrors].slice(-5)); // Keep last 5 errors
     }
-  }, [registryError]);
+  }, [registryError, integratorError]);
 
   // Loading state with progressive loader
-  if (registryLoading && tiles.length === 0) {
+  if ((registryLoading || integratorLoading) && tiles.length === 0) {
     return (
       <ResponsiveLayout currentPage="dashboard">
         <ProgressiveLoader
           totalEngines={engines.length || 0}
           loadedEngines={status.completed}
-          currentEngine={status.running > 0 ? "Initializing engines..." : undefined}
+          currentEngine={
+            integratorLoading ? "Initializing data orchestrator..." :
+            status.running > 0 ? "Initializing engines..." : undefined
+          }
           errors={errors}
         />
       </ResponsiveLayout>
@@ -115,6 +145,32 @@ export const Dashboard = () => {
             lastUpdate={lastUpdate}
           />
 
+          {/* System Monitor */}
+          <div className="mb-6">
+            <SystemMonitor 
+              compact={false}
+              showControls={true}
+              className="w-full"
+            />
+          </div>
+
+          {/* Real-time Data Indicator */}
+          {realtimeData && (
+            <div className="mb-4 p-3 bg-bg-success-subtle border border-border-success rounded-md">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-text-success">
+                  <div className="w-2 h-2 bg-accent-success rounded-full animate-pulse" />
+                  <span className="font-mono text-sm">
+                    Live Data: {realtimeData.provider}:{realtimeData.symbol} = {realtimeData.value.current}
+                  </span>
+                </div>
+                <div className="text-xs font-mono text-text-secondary">
+                  Updates: {realTimeDataCount}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Responsive Smart Tiles Grid */}
           <ResponsiveGrid>
             {tiles.map((tile) => (
@@ -138,7 +194,7 @@ export const Dashboard = () => {
             ))}
 
             {/* Empty State */}
-            {!registryLoading && tiles.length === 0 && !registryError && (
+            {!registryLoading && !integratorLoading && tiles.length === 0 && !registryError && !integratorError && (
               <div className="col-span-full flex items-center justify-center py-12 text-text-muted">
                 <div className="text-center font-mono">
                   No engines configured
