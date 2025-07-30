@@ -1,11 +1,13 @@
 /**
- * Engine Orchestration Service
- * Coordinates execution of all engines across tiers with proper dependency management
+ * Engine Orchestration Service - V6 Enhanced Implementation
+ * Coordinates engine execution with both legacy and unified registry systems
  */
 
 import { IEngine, EngineReport } from '@/types/engines';
 import { EngineRegistry } from '@/engines/EngineRegistry';
+import { UnifiedEngineRegistry } from '@/engines/base/UnifiedEngineRegistry';
 import { EngineOrchestrator } from '@/engines/EngineOrchestrator';
+import type { UnifiedEngineMetadata, ExecutionContext } from '@/engines/base/UnifiedEngineRegistry';
 import { CONFIG } from '@/config';
 
 export interface ExecutionPlan {
@@ -15,24 +17,32 @@ export interface ExecutionPlan {
 }
 
 export interface OrchestrationState {
-  isExecuting: boolean;
-  currentTier: number;
+  status: 'idle' | 'running' | 'completed' | 'failed';
+  currentTier: string;
   totalEngines: number;
   completedEngines: number;
   failedEngines: number;
+  runningEngines: number;
+  results: Map<string, any>;
   startTime?: Date;
+  endTime?: Date;
+  errors: string[];
+  // Legacy compatibility
+  isExecuting?: boolean;
   estimatedCompletion?: Date;
 }
 
 class EngineOrchestrationService {
   private static instance: EngineOrchestrationService;
   private registry: EngineRegistry;
+  private unifiedRegistry: UnifiedEngineRegistry;
   private orchestrator: EngineOrchestrator;
   private state: OrchestrationState;
-  private subscribers: ((state: OrchestrationState) => void)[] = [];
+  private subscribers: Set<(state: OrchestrationState) => void> = new Set();
 
   private constructor() {
     this.registry = EngineRegistry.getInstance();
+    this.unifiedRegistry = UnifiedEngineRegistry.getInstance();
     this.orchestrator = new EngineOrchestrator({
       maxConcurrentEngines: CONFIG.ENGINES.MAX_CONCURRENT,
       globalTimeout: CONFIG.ENGINES.TIMEOUT,
@@ -44,11 +54,16 @@ class EngineOrchestrationService {
     });
 
     this.state = {
-      isExecuting: false,
-      currentTier: 0,
+      status: 'idle',
+      currentTier: '',
       totalEngines: 0,
       completedEngines: 0,
       failedEngines: 0,
+      runningEngines: 0,
+      results: new Map(),
+      errors: [],
+      // Legacy compatibility
+      isExecuting: false,
     };
 
     this.initializeEngines();
@@ -67,53 +82,108 @@ class EngineOrchestrationService {
   }
 
   async executeFullPipeline(): Promise<Map<string, any>> {
-    if (this.state.isExecuting) {
+    if (this.state.status === 'running') {
       throw new Error('Engine pipeline is already executing');
     }
 
+    console.log('🚀 Starting full engine pipeline execution (V6 Enhanced)...');
+    
     this.updateState({
+      status: 'running',
       isExecuting: true,
-      currentTier: 0,
       startTime: new Date(),
-      totalEngines: this.registry.getAllMetadata().length,
+      currentTier: 'foundation',
+      totalEngines: this.unifiedRegistry.getAllMetadata().length,
       completedEngines: 0,
       failedEngines: 0,
+      runningEngines: 0,
+      results: new Map(),
+      errors: []
     });
 
     try {
-      // Execute in order: Foundation -> Pillar 1 -> Pillar 2 -> Pillar 3 -> Synthesis -> Execution
-      const results = new Map<string, any>();
-
-      // Tier 0: Foundation
-      await this.executeTier('foundation', results);
+      // Execute tiers in order using unified registry: Foundation → Core → Synthesis → Execution
+      const allResults = new Map<string, any>();
+      const tiers = ['foundation', 'core', 'synthesis', 'execution'] as const;
       
-      // Tiers 1-3: Core Pillars (can run in parallel)
-      await Promise.all([
-        this.executeTier('pillar1', results),
-        this.executeTier('pillar2', results),
-        this.executeTier('pillar3', results),
-      ]);
-
-      // Tier 4: Synthesis (depends on pillars)
-      await this.executeTier('synthesis', results);
-
-      // Tier 5: Execution (final insights)
-      await this.executeTier('execution', results);
+      for (const tier of tiers) {
+        console.log(`📊 Executing ${tier} tier...`);
+        this.updateState({ currentTier: tier });
+        
+        const tierResults = await this.executeTierUnified(tier, allResults);
+        
+        // Merge results
+        tierResults.forEach((result, engineId) => {
+          allResults.set(engineId, result);
+        });
+        
+        console.log(`✅ ${tier} tier completed with ${tierResults.size} engines`);
+      }
 
       this.updateState({
+        status: 'completed',
         isExecuting: false,
-        currentTier: 5,
+        endTime: new Date(),
+        results: allResults,
+        runningEngines: 0
       });
 
-      return results;
+      console.log(`🎯 Pipeline execution completed: ${allResults.size} engines executed`);
+      return allResults;
+
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
       this.updateState({
+        status: 'failed',
         isExecuting: false,
+        endTime: new Date(),
+        errors: [...this.state.errors, errorMessage],
+        runningEngines: 0
       });
+
+      console.error('❌ Pipeline execution failed:', error);
       throw error;
     }
   }
 
+  /**
+   * Execute engines for a specific tier using unified registry
+   */
+  private async executeTierUnified(category: 'foundation' | 'core' | 'synthesis' | 'execution', previousResults: Map<string, any>): Promise<Map<string, any>> {
+    const context: ExecutionContext = {
+      category,
+      parallel: true // Execute engines in parallel within the same tier
+    };
+
+    try {
+      const results = await this.unifiedRegistry.executeAll(context);
+      
+      // Update state
+      const executionStatus = this.unifiedRegistry.getExecutionStatus();
+      this.updateState({
+        completedEngines: executionStatus.completed,
+        failedEngines: executionStatus.failed,
+        runningEngines: executionStatus.running
+      });
+
+      return results;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Failed to execute ${category} tier:`, error);
+      
+      this.updateState({
+        errors: [...this.state.errors, `${category}: ${errorMessage}`],
+        failedEngines: this.state.failedEngines + 1
+      });
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Legacy tier execution method for backward compatibility
+   */
   private async executeTier(category: string, results: Map<string, any>): Promise<void> {
     const tierEngines = this.registry.getEnginesByCategory(category as any);
     
@@ -147,12 +217,55 @@ class EngineOrchestrationService {
   }
 
   async executeByPillar(pillar: 1 | 2 | 3): Promise<Map<string, any>> {
-    return this.orchestrator.executeByPillar(pillar);
+    console.log(`🎯 Executing engines for pillar ${pillar}...`);
+    
+    this.updateState({
+      status: 'running',
+      currentTier: `pillar-${pillar}`,
+      startTime: new Date()
+    });
+
+    try {
+      const results = await this.unifiedRegistry.executeByPillar(pillar);
+      
+      this.updateState({
+        status: 'completed',
+        endTime: new Date(),
+        results: results
+      });
+
+      return results;
+    } catch (error) {
+      this.updateState({
+        status: 'failed',
+        endTime: new Date(),
+        errors: [...this.state.errors, error instanceof Error ? error.message : 'Unknown error']
+      });
+      throw error;
+    }
   }
 
   async executeEngine(engineId: string): Promise<any> {
-    const result = await this.orchestrator.executeEngine(engineId);
-    return result;
+    try {
+      this.updateState({ runningEngines: this.state.runningEngines + 1 });
+      
+      const result = await this.unifiedRegistry.executeEngine(engineId);
+      
+      this.updateState({
+        completedEngines: this.state.completedEngines + 1,
+        runningEngines: Math.max(0, this.state.runningEngines - 1),
+        results: new Map(this.state.results.set(engineId, result))
+      });
+
+      return result;
+    } catch (error) {
+      this.updateState({
+        failedEngines: this.state.failedEngines + 1,
+        runningEngines: Math.max(0, this.state.runningEngines - 1),
+        errors: [...this.state.errors, `${engineId}: ${error instanceof Error ? error.message : 'Unknown error'}`]
+      });
+      throw error;
+    }
   }
 
   getState(): OrchestrationState {
@@ -160,26 +273,32 @@ class EngineOrchestrationService {
   }
 
   subscribe(callback: (state: OrchestrationState) => void): () => void {
-    this.subscribers.push(callback);
+    this.subscribers.add(callback);
+    
     return () => {
-      const index = this.subscribers.indexOf(callback);
-      if (index > -1) {
-        this.subscribers.splice(index, 1);
-      }
+      this.subscribers.delete(callback);
     };
   }
 
   private updateState(updates: Partial<OrchestrationState>): void {
     this.state = { ...this.state, ...updates };
-    this.subscribers.forEach(callback => callback(this.state));
+    
+    // Notify all subscribers
+    this.subscribers.forEach(callback => {
+      try {
+        callback(this.state);
+      } catch (error) {
+        console.error('Error in orchestration state subscriber:', error);
+      }
+    });
   }
 
   getEngineStatus(): { total: number; running: number; completed: number; failed: number } {
-    return this.orchestrator.getExecutionStatus();
+    return this.unifiedRegistry.getExecutionStatus();
   }
 
   getAllResults(): Map<string, any> {
-    return this.orchestrator.getAllResults();
+    return new Map(this.state.results);
   }
 }
 

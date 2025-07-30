@@ -35,11 +35,15 @@ export function useTerminalCore() {
   });
 
   const [orchestrationState, setOrchestrationState] = useState<OrchestrationState>({
+    status: 'idle',
     isExecuting: false,
-    currentTier: 0,
+    currentTier: '',
     totalEngines: 0,
     completedEngines: 0,
-    failedEngines: 0
+    failedEngines: 0,
+    runningEngines: 0,
+    results: new Map(),
+    errors: []
   });
 
   const [autoRefresh, setAutoRefresh] = useState(true);

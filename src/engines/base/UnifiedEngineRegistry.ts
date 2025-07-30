@@ -14,6 +14,7 @@ export interface UnifiedEngineMetadata {
   priority: number;
   dependencies: string[];
   category: 'foundation' | 'core' | 'synthesis' | 'execution';
+  description?: string;
   version?: string;
   isLegacy?: boolean;
   migrated?: boolean;
