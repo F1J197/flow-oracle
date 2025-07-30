@@ -99,14 +99,14 @@ export class UnifiedNetLiquidityEngine extends UnifiedBaseEngine {
     try {
       const service = UniversalDataService.getInstance();
       const data = await Promise.race([
-        service.getIndicatorData(symbol, { source }),
+        service.fetchIndicator(symbol, source.toLowerCase()),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Timeout')), 5000)
         )
       ]) as any;
 
-      if (data && typeof data.value === 'number') {
-        return data.value;
+      if (data && typeof data.current === 'number') {
+        return data.current;
       }
       
       throw new Error(`Invalid data format for ${symbol}`);
@@ -205,13 +205,11 @@ export class UnifiedNetLiquidityEngine extends UnifiedBaseEngine {
     }
 
     return {
-      text: actionText,
-      signal,
-      strength: 'HIGH' as const,
-      action: regime === 'QE' ? 'Increase risk exposure' : regime === 'QT' ? 'Reduce risk exposure' : 'Maintain current allocation',
-      confidence,
-      timeframe: 'MEDIUM_TERM' as const,
-      category: 'liquidity'
+      actionText,
+      signalStrength: Math.round(confidence * 100),
+      marketAction: regime === 'QE' ? 'BUY' : regime === 'QT' ? 'SELL' : 'HOLD',
+      confidence: confidence > 0.8 ? 'HIGH' : confidence > 0.6 ? 'MED' : 'LOW',
+      timeframe: 'MEDIUM_TERM'
     };
   }
 
@@ -226,7 +224,6 @@ export class UnifiedNetLiquidityEngine extends UnifiedBaseEngine {
       status: this.regime === 'QE' ? 'normal' : this.regime === 'QT' ? 'critical' : 'warning',
       trend: this.momentum > 0 ? 'up' : this.momentum < 0 ? 'down' : 'neutral',
       color: this.regime === 'QE' ? 'success' : this.regime === 'QT' ? 'critical' : 'warning',
-      lastUpdated: new Date(),
       actionText: `Regime: ${this.regime} • Momentum: ${this.momentum > 0 ? 'Expanding' : this.momentum < 0 ? 'Contracting' : 'Stable'}`
     };
   }
@@ -236,29 +233,36 @@ export class UnifiedNetLiquidityEngine extends UnifiedBaseEngine {
     
     return {
       title: 'Net Liquidity Analysis',
-      description: 'Global USD liquidity conditions based on Fed balance sheet dynamics',
-      keyInsights: [
-        `Current net liquidity: $${netLiquidityTrillion}T`,
-        `Market regime: ${this.regime}`,
-        `Momentum: ${this.momentum > 0 ? 'Expanding' : this.momentum < 0 ? 'Contracting' : 'Stable'}`,
-        `Confidence level: ${(this.confidence * 100).toFixed(0)}%`
-      ],
-      detailedMetrics: {
-        'Liquidity Components': {
-          'Fed Balance Sheet (WALCL)': `$${(this.walcl / 1000).toFixed(2)}T`,
-          'Treasury General Account': `$${(this.wtregen / 1000).toFixed(2)}T`,
-          'Overnight Reverse Repo': `$${(this.rrpontsyd / 1000).toFixed(2)}T`,
-          'Net Liquidity': `$${netLiquidityTrillion}T`
-        },
-        'Market Analysis': {
-          'Current Regime': this.regime,
-          'Momentum Score': this.momentum.toFixed(4),
-          'Change Rate': `${((this.momentum / this.netLiquidity) * 100).toFixed(2)}%`,
-          'Signal Strength': `${(this.confidence * 100).toFixed(0)}%`
+      primarySection: {
+        title: 'Current Status',
+        metrics: {
+          'Net Liquidity': `$${netLiquidityTrillion}T`,
+          'Market Regime': this.regime,
+          'Momentum': this.momentum.toFixed(4),
+          'Confidence': `${(this.confidence * 100).toFixed(0)}%`
         }
       },
-      alerts: this.generateAlerts().map(alert => ({ ...alert, severity: alert.type })),
-      timestamp: new Date()
+      sections: [
+        {
+          title: 'Liquidity Components',
+          metrics: {
+            'Fed Balance Sheet (WALCL)': `$${(this.walcl / 1000).toFixed(2)}T`,
+            'Treasury General Account': `$${(this.wtregen / 1000).toFixed(2)}T`,
+            'Overnight Reverse Repo': `$${(this.rrpontsyd / 1000).toFixed(2)}T`,
+            'Net Liquidity': `$${netLiquidityTrillion}T`
+          }
+        },
+        {
+          title: 'Market Analysis',
+          metrics: {
+            'Current Regime': this.regime,
+            'Momentum Score': this.momentum.toFixed(4),
+            'Change Rate': `${((this.momentum / this.netLiquidity) * 100).toFixed(2)}%`,
+            'Signal Strength': `${(this.confidence * 100).toFixed(0)}%`
+          }
+        }
+      ],
+      alerts: this.generateAlerts().map(alert => ({ ...alert, severity: alert.type }))
     };
   }
 
@@ -291,12 +295,19 @@ export class UnifiedNetLiquidityEngine extends UnifiedBaseEngine {
 
   getIntelligenceView(): IntelligenceViewData {
     const dashboardData = this.getDashboardData();
+    const netLiquidityTrillion = (this.netLiquidity / 1000).toFixed(2);
     
     return {
       title: dashboardData.title,
       status: 'active' as const,
-      primaryMetric: dashboardData.primaryMetric,
-      secondaryMetric: dashboardData.secondaryMetric,
+      primaryMetrics: {
+        'Net Liquidity': {
+          value: `$${netLiquidityTrillion}T`,
+          label: 'Net Liquidity',
+          status: this.regime === 'QE' ? 'normal' : this.regime === 'QT' ? 'critical' : 'warning',
+          trend: this.momentum > 0 ? 'up' : this.momentum < 0 ? 'down' : 'neutral'
+        }
+      },
       sections: [
         {
           title: 'Liquidity Components',
@@ -314,7 +325,14 @@ export class UnifiedNetLiquidityEngine extends UnifiedBaseEngine {
             'Confidence': { value: `${(this.confidence * 100).toFixed(0)}%`, label: 'Confidence' }
           }
         }
-      ]
+      ],
+      alerts: this.generateAlerts().map(alert => ({ 
+        severity: alert.type, 
+        message: alert.message,
+        timestamp: new Date()
+      })),
+      confidence: this.confidence,
+      lastUpdate: new Date()
     };
   }
 

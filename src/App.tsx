@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { UnifiedDataDemo } from "./pages/UnifiedDataDemo";
 import IntelligenceEngine from "./pages/IntelligenceEngine";
 import { SystemDashboard } from "./pages/SystemDashboard";
+import { UnifiedEngineTestPage } from "./pages/UnifiedEngineTest";
 import { EngineRegistryProvider } from "./components/engines/EngineRegistryProvider";
 import { TerminalThemeProvider } from "./components/providers/TerminalThemeProvider";
 
@@ -26,6 +27,7 @@ const App = () => (
               <Route path="/unified-demo" element={<UnifiedDataDemo />} />
               <Route path="/intelligence" element={<IntelligenceEngine />} />
               <Route path="/system" element={<SystemDashboard />} />
+              <Route path="/unified-test" element={<UnifiedEngineTestPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
