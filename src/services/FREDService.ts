@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { getFREDSeriesId, hasValidFREDMapping } from '@/config/fredSymbolMapping';
+import { getFredSeriesId, isValidFredSymbol } from '@/config/fredSymbols';
 
 export interface FREDDataPoint {
   date: string;
@@ -37,10 +37,10 @@ class FREDService {
 
   async fetchSeries(seriesId: string): Promise<FREDDataPoint[]> {
     // Map internal symbol to FRED series ID
-    const fredSeriesId = getFREDSeriesId(seriesId);
+    const fredSeriesId = getFredSeriesId(seriesId);
     
     // Check if we have a valid mapping
-    if (!hasValidFREDMapping(seriesId) && seriesId === fredSeriesId) {
+    if (!isValidFredSymbol(seriesId) && seriesId === fredSeriesId) {
       console.warn(`No FRED mapping found for symbol: ${seriesId}`);
     }
     
@@ -86,12 +86,12 @@ class FREDService {
       return validData;
 
     } catch (error) {
-      console.error(`❌ FRED service error for ${seriesId}:`, error);
+      console.error(`❌ FRED service error for ${fredSeriesId}:`, error);
       
       // Try fallback to cached data or database
-      const fallbackData = await this.getFallbackData(seriesId);
+      const fallbackData = await this.getFallbackData(fredSeriesId);
       if (fallbackData.length > 0) {
-        console.log(`📦 Using fallback data for ${seriesId}`);
+        console.log(`📦 Using fallback data for ${fredSeriesId}`);
         return fallbackData;
       }
       
@@ -105,7 +105,7 @@ class FREDService {
     console.log(`🔄 Fetching ${seriesIds.length} FRED series...`);
     
     // Process in parallel with controlled concurrency
-    const chunks = this.chunkArray(seriesIds, 3);
+    const chunks = this.chunkArray(seriesIds, 2); // Reduced concurrency for better rate limiting
     
     for (const chunk of chunks) {
       const promises = chunk.map(async (seriesId) => {
@@ -125,7 +125,7 @@ class FREDService {
       
       // Add delay between chunks to respect rate limits
       if (chunks.indexOf(chunk) < chunks.length - 1) {
-        await this.delay(1000);
+        await this.delay(2000); // Increased delay for better rate limiting
       }
     }
     
