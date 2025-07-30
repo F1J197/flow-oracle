@@ -13,12 +13,24 @@ export { FREDService } from './FREDService';
 // Legacy services (deprecated - use UniversalDataService)
 export { default as ProductionDataService } from './ProductionDataService';
 
+// WebSocket Management
+export { WebSocketManager, WebSocketConnections } from './WebSocketManager';
+export { default as RealtimeDataService } from './RealtimeDataService';
+
 // Types
 export type { 
   UniversalIndicatorData, 
   DataProviderRequest,
   HealthStatus 
 } from './UniversalDataServiceV2';
+
+export type {
+  WebSocketConfig,
+  WebSocketMessage,
+  WebSocketEventHandler,
+  WebSocketStatusHandler,
+  WebSocketStatus
+} from './WebSocketManager';
 
 // Configuration
 export * from '../config/fredSymbolMapping';
