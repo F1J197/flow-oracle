@@ -2,15 +2,18 @@
  * Chart Container - Wrapper for individual chart instances
  */
 
-import React, { useMemo, useCallback } from 'react';
-import { ResponsiveContainer, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import React, { useMemo, useCallback, useState } from 'react';
+import { ResponsiveContainer, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar, ScatterChart, Scatter, Cell } from 'recharts';
 import { ChartConfig, ChartType } from '@/config/charts.config';
 import { DataPoint } from '@/types/indicators';
 import { useTerminalTheme } from '@/hooks/useTerminalTheme';
 import { format } from 'date-fns';
-import { Maximize2, Download, Settings, RefreshCw } from 'lucide-react';
+import { Maximize2, Download, Settings, RefreshCw, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ChartExportModal } from './ChartExportModal';
+import { ChartSettingsModal } from './ChartSettingsModal';
+import { TimeFrameSelector } from './TimeFrameSelector';
 
 interface ChartContainerProps {
   config: ChartConfig;
@@ -24,6 +27,9 @@ interface ChartContainerProps {
   height?: number;
   crosshairValue?: number | null;
   onCrosshairChange?: (value: number | null) => void;
+  timeFrame?: string;
+  onTimeFrameChange?: (timeFrame: string) => void;
+  showTimeFrameSelector?: boolean;
 }
 
 export const ChartContainer: React.FC<ChartContainerProps> = ({
@@ -37,9 +43,15 @@ export const ChartContainer: React.FC<ChartContainerProps> = ({
   onSettings,
   height = 400,
   crosshairValue,
-  onCrosshairChange
+  onCrosshairChange,
+  timeFrame,
+  onTimeFrameChange,
+  showTimeFrameSelector = false
 }) => {
   const { theme } = useTerminalTheme();
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [currentTimeFrame, setCurrentTimeFrame] = useState(timeFrame || config.defaultTimeFrame);
 
   // Transform data for Recharts
   const chartData = useMemo(() => {
@@ -72,60 +84,120 @@ export const ChartContainer: React.FC<ChartContainerProps> = ({
     );
   }, [config]);
 
+  // Handle timeframe change
+  const handleTimeFrameChange = useCallback((newTimeFrame: string) => {
+    setCurrentTimeFrame(newTimeFrame);
+    if (onTimeFrameChange) {
+      onTimeFrameChange(newTimeFrame);
+    }
+  }, [onTimeFrameChange]);
+
+  // Handle export and settings
+  const handleExport = useCallback(() => {
+    if (onExport) {
+      onExport();
+    } else {
+      setExportModalOpen(true);
+    }
+  }, [onExport]);
+
+  const handleSettings = useCallback(() => {
+    if (onSettings) {
+      onSettings();
+    } else {
+      setSettingsModalOpen(true);
+    }
+  }, [onSettings]);
+
   // Chart toolbar
   const ChartToolbar = () => (
-    <div className="flex items-center justify-between mb-3">
-      <div>
-        <h3 className="text-text-primary font-mono text-sm font-medium">
-          {config.name}
-        </h3>
-        <p className="text-text-secondary text-xs">
-          {config.description}
-        </p>
-      </div>
-      <div className="flex items-center space-x-2">
-        {onRefresh && (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <div className="flex items-center space-x-2">
+            <h3 className="text-text-primary font-mono text-sm font-medium">
+              {config.name}
+            </h3>
+            {config.realtime && (
+              <div className="flex items-center text-neon-lime text-xs">
+                <div className="w-2 h-2 bg-neon-lime rounded-full mr-1 animate-pulse" />
+                LIVE
+              </div>
+            )}
+          </div>
+          <p className="text-text-secondary text-xs mt-1">
+            {config.description}
+          </p>
+          <div className="flex items-center space-x-2 mt-1">
+            <span className="text-text-secondary text-xs">
+              {config.chartType} • {currentTimeFrame}
+            </span>
+            {data.length > 0 && (
+              <span className="text-text-secondary text-xs">
+                • {data.length} points
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          {showTimeFrameSelector && onTimeFrameChange && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {/* Toggle time frame selector */}}
+              className="h-8 w-8 p-0 text-text-secondary hover:text-text-primary"
+            >
+              <Clock className="h-3 w-3" />
+            </Button>
+          )}
+          {onRefresh && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRefresh}
+              className="h-8 w-8 p-0 text-text-secondary hover:text-text-primary"
+              disabled={loading}
+            >
+              <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
-            onClick={onRefresh}
-            className="h-8 w-8 p-0 text-text-secondary hover:text-text-primary"
-            disabled={loading}
-          >
-            <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
-          </Button>
-        )}
-        {onSettings && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onSettings}
+            onClick={handleSettings}
             className="h-8 w-8 p-0 text-text-secondary hover:text-text-primary"
           >
             <Settings className="h-3 w-3" />
           </Button>
-        )}
-        {onExport && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={onExport}
+            onClick={handleExport}
             className="h-8 w-8 p-0 text-text-secondary hover:text-text-primary"
           >
             <Download className="h-3 w-3" />
           </Button>
-        )}
-        {onFullscreen && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onFullscreen}
-            className="h-8 w-8 p-0 text-text-secondary hover:text-text-primary"
-          >
-            <Maximize2 className="h-3 w-3" />
-          </Button>
-        )}
+          {onFullscreen && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onFullscreen}
+              className="h-8 w-8 p-0 text-text-secondary hover:text-text-primary"
+            >
+              <Maximize2 className="h-3 w-3" />
+            </Button>
+          )}
+        </div>
       </div>
+      
+      {/* Time Frame Selector */}
+      {showTimeFrameSelector && onTimeFrameChange && (
+        <TimeFrameSelector
+          config={config}
+          selectedTimeFrame={currentTimeFrame}
+          onTimeFrameChange={handleTimeFrameChange}
+        />
+      )}
     </div>
   );
 
@@ -202,7 +274,110 @@ export const ChartContainer: React.FC<ChartContainerProps> = ({
               strokeWidth={2}
               dot={false}
             />
+            {config.displayOptions?.showVolume && (
+              <Bar dataKey="volume" fill={`${config.color}40`} />
+            )}
           </AreaChart>
+        );
+
+      case 'volume':
+        return (
+          <BarChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.border.default} />
+            <XAxis 
+              dataKey="timestamp"
+              type="number"
+              scale="time"
+              domain={['dataMin', 'dataMax']}
+              tickFormatter={(value) => format(new Date(value), 'MMM dd')}
+              stroke={theme.colors.text.secondary}
+              fontSize={10}
+            />
+            <YAxis 
+              stroke={theme.colors.text.secondary}
+              fontSize={10}
+              tickFormatter={(value) => {
+                const formatted = config.precision !== undefined 
+                  ? Number(value).toFixed(config.precision)
+                  : value;
+                return `${formatted}${config.unit || ''}`;
+              }}
+            />
+            <Tooltip content={CustomTooltip} />
+            <Bar dataKey="volume" fill={config.color} />
+          </BarChart>
+        );
+
+      case 'histogram':
+        return (
+          <BarChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.border.default} />
+            <XAxis 
+              dataKey="date"
+              stroke={theme.colors.text.secondary}
+              fontSize={10}
+            />
+            <YAxis 
+              stroke={theme.colors.text.secondary}
+              fontSize={10}
+              tickFormatter={(value) => {
+                const formatted = config.precision !== undefined 
+                  ? Number(value).toFixed(config.precision)
+                  : value;
+                return `${formatted}${config.unit || ''}`;
+              }}
+            />
+            <Tooltip content={CustomTooltip} />
+            <Bar dataKey="value" fill={config.color} />
+          </BarChart>
+        );
+
+      case 'scatter':
+        return (
+          <ScatterChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.border.default} />
+            <XAxis 
+              dataKey="timestamp"
+              type="number"
+              scale="time"
+              domain={['dataMin', 'dataMax']}
+              tickFormatter={(value) => format(new Date(value), 'MMM dd')}
+              stroke={theme.colors.text.secondary}
+              fontSize={10}
+            />
+            <YAxis 
+              stroke={theme.colors.text.secondary}
+              fontSize={10}
+              tickFormatter={(value) => {
+                const formatted = config.precision !== undefined 
+                  ? Number(value).toFixed(config.precision)
+                  : value;
+                return `${formatted}${config.unit || ''}`;
+              }}
+            />
+            <Tooltip content={CustomTooltip} />
+            <Scatter dataKey="value" fill={config.color} />
+          </ScatterChart>
+        );
+
+      case 'heatmap':
+        // Heatmap implementation would need custom component
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-text-secondary text-sm">
+              Heatmap visualization coming soon
+            </div>
+          </div>
+        );
+
+      case 'candlestick':
+        // Candlestick implementation would need custom component
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-text-secondary text-sm">
+              Candlestick chart coming soon
+            </div>
+          </div>
         );
 
       case 'line':
@@ -238,19 +413,51 @@ export const ChartContainer: React.FC<ChartContainerProps> = ({
               dot={false}
               activeDot={{ r: 4, stroke: config.color, strokeWidth: 2 }}
             />
+            {config.displayOptions?.showMA && (
+              <Line
+                type="monotone"
+                dataKey="ma"
+                stroke={`${config.color}80`}
+                strokeWidth={1}
+                strokeDasharray="5 5"
+                dot={false}
+              />
+            )}
           </LineChart>
         );
     }
   };
 
   return (
-    <Card className="bg-bg-secondary border-glass-border p-4">
-      <ChartToolbar />
-      <div style={{ height }}>
-        <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
-        </ResponsiveContainer>
-      </div>
-    </Card>
+    <>
+      <Card className="bg-bg-secondary border-glass-border p-4">
+        <ChartToolbar />
+        <div style={{ height }}>
+          <ResponsiveContainer width="100%" height="100%">
+            {renderChart()}
+          </ResponsiveContainer>
+        </div>
+      </Card>
+
+      {/* Export Modal */}
+      <ChartExportModal
+        config={config}
+        data={data}
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+      />
+
+      {/* Settings Modal */}
+      <ChartSettingsModal
+        config={config}
+        isOpen={settingsModalOpen}
+        onClose={() => setSettingsModalOpen(false)}
+        onSave={(newConfig) => {
+          // Handle config updates
+          console.log('Chart config updated:', newConfig);
+          setSettingsModalOpen(false);
+        }}
+      />
+    </>
   );
 };
