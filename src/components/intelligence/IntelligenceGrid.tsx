@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { TerminalContainer, TerminalGrid, TerminalHeader } from '@/components/terminal';
+import { TerminalTile } from '@/components/terminal/TerminalTile';
 import { Button } from '@/components/ui/button';
 import { 
   ChevronLeft, 
@@ -79,9 +79,9 @@ export const IntelligenceGrid: React.FC<IntelligenceGridProps> = ({
   const getTrendIcon = (trend?: string) => {
     switch (trend) {
       case 'up':
-        return <TrendingUp className="w-3 h-3 text-btc-primary" />;
+        return <TrendingUp className="w-3 h-3 text-neon-lime" />;
       case 'down':
-        return <TrendingDown className="w-3 h-3 text-critical" />;
+        return <TrendingDown className="w-3 h-3 text-neon-orange" />;
       case 'neutral':
         return <Minus className="w-3 h-3 text-text-secondary" />;
       default:
@@ -91,9 +91,9 @@ export const IntelligenceGrid: React.FC<IntelligenceGridProps> = ({
 
   const getPillarColor = (pillar: number) => {
     switch (pillar) {
-      case 1: return 'border-l-btc-primary';
-      case 2: return 'border-l-accent';
-      case 3: return 'border-l-warning';
+      case 1: return 'border-l-neon-teal';
+      case 2: return 'border-l-neon-lime';
+      case 3: return 'border-l-neon-orange';
       default: return 'border-l-text-secondary';
     }
   };
@@ -111,47 +111,33 @@ export const IntelligenceGrid: React.FC<IntelligenceGridProps> = ({
     }
 
     return (
-      <Card
+      <TerminalTile
         key={engineMetadata.id}
+        title={intelligenceData.title.toUpperCase()}
+        status={intelligenceData.status === 'active' ? 'active' : intelligenceData.status === 'warning' ? 'warning' : 'critical'}
+        size="md"
+        interactive="clickable"
+        onClick={() => handleEngineClick(engineMetadata.id)}
         className={cn(
-          "bg-noir-bg border-noir-border hover:border-primary/50 transition-all duration-200 cursor-pointer",
           "border-l-4",
           getPillarColor(engineMetadata.pillar)
         )}
-        onClick={() => handleEngineClick(engineMetadata.id)}
       >
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-bold text-primary truncate">
-              {intelligenceData.title}
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              {getStatusIcon(intelligenceData.status)}
-              <Badge 
-                variant="outline" 
-                className="text-xs px-1 py-0"
-              >
-                P{engineMetadata.pillar}
-              </Badge>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-3">
+        <div className="space-y-3">
           {/* Primary Metrics */}
           <div className="space-y-2">
             {Object.entries(intelligenceData.primaryMetrics).slice(0, 2).map(([key, metric]) => (
               <div key={key} className="flex items-center justify-between">
-                <span className="text-xs text-text-secondary truncate">
+                <span className="terminal-label text-xs truncate">
                   {metric.label}
                 </span>
                 <div className="flex items-center gap-1">
                   {getTrendIcon(metric.trend)}
                   <span className={cn(
-                    "text-xs font-mono",
-                    metric.status === 'critical' ? 'text-critical' :
-                    metric.status === 'warning' ? 'text-warning' :
-                    'text-text-primary'
+                    "terminal-data text-xs",
+                    metric.status === 'critical' ? 'text-neon-orange' :
+                    metric.status === 'warning' ? 'text-neon-gold' :
+                    'text-text-data'
                   )}>
                     {metric.value}
                   </span>
@@ -162,105 +148,93 @@ export const IntelligenceGrid: React.FC<IntelligenceGridProps> = ({
 
           {/* Alerts Indicator */}
           {intelligenceData.alerts && intelligenceData.alerts.length > 0 && (
-            <div className="pt-2 border-t border-noir-border">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-3 h-3 text-warning" />
-                <span className="text-xs text-warning">
-                  {intelligenceData.alerts.length} alert{intelligenceData.alerts.length !== 1 ? 's' : ''}
+            <div className="terminal-divider">
+              <div className="flex items-center gap-2 mt-2">
+                <AlertTriangle className="w-3 h-3 text-neon-gold" />
+                <span className="terminal-text text-xs text-neon-gold">
+                  {intelligenceData.alerts.length} ALERT{intelligenceData.alerts.length !== 1 ? 'S' : ''}
                 </span>
               </div>
             </div>
           )}
 
           {/* Confidence & Update Time */}
-          <div className="pt-2 border-t border-noir-border text-xs text-text-secondary">
-            <div className="flex justify-between">
-              <span>Confidence: {Math.round(intelligenceData.confidence * 100)}%</span>
-              <span>{intelligenceData.lastUpdate.toLocaleTimeString()}</span>
+          <div className="terminal-divider">
+            <div className="flex justify-between terminal-text text-xs text-text-muted mt-2">
+              <span>CONF: {Math.round(intelligenceData.confidence * 100)}%</span>
+              <span>P{engineMetadata.pillar}</span>
+            </div>
+            <div className="terminal-text text-xs text-text-muted">
+              {intelligenceData.lastUpdate.toLocaleTimeString()}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </TerminalTile>
     );
   };
 
   if (loading) {
     return (
-      <div className="grid grid-cols-3 gap-4 p-6">
+      <TerminalGrid columns={3} spacing="md">
         {[...Array(9)].map((_, i) => (
-          <Card key={i} className="bg-noir-bg border-noir-border animate-pulse">
-            <CardHeader>
-              <div className="h-4 bg-noir-surface rounded" />
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="h-3 bg-noir-surface rounded w-3/4" />
-                <div className="h-3 bg-noir-surface rounded w-1/2" />
-              </div>
-            </CardContent>
-          </Card>
+          <TerminalTile key={i} title="LOADING..." status="warning" size="md">
+            <div className="space-y-2">
+              <div className="h-3 bg-glass-surface animate-pulse" />
+              <div className="h-3 bg-glass-surface animate-pulse w-1/2" />
+            </div>
+          </TerminalTile>
         ))}
-      </div>
+      </TerminalGrid>
     );
   }
 
   return (
     <div className="space-y-6">
       {/* Grid */}
-      <div className="grid grid-cols-3 gap-4 min-h-[600px]">
+      <TerminalGrid columns={3} spacing="md">
         {currentEngines.map((engine, index) => renderEngineCard(engine, index))}
-        
-        {/* Empty slots for consistent grid */}
-        {currentEngines.length < ENGINES_PER_PAGE && 
-          [...Array(ENGINES_PER_PAGE - currentEngines.length)].map((_, i) => (
-            <div key={`empty-${i}`} className="opacity-0" />
-          ))
-        }
-      </div>
+      </TerminalGrid>
 
-      {/* Pagination */}
+      {/* Navigation */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-            disabled={currentPage === 0}
-            className="text-primary border-primary/50 hover:bg-primary/10"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Previous
-          </Button>
-          
-          <div className="flex items-center gap-2">
-            {[...Array(totalPages)].map((_, i) => (
-              <Button
-                key={i}
-                variant={currentPage === i ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCurrentPage(i)}
-                className={cn(
-                  "w-8 h-8 p-0",
-                  currentPage === i 
-                    ? "bg-primary text-noir-bg" 
-                    : "text-primary border-primary/50 hover:bg-primary/10"
-                )}
-              >
-                {i + 1}
-              </Button>
-            ))}
-          </div>
+        <div className="terminal-section">
+          <div className="terminal-divider"></div>
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <button
+              onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+              disabled={currentPage === 0}
+              className="terminal-text text-xs px-3 py-1 border border-glass-border hover:border-neon-teal disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="w-3 h-3 inline mr-1" />
+              PREV
+            </button>
+            
+            <div className="flex items-center gap-2">
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i)}
+                  className={cn(
+                    "terminal-text text-xs w-6 h-6 border",
+                    currentPage === i 
+                      ? "bg-neon-teal text-bg-primary border-neon-teal" 
+                      : "border-glass-border hover:border-neon-teal"
+                  )}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
-            disabled={currentPage === totalPages - 1}
-            className="text-primary border-primary/50 hover:bg-primary/10"
-          >
-            Next
-            <ChevronRight className="w-4 h-4" />
-          </Button>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+              disabled={currentPage === totalPages - 1}
+              className="terminal-text text-xs px-3 py-1 border border-glass-border hover:border-neon-teal disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              NEXT
+              <ChevronRight className="w-3 h-3 inline ml-1" />
+            </button>
+          </div>
         </div>
       )}
 
