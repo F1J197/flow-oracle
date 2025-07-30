@@ -1,8 +1,8 @@
-import { UnifiedBaseEngine } from "@/engines/base/UnifiedBaseEngine";
+import { BaseEngine } from "@/engines/BaseEngine";
 import type { 
-  UnifiedEngineConfig, 
+  BaseEngineConfig, 
   EngineMetrics 
-} from "@/engines/base/UnifiedBaseEngine";
+} from "@/engines/BaseEngine";
 import type { 
   EngineReport, 
   ActionableInsight, 
@@ -18,6 +18,19 @@ import type {
   SourceHealth 
 } from "./types";
 
+// Interface compatibility layer for user's requested implementation
+interface EngineConfig {
+  refreshInterval?: number;
+  maxRetries?: number;
+  timeout?: number;
+  cacheTimeout?: number;
+  gracefulDegradation?: boolean;
+}
+
+interface EngineOutput extends EngineReport {
+  data: any;
+}
+
 /**
  * Foundation Data Integrity Engine V6
  * 
@@ -27,7 +40,7 @@ import type {
  * - System health assessment
  * - Automated self-healing operations
  */
-export class DataIntegrityEngine extends UnifiedBaseEngine {
+export class DataIntegrityEngine extends BaseEngine {
   readonly category = 'foundation' as const;
   readonly id = 'data-integrity-foundation';
   readonly name = 'Data Integrity Engine';
@@ -35,24 +48,22 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
   readonly pillar = 1 as const;
 
   // Internal state
-  private metrics: DataIntegrityMetrics;
+  private dataIntegrityMetrics: DataIntegrityMetrics;
   private sources: SourceHealth[];
   private validationHistory: ValidationResult[];
   private lastExecution: Date | null = null;
 
   constructor(config: DataIntegrityConfig = {}) {
-    const unifiedConfig: UnifiedEngineConfig = {
+    const engineConfig: Partial<BaseEngineConfig> = {
       refreshInterval: config.refreshInterval || 30000,
-      retryAttempts: config.maxRetries || 3,
       timeout: config.timeout || 15000,
-      cacheTimeout: config.cacheTimeout || 60000,
-      gracefulDegradation: config.gracefulDegradation ?? true,
-      enableEvents: true
+      retryAttempts: config.maxRetries || 3,
+      cacheTimeout: config.cacheTimeout || 60000
     };
 
-    super(unifiedConfig);
+    super(engineConfig);
     
-    this.metrics = this.initializeMetrics();
+    this.dataIntegrityMetrics = this.initializeMetrics();
     this.sources = this.initializeSources();
     this.validationHistory = [];
   }
@@ -106,7 +117,7 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
     ];
   }
 
-  protected async performExecution(): Promise<EngineReport> {
+  protected async performExecution(): Promise<EngineOutput> {
     console.log(`${this.name}: Starting data integrity validation...`);
     
     try {
@@ -126,10 +137,10 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
       
       return {
         success: true,
-        confidence: this.metrics.integrityScore / 100,
+        confidence: this.dataIntegrityMetrics.integrityScore / 100,
         signal: this.determineSignal(),
         data: {
-          ...this.metrics,
+          ...this.dataIntegrityMetrics,
           sources: this.sources,
           validationCount: this.validationHistory.length
         },
@@ -196,7 +207,7 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
     if (result.passed) {
       if (source.status === 'degraded' || source.status === 'offline') {
         source.status = 'active';
-        this.metrics.autoHealed24h++;
+        this.dataIntegrityMetrics.autoHealed24h++;
         console.log(`${this.name}: Source ${source.name} auto-healed`);
       }
     } else {
@@ -216,16 +227,16 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
     const activeSources = this.sources.filter(s => s.status === 'active').length;
     const avgReliability = this.sources.reduce((sum, s) => sum + s.reliability, 0) / this.sources.length;
     
-    this.metrics.activeSources = activeSources;
-    this.metrics.totalSources = this.sources.length;
-    this.metrics.lastValidation = new Date();
+    this.dataIntegrityMetrics.activeSources = activeSources;
+    this.dataIntegrityMetrics.totalSources = this.sources.length;
+    this.dataIntegrityMetrics.lastValidation = new Date();
     
     // Update derived metrics
-    this.metrics.p95Latency = Math.round(120 + Math.random() * 50); // 120-170ms
-    this.metrics.consensusLevel = Math.min(100, avgReliability + Math.random() * 5);
-    this.metrics.errorRate = Math.max(0, 0.001 + (4 - activeSources) * 0.002);
-    this.metrics.dataFreshness = Math.round(15 + Math.random() * 20); // 15-35s
-    this.metrics.completeness = Math.min(100, 95 + activeSources * 1.25);
+    this.dataIntegrityMetrics.p95Latency = Math.round(120 + Math.random() * 50); // 120-170ms
+    this.dataIntegrityMetrics.consensusLevel = Math.min(100, avgReliability + Math.random() * 5);
+    this.dataIntegrityMetrics.errorRate = Math.max(0, 0.001 + (4 - activeSources) * 0.002);
+    this.dataIntegrityMetrics.dataFreshness = Math.round(15 + Math.random() * 20); // 15-35s
+    this.dataIntegrityMetrics.completeness = Math.min(100, 95 + activeSources * 1.25);
   }
 
   private async performSelfHealing(): Promise<void> {
@@ -235,7 +246,7 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
       if (Math.random() < 0.3) { // 30% chance of successful healing
         source.status = 'active';
         source.reliability = Math.min(100, source.reliability + 15);
-        this.metrics.autoHealed24h++;
+        this.dataIntegrityMetrics.autoHealed24h++;
         console.log(`${this.name}: Successfully healed source ${source.name}`);
       }
     }
@@ -247,34 +258,34 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
     const consensusWeight = 0.2;
     const freshnessWeight = 0.1;
     
-    const sourceHealthScore = (this.metrics.activeSources / this.metrics.totalSources) * 100;
+    const sourceHealthScore = (this.dataIntegrityMetrics.activeSources / this.dataIntegrityMetrics.totalSources) * 100;
     const avgReliability = this.sources.reduce((sum, s) => sum + s.reliability, 0) / this.sources.length;
-    const freshnessScore = Math.max(0, 100 - this.metrics.dataFreshness);
+    const freshnessScore = Math.max(0, 100 - this.dataIntegrityMetrics.dataFreshness);
     
-    this.metrics.integrityScore = 
+    this.dataIntegrityMetrics.integrityScore = 
       sourceHealthScore * sourceHealthWeight +
       avgReliability * reliabilityWeight +
-      this.metrics.consensusLevel * consensusWeight +
+      this.dataIntegrityMetrics.consensusLevel * consensusWeight +
       freshnessScore * freshnessWeight;
     
-    this.metrics.systemStatus = this.getSystemStatus();
+    this.dataIntegrityMetrics.systemStatus = this.getSystemStatus();
   }
 
   private determineSignal(): 'bullish' | 'bearish' | 'neutral' {
-    if (this.metrics.integrityScore >= 98) return 'bullish';
-    if (this.metrics.integrityScore <= 85) return 'bearish';
+    if (this.dataIntegrityMetrics.integrityScore >= 98) return 'bullish';
+    if (this.dataIntegrityMetrics.integrityScore <= 85) return 'bearish';
     return 'neutral';
   }
 
   private getSystemStatus(): string {
-    if (this.metrics.integrityScore >= 98) return 'OPTIMAL';
-    if (this.metrics.integrityScore >= 95) return 'GOOD';
-    if (this.metrics.integrityScore >= 90) return 'DEGRADED';
+    if (this.dataIntegrityMetrics.integrityScore >= 98) return 'OPTIMAL';
+    if (this.dataIntegrityMetrics.integrityScore >= 95) return 'GOOD';
+    if (this.dataIntegrityMetrics.integrityScore >= 90) return 'DEGRADED';
     return 'CRITICAL';
   }
 
   getSingleActionableInsight(): ActionableInsight {
-    const status = this.metrics.systemStatus;
+    const status = this.dataIntegrityMetrics.systemStatus;
     
     if (status === 'CRITICAL') {
       return {
@@ -308,15 +319,15 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
   getDashboardData(): DashboardTileData {
     return {
       title: 'Data Integrity',
-      primaryMetric: `${this.metrics.integrityScore.toFixed(1)}%`,
-      secondaryMetric: `${this.metrics.activeSources}/${this.metrics.totalSources} sources`,
-      status: this.metrics.integrityScore >= 95 ? 'normal' : 
-              this.metrics.integrityScore >= 90 ? 'warning' : 'critical',
-      trend: this.metrics.integrityScore >= 98 ? 'up' : 
-             this.metrics.integrityScore <= 85 ? 'down' : 'neutral',
-      actionText: this.metrics.systemStatus,
-      color: this.metrics.integrityScore >= 95 ? 'success' : 
-             this.metrics.integrityScore >= 90 ? 'warning' : 'critical',
+      primaryMetric: `${this.dataIntegrityMetrics.integrityScore.toFixed(1)}%`,
+      secondaryMetric: `${this.dataIntegrityMetrics.activeSources}/${this.dataIntegrityMetrics.totalSources} sources`,
+      status: this.dataIntegrityMetrics.integrityScore >= 95 ? 'normal' : 
+              this.dataIntegrityMetrics.integrityScore >= 90 ? 'warning' : 'critical',
+      trend: this.dataIntegrityMetrics.integrityScore >= 98 ? 'up' : 
+             this.dataIntegrityMetrics.integrityScore <= 85 ? 'down' : 'neutral',
+      actionText: this.dataIntegrityMetrics.systemStatus,
+      color: this.dataIntegrityMetrics.integrityScore >= 95 ? 'success' : 
+             this.dataIntegrityMetrics.integrityScore >= 90 ? 'warning' : 'critical',
       loading: false
     };
   }
@@ -324,18 +335,18 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
   getIntelligenceView(): IntelligenceViewData {
     return {
       title: this.name,
-      status: this.metrics.systemStatus === 'CRITICAL' ? 'critical' :
-              this.metrics.systemStatus === 'DEGRADED' ? 'warning' : 'active',
+      status: this.dataIntegrityMetrics.systemStatus === 'CRITICAL' ? 'critical' :
+              this.dataIntegrityMetrics.systemStatus === 'DEGRADED' ? 'warning' : 'active',
       primaryMetrics: {
         'Integrity Score': {
-          value: `${this.metrics.integrityScore.toFixed(1)}%`,
+          value: `${this.dataIntegrityMetrics.integrityScore.toFixed(1)}%`,
           label: 'Overall system integrity',
           status: 'normal'
         },
         'Active Sources': {
-          value: `${this.metrics.activeSources}/${this.metrics.totalSources}`,
+          value: `${this.dataIntegrityMetrics.activeSources}/${this.dataIntegrityMetrics.totalSources}`,
           label: 'Operational data sources',
-          status: this.metrics.activeSources === this.metrics.totalSources ? 'normal' : 'warning'
+          status: this.dataIntegrityMetrics.activeSources === this.dataIntegrityMetrics.totalSources ? 'normal' : 'warning'
         }
       },
       sections: [
@@ -343,15 +354,15 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
           title: 'Quality Metrics',
           data: {
             'Consensus Level': {
-              value: `${this.metrics.consensusLevel.toFixed(1)}%`,
+              value: `${this.dataIntegrityMetrics.consensusLevel.toFixed(1)}%`,
               label: 'Cross-source agreement'
             },
             'P95 Latency': {
-              value: `${this.metrics.p95Latency}ms`,
+              value: `${this.dataIntegrityMetrics.p95Latency}ms`,
               label: 'Response time'
             },
             'Error Rate': {
-              value: `${(this.metrics.errorRate * 100).toFixed(3)}%`,
+              value: `${(this.dataIntegrityMetrics.errorRate * 100).toFixed(3)}%`,
               label: 'Data validation errors'
             }
           }
@@ -360,22 +371,22 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
           title: 'Self-Healing',
           data: {
             'Auto-Healed (24h)': {
-              value: this.metrics.autoHealed24h.toString(),
+              value: this.dataIntegrityMetrics.autoHealed24h.toString(),
               label: 'Automatic recoveries'
             },
             'Data Freshness': {
-              value: `${this.metrics.dataFreshness}s`,
+              value: `${this.dataIntegrityMetrics.dataFreshness}s`,
               label: 'Last update time'
             },
             'Completeness': {
-              value: `${this.metrics.completeness.toFixed(1)}%`,
+              value: `${this.dataIntegrityMetrics.completeness.toFixed(1)}%`,
               label: 'Data completeness'
             }
           }
         }
       ],
-      confidence: Math.round(this.metrics.integrityScore),
-      lastUpdate: this.metrics.lastValidation
+      confidence: Math.round(this.dataIntegrityMetrics.integrityScore),
+      lastUpdate: this.dataIntegrityMetrics.lastValidation
     };
   }
 
@@ -388,9 +399,9 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
       primarySection: {
         title: 'System Overview',
         metrics: {
-          'Integrity Score': `${this.metrics.integrityScore.toFixed(1)}%`,
-          'System Status': this.metrics.systemStatus,
-          'Active Sources': `${this.metrics.activeSources}/${this.metrics.totalSources}`,
+          'Integrity Score': `${this.dataIntegrityMetrics.integrityScore.toFixed(1)}%`,
+          'System Status': this.dataIntegrityMetrics.systemStatus,
+          'Active Sources': `${this.dataIntegrityMetrics.activeSources}/${this.dataIntegrityMetrics.totalSources}`,
           'Last Validation': `${ageMinutes}m ago`
         }
       },
@@ -398,10 +409,10 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
         {
           title: 'Data Quality',
           metrics: {
-            'Consensus Level': `${this.metrics.consensusLevel.toFixed(1)}%`,
-            'P95 Latency': `${this.metrics.p95Latency}ms`,
-            'Error Rate': `${(this.metrics.errorRate * 100).toFixed(3)}%`,
-            'Completeness': `${this.metrics.completeness.toFixed(1)}%`
+            'Consensus Level': `${this.dataIntegrityMetrics.consensusLevel.toFixed(1)}%`,
+            'P95 Latency': `${this.dataIntegrityMetrics.p95Latency}ms`,
+            'Error Rate': `${(this.dataIntegrityMetrics.errorRate * 100).toFixed(3)}%`,
+            'Completeness': `${this.dataIntegrityMetrics.completeness.toFixed(1)}%`
           }
         },
         {
@@ -416,10 +427,10 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
         {
           title: 'Self-Healing',
           metrics: {
-            'Auto-Healed (24h)': this.metrics.autoHealed24h.toString(),
-            'Data Freshness': `${this.metrics.dataFreshness}s`,
+            'Auto-Healed (24h)': this.dataIntegrityMetrics.autoHealed24h.toString(),
+            'Data Freshness': `${this.dataIntegrityMetrics.dataFreshness}s`,
             'Validation Count': this.validationHistory.length.toString(),
-            'System Resilience': this.metrics.integrityScore >= 95 ? 'HIGH' : 'MODERATE'
+            'System Resilience': this.dataIntegrityMetrics.integrityScore >= 95 ? 'HIGH' : 'MODERATE'
           }
         }
       ],
@@ -430,32 +441,32 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
   private generateAlerts() {
     const alerts = [];
     
-    if (this.metrics.integrityScore < 95) {
+    if (this.dataIntegrityMetrics.integrityScore < 95) {
       alerts.push({
         severity: 'warning' as const,
-        message: `Integrity score below optimal: ${this.metrics.integrityScore.toFixed(1)}%`
+        message: `Integrity score below optimal: ${this.dataIntegrityMetrics.integrityScore.toFixed(1)}%`
       });
     }
     
-    if (this.metrics.activeSources < this.metrics.totalSources) {
-      const offlineSources = this.metrics.totalSources - this.metrics.activeSources;
+    if (this.dataIntegrityMetrics.activeSources < this.dataIntegrityMetrics.totalSources) {
+      const offlineSources = this.dataIntegrityMetrics.totalSources - this.dataIntegrityMetrics.activeSources;
       alerts.push({
         severity: 'info' as const,
         message: `${offlineSources} source(s) offline or degraded`
       });
     }
     
-    if (this.metrics.integrityScore < 90) {
+    if (this.dataIntegrityMetrics.integrityScore < 90) {
       alerts.push({
         severity: 'critical' as const,
         message: 'CRITICAL: System integrity compromised'
       });
     }
     
-    if (this.metrics.p95Latency > 300) {
+    if (this.dataIntegrityMetrics.p95Latency > 300) {
       alerts.push({
         severity: 'warning' as const,
-        message: `High latency detected: ${this.metrics.p95Latency}ms`
+        message: `High latency detected: ${this.dataIntegrityMetrics.p95Latency}ms`
       });
     }
     
@@ -469,9 +480,9 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
     
     return {
       executionTime,
-      successRate: this.metrics.integrityScore / 100,
-      confidenceScore: this.metrics.integrityScore / 100,
-      dataQuality: this.metrics.consensusLevel / 100
+      successRate: this.dataIntegrityMetrics.integrityScore / 100,
+      totalExecutions: this.validationHistory.length,
+      averageConfidence: this.dataIntegrityMetrics.integrityScore / 100
     };
   }
 
@@ -480,25 +491,25 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
       title: this.name,
       description: 'Foundation-tier data integrity monitoring with automated validation and self-healing',
       keyInsights: [
-        `Integrity score: ${this.metrics.integrityScore.toFixed(1)}%`,
-        `System status: ${this.metrics.systemStatus}`,
-        `Active sources: ${this.metrics.activeSources}/${this.metrics.totalSources}`,
-        `Auto-healed issues: ${this.metrics.autoHealed24h} (24h)`
+        `Integrity score: ${this.dataIntegrityMetrics.integrityScore.toFixed(1)}%`,
+        `System status: ${this.dataIntegrityMetrics.systemStatus}`,
+        `Active sources: ${this.dataIntegrityMetrics.activeSources}/${this.dataIntegrityMetrics.totalSources}`,
+        `Auto-healed issues: ${this.dataIntegrityMetrics.autoHealed24h} (24h)`
       ],
       detailedMetrics: [
         {
           category: 'Data Quality',
           metrics: {
             'Integrity Score': { 
-              value: `${this.metrics.integrityScore.toFixed(1)}%`, 
+              value: `${this.dataIntegrityMetrics.integrityScore.toFixed(1)}%`, 
               description: 'Overall system integrity percentage' 
             },
             'System Status': { 
-              value: this.metrics.systemStatus, 
+              value: this.dataIntegrityMetrics.systemStatus, 
               description: 'Current operational status' 
             },
             'Active Sources': { 
-              value: `${this.metrics.activeSources}/${this.metrics.totalSources}`, 
+              value: `${this.dataIntegrityMetrics.activeSources}/${this.dataIntegrityMetrics.totalSources}`, 
               description: 'Operational data sources' 
             }
           }
@@ -507,15 +518,15 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
           category: 'Performance',
           metrics: {
             'P95 Latency': { 
-              value: `${this.metrics.p95Latency}ms`, 
+              value: `${this.dataIntegrityMetrics.p95Latency}ms`, 
               description: 'Response time performance' 
             },
             'Error Rate': { 
-              value: `${(this.metrics.errorRate * 100).toFixed(3)}%`, 
+              value: `${(this.dataIntegrityMetrics.errorRate * 100).toFixed(3)}%`, 
               description: 'Data validation error rate' 
             },
             'Consensus Level': { 
-              value: `${this.metrics.consensusLevel.toFixed(1)}%`, 
+              value: `${this.dataIntegrityMetrics.consensusLevel.toFixed(1)}%`, 
               description: 'Cross-source agreement level' 
             }
           }
@@ -526,7 +537,7 @@ export class DataIntegrityEngine extends UnifiedBaseEngine {
 
   // Public getters for external access
   getDataIntegrityMetrics(): DataIntegrityMetrics {
-    return { ...this.metrics };
+    return { ...this.dataIntegrityMetrics };
   }
 
   getSources(): SourceHealth[] {

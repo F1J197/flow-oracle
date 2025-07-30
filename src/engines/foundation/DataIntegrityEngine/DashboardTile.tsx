@@ -1,9 +1,7 @@
-import { memo } from "react";
-import { TerminalTile } from "@/components/Terminal";
-import { useStableData } from "@/hooks/useStableData";
-import { cn } from "@/lib/utils";
-import type { DashboardTileData } from "@/types/engines";
-import type { DataIntegrityMetrics } from "./types";
+import React from 'react';
+import { TerminalTile } from '@/components/Terminal';
+import { cn } from '@/lib/utils';
+import type { DataIntegrityMetrics } from './types';
 
 interface DataIntegrityDashboardTileProps {
   data?: DataIntegrityMetrics;
@@ -13,66 +11,52 @@ interface DataIntegrityDashboardTileProps {
   className?: string;
 }
 
-function DataIntegrityDashboardTileComponent({
+export const DataIntegrityDashboardTile: React.FC<DataIntegrityDashboardTileProps> = ({
   data,
   loading = false,
   error = null,
   onClick,
   className
-}: DataIntegrityDashboardTileProps) {
-  
-  // Stabilize data to prevent unnecessary re-renders
-  const stableData = useStableData(data, {
-    changeThreshold: 0.5, // 0.5% threshold for integrity score changes
-    debounceMs: 1000
-  });
+}) => {
+  const metrics = data;
 
-  // Use stabilized data
-  const metrics = stableData.value;
-
-  // Generate dashboard tile data
-  const tileData: DashboardTileData = metrics ? {
-    title: "Data Integrity",
-    primaryMetric: `${metrics.integrityScore.toFixed(1)}%`,
-    secondaryMetric: `${metrics.activeSources}/${metrics.totalSources} sources`,
-    status: metrics.integrityScore >= 95 ? 'normal' : 
-            metrics.integrityScore >= 90 ? 'warning' : 'critical',
-    trend: metrics.integrityScore >= 98 ? 'up' : 
-           metrics.integrityScore <= 85 ? 'down' : 'neutral',
-    actionText: metrics.systemStatus,
-    color: metrics.integrityScore >= 95 ? 'success' : 
-           metrics.integrityScore >= 90 ? 'warning' : 'critical',
-    loading: loading
-  } : {
-    title: "Data Integrity",
-    primaryMetric: "--",
-    secondaryMetric: "-- sources",
-    status: 'normal',
-    trend: 'neutral',
-    actionText: loading ? "LOADING..." : "NO DATA",
-    color: 'neutral',
-    loading: loading
+  // Calculate status based on integrity score
+  const getStatus = (score?: number) => {
+    if (!score) return 'normal';
+    if (score >= 95) return 'normal';
+    if (score >= 90) return 'warning';
+    return 'critical';
   };
 
-  const statusVariant = tileData.status === 'critical' ? 'critical' :
-                       tileData.status === 'warning' ? 'warning' : 'default';
+  // Calculate trend based on integrity score
+  const getTrend = (score?: number) => {
+    if (!score) return 'neutral';
+    if (score >= 98) return 'up';
+    if (score <= 85) return 'down';
+    return 'neutral';
+  };
+
+  const status = getStatus(metrics?.integrityScore);
+  const trend = getTrend(metrics?.integrityScore);
 
   return (
     <TerminalTile
-      title={tileData.title}
-      status={tileData.status}
+      title="Data Integrity"
+      status={status}
       size="md"
       onClick={onClick}
-      className={className}
+      className={cn("data-integrity-tile", className)}
     >
       <div className="space-y-3">
         {/* Primary Metric */}
         <div className="text-center">
           <div className="terminal-metric-primary text-3xl font-bold text-text-data">
-            {loading ? "..." : tileData.primaryMetric}
+            {loading ? "..." : metrics ? `${metrics.integrityScore.toFixed(1)}%` : "--"}
           </div>
           <div className="terminal-metric-secondary text-sm text-text-secondary mt-1">
-            {loading ? "Loading..." : tileData.secondaryMetric}
+            {loading ? "Loading..." : metrics ? 
+              `${metrics.activeSources}/${metrics.totalSources} sources` : 
+              "-- sources"}
           </div>
         </div>
 
@@ -80,21 +64,21 @@ function DataIntegrityDashboardTileComponent({
         <div className="flex items-center justify-between">
           <div className={cn(
             "terminal-status text-xs font-mono px-2 py-1 rounded",
-            tileData.status === 'critical' ? "bg-neon-fuchsia/20 text-neon-fuchsia" :
-            tileData.status === 'warning' ? "bg-neon-gold/20 text-neon-gold" :
+            status === 'critical' ? "bg-neon-fuchsia/20 text-neon-fuchsia" :
+            status === 'warning' ? "bg-neon-gold/20 text-neon-gold" :
             "bg-neon-teal/20 text-neon-teal"
           )}>
-            {tileData.actionText}
+            {loading ? "LOADING..." : metrics?.systemStatus || "NO DATA"}
           </div>
           
-          {tileData.trend && (
+          {!loading && (
             <div className={cn(
               "text-xs",
-              tileData.trend === 'up' ? "text-neon-lime" :
-              tileData.trend === 'down' ? "text-neon-orange" :
+              trend === 'up' ? "text-neon-lime" :
+              trend === 'down' ? "text-neon-orange" :
               "text-text-secondary"
             )}>
-              {tileData.trend === 'up' ? '▲' : tileData.trend === 'down' ? '▼' : '●'}
+              {trend === 'up' ? '▲' : trend === 'down' ? '▼' : '●'}
             </div>
           )}
         </div>
@@ -105,9 +89,21 @@ function DataIntegrityDashboardTileComponent({
             {error}
           </div>
         )}
+
+        {/* Quality Indicators */}
+        {metrics && !loading && (
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs text-text-secondary">
+              <span>Consensus</span>
+              <span className="text-text-data">{metrics.consensusLevel.toFixed(1)}%</span>
+            </div>
+            <div className="flex justify-between text-xs text-text-secondary">
+              <span>Latency</span>
+              <span className="text-text-data">{metrics.p95Latency}ms</span>
+            </div>
+          </div>
+        )}
       </div>
     </TerminalTile>
   );
-}
-
-export const DataIntegrityDashboardTile = memo(DataIntegrityDashboardTileComponent);
+};

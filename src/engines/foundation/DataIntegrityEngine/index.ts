@@ -1,5 +1,5 @@
 /**
- * Foundation Data Integrity Engine
+ * Foundation Data Integrity Engine V6
  * Main entry point for the foundation-tier data integrity system
  */
 

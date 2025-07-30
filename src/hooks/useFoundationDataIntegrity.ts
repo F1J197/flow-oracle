@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DataIntegrityEngine } from '@/engines/foundation/DataIntegrityEngine';
-import type { DataIntegrityMetrics, SourceHealth } from '@/engines/foundation/DataIntegrityEngine';
+import type { DataIntegrityMetrics, SourceHealth } from '@/engines/foundation/DataIntegrityEngine/types';
 
 export interface UseFoundationDataIntegrityOptions {
   autoRefresh?: boolean;

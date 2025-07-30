@@ -1,10 +1,9 @@
-import { memo } from "react";
-import { TerminalLayout } from "@/components/intelligence/TerminalLayout";
-import { TerminalMetricGrid } from "@/components/intelligence/TerminalMetricGrid";
-import { TerminalDataSection } from "@/components/intelligence/TerminalDataSection";
-import { TerminalDataRow } from "@/components/intelligence/TerminalDataRow";
-import { useStableData } from "@/hooks/useStableData";
-import type { DataIntegrityMetrics, SourceHealth } from "./types";
+import React from 'react';
+import { TerminalLayout } from '@/components/intelligence/TerminalLayout';
+import { TerminalMetricGrid } from '@/components/intelligence/TerminalMetricGrid';
+import { TerminalDataSection } from '@/components/intelligence/TerminalDataSection';
+import { TerminalDataRow } from '@/components/intelligence/TerminalDataRow';
+import type { DataIntegrityMetrics, SourceHealth } from './types';
 
 interface DataIntegrityIntelligenceViewProps {
   data?: DataIntegrityMetrics;
@@ -14,21 +13,14 @@ interface DataIntegrityIntelligenceViewProps {
   className?: string;
 }
 
-function DataIntegrityIntelligenceViewComponent({
+export const DataIntegrityIntelligenceView: React.FC<DataIntegrityIntelligenceViewProps> = ({
   data,
   sources = [],
   loading = false,
   error = null,
   className
-}: DataIntegrityIntelligenceViewProps) {
-  
-  // Stabilize data to prevent flickering
-  const stableData = useStableData(data, {
-    changeThreshold: 0.01, // 1% threshold
-    debounceMs: 500
-  });
-
-  const metrics = stableData.value;
+}) => {
+  const metrics = data;
 
   if (loading) {
     return (
@@ -99,22 +91,13 @@ function DataIntegrityIntelligenceViewComponent({
         {/* Key Metrics Grid */}
         <TerminalMetricGrid metrics={keyMetrics} columns={2} />
         
-        {/* Source Status Section */}
-        <TerminalDataSection title="SOURCE STATUS">
+        {/* System Overview Section */}
+        <TerminalDataSection title="SYSTEM OVERVIEW">
           <TerminalDataRow 
-            label="Active Sources" 
-            value={`${metrics.activeSources}/${metrics.totalSources}`}
-            status={metrics.activeSources === metrics.totalSources ? 'positive' : 'warning'}
-          />
-          <TerminalDataRow 
-            label="Data Freshness" 
-            value={`${metrics.dataFreshness || '--'}s`}
-            status={(metrics.dataFreshness || 0) < 60 ? 'positive' : 'warning'}
-          />
-          <TerminalDataRow 
-            label="Completeness" 
-            value={`${metrics.completeness?.toFixed(1) || '--'}%`}
-            status={(metrics.completeness || 0) > 99 ? 'positive' : 'neutral'}
+            label="Integrity Score" 
+            value={`${metrics.integrityScore.toFixed(1)}%`}
+            status={metrics.integrityScore >= 95 ? 'positive' : 
+                   metrics.integrityScore >= 90 ? 'neutral' : 'negative'}
           />
           <TerminalDataRow 
             label="System Status" 
@@ -122,24 +105,10 @@ function DataIntegrityIntelligenceViewComponent({
             status={metrics.systemStatus === 'OPTIMAL' ? 'positive' : 
                    metrics.systemStatus === 'GOOD' ? 'neutral' : 'negative'}
           />
-        </TerminalDataSection>
-
-        {/* Quality Metrics Section */}
-        <TerminalDataSection title="QUALITY METRICS">
           <TerminalDataRow 
-            label="Error Rate" 
-            value={`${((metrics.errorRate || 0) * 100).toFixed(3)}%`}
-            status={(metrics.errorRate || 0) < 0.01 ? 'positive' : 'warning'}
-          />
-          <TerminalDataRow 
-            label="P95 Latency" 
-            value={`${metrics.p95Latency || '--'}ms`}
-            status={(metrics.p95Latency || 0) < 200 ? 'positive' : 'warning'}
-          />
-          <TerminalDataRow 
-            label="Consensus Level" 
-            value={`${metrics.consensusLevel?.toFixed(1) || '--'}%`}
-            status={(metrics.consensusLevel || 0) >= 95 ? 'positive' : 'neutral'}
+            label="Active Sources" 
+            value={`${metrics.activeSources}/${metrics.totalSources}`}
+            status={metrics.activeSources === metrics.totalSources ? 'positive' : 'warning'}
           />
           <TerminalDataRow 
             label="Last Validation" 
@@ -148,9 +117,33 @@ function DataIntegrityIntelligenceViewComponent({
           />
         </TerminalDataSection>
 
+        {/* Data Quality Section */}
+        <TerminalDataSection title="DATA QUALITY">
+          <TerminalDataRow 
+            label="Consensus Level" 
+            value={`${metrics.consensusLevel?.toFixed(1) || '--'}%`}
+            status={(metrics.consensusLevel || 0) >= 95 ? 'positive' : 'neutral'}
+          />
+          <TerminalDataRow 
+            label="P95 Latency" 
+            value={`${metrics.p95Latency || '--'}ms`}
+            status={(metrics.p95Latency || 0) < 200 ? 'positive' : 'warning'}
+          />
+          <TerminalDataRow 
+            label="Error Rate" 
+            value={`${((metrics.errorRate || 0) * 100).toFixed(3)}%`}
+            status={(metrics.errorRate || 0) < 0.01 ? 'positive' : 'warning'}
+          />
+          <TerminalDataRow 
+            label="Completeness" 
+            value={`${metrics.completeness?.toFixed(1) || '--'}%`}
+            status={(metrics.completeness || 0) > 99 ? 'positive' : 'neutral'}
+          />
+        </TerminalDataSection>
+
         {/* Individual Source Health */}
         {sources.length > 0 && (
-          <TerminalDataSection title="INDIVIDUAL SOURCES">
+          <TerminalDataSection title="SOURCE HEALTH">
             {sources.map((source) => (
               <TerminalDataRow 
                 key={source.id}
@@ -173,26 +166,24 @@ function DataIntegrityIntelligenceViewComponent({
             status="positive"
           />
           <TerminalDataRow 
+            label="Data Freshness" 
+            value={`${metrics.dataFreshness || '--'}s`}
+            status={(metrics.dataFreshness || 0) < 60 ? 'positive' : 'warning'}
+          />
+          <TerminalDataRow 
+            label="Validation Count" 
+            value="Active"
+            status="positive"
+          />
+          <TerminalDataRow 
             label="System Resilience" 
             value={metrics.integrityScore >= 95 ? "HIGH" : 
                    metrics.integrityScore >= 90 ? "MODERATE" : "LOW"}
             status={metrics.integrityScore >= 95 ? 'positive' : 
                    metrics.integrityScore >= 90 ? 'neutral' : 'negative'}
           />
-          <TerminalDataRow 
-            label="Recovery Capability" 
-            value="ACTIVE"
-            status="positive"
-          />
-          <TerminalDataRow 
-            label="Circuit Breakers" 
-            value="0 active"
-            status="positive"
-          />
         </TerminalDataSection>
       </div>
     </TerminalLayout>
   );
-}
-
-export const DataIntegrityIntelligenceView = memo(DataIntegrityIntelligenceViewComponent);
+};
