@@ -1,179 +1,153 @@
-/* ASCII Terminal Tile System */
+/* Bloomberg Terminal Tile System */
 
-/* ASCII Terminal Utility Classes */
-.ascii-terminal-tile {
+/* Glass Tile Base - Terminal Compliance */
+.glass-tile {
   background: hsl(var(--bg-tile));
-  border: 1px solid hsl(var(--neon-teal) / 0.4);
+  border: 1px solid hsl(var(--glass-border));
   font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
   padding: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.ascii-terminal-header {
-  font-size: 11px;
-  font-weight: 700;
-  color: hsl(var(--neon-teal));
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-bottom: 1px solid hsl(var(--neon-teal) / 0.3);
-  padding-bottom: 6px;
-  margin-bottom: 8px;
+.glass-tile:hover {
+  border-color: hsl(var(--neon-teal) / 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
-.ascii-terminal-content {
-  font-size: 10px;
-  line-height: 1.3;
-  color: hsl(var(--text-primary));
-}
-
-.ascii-terminal-data {
+/* Terminal Tile Header */
+.tile-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2px 0;
-  border-bottom: 1px solid hsl(var(--neon-teal) / 0.1);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid hsl(var(--glass-border));
 }
 
-.ascii-terminal-label {
-  font-size: 9px;
-  color: hsl(var(--text-secondary));
-  font-weight: 500;
-}
-
-.ascii-terminal-value {
+.tile-title {
   font-size: 10px;
   font-weight: 600;
+  color: hsl(var(--text-secondary));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Terminal Tile Content */
+.tile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric-display {
+  font-size: 24px;
+  font-weight: 700;
   color: hsl(var(--text-primary));
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
-/* ASCII Status Colors */
-.ascii-status-active {
-  color: hsl(var(--neon-lime));
-}
-
-.ascii-status-warning {
-  color: hsl(var(--neon-gold));
-}
-
-.ascii-status-critical {
-  color: hsl(var(--neon-orange));
-}
-
-.ascii-status-offline {
-  color: hsl(var(--text-muted));
-}
-
-/* ASCII Terminal Borders */
-.ascii-border-single {
-  border: 1px solid hsl(var(--neon-teal) / 0.4);
-}
-
-.ascii-border-double {
-  border: 2px solid hsl(var(--neon-teal) / 0.4);
-}
-
-.ascii-border-thick {
-  border: 3px solid hsl(var(--neon-teal) / 0.6);
-}
-
-/* ASCII Terminal Typography */
-.ascii-terminal-mono {
-  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.025em;
-}
-
-.ascii-terminal-small {
-  font-size: 8px;
-}
-
-.ascii-terminal-normal {
-  font-size: 10px;
-}
-
-.ascii-terminal-large {
-  font-size: 12px;
-}
-
-/* ASCII Terminal Grid Layouts */
-.ascii-grid-1 {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-}
-
-.ascii-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.ascii-grid-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 6px;
-}
-
-.ascii-grid-4 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 6px;
-}
-
-/* ASCII Terminal Dividers */
-.ascii-divider-horizontal {
-  width: 100%;
-  height: 1px;
-  background: hsl(var(--neon-teal) / 0.3);
-  margin: 8px 0;
-}
-
-.ascii-divider-vertical {
-  width: 1px;
-  height: 100%;
-  background: hsl(var(--neon-teal) / 0.3);
-  margin: 0 8px;
-}
-
-/* ASCII Terminal Spacing */
-.ascii-spacing-xs {
-  padding: 4px;
-}
-
-.ascii-spacing-sm {
-  padding: 6px;
-}
-
-.ascii-spacing-md {
-  padding: 8px;
-}
-
-.ascii-spacing-lg {
-  padding: 12px;
-}
-
-.ascii-spacing-xl {
-  padding: 16px;
-}
-
-/* ASCII Terminal Gaps */
-.ascii-gap-xs {
-  gap: 2px;
-}
-
-.ascii-gap-sm {
+/* Terminal Trend Indicators */
+.trend-indicator {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  display: flex;
+  align-items: center;
   gap: 4px;
 }
 
-.ascii-gap-md {
-  gap: 6px;
+.trend-up {
+  color: hsl(var(--neon-lime));
 }
 
-.ascii-gap-lg {
-  gap: 8px;
+.trend-down {
+  color: hsl(var(--neon-orange));
 }
 
-.ascii-gap-xl {
-  gap: 12px;
+.trend-flat {
+  color: hsl(var(--text-muted));
+}
+
+/* Premium Terminal Tiles */
+.premium-tile {
+  position: relative;
+  overflow: hidden;
+  background: hsl(var(--bg-tile));
+  border: 1px solid hsl(var(--glass-border));
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.2s ease;
+}
+
+.premium-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: hsl(var(--neon-teal) / 0.05);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.premium-tile:hover::before {
+  opacity: 1;
+}
+
+/* Terminal Status Indicators */
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border: none;
+  background: currentColor;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.status-active {
+  color: hsl(var(--neon-lime));
+}
+
+.status-warning {
+  color: hsl(var(--neon-gold));
+}
+
+.status-critical {
+  color: hsl(var(--neon-fuchsia));
+}
+
+.status-offline {
+  color: hsl(var(--text-muted));
+  animation: none;
+}
+
+/* Terminal Typography Classes */
+.terminal-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.terminal-data {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.terminal-label {
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Terminal Panel Base Class */
+.terminal-panel {
+  background: hsl(var(--bg-tile));
+  border: 1px solid hsl(var(--glass-border));
+  font-family: 'JetBrains Mono', monospace;
 }

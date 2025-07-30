@@ -160,11 +160,11 @@
   border-color: hsl(var(--text-muted) / 0.3);
 }
 
-/* ASCII Terminal Components */
+/* Bloomberg Terminal Intelligence Grid Components */
 .terminal-container {
   font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
   background: hsl(var(--bg-tile));
-  border: 1px solid hsl(var(--neon-teal) / 0.4);
+  border: 1px solid hsl(var(--glass-border));
   padding: 12px;
   height: 100%;
   display: flex;
@@ -176,9 +176,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   padding-bottom: 6px;
-  border-bottom: 1px solid hsl(var(--neon-teal) / 0.3);
+  border-bottom: 1px solid hsl(var(--glass-border));
 }
 
 .terminal-title {
@@ -191,16 +191,16 @@
 }
 
 .terminal-status {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   font-family: 'JetBrains Mono', monospace;
 }
 
-.terminal-header-divider {
+.terminal-divider {
   width: 100%;
   height: 1px;
-  background: hsl(var(--neon-teal) / 0.3);
-  margin-bottom: 10px;
+  background: hsl(var(--glass-border));
+  margin: 8px 0;
 }
 
 .terminal-content {
@@ -211,7 +211,7 @@
 }
 
 .terminal-section {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .terminal-section:last-child {
@@ -219,57 +219,62 @@
 }
 
 .terminal-section-header {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
-  color: hsl(var(--text-secondary));
+  color: hsl(var(--neon-teal));
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
   font-family: 'JetBrains Mono', monospace;
+  border-bottom: 1px solid hsl(var(--neon-teal) / 0.3);
+  padding-bottom: 2px;
 }
 
 .terminal-section-divider {
   width: 100%;
   height: 1px;
-  background: hsl(var(--neon-teal) / 0.2);
-  margin-bottom: 6px;
+  background: hsl(var(--glass-border));
+  margin: 6px 0;
 }
 
 .terminal-section-content {
-  space-y: 1px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .terminal-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1px 0;
-  min-height: 14px;
+  padding: 2px 0;
+  min-height: 16px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .terminal-label {
   font-size: 9px;
   color: hsl(var(--text-secondary));
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   flex-shrink: 0;
-  margin-right: 6px;
-  font-family: 'JetBrains Mono', monospace;
+  margin-right: 8px;
 }
 
 .terminal-value {
   font-size: 10px;
   font-weight: 600;
-  color: hsl(var(--text-primary));
+  color: hsl(var(--text-data));
   text-align: right;
   font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.5px;
   font-variant-numeric: tabular-nums;
 }
 
-/* ASCII Terminal Metric Grid */
+/* Terminal Data Grid System */
 .terminal-metric-grid {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .terminal-metric-grid-1 {
@@ -286,25 +291,27 @@
 
 .terminal-metric-item {
   background: hsl(var(--bg-secondary));
-  border: 1px solid hsl(var(--neon-teal) / 0.2);
-  padding: 4px 6px;
-  text-align: center;
+  border: 1px solid hsl(var(--glass-border));
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
 .terminal-metric-label {
   font-size: 8px;
-  color: hsl(var(--text-secondary));
+  color: hsl(var(--text-muted));
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 1px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: 'JetBrains Mono', monospace;
 }
 
 .terminal-metric-value {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  color: hsl(var(--text-primary));
+  color: hsl(var(--text-data));
   font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
