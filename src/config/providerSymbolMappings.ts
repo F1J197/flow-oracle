@@ -439,6 +439,50 @@ export const FINNHUB_SYMBOL_MAPPINGS: Record<string, ProviderMapping> = {
   }
 };
 
+// Binance Symbol Mappings (Real-time crypto via proxy)
+export const BINANCE_SYMBOL_MAPPINGS: Record<string, ProviderMapping> = {
+  'btc-price': {
+    indicatorId: 'btc-price',
+    providerSymbol: 'BTCUSDT',
+    endpoint: '/24hr'
+  },
+  'eth-price': {
+    indicatorId: 'eth-price',
+    providerSymbol: 'ETHUSDT',
+    endpoint: '/24hr'
+  },
+  'solana': {
+    indicatorId: 'solana',
+    providerSymbol: 'SOLUSDT',
+    endpoint: '/24hr'
+  },
+  'cardano': {
+    indicatorId: 'cardano',
+    providerSymbol: 'ADAUSDT',
+    endpoint: '/24hr'
+  },
+  'polygon': {
+    indicatorId: 'polygon',
+    providerSymbol: 'MATICUSDT',
+    endpoint: '/24hr'
+  },
+  'bnb': {
+    indicatorId: 'bnb',
+    providerSymbol: 'BNBUSDT',
+    endpoint: '/24hr'
+  },
+  'avax': {
+    indicatorId: 'avax',
+    providerSymbol: 'AVAXUSDT',
+    endpoint: '/24hr'
+  },
+  'link': {
+    indicatorId: 'link',
+    providerSymbol: 'LINKUSDT',
+    endpoint: '/24hr'
+  }
+};
+
 // Coinbase Symbol Mappings (Real-time crypto)
 export const COINBASE_SYMBOL_MAPPINGS: Record<string, ProviderMapping> = {
   'btc-price': {
@@ -471,6 +515,7 @@ export const COINBASE_SYMBOL_MAPPINGS: Record<string, ProviderMapping> = {
 // Comprehensive Provider Registry
 export const PROVIDER_SYMBOL_REGISTRY = {
   fred: FRED_SYMBOL_MAPPINGS,
+  binance: BINANCE_SYMBOL_MAPPINGS,
   coingecko: COINGECKO_SYMBOL_MAPPINGS,
   glassnode: GLASSNODE_SYMBOL_MAPPINGS,
   twelvedata: TWELVEDATA_SYMBOL_MAPPINGS,
@@ -512,7 +557,7 @@ export function getProviderFallbackChain(indicatorId: string, category?: string)
   
   // Define priority order by category
   const categoryPriority: Record<string, string[]> = {
-    'crypto': ['coinbase', 'coingecko', 'twelvedata', 'finnhub'],
+    'crypto': ['binance', 'coingecko', 'coinbase', 'twelvedata', 'finnhub'],
     'forex': ['twelvedata', 'finnhub', 'fred'],
     'equity': ['twelvedata', 'finnhub', 'fred'],
     'commodity': ['twelvedata', 'finnhub', 'fred'],

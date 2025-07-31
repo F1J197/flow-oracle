@@ -4,6 +4,7 @@
  */
 
 import { UniversalIndicatorData } from '../UniversalDataServiceV2';
+import { supabase } from '../../integrations/supabase/client';
 
 interface CoinGeckoPrice {
   id: string;
@@ -64,23 +65,28 @@ export class CoinGeckoService {
         return this.transformToIndicatorData(cached, symbol);
       }
 
-      // Rate limiting
-      await this.enforceRateLimit();
+      console.log(`Fetching ${symbol} data via CoinGecko proxy`);
 
-      const response = await fetch(
-        `${this.baseUrl}/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true&include_last_updated_at=true`,
-        {
-          headers: {
-            'Accept': 'application/json'
-          }
+      // Use Supabase edge function proxy
+      const { data, error } = await supabase.functions.invoke('coingecko-proxy', {
+        body: {
+          ids: coinId,
+          endpoint: 'simple/price',
+          vs_currencies: 'usd',
+          include_24hr_change: 'true'
         }
-      );
+      });
 
-      if (!response.ok) {
-        throw new Error(`CoinGecko API error: ${response.status}`);
+      if (error) {
+        console.error('CoinGecko proxy error:', error);
+        return null;
       }
 
-      const data = await response.json();
+      if (!data || data.error) {
+        console.error('CoinGecko API error:', data?.error);
+        return null;
+      }
+
       const coinData = data[coinId];
 
       if (!coinData) {

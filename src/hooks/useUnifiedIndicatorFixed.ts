@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fredServiceWrapper } from '@/services/DataIngestion/FREDServiceWrapper';
-import { binanceService } from '@/services/DataIngestion/BinanceService';
+import { binanceService } from '@/services/providers/BinanceService';
 import { coinGeckoService } from '@/services/providers/CoinGeckoService';
 import { CalculationEngineV2 } from '@/services/CalculationEngineV2';
 import { 
@@ -113,20 +113,20 @@ export function useUnifiedIndicatorFixed(
   // Fetch from Binance (for crypto)
   const fetchFromBinance = useCallback(async (symbol: string): Promise<IndicatorData | null> => {
     try {
-      const result = await binanceService.fetchSymbolData(symbol);
-      if (!result || !result.current) return null;
+      const result = await binanceService.fetchCryptoPrice(symbol);
+      if (!result) return null;
 
       return {
         symbol,
         current: result.current,
-        previous: result.previous || result.current,
-        change: result.change || 0,
-        changePercent: result.changePercent || 0,
+        previous: result.previous,
+        change: result.change,
+        changePercent: result.changePercent,
         timestamp: result.timestamp,
-        confidence: result.confidence || 0.9,
-        source: 'BINANCE',
-        provider: 'binance',
-        metadata: { originalData: result }
+        confidence: result.confidence,
+        source: result.source,
+        provider: result.provider,
+        metadata: result.metadata
       };
     } catch (error) {
       console.error(`Binance fetch error for ${symbol}:`, error);
@@ -138,7 +138,20 @@ export function useUnifiedIndicatorFixed(
   const fetchFromCoinGecko = useCallback(async (symbol: string): Promise<IndicatorData | null> => {
     try {
       const result = await coinGeckoService.fetchCryptoPrice(symbol);
-      return result;
+      if (!result) return null;
+
+      return {
+        symbol,
+        current: result.current,
+        previous: result.previous,
+        change: result.change,
+        changePercent: result.changePercent,
+        timestamp: result.timestamp,
+        confidence: result.confidence,
+        source: result.source,
+        provider: result.provider,
+        metadata: result.metadata
+      };
     } catch (error) {
       console.error(`CoinGecko fetch error for ${symbol}:`, error);
       return null;
@@ -212,8 +225,10 @@ export function useUnifiedIndicatorFixed(
           case 'fred':
             result = await fetchFromFred(mapping.providerSymbol);
             break;
-          case 'coinbase':
           case 'binance':
+            result = await fetchFromBinance(mapping.providerSymbol);
+            break;
+          case 'coinbase':
             result = await fetchFromBinance(mapping.providerSymbol);
             break;
           case 'coingecko':
@@ -241,8 +256,10 @@ export function useUnifiedIndicatorFixed(
           case 'fred':
             result = await fetchFromFred(mapping.providerSymbol);
             break;
-          case 'coinbase':
           case 'binance':
+            result = await fetchFromBinance(mapping.providerSymbol);
+            break;
+          case 'coinbase':
             result = await fetchFromBinance(mapping.providerSymbol);
             break;
           case 'coingecko':
