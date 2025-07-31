@@ -1,56 +1,45 @@
 /**
- * Services Export Index
- * Centralized exports for all data services
+ * Services Export Index - V6 Unified Implementation
+ * Centralized exports for all data services with standardization
  */
 
-// Main universal data service (V2 is production ready)
-export { default as UniversalDataService } from './UniversalDataServiceV2';
-export { default as UniversalDataServiceV1 } from './UniversalDataService';
+// Core Services
+export { MockDataService } from './MockDataService';
+export { default as UniversalDataServiceV2 } from './UniversalDataServiceV2';
 
-// Specialized services
+// Legacy Services (Deprecated)
 export { FREDService } from './FREDService';
-
-// Legacy services (deprecated - use UniversalDataService)
 export { default as ProductionDataService } from './ProductionDataService';
-
-// WebSocket Management
 export { WebSocketManager, WebSocketConnections } from './WebSocketManager';
 export { default as RealtimeDataService } from './RealtimeDataService';
 
 // Types
+export type { 
+  MockIndicatorData,
+  MockEngineResult
+} from './MockDataService';
+
 export type { 
   UniversalIndicatorData, 
   DataProviderRequest,
   HealthStatus 
 } from './UniversalDataServiceV2';
 
-export type {
-  WebSocketConfig,
-  WebSocketMessage,
-  WebSocketEventHandler,
-  WebSocketStatusHandler,
-  WebSocketStatus
-} from './WebSocketManager';
-
-// Configuration
-export * from '../config/fredSymbolMapping';
-
 /**
- * Get the recommended data service instance
+ * Get the unified data service instance (V6)
  * Use this for all new implementations
  */
-export function getDataService() {
-  // Import dynamically to avoid circular dependencies
-  const UniversalDataServiceV2 = require('./UniversalDataServiceV2').default;
-  return UniversalDataServiceV2.getInstance();
+export function getUnifiedDataService() {
+  const MockDataService = require('./MockDataService').MockDataService;
+  return MockDataService.getInstance();
 }
 
 /**
  * Legacy compatibility function
- * @deprecated Use getDataService() instead
+ * @deprecated Use getUnifiedDataService() instead
  */
-export function getLegacyDataService() {
-  console.warn('getLegacyDataService is deprecated. Use getDataService() instead.');
-  const UniversalDataService = require('./UniversalDataService').default;
-  return UniversalDataService.getInstance();
+export function getDataService() {
+  console.warn('getDataService is deprecated. Use getUnifiedDataService() instead.');
+  const UniversalDataServiceV2 = require('./UniversalDataServiceV2').default;
+  return UniversalDataServiceV2.getInstance();
 }

@@ -43,13 +43,21 @@ serve(async (req) => {
     const { CreditStressEngine } = await import('../_shared/engines/credit-stress-engine.ts');
     const { MarketRegimeEngine } = await import('../_shared/engines/market-regime-engine.ts');
     const { DataIntegrityEngine } = await import('../_shared/engines/data-integrity-engine.ts');
+    const { EnhancedMomentumEngine } = await import('../_shared/engines/enhanced-momentum-engine.ts');
+    const { ZScoreCompositeEngine } = await import('../_shared/engines/zscore-composite-engine.ts');
+    const { DealerPositionsEngine } = await import('../_shared/engines/dealer-positions-engine.ts');
+    const { DealerLeverageEngine } = await import('../_shared/engines/dealer-leverage-engine.ts');
 
     // Available engines
     const engines = [
       new NetLiquidityEngine(),
       new CreditStressEngine(),
       new MarketRegimeEngine(),
-      new DataIntegrityEngine()
+      new DataIntegrityEngine(),
+      new EnhancedMomentumEngine(),
+      new ZScoreCompositeEngine(),
+      new DealerPositionsEngine(),
+      new DealerLeverageEngine()
     ];
 
     let enginesToRun = engines;
