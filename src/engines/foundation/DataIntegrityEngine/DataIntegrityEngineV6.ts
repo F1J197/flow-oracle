@@ -15,7 +15,7 @@ export class DataIntegrityEngineV6 extends BaseEngine {
   private missingDataCounts: Map<string, number> = new Map();
   private healingAttempts: Map<string, number> = new Map();
   
-  readonly id = 'data-integrity-v6';
+  readonly id = 'DIS';
   readonly name = 'Data Integrity & Self-Healing Engine';
   readonly priority = 1;
   readonly pillar = 1 as const;

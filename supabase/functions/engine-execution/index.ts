@@ -62,11 +62,25 @@ serve(async (req) => {
 
     let enginesToRun = engines;
 
+    // Engine ID mapping for legacy compatibility
+    const engineIdMap: Record<string, string> = {
+      'DIS': 'DIS',
+      'data-integrity': 'DIS',
+      'data-integrity-v6': 'DIS',
+      'NET_LIQ': 'NET_LIQ',
+      'CREDIT_STRESS': 'CREDIT_STRESS',
+      'ENHANCED_MOMENTUM': 'ENHANCED_MOMENTUM',
+      'ZS_COMP': 'ZS_COMP',
+      'DEALER_POSITIONS': 'DEALER_POSITIONS',
+      'DEALER_LEVERAGE': 'DEALER_LEVERAGE'
+    };
+
     // Filter engines based on request
     if (engineId) {
-      enginesToRun = engines.filter(engine => engine.id === engineId);
+      const mappedId = engineIdMap[engineId] || engineId;
+      enginesToRun = engines.filter(engine => engine.id === mappedId);
       if (enginesToRun.length === 0) {
-        throw new Error(`Engine not found: ${engineId}`);
+        throw new Error(`Engine not found: ${engineId} (mapped to: ${mappedId})`);
       }
     } else if (pillar !== undefined) {
       enginesToRun = engines.filter(engine => engine.pillar === pillar);
