@@ -3,7 +3,7 @@
  * High-level engines that combine data from multiple pillars
  */
 
-export { EnhancedMomentumEngine } from '../EnhancedMomentumEngine';
+// EnhancedMomentumEngine moved to foundation tier
 
 // Placeholder for synthesis engines
 // TODO: Implement remaining engines:
