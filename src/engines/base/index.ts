@@ -1,11 +1,19 @@
 /**
  * Base Engine System - V6 Implementation
- * Unified export for enhanced base engine functionality
+ * Master Prompts compliant engine architecture
  */
 
+// Master Prompt Base Engine (Original EventEmitter pattern)
+export { MasterPromptBaseEngine } from './MasterPromptBaseEngine';
+export { MasterPromptsEngineRegistry } from './MasterPromptsEngineRegistry';
+export type { MasterPromptEngineConfig, MasterPromptEngineState } from './MasterPromptBaseEngine';
+
+// Unified Modern Engine System
 export { UnifiedBaseEngine } from './UnifiedBaseEngine';
 export { UnifiedEngineRegistry } from './UnifiedEngineRegistry';
 export { UnifiedEngineOrchestrator } from './UnifiedEngineOrchestrator';
+
+// Enhanced Engine System (Backward compatibility)
 export { EnhancedBaseEngine } from './EnhancedBaseEngine';
 
 export type { 

@@ -95,3 +95,13 @@ export const CONFIG = {
 } as const;
 
 export type AppConfig = typeof CONFIG;
+
+// Master Prompts compliant configuration exports
+export * from './api.config';
+export * from './indicators.config';
+export * from './charts.config';
+export * from './environment';
+export { FRED_SYMBOL_MAP as MasterPromptsFREDSymbolMap } from './fredSymbolMapping';
+export * from './fredSymbols';
+export type { TerminalColors as MasterPromptsTerminalColors, TerminalTypography as MasterPromptsTerminalTypography } from './terminal.theme';
+export * from './terminal.tokens';
