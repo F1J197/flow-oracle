@@ -66,16 +66,27 @@ export class EnhancedZScoreEngine extends UnifiedBaseEngine {
   }
 
   protected async performExecution(): Promise<EngineReport> {
+    console.log('🚀 Enhanced Z-Score Engine: Starting execution...');
+    
     try {
       const startTime = Date.now();
       
       // Calculate comprehensive Z-Score data
+      console.log('📊 Enhanced Z-Score Engine: Calculating Z-Score data...');
       const zscoreData = await this.calculateZScoreData();
       this.currentData = zscoreData;
       this.lastCalculationTime = Date.now() - startTime;
       
       const signal = this.determineSignal(zscoreData.composite.value);
       const confidence = zscoreData.composite.confidence;
+      
+      console.log('✅ Enhanced Z-Score Engine: Execution completed successfully', {
+        composite: zscoreData.composite.value,
+        regime: zscoreData.composite.regime,
+        confidence: zscoreData.composite.confidence,
+        signal,
+        executionTime: this.lastCalculationTime
+      });
       
       return {
         success: true,
@@ -87,6 +98,7 @@ export class EnhancedZScoreEngine extends UnifiedBaseEngine {
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Z-Score calculation failed';
+      console.error('❌ Enhanced Z-Score Engine execution failed:', error);
       
       return {
         success: false,
@@ -100,12 +112,17 @@ export class EnhancedZScoreEngine extends UnifiedBaseEngine {
   }
 
   private async calculateZScoreData(): Promise<ZScoreData> {
+    console.log('🔄 Enhanced Z-Score Engine: Starting Z-Score data calculation...');
+    
     // Check cache first
     const cacheKey = 'enhanced_zscore_foundation_v6';
     const cached = this.getCacheData(cacheKey);
     if (cached) {
+      console.log('📦 Enhanced Z-Score Engine: Using cached data');
       return { ...cached, cacheHit: true };
     }
+    
+    console.log('🔍 Enhanced Z-Score Engine: No cache found, fetching fresh data...');
     
     // Fetch real data or generate mock data for development
     const indicatorData = await this.fetchIndicatorData();
@@ -153,21 +170,37 @@ export class EnhancedZScoreEngine extends UnifiedBaseEngine {
   private async fetchIndicatorData(): Promise<Map<string, number[]>> {
     const indicatorData = new Map<string, number[]>();
     
-    // In development/demo mode, generate realistic mock data
-    // In production, this would fetch from FRED, Bloomberg, etc.
+    console.log('🔄 Enhanced Z-Score Engine: Fetching indicator data for', this.CORE_INDICATORS);
+    
+    // Fetch historical data for Z-Score calculations
     for (const indicator of this.CORE_INDICATORS) {
       try {
-        // Attempt to fetch real data
-        const data = await this.dataService.getHistoricalData(indicator);
-        
-        if (data && data.length > 0) {
-          indicatorData.set(indicator, data.map(d => d.value));
+        // For Z-Score calculations, we need historical data, not just current values
+        // Use FRED service directly for historical data
+        const fredService = (this.dataService as any).fredService;
+        if (fredService && fredService.fetchSeries) {
+          const historicalData = await fredService.fetchSeries(indicator);
+          
+          if (historicalData && historicalData.length > 0) {
+            const values = historicalData
+              .map(point => point.value)
+              .filter(v => v !== null && !isNaN(v))
+              .slice(0, 260); // Get last ~1 year of data for Z-Score calculations
+            
+            console.log(`✅ Enhanced Z-Score: Successfully fetched ${values.length} historical data points for ${indicator}`);
+            indicatorData.set(indicator, values);
+          } else {
+            console.log(`⚠️ Enhanced Z-Score: No historical data for ${indicator}, using mock data`);
+            indicatorData.set(indicator, this.generateMockIndicatorData(indicator));
+          }
         } else {
-          // Fallback to mock data
+          // Fallback to mock data if FRED service not available
+          console.log(`⚠️ Enhanced Z-Score: FRED service not available for ${indicator}, using mock data`);
           indicatorData.set(indicator, this.generateMockIndicatorData(indicator));
         }
       } catch (error) {
         // Generate mock data for development
+        console.log(`⚠️ Enhanced Z-Score: Error fetching historical data for ${indicator}, using mock data:`, error);
         indicatorData.set(indicator, this.generateMockIndicatorData(indicator));
       }
     }
@@ -483,6 +516,73 @@ export class EnhancedZScoreEngine extends UnifiedBaseEngine {
 
   getDashboardData(): DashboardTileData {
     return this.getDashboardTile();
+  }
+
+  getDashboardTile(): DashboardTileData {
+    if (!this.currentData) {
+      console.log('🔍 Enhanced Z-Score: No current data for dashboard tile');
+      return {
+        title: 'Enhanced Z-Score Engine',
+        primaryMetric: 'OFFLINE',
+        secondaryMetric: 'Engine initializing...',
+        status: 'warning',
+        trend: 'neutral',
+        actionText: 'Z-Score analysis engine starting up',
+        color: 'warning',
+        loading: true
+      };
+    }
+
+    const { composite, dataQuality } = this.currentData;
+    const absValue = Math.abs(composite.value);
+    
+    // Determine status based on Z-Score magnitude
+    let status: 'normal' | 'warning' | 'critical' = 'normal';
+    let color: 'success' | 'critical' | 'warning' | 'info' | 'neutral' = 'neutral';
+    
+    if (absValue > 3) {
+      status = 'critical';
+      color = 'critical';
+    } else if (absValue > 2) {
+      status = 'warning'; 
+      color = 'warning';
+    } else {
+      status = 'normal';
+      color = composite.value > 0 ? 'success' : 'info';
+    }
+    
+    // Determine trend
+    const trend: 'up' | 'down' | 'neutral' = composite.value > 0.5 ? 'up' : 
+                                           composite.value < -0.5 ? 'down' : 'neutral';
+    
+    // Format primary metric
+    const primaryMetric = `${composite.value > 0 ? '+' : ''}${composite.value.toFixed(2)}σ`;
+    
+    // Secondary metric with regime and confidence
+    const secondaryMetric = `${composite.regime} • ${(composite.confidence * 100).toFixed(0)}%`;
+    
+    // Get actionable insight
+    const insight = this.getSingleActionableInsight();
+    
+    console.log('✅ Enhanced Z-Score: Dashboard tile data generated', {
+      primaryMetric,
+      secondaryMetric,
+      status,
+      trend,
+      regime: composite.regime,
+      confidence: composite.confidence
+    });
+
+    return {
+      title: 'Enhanced Z-Score Engine',
+      primaryMetric,
+      secondaryMetric,
+      status,
+      trend,
+      actionText: insight.actionText,
+      color,
+      loading: false
+    };
   }
 
   getIntelligenceView(): IntelligenceViewData {

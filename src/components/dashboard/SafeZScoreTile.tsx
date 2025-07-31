@@ -10,7 +10,7 @@ interface SafeZScoreTileProps {
 // Lazy load the Z-Score component
 const LazyZScoreFoundationTile = React.lazy(async () => {
   try {
-    const module = await import('@/engines/foundation/EnhancedZScoreEngine');
+    const module = await import('@/engines/foundation/EnhancedZScoreEngine/DashboardTile');
     return { default: module.ZScoreFoundationTile };
   } catch (error) {
     console.warn('🟡 ZScoreFoundationTile not available, using fallback');
