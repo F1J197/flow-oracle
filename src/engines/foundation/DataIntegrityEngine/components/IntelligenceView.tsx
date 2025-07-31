@@ -2,11 +2,69 @@ import React from 'react';
 import { EngineOutput } from '@/engines/BaseEngine';
 
 interface Props {
-  data: EngineOutput;
+  data: EngineOutput | null;
   historicalData?: any[];
+  loading?: boolean;
+  error?: string | null;
 }
 
-export const DataIntegrityIntelligenceView: React.FC<Props> = ({ data, historicalData }) => {
+export const DataIntegrityIntelligenceView: React.FC<Props> = ({ data, historicalData, loading, error }) => {
+  // Handle loading state
+  if (loading) {
+    return (
+      <div style={{
+        backgroundColor: 'hsl(0, 0%, 5%)',
+        border: '1px solid hsl(0, 0%, 25%)',
+        padding: '2rem',
+        fontFamily: '"JetBrains Mono", monospace',
+        textAlign: 'center',
+        color: 'hsl(0, 0%, 60%)'
+      }}>
+        <div>Loading data integrity metrics...</div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div style={{
+        backgroundColor: 'hsl(0, 0%, 5%)',
+        border: '1px solid hsl(14, 100%, 55%)',
+        padding: '2rem',
+        fontFamily: '"JetBrains Mono", monospace',
+        textAlign: 'center'
+      }}>
+        <div style={{ color: 'hsl(14, 100%, 55%)', marginBottom: '0.5rem' }}>
+          [ERROR]
+        </div>
+        <div style={{ color: 'hsl(0, 0%, 60%)' }}>
+          Failed to load data integrity metrics: {error}
+        </div>
+      </div>
+    );
+  }
+
+  // Handle null data state
+  if (!data) {
+    return (
+      <div style={{
+        backgroundColor: 'hsl(0, 0%, 5%)',
+        border: '1px solid hsl(50, 100%, 50%)',
+        padding: '2rem',
+        fontFamily: '"JetBrains Mono", monospace',
+        textAlign: 'center'
+      }}>
+        <div style={{ color: 'hsl(50, 100%, 50%)', marginBottom: '0.5rem' }}>
+          [WARNING]
+        </div>
+        <div style={{ color: 'hsl(0, 0%, 60%)' }}>
+          Data integrity metrics unavailable. Initializing engine...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{
       backgroundColor: 'hsl(0, 0%, 5%)',
@@ -35,11 +93,11 @@ export const DataIntegrityIntelligenceView: React.FC<Props> = ({ data, historica
             </div>
             <div style={{ 
               fontSize: '1.5rem',
-              color: data.primaryMetric.value >= 80 
+              color: (data.primaryMetric?.value ?? 0) >= 80 
                 ? 'hsl(180, 100%, 50%)'
                 : 'hsl(14, 100%, 55%)'
             }}>
-              {data.primaryMetric.value.toFixed(2)}%
+              {(data.primaryMetric?.value ?? 0).toFixed(2)}%
             </div>
           </div>
           
@@ -48,12 +106,12 @@ export const DataIntegrityIntelligenceView: React.FC<Props> = ({ data, historica
               24h Change
             </div>
             <div style={{ 
-              color: data.primaryMetric.change24h >= 0
+              color: (data.primaryMetric?.change24h ?? 0) >= 0
                 ? 'hsl(180, 100%, 50%)'
                 : 'hsl(14, 100%, 55%)'
             }}>
-              {data.primaryMetric.change24h >= 0 ? '+' : ''}
-              {data.primaryMetric.changePercent.toFixed(2)}%
+              {(data.primaryMetric?.change24h ?? 0) >= 0 ? '+' : ''}
+              {(data.primaryMetric?.changePercent ?? 0).toFixed(2)}%
             </div>
           </div>
           
@@ -61,7 +119,7 @@ export const DataIntegrityIntelligenceView: React.FC<Props> = ({ data, historica
             <div style={{ color: 'hsl(0, 0%, 60%)' }}>
               Confidence Level
             </div>
-            <div>{data.confidence}%</div>
+            <div>{(data.confidence ?? 0).toFixed(1)}%</div>
           </div>
         </div>
         
@@ -169,7 +227,7 @@ export const DataIntegrityIntelligenceView: React.FC<Props> = ({ data, historica
           fontFamily: '"JetBrains Mono", monospace',
           lineHeight: '1.5'
         }}>
-          {data.analysis}
+          {data.analysis || 'Analysis not available'}
         </div>
       </div>
     </div>

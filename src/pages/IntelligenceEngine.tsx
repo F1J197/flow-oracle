@@ -41,6 +41,14 @@ function IntelligenceEngine() {
   // Foundation Data Integrity hook
   const { metrics: dataIntegrityMetrics, sources: dataIntegritySources, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
   
+  // Debug logging for data integrity
+  console.log('IntelligenceEngine - Data Integrity State:', {
+    metrics: dataIntegrityMetrics,
+    loading: dataIntegrityLoading,
+    error: dataIntegrityError,
+    sources: dataIntegritySources
+  });
+  
   // Kalman Net Liquidity hook
   const { metrics: netLiquidityMetrics, intelligenceData: netLiquidityIntelligence, isLoading: netLiquidityLoading, error: netLiquidityError } = useKalmanNetLiquidity();
   
@@ -77,6 +85,8 @@ function IntelligenceEngine() {
           <DataIntegrityIntelligenceView 
             data={engineOutput} 
             historicalData={[]}
+            loading={dataIntegrityLoading}
+            error={dataIntegrityError}
           />
         );
       case 'netLiquidity':
