@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { TabNavigation } from './TabNavigation';
 
 interface HeaderProps {
-  currentPage?: 'dashboard' | 'intelligence' | 'charts' | 'system';
+  currentPage?: 'dashboard' | 'intelligence' | 'charts' | 'system' | 'master-prompts';
 }
 
 export const Header = ({ currentPage = 'dashboard' }: HeaderProps) => {

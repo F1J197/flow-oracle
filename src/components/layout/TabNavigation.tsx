@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 
 interface TabNavigationProps {
-  currentPage?: 'dashboard' | 'intelligence' | 'charts' | 'system';
+  currentPage?: 'dashboard' | 'intelligence' | 'charts' | 'system' | 'master-prompts';
   onTabChange?: (tab: string) => void;
 }
 

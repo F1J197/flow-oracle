@@ -8,6 +8,7 @@ import { Dashboard } from "./pages/Dashboard";
 import Intelligence from "./pages/Intelligence";
 import Charts from "./pages/Charts";
 import { SystemDashboard } from "./pages/SystemDashboard";
+import { MasterPrompts } from "./pages/MasterPrompts";
 import NotFound from "./pages/NotFound";
 import { EngineRegistryProvider } from "./components/engines/EngineRegistryProvider";
 import { TerminalThemeProvider } from "./components/providers/TerminalThemeProvider";
@@ -42,6 +43,7 @@ const App: React.FC = () => {
                     <Route path="/intelligence" element={<Intelligence />} />
                     <Route path="/charts" element={<Charts />} />
                     <Route path="/system" element={<SystemDashboard />} />
+                    <Route path="/master-prompts" element={<MasterPrompts />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>

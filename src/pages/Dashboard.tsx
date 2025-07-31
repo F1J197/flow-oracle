@@ -1,6 +1,6 @@
 import React from 'react';
-import { MasterPromptIntegratedDashboard } from '@/components/dashboard/MasterPromptIntegratedDashboard';
+import { TerminalDashboard } from '@/components/dashboard/TerminalDashboard';
 
 export const Dashboard = () => {
-  return <MasterPromptIntegratedDashboard />;
+  return <TerminalDashboard />;
 };
