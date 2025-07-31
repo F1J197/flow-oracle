@@ -4,7 +4,7 @@ import { TerminalGrid, TerminalContainer, TerminalHeader } from "@/components/Te
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { useResilientEngine } from "@/hooks/useResilientEngine";
 import { useFoundationDataIntegrity } from "@/hooks/useFoundationDataIntegrity";
-import { useUnifiedNetLiquidity } from "@/hooks/useUnifiedNetLiquidity";
+import { useKalmanNetLiquidity } from "@/hooks/useKalmanNetLiquidity";
 
 // Engine implementations
 import { DataIntegrityEngine } from "@/engines/foundation/DataIntegrityEngine";
@@ -41,8 +41,8 @@ function IntelligenceEngine() {
   // Foundation Data Integrity hook
   const { metrics: dataIntegrityMetrics, sources: dataIntegritySources, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
   
-  // Unified Net Liquidity hook
-  const { report: netLiquidityReport, intelligenceData: netLiquidityIntelligence, isLoading: netLiquidityLoading, error: netLiquidityError } = useUnifiedNetLiquidity();
+  // Kalman Net Liquidity hook
+  const { metrics: netLiquidityMetrics, intelligenceData: netLiquidityIntelligence, isLoading: netLiquidityLoading, error: netLiquidityError } = useKalmanNetLiquidity();
   
   const loading = false;
   const systemHealth = 'healthy' as const;
@@ -64,7 +64,7 @@ function IntelligenceEngine() {
       case 'netLiquidity':
         return (
           <KalmanNetLiquidityIntelligenceView 
-            data={netLiquidityReport?.data}
+            data={netLiquidityMetrics}
             loading={netLiquidityLoading}
             error={netLiquidityError}
           />

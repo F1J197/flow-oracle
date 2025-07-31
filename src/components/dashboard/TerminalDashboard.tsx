@@ -3,9 +3,11 @@ import { Clock, Activity, TrendingUp, TrendingDown, AlertTriangle } from 'lucide
 import { useUnifiedDashboard } from '@/hooks/useUnifiedDashboard';
 import { useFoundationDataIntegrity } from '@/hooks/useFoundationDataIntegrity';
 import { useGlobalPlumbingEngine } from '@/hooks/useGlobalPlumbingEngine';
+import { useKalmanNetLiquidity } from '@/hooks/useKalmanNetLiquidity';
 import { DataIntegrityDashboardTile } from '@/engines/foundation/DataIntegrityEngine';
 import { SafeZScoreTile } from '@/components/dashboard/SafeZScoreTile';
 import { GlobalPlumbingTile } from '@/engines/pillar1/GlobalFinancialPlumbingEngine';
+import { KalmanNetLiquidityDashboardTile } from '@/engines/pillar1/KalmanNetLiquidityEngine';
 
 export const TerminalDashboard = () => {
   console.log('🖥️ TerminalDashboard component initializing...');
@@ -19,6 +21,9 @@ export const TerminalDashboard = () => {
     
     const { efficiency, systemicRisk, trend, loading: plumbingLoading } = useGlobalPlumbingEngine({ autoRefresh: true });
     console.log('🔧 Global plumbing loaded:', { efficiency, systemicRisk, trend, loading: plumbingLoading });
+    
+    const { metrics: netLiquidityMetrics, dashboardData: netLiquidityDashboard, isLoading: netLiquidityLoading, error: netLiquidityError } = useKalmanNetLiquidity();
+    console.log('💧 Kalman Net liquidity loaded:', { loading: netLiquidityLoading, hasMetrics: !!netLiquidityMetrics, error: netLiquidityError });
     
     console.log('🎨 TerminalDashboard rendering with data:', { 
       dashboardLoading: loading, 
@@ -88,45 +93,14 @@ export const TerminalDashboard = () => {
 
       {/* Main Terminal Grid */}
       <div className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-4 gap-4 auto-rows-min">
-        {/* Net Liquidity Panel */}
-        <div className="col-span-1 bg-bg-tile border border-neon-teal/30 p-3 min-h-[200px]">
-          <div className="border-b border-neon-teal/20 pb-2 mb-3">
-            <div className="text-neon-teal text-xs font-bold tracking-wider">NET LIQUIDITY</div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-text-secondary text-xs">CURRENT:</span>
-              <span className="text-neon-lime font-bold text-sm">$5.626T</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary text-xs">24H CHG:</span>
-              <span className="text-neon-lime text-sm">+2.3%</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary text-xs">TREND:</span>
-              <span className="text-neon-lime text-sm flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />
-                EXPANDING
-              </span>
-            </div>
-            <div className="mt-3 pt-2 border-t border-neon-teal/20">
-              <div className="text-text-secondary text-xs mb-1">COMPOSITION:</div>
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between">
-                  <span>FED_BSH:</span>
-                  <span className="text-neon-amber">$8.2T</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>TGA:</span>
-                  <span className="text-neon-orange">-$0.8T</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>RRP:</span>
-                  <span className="text-neon-orange">-$1.8T</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Net Liquidity Panel - Kalman Engine */}
+        <div className="col-span-1">
+          <KalmanNetLiquidityDashboardTile
+            data={netLiquidityMetrics}
+            loading={netLiquidityLoading}
+            error={netLiquidityError}
+            className="h-full min-h-[200px]"
+          />
         </div>
 
         {/* Market Regime Panel */}
