@@ -1,8 +1,10 @@
 import { IndicatorMetadata, IndicatorSource, IndicatorFilter } from '@/types/indicators';
+import { ALL_MASTER_PROMPT_INDICATORS } from '@/config/masterPromptsIndicators.config';
 
 /**
  * Central registry for all financial indicators
  * Manages metadata, categories, and provides unified access patterns
+ * Enhanced to support 50+ indicators with live data feeds
  */
 export class IndicatorRegistry {
   private static instance: IndicatorRegistry;
@@ -12,6 +14,7 @@ export class IndicatorRegistry {
 
   private constructor() {
     this.loadDefaultIndicators();
+    this.loadMasterPromptIndicators();
   }
 
   static getInstance(): IndicatorRegistry {
@@ -135,177 +138,40 @@ export class IndicatorRegistry {
   }
 
   /**
-   * Load default indicators from existing services
+   * Load comprehensive set of indicators from Master Prompts configuration
+   */
+  private loadMasterPromptIndicators(): void {
+    // Convert master prompt indicators to IndicatorMetadata format
+    const indicators: IndicatorMetadata[] = ALL_MASTER_PROMPT_INDICATORS.map(config => ({
+      id: config.id,
+      symbol: config.symbol || config.id.toUpperCase(),
+      name: config.name,
+      description: config.description || `${config.name} - ${config.category} indicator`,
+      source: config.source as IndicatorSource,
+      category: config.category,
+      pillar: typeof config.pillar === 'number' ? config.pillar : 1,
+      priority: (config.criticality === 'CRITICAL' ? 0 : 
+                config.criticality === 'HIGH' ? 10 : 
+                config.criticality === 'MEDIUM' ? 20 : 30),
+      updateFrequency: this.convertRefreshInterval(config.refreshInterval) as any,
+      unit: config.unit,
+      precision: 2,
+      apiEndpoint: this.generateApiEndpoint(config),
+      transformFunction: config.transformFunction,
+      dependencies: config.dependencies,
+      tags: config.tags || [config.category, config.source.toLowerCase()]
+    }));
+
+    this.registerBulk(indicators);
+    console.log(`Loaded ${indicators.length} master prompt indicators`);
+  }
+
+  /**
+   * Load default indicators from existing services (legacy support)
    */
   private loadDefaultIndicators(): void {
     const defaultIndicators: IndicatorMetadata[] = [
-      // FRED Indicators
-      {
-        id: 'fed-balance-sheet',
-        symbol: 'WALCL',
-        name: 'Fed Balance Sheet',
-        description: 'Federal Reserve Total Assets',
-        source: 'FRED',
-        category: 'liquidity',
-        pillar: 1,
-        priority: 1,
-        updateFrequency: '1d',
-        unit: 'USD Billions',
-        precision: 0,
-        apiEndpoint: '/observations?series_id=WALCL',
-        tags: ['fed', 'liquidity', 'balance-sheet']
-      },
-      {
-        id: 'treasury-account',
-        symbol: 'WTREGEN',
-        name: 'Treasury General Account',
-        description: 'US Treasury General Account Balance',
-        source: 'FRED',
-        category: 'liquidity',
-        pillar: 1,
-        priority: 2,
-        updateFrequency: '1d',
-        unit: 'USD Billions',
-        precision: 0,
-        apiEndpoint: '/observations?series_id=WTREGEN',
-        tags: ['treasury', 'liquidity', 'government']
-      },
-      {
-        id: 'reverse-repo',
-        symbol: 'RRPONTSYD',
-        name: 'Reverse Repo Operations',
-        description: 'Overnight Reverse Repurchase Agreements',
-        source: 'FRED',
-        category: 'liquidity',
-        pillar: 1,
-        priority: 3,
-        updateFrequency: '1d',
-        unit: 'USD Billions',
-        precision: 0,
-        apiEndpoint: '/observations?series_id=RRPONTSYD',
-        tags: ['fed', 'liquidity', 'repo']
-      },
-      {
-        id: 'high-yield-spread',
-        symbol: 'BAMLH0A0HYM2',
-        name: 'High Yield Credit Spread',
-        description: 'ICE BofA US High Yield Index Option-Adjusted Spread',
-        source: 'FRED',
-        category: 'credit',
-        pillar: 2,
-        priority: 1,
-        updateFrequency: '1d',
-        unit: 'Basis Points',
-        precision: 0,
-        apiEndpoint: '/observations?series_id=BAMLH0A0HYM2',
-        tags: ['credit', 'spread', 'high-yield']
-      },
-      {
-        id: 'investment-grade-spread',
-        symbol: 'BAMLC0A0CM',
-        name: 'Investment Grade Credit Spread',
-        description: 'ICE BofA US Corporate Index Option-Adjusted Spread',
-        source: 'FRED',
-        category: 'credit',
-        pillar: 2,
-        priority: 2,
-        updateFrequency: '1d',
-        unit: 'Basis Points',
-        precision: 0,
-        apiEndpoint: '/observations?series_id=BAMLC0A0CM',
-        tags: ['credit', 'spread', 'investment-grade']
-      },
-      // Market Indicators
-      {
-        id: 'vix',
-        symbol: 'VIX',
-        name: 'VIX Volatility Index',
-        description: 'CBOE Volatility Index',
-        source: 'MARKET',
-        category: 'volatility',
-        pillar: 3,
-        priority: 1,
-        updateFrequency: 'realtime',
-        unit: 'Index',
-        precision: 2,
-        tags: ['volatility', 'fear', 'market']
-      },
-      {
-        id: 'spx',
-        symbol: 'SPX',
-        name: 'S&P 500 Index',
-        description: 'Standard & Poor\'s 500 Index',
-        source: 'MARKET',
-        category: 'equity',
-        pillar: 3,
-        priority: 2,
-        updateFrequency: 'realtime',
-        unit: 'Index',
-        precision: 2,
-        tags: ['equity', 'benchmark', 'market']
-      },
-      // Crypto Indicators
-      {
-        id: 'btc-price',
-        symbol: 'BTC-USD',
-        name: 'Bitcoin Price',
-        description: 'Bitcoin to USD Exchange Rate',
-        source: 'COINBASE',
-        category: 'crypto',
-        pillar: 3,
-        priority: 1,
-        updateFrequency: 'realtime',
-        unit: 'USD',
-        precision: 2,
-        tags: ['crypto', 'bitcoin', 'price']
-      },
-      {
-        id: 'btc-market-cap',
-        symbol: 'BTC-MCAP',
-        name: 'Bitcoin Market Cap',
-        description: 'Bitcoin Total Market Capitalization',
-        source: 'GLASSNODE',
-        category: 'crypto',
-        pillar: 3,
-        priority: 2,
-        updateFrequency: '1h',
-        unit: 'USD',
-        precision: 0,
-        tags: ['crypto', 'bitcoin', 'market-cap']
-      },
-      // Engine-derived indicators
-      {
-        id: 'net-liquidity',
-        symbol: 'NET_LIQ',
-        name: 'Net Liquidity',
-        description: 'Calculated Net Liquidity (Fed BS - TGA - RRP)',
-        source: 'ENGINE',
-        category: 'liquidity',
-        pillar: 1,
-        priority: 0,
-        updateFrequency: '1d',
-        unit: 'USD Billions',
-        precision: 0,
-        dependencies: ['fed-balance-sheet', 'treasury-account', 'reverse-repo'],
-        transformFunction: 'netLiquidity',
-        tags: ['liquidity', 'calculated', 'net']
-      },
-      {
-        id: 'credit-stress-score',
-        symbol: 'CREDIT_STRESS',
-        name: 'Credit Stress Score',
-        description: 'Composite Credit Market Stress Indicator',
-        source: 'ENGINE',
-        category: 'credit',
-        pillar: 2,
-        priority: 0,
-        updateFrequency: '1d',
-        unit: 'Score',
-        precision: 1,
-        dependencies: ['high-yield-spread', 'investment-grade-spread'],
-        transformFunction: 'creditStress',
-        tags: ['credit', 'stress', 'composite']
-      },
+      // Engine-derived indicators that aren't in master prompts
       {
         id: 'data-integrity',
         symbol: 'DATA_INTEGRITY',
@@ -324,5 +190,36 @@ export class IndicatorRegistry {
     ];
 
     this.registerBulk(defaultIndicators);
+  }
+
+  /**
+   * Convert refresh interval to standard format
+   */
+  private convertRefreshInterval(interval: number): string {
+    if (interval <= 15000) return 'realtime';
+    if (interval <= 60000) return '1m';
+    if (interval <= 300000) return '5m';
+    if (interval <= 900000) return '15m';
+    if (interval <= 3600000) return '1h';
+    if (interval <= 86400000) return '1d';
+    return '1w';
+  }
+
+  /**
+   * Generate appropriate API endpoint based on source and symbol
+   */
+  private generateApiEndpoint(config: any): string {
+    switch (config.source) {
+      case 'FRED':
+        return `/observations?series_id=${config.symbol}`;
+      case 'COINBASE':
+        return `/products/${config.symbol}/ticker`;
+      case 'GLASSNODE':
+        return `/v1/metrics/${config.symbol}`;
+      case 'MARKET':
+        return `/quote/${config.symbol}`;
+      default:
+        return '';
+    }
   }
 }

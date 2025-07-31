@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { IndicatorState, IndicatorSubscription, HistoricalDataRequest, DataPoint } from '@/types/indicators';
-import UniversalDataService from '@/services/UniversalDataService';
+import UniversalDataServiceV3 from '@/services/UniversalDataServiceV3';
+import { IndicatorRegistry } from '@/services/IndicatorRegistry';
 
 interface UseUnifiedIndicatorOptions {
   includeHistorical?: boolean;
@@ -30,7 +31,8 @@ export const useUnifiedIndicator = (
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const dataService = UniversalDataService.getInstance();
+  const dataService = UniversalDataServiceV3.getInstance();
+  const indicatorRegistry = IndicatorRegistry.getInstance();
 
   const {
     includeHistorical = false,
@@ -51,12 +53,46 @@ export const useUnifiedIndicator = (
     }
   }, []);
 
-  // Manual refresh function
+  // Manual refresh function  
   const refresh = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      await dataService.refreshIndicator(indicatorId);
+      
+      // Get indicator metadata to determine category
+      const metadata = indicatorRegistry.get(indicatorId);
+      const category = metadata?.category;
+      
+      const freshData = await dataService.fetchIndicator(indicatorId, category);
+      
+      if (freshData) {
+        // Transform to IndicatorState format
+        const newState: IndicatorState = {
+          metadata: metadata || {
+            id: indicatorId,
+            symbol: indicatorId,
+            name: indicatorId,
+            source: 'MARKET',
+            category: 'macro',
+            priority: 999,
+            updateFrequency: '1d'
+          },
+          value: {
+            current: freshData.current,
+            previous: freshData.previous,
+            change: freshData.change,
+            changePercent: freshData.changePercent,
+            timestamp: freshData.timestamp,
+            confidence: freshData.confidence
+          },
+          status: 'active',
+          lastUpdate: freshData.timestamp,
+          isSubscribed: false,
+          retryCount: 0
+        };
+        
+        setState(newState);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to refresh indicator';
       setError(errorMessage);
@@ -64,23 +100,19 @@ export const useUnifiedIndicator = (
     } finally {
       setLoading(false);
     }
-  }, [indicatorId, dataService]);
+  }, [indicatorId, dataService, indicatorRegistry]);
 
-  // Get historical data
+  // Get historical data (simplified for now)
   const getHistoricalData = useCallback(async (request: Partial<HistoricalDataRequest>): Promise<DataPoint[]> => {
     try {
-      const fullRequest: HistoricalDataRequest = {
-        indicatorId,
-        timeFrame: '1d',
-        ...request
-      };
-      
-      return await dataService.getHistoricalData(fullRequest);
+      // For now, return empty array - we'll implement historical data fetching later
+      console.log(`Historical data request for ${indicatorId}:`, request);
+      return [];
     } catch (err) {
       console.error(`Error fetching historical data for ${indicatorId}:`, err);
       return [];
     }
-  }, [indicatorId, dataService]);
+  }, [indicatorId]);
 
   // Load initial historical data if requested
   const loadHistoricalData = useCallback(async () => {
@@ -114,7 +146,7 @@ export const useUnifiedIndicator = (
     }
   }, [indicatorId, includeHistorical, historicalPeriod, getHistoricalData]);
 
-  // Set up subscription and auto-refresh
+  // Set up initial fetch and auto-refresh
   useEffect(() => {
     if (!indicatorId) {
       setState(null);
@@ -125,18 +157,8 @@ export const useUnifiedIndicator = (
     setLoading(true);
     setError(null);
 
-    const subscription: IndicatorSubscription = {
-      indicatorId,
-      callback: handleStateUpdate,
-      options: {
-        includeHistorical,
-        historicalPeriod,
-        realtime: autoRefresh
-      }
-    };
-
-    // Subscribe to real-time updates
-    const unsubscribe = dataService.subscribe(subscription);
+    // Initial fetch
+    refresh();
 
     // Load historical data if requested
     loadHistoricalData();
@@ -150,12 +172,11 @@ export const useUnifiedIndicator = (
     }
 
     return () => {
-      unsubscribe();
       if (refreshIntervalId) {
         clearInterval(refreshIntervalId);
       }
     };
-  }, [indicatorId, handleStateUpdate, loadHistoricalData, autoRefresh, refreshInterval, includeHistorical, dataService, refresh]);
+  }, [indicatorId, refresh, loadHistoricalData, autoRefresh, refreshInterval]);
 
   return {
     state,
