@@ -4,7 +4,7 @@ import type {
   EngineReport, 
   ActionableInsight, 
   DashboardTileData, 
-  IntelligenceViewData, 
+  IntelligenceViewData,
   DetailedEngineView,
   DetailedModalData 
 } from '@/types/engines';
@@ -14,7 +14,7 @@ const config: EngineConfig = {
   name: 'Kalman-Adaptive Net Liquidity Engine',
   pillar: 'liquidity',
   updateInterval: 60000, // 1 minute - critical metric
-  requiredIndicators: ['WALCL', 'WTREGEN', 'RRPONTSYD'],
+  requiredIndicators: ['fed-balance-sheet', 'treasury-general-account', 'reverse-repo-operations'],
   dependencies: ['data-integrity']
 };
 
@@ -45,6 +45,7 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
   };
   private lastTGA: number = 0;
   private engineOutputs: Map<string, any> = new Map();
+  private lastReport: EngineReport | null = null;
   
   constructor() {
     super({
@@ -414,16 +415,16 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
       const { UnifiedDataService } = await import('@/services/UnifiedDataService');
       const dataService = UnifiedDataService.getInstance();
       
-      // Fetch real data for required indicators
+      // Fetch real data for required indicators using correct IDs from registry
       const [walclData, wtregen, rrpData] = await Promise.all([
-        dataService.refreshIndicator('WALCL'),
-        dataService.refreshIndicator('WTREGEN'),  
-        dataService.refreshIndicator('RRPONTSYD')
+        dataService.refreshIndicator('fed-balance-sheet'),    // WALCL
+        dataService.refreshIndicator('treasury-general-account'), // WTREGEN 
+        dataService.refreshIndicator('reverse-repo-operations')   // RRPONTSYD
       ]);
       
       // Validate we have the required data
       if (!walclData || !wtregen || !rrpData) {
-        throw new Error('Missing required liquidity data: WALCL, WTREGEN, or RRPONTSYD not available');
+        throw new Error('Missing required liquidity data: fed-balance-sheet, treasury-general-account, or reverse-repo-operations not available');
       }
       
       // Convert the data to the format expected by the engine
@@ -435,16 +436,19 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
       
       const output = this.calculate(dataMap);
       
-      return {
+      const report: EngineReport = {
         success: true,
         data: output,
         confidence: output.confidence,
         signal: output.signal === 'RISK_ON' ? 'bullish' : output.signal === 'RISK_OFF' ? 'bearish' : 'neutral',
         lastUpdated: new Date()
       };
+      
+      this.lastReport = report;
+      return report;
     } catch (error) {
       console.error('KalmanNetLiquidityEngine execution failed:', error);
-      return {
+      const errorReport: EngineReport = {
         success: false,
         data: null,
         confidence: 0,
@@ -452,6 +456,9 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
         lastUpdated: new Date(),
         errors: [error.message]
       };
+      
+      this.lastReport = errorReport;
+      return errorReport;
     }
   }
 
@@ -467,24 +474,81 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
   }
 
   public getDashboardData(): DashboardTileData {
+    // Return real data if available from last execution
+    if (this.lastReport?.success && this.lastReport.data) {
+      return {
+        title: 'Kalman Net Liquidity',
+        primaryMetric: `$${this.lastReport.data.primaryMetric.value.toFixed(2)}T`,
+        secondaryMetric: `${this.lastReport.data.subMetrics?.regime || 'TRANSITION'} • ${Math.round(this.lastReport.confidence)}%`,
+        status: this.lastReport.signal === 'bullish' ? 'normal' : 
+               this.lastReport.signal === 'bearish' ? 'critical' : 'warning',
+        trend: this.lastReport.data.primaryMetric.changePercent > 0 ? 'up' : 
+              this.lastReport.data.primaryMetric.changePercent < 0 ? 'down' : 'neutral',
+        color: this.lastReport.signal === 'bullish' ? 'success' : 
+              this.lastReport.signal === 'bearish' ? 'critical' : 'neutral',
+        loading: false
+      };
+    }
+    
+    // Default loading state
     return {
       title: 'Kalman Net Liquidity',
-      primaryMetric: '$5.63T',
-      secondaryMetric: 'QE_ACTIVE • 85%',
-      status: 'normal',
-      trend: 'up',
-      color: 'success',
-      loading: false
+      primaryMetric: 'Loading...',
+      secondaryMetric: 'Fetching data...',
+      status: 'warning',
+      trend: 'neutral',
+      color: 'neutral',
+      loading: true
     };
   }
 
   public getIntelligenceView(): IntelligenceViewData {
+    // Return real data if available from last execution
+    if (this.lastReport?.success && this.lastReport.data) {
+      return {
+        title: 'Kalman-Adaptive Net Liquidity Intelligence',
+        status: 'active',
+        primaryMetrics: {
+          'Net Liquidity': { 
+            value: `$${this.lastReport.data.primaryMetric.value.toFixed(2)}T`,
+            label: 'Net Liquidity'
+          },
+          'Regime': { 
+            value: this.lastReport.data.subMetrics?.regime || 'TRANSITION',
+            label: 'Regime'
+          }
+        },
+        sections: [
+          {
+            title: 'Liquidity Components',
+            data: {
+              'Fed Balance': { 
+                value: `$${(this.lastReport.data.subMetrics?.fedBalance || 0).toFixed(1)}M`,
+                label: 'Fed Balance'
+              },
+              'Treasury Account': { 
+                value: `$${(this.lastReport.data.subMetrics?.treasuryAccount || 0).toFixed(1)}M`,
+                label: 'Treasury Account'
+              },
+              'Reverse Repo': { 
+                value: `$${(this.lastReport.data.subMetrics?.reverseRepo || 0).toFixed(0)}B`,
+                label: 'Reverse Repo'
+              }
+            }
+          }
+        ],
+        confidence: this.lastReport.confidence / 100,
+        lastUpdate: this.lastReport.lastUpdated
+      };
+    }
+    
+    // Default loading state
     return {
       title: 'Kalman-Adaptive Net Liquidity Intelligence',
-      status: 'active',
-      primaryMetrics: {},
+      status: 'warning',
+      primaryMetrics: { 'Net Liquidity': { value: 'Loading...', label: 'Net Liquidity' } },
       sections: [],
-      confidence: 0.85,
+      confidence: 0,
       lastUpdate: new Date()
     };
   }
