@@ -8,6 +8,10 @@ export { MasterPromptBaseEngine } from './MasterPromptBaseEngine';
 export { MasterPromptsEngineRegistry } from './MasterPromptsEngineRegistry';
 export type { MasterPromptEngineConfig, MasterPromptEngineState } from './MasterPromptBaseEngine';
 
+// Master Prompt Engines
+export { MasterPromptZScoreEngine } from '../foundation/EnhancedZScoreEngine/MasterPromptZScoreEngine';
+export { MasterPromptDataIntegrityEngine } from '../foundation/DataIntegrityEngine/MasterPromptDataIntegrityEngine';
+
 // Unified Modern Engine System
 export { UnifiedBaseEngine } from './UnifiedBaseEngine';
 export { UnifiedEngineRegistry } from './UnifiedEngineRegistry';
