@@ -8,6 +8,10 @@ export { MasterPromptEnhancedMomentumEngine } from './MasterPromptEnhancedMoment
 export { EnhancedMomentumDashboardTile } from './DashboardTile';
 export { EnhancedMomentumIntelligenceView } from './IntelligenceView';
 
+// Specification-compliant components (V6)
+export { EnhancedMomentumTile } from './components/DashboardTile';
+export { EnhancedMomentumIntelligenceView as EnhancedMomentumIntelligenceViewV6 } from './components/IntelligenceView';
+
 export type { 
   MomentumMetrics,
   MomentumConfig,
