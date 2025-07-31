@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ZScoreCalculator } from '@/services/ZScoreCalculator';
 import UniversalDataService from '@/services/UniversalDataService';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   ZScoreData, 
   MarketRegime, 
@@ -237,6 +238,37 @@ export const useZScoreData = (options: UseZScoreDataOptions = {}): UseZScoreData
     };
   }, [generateInstitutionalInsights]);
 
+  // Transform edge function data to our internal format
+  const transformEdgeData = useCallback((edgeData: any): ZScoreData => {
+    return {
+      composite: {
+        value: edgeData.composite.value,
+        regime: edgeData.composite.regime,
+        confidence: edgeData.composite.confidence,
+        components: edgeData.composite.components || [],
+        timestamp: new Date(edgeData.composite.timestamp)
+      },
+      distribution: edgeData.distribution || {
+        histogram: [],
+        skewness: 0,
+        kurtosis: 3,
+        extremeValues: [],
+        outlierCount: 0
+      },
+      multiTimeframe: edgeData.composite.components || [],
+      dataQuality: edgeData.dataQuality || {
+        completeness: 0.8,
+        freshness: 0.9,
+        accuracy: 0.85,
+        sourceCount: 5,
+        validationsPassed: 40,
+        validationsTotal: 50
+      },
+      lastUpdate: new Date(edgeData.lastUpdate),
+      cacheHit: false
+    };
+  }, []);
+
   const refresh = useCallback(async (): Promise<void> => {
     if (!mountedRef.current) return;
     
@@ -244,6 +276,25 @@ export const useZScoreData = (options: UseZScoreDataOptions = {}): UseZScoreData
       setLoading(true);
       setError(null);
       
+      // Try edge function first for real-time data
+      const { data: edgeData, error: edgeError } = await supabase.functions.invoke('z-score-engine', {
+        body: { engineId: 'ZS_COMP', dependencies: [], parameters: {} }
+      });
+
+      if (edgeData && !edgeError && edgeData.status !== 'offline') {
+        console.log('✅ Using real-time Z-Score data from edge function');
+        const transformedData = transformEdgeData(edgeData);
+        
+        if (!mountedRef.current) return;
+        
+        setData(transformedData);
+        setConfidence(transformedData.composite.confidence);
+        setLastUpdate(transformedData.lastUpdate);
+        setCacheHit(false);
+        return;
+      }
+
+      console.log('⚠️ Edge function unavailable, using local calculation');
       const zscoreData = await calculateZScoreData();
       
       if (!mountedRef.current) return;
@@ -259,6 +310,19 @@ export const useZScoreData = (options: UseZScoreDataOptions = {}): UseZScoreData
       const errorMessage = err instanceof Error ? err.message : 'Failed to calculate Z-Score data';
       setError(errorMessage);
       console.error('Z-Score calculation error:', err);
+      
+      // Fallback to local calculation on any error
+      try {
+        const fallbackData = await calculateZScoreData();
+        if (mountedRef.current) {
+          setData(fallbackData);
+          setConfidence(fallbackData.composite.confidence);
+          setLastUpdate(fallbackData.lastUpdate);
+          setCacheHit(fallbackData.cacheHit);
+        }
+      } catch (fallbackErr) {
+        console.error('Fallback calculation also failed:', fallbackErr);
+      }
     } finally {
       if (mountedRef.current) {
         setLoading(false);

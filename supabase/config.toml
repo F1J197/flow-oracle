@@ -49,3 +49,6 @@ verify_jwt = false
 
 [functions.twelve-data-proxy]
 verify_jwt = false
+
+[functions.z-score-engine]
+verify_jwt = false

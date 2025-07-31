@@ -7,8 +7,8 @@ export class CacheManager {
   private static instance: CacheManager;
   private cache: Map<string, CacheEntry> = new Map();
   private cleanupInterval: NodeJS.Timeout | null = null;
-  private maxSize: number = 10000; // Maximum cache entries
-  private defaultTTL: number = 5 * 60 * 1000; // 5 minutes default TTL
+  private maxSize: number = 15000; // Increased for real-time data
+  private defaultTTL: number = 15 * 1000; // 15 seconds for Z-Score real-time
 
   private constructor() {
     this.startCleanupProcess();
@@ -246,7 +246,7 @@ export class CacheManager {
   private startCleanupProcess(): void {
     this.cleanupInterval = setInterval(() => {
       this.cleanup();
-    }, 60000); // Cleanup every minute
+    }, 30000); // Cleanup every 30 seconds for faster real-time refresh
   }
 
   /**
