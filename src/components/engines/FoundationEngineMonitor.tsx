@@ -27,6 +27,12 @@ export const FoundationEngineMonitor: React.FC<FoundationEngineMonitorProps> = (
     return 'online';
   };
 
+  const getBoxStatus = (): 'active' | 'warning' | 'critical' | 'offline' => {
+    if (dataIntegrity.error || momentum.error) return 'critical';
+    if (dataIntegrity.loading || momentum.loading) return 'warning';
+    return 'active';
+  };
+
   const getHealthScore = () => {
     const dataScore = dataIntegrity.metrics?.integrityScore || 0;
     const momentumConfidence = momentum.metrics?.confidence || 0;
@@ -50,7 +56,7 @@ export const FoundationEngineMonitor: React.FC<FoundationEngineMonitorProps> = (
           {/* Data Integrity Engine */}
           <TerminalBox
             title="Data Integrity Engine"
-            status={dataIntegrity.error ? 'critical' : dataIntegrity.loading ? 'warning' : 'online'}
+            status={dataIntegrity.error ? 'critical' : dataIntegrity.loading ? 'warning' : 'active'}
           >
             <div className="space-y-2">
               {dataIntegrity.loading && (
@@ -95,7 +101,7 @@ export const FoundationEngineMonitor: React.FC<FoundationEngineMonitorProps> = (
           {/* Enhanced Momentum Engine */}
           <TerminalBox
             title="Enhanced Momentum Engine"
-            status={momentum.error ? 'critical' : momentum.loading ? 'warning' : 'online'}
+            status={momentum.error ? 'critical' : momentum.loading ? 'warning' : 'active'}
           >
             <div className="space-y-2">
               {momentum.loading && (
@@ -145,7 +151,7 @@ export const FoundationEngineMonitor: React.FC<FoundationEngineMonitorProps> = (
         </TerminalGrid>
 
         {/* Summary Status */}
-        <TerminalBox title="Foundation Layer Summary" status={getOverallStatus()}>
+        <TerminalBox title="Foundation Layer Summary" status={getBoxStatus()}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="space-y-1">
               <div className="text-text-secondary text-sm">Overall Health</div>
@@ -166,7 +172,7 @@ export const FoundationEngineMonitor: React.FC<FoundationEngineMonitorProps> = (
             <div className="space-y-1">
               <div className="text-text-secondary text-sm">System Status</div>
               <div className="text-xl font-mono text-text-primary">
-                {getOverallStatus().toUpperCase()}
+                {getBoxStatus().toUpperCase()}
               </div>
             </div>
           </div>
