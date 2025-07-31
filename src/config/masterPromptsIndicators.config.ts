@@ -506,6 +506,226 @@ export const PILLAR3_INDICATORS: MasterPromptIndicatorConfig[] = [
     tags: ['ethereum', 'market-cap', 'defi']
   },
 
+  // Additional Crypto Assets
+  {
+    id: 'solana',
+    name: 'Solana (SOL/USD)',
+    symbol: 'SOL-USD',
+    source: 'COINBASE',
+    category: 'crypto',
+    pillar: 3,
+    refreshInterval: 15000,
+    criticality: 'MEDIUM',
+    unit: 'USD',
+    description: 'Solana spot price in USD',
+    tags: ['solana', 'crypto', 'layer1']
+  },
+  {
+    id: 'cardano',
+    name: 'Cardano (ADA/USD)',
+    symbol: 'ADA-USD',
+    source: 'COINBASE',
+    category: 'crypto',
+    pillar: 3,
+    refreshInterval: 15000,
+    criticality: 'LOW',
+    unit: 'USD',
+    description: 'Cardano spot price in USD',
+    tags: ['cardano', 'crypto', 'proof-of-stake']
+  },
+  {
+    id: 'polygon',
+    name: 'Polygon (MATIC/USD)',
+    symbol: 'MATIC-USD',
+    source: 'COINBASE',
+    category: 'crypto',
+    pillar: 3,
+    refreshInterval: 15000,
+    criticality: 'LOW',
+    unit: 'USD',
+    description: 'Polygon spot price in USD',
+    tags: ['polygon', 'crypto', 'layer2']
+  },
+
+  // Additional Crypto Metrics
+  {
+    id: 'btc-network-value',
+    name: 'Bitcoin Network Value to Transactions',
+    symbol: 'BTC_NVT',
+    source: 'GLASSNODE',
+    category: 'crypto',
+    pillar: 3,
+    refreshInterval: 86400000,
+    criticality: 'LOW',
+    unit: 'Ratio',
+    description: 'Bitcoin network value to transaction volume ratio',
+    tags: ['bitcoin', 'nvt', 'on-chain']
+  },
+  {
+    id: 'btc-volatility',
+    name: 'Bitcoin Realized Volatility',
+    symbol: 'BTC_VOLATILITY_30D',
+    source: 'GLASSNODE',
+    category: 'volatility',
+    pillar: 3,
+    refreshInterval: 86400000,
+    criticality: 'MEDIUM',
+    unit: '%',
+    description: 'Bitcoin 30-day realized volatility',
+    tags: ['bitcoin', 'volatility', 'risk']
+  },
+  {
+    id: 'eth-gas-fees',
+    name: 'Ethereum Average Gas Price',
+    symbol: 'ETH_GAS_PRICE',
+    source: 'GLASSNODE',
+    category: 'crypto',
+    pillar: 3,
+    refreshInterval: 3600000,
+    criticality: 'MEDIUM',
+    unit: 'gwei',
+    description: 'Average Ethereum transaction gas price',
+    tags: ['ethereum', 'gas', 'fees']
+  },
+
+  // Commodities & Currencies Missing from Charts
+  {
+    id: 'crude-oil',
+    name: 'Crude Oil (WTI)',
+    symbol: 'DCOILWTICO',
+    source: 'FRED',
+    category: 'commodities',
+    pillar: 2,
+    refreshInterval: 86400000,
+    criticality: 'MEDIUM',
+    unit: 'USD/bbl',
+    description: 'West Texas Intermediate crude oil price',
+    tags: ['oil', 'energy', 'commodities']
+  },
+  {
+    id: 'silver',
+    name: 'Silver Price',
+    symbol: 'SLVPRUSD',
+    source: 'FRED',
+    category: 'commodities',
+    pillar: 2,
+    refreshInterval: 86400000,
+    criticality: 'LOW',
+    unit: 'USD/oz',
+    description: 'Silver spot price per ounce',
+    tags: ['silver', 'precious-metals', 'commodities']
+  },
+  {
+    id: 'natural-gas',
+    name: 'Natural Gas Futures',
+    symbol: 'DHHNGSP',
+    source: 'FRED',
+    category: 'commodities',
+    pillar: 2,
+    refreshInterval: 86400000,
+    criticality: 'LOW',
+    unit: 'USD/MMBtu',
+    description: 'Natural gas futures price',
+    tags: ['gas', 'energy', 'commodities']
+  },
+
+  // Exchange Rates
+  {
+    id: 'gbp-usd',
+    name: 'GBP/USD Exchange Rate',
+    symbol: 'DEXUSUK',
+    source: 'FRED',
+    category: 'currency',
+    pillar: 2,
+    refreshInterval: 86400000,
+    criticality: 'MEDIUM',
+    unit: 'Rate',
+    description: 'British Pound to US Dollar exchange rate',
+    tags: ['currency', 'gbp', 'major-pair']
+  },
+  {
+    id: 'usd-jpy',
+    name: 'USD/JPY Exchange Rate',
+    symbol: 'DEXJPUS',
+    source: 'FRED',
+    category: 'currency',
+    pillar: 2,
+    refreshInterval: 86400000,
+    criticality: 'MEDIUM',
+    unit: 'Rate',
+    description: 'US Dollar to Japanese Yen exchange rate',
+    tags: ['currency', 'jpy', 'carry-trade']
+  },
+  {
+    id: 'usd-cny',
+    name: 'USD/CNY Exchange Rate',
+    symbol: 'DEXCHUS',
+    source: 'FRED',
+    category: 'currency',
+    pillar: 2,
+    refreshInterval: 86400000,
+    criticality: 'MEDIUM',
+    unit: 'Rate',
+    description: 'US Dollar to Chinese Yuan exchange rate',
+    tags: ['currency', 'cny', 'emerging']
+  },
+
+  // Missing Engine Indicators
+  {
+    id: 'enhanced-momentum',
+    name: 'Enhanced Momentum Score',
+    symbol: 'ENHANCED_MOMENTUM',
+    source: 'ENGINE',
+    category: 'momentum',
+    pillar: 'foundation',
+    refreshInterval: 30000,
+    criticality: 'HIGH',
+    unit: 'Score',
+    description: 'Proprietary momentum calculation across asset classes',
+    tags: ['momentum', 'synthesis', 'engine']
+  },
+  {
+    id: 'credit-stress',
+    name: 'Credit Stress Index',
+    symbol: 'CREDIT_STRESS',
+    source: 'ENGINE',
+    category: 'sentiment',
+    pillar: 2,
+    refreshInterval: 86400000,
+    criticality: 'HIGH',
+    unit: 'bps',
+    description: 'Aggregate credit market stress indicator',
+    transformFunction: 'aggregateCreditSpreads',
+    dependencies: ['high-yield-spread', 'investment-grade-spread'],
+    tags: ['credit', 'stress', 'risk']
+  },
+  {
+    id: 'primary-dealer-positions',
+    name: 'Primary Dealer Net Positions',
+    symbol: 'DEALER_POSITIONS',
+    source: 'ENGINE',
+    category: 'liquidity',
+    pillar: 1,
+    refreshInterval: 604800000, // Weekly
+    criticality: 'CRITICAL',
+    unit: 'Trillions USD',
+    description: 'Aggregate primary dealer securities positions',
+    tags: ['dealers', 'positions', 'liquidity']
+  },
+  {
+    id: 'dealer-leverage',
+    name: 'Primary Dealer Leverage',
+    symbol: 'DEALER_LEVERAGE',
+    source: 'ENGINE',
+    category: 'liquidity',
+    pillar: 1,
+    refreshInterval: 604800000, // Weekly
+    criticality: 'HIGH',
+    unit: 'Multiple',
+    description: 'Primary dealer financial leverage ratio',
+    tags: ['dealers', 'leverage', 'risk']
+  },
+
   // Crypto Market Indicators
   {
     id: 'total-crypto-market-cap',

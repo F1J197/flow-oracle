@@ -12,6 +12,12 @@ import { finnhubService } from './providers/FinnhubService';
 import { binanceService } from './DataIngestion/BinanceService';
 import { fredServiceWrapper } from './DataIngestion/FREDServiceWrapper';
 import { IndicatorRegistry } from './IndicatorRegistry';
+import { CalculationEngineV2 } from './CalculationEngineV2';
+import { 
+  PROVIDER_SYMBOL_REGISTRY, 
+  getProviderMapping, 
+  getProviderFallbackChain 
+} from '@/config/providerSymbolMappings';
 
 export interface UniversalIndicatorData {
   symbol: string;
@@ -87,8 +93,11 @@ class UniversalDataServiceV3 {
   private constructor() {
     this.universalProxy = UniversalDataProxyV4;
     this.indicatorRegistry = IndicatorRegistry.getInstance();
+    this.calculationEngine = CalculationEngineV2.getInstance();
     this.startHealthMonitoring();
   }
+
+  private calculationEngine: CalculationEngineV2;
 
   static getInstance(): UniversalDataServiceV3 {
     if (!UniversalDataServiceV3.instance) {
@@ -97,7 +106,35 @@ class UniversalDataServiceV3 {
     return UniversalDataServiceV3.instance;
   }
 
+  /**
+   * Fetch calculated indicator data
+   */
+  private async fetchCalculatedIndicator(indicatorId: string): Promise<UniversalIndicatorData | null> {
+    const dependencies = this.calculationEngine.getDependencies(indicatorId);
+    const dependencyData = new Map<string, UniversalIndicatorData>();
+
+    // Fetch all dependencies
+    for (const dep of dependencies) {
+      const data = await this.fetchIndicator(dep);
+      if (data) {
+        dependencyData.set(dep, data);
+      }
+    }
+
+    // Calculate the indicator
+    const context = {
+      data: dependencyData,
+      timestamp: new Date()
+    };
+
+    return this.calculationEngine.calculateIndicator(indicatorId, context);
+  }
+
   async fetchIndicator(symbol: string, category?: string): Promise<UniversalIndicatorData | null> {
+    // Check if this is a calculated indicator first
+    if (this.calculationEngine.isCalculatedIndicator(symbol)) {
+      return this.fetchCalculatedIndicator(symbol);
+    }
     const startTime = Date.now();
     this.healthMetrics.totalRequests++;
 

@@ -59,12 +59,12 @@ export const CHART_CONFIGS: Record<string, ChartConfig> = {
     realtime: true
   },
 
-  'z-score': {
-    id: 'z-score',
+  'zscore-composite': {
+    id: 'zscore-composite',
     name: 'Enhanced Z-Score Analysis',
     description: 'Statistical momentum measure across global markets',
     chartType: 'line',
-    indicatorId: 'z-score',
+    indicatorId: 'zscore-composite',
     category: 'momentum',
     pillar: 'foundation',
     priority: 2,
@@ -81,12 +81,12 @@ export const CHART_CONFIGS: Record<string, ChartConfig> = {
     realtime: true
   },
 
-  'data-integrity': {
-    id: 'data-integrity',
+  'data-integrity-score': {
+    id: 'data-integrity-score',
     name: 'Data Integrity Score',
     description: 'Quality assessment of incoming data streams',
     chartType: 'histogram',
-    indicatorId: 'data-integrity',
+    indicatorId: 'data-integrity-score',
     category: 'technical',
     pillar: 'foundation',
     priority: 3,
@@ -308,12 +308,12 @@ export const CHART_CONFIGS: Record<string, ChartConfig> = {
   },
 
   // === PILLAR 3: ALTERNATIVE ASSETS ===
-  'bitcoin': {
-    id: 'bitcoin',
+  'btc-price': {
+    id: 'btc-price',
     name: 'Bitcoin (BTC/USD)',
     description: 'Bitcoin price in US dollars',
     chartType: 'candlestick',
-    indicatorId: 'bitcoin',
+    indicatorId: 'btc-price',
     category: 'crypto',
     pillar: 3,
     priority: 13,
@@ -336,12 +336,12 @@ export const CHART_CONFIGS: Record<string, ChartConfig> = {
     }
   },
 
-  'ethereum': {
-    id: 'ethereum',
+  'eth-price': {
+    id: 'eth-price',
     name: 'Ethereum (ETH/USD)',
     description: 'Ethereum price in US dollars',
     chartType: 'candlestick',
-    indicatorId: 'ethereum',
+    indicatorId: 'eth-price',
     category: 'crypto',
     pillar: 3,
     priority: 14,
