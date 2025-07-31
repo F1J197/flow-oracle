@@ -511,4 +511,5 @@ class UniversalDataServiceV3 {
   }
 }
 
+export const UnifiedDataService = UniversalDataServiceV3.getInstance();
 export default UniversalDataServiceV3;

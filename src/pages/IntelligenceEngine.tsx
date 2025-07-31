@@ -9,7 +9,7 @@ import { useKalmanNetLiquidity } from "@/hooks/useKalmanNetLiquidity";
 // Engine implementations
 import { DataIntegrityEngine } from "@/engines/foundation/DataIntegrityEngine";
 import { NetLiquidityEngine } from "@/engines/NetLiquidityEngine";
-import { EnhancedMomentumEngine } from "@/engines/EnhancedMomentumEngine";
+import { EnhancedMomentumEngine } from "@/engines/foundation/EnhancedMomentumEngine";
 import { EnhancedZScoreEngine } from "@/engines/foundation/EnhancedZScoreEngine";
 import { CreditStressEngineV6 } from "@/engines/CreditStressEngineV6";
 import { PrimaryDealerPositionsEngineV6 } from "@/engines/PrimaryDealerPositionsEngineV6";
