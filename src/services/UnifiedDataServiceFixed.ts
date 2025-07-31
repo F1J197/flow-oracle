@@ -244,7 +244,7 @@ export class UnifiedDataServiceFixed {
    */
   private async fetchFromFred(mapping: any, config: UnifiedIndicatorConfig): Promise<UniversalIndicatorData | null> {
     try {
-      const data = await fredServiceWrapper.fetchIndicator(mapping.providerSymbol);
+      const data = await fredServiceWrapper.fetchSymbolData(mapping.providerSymbol);
       return this.transformToUniversalData(data, mapping.indicatorId, 'fred', config);
     } catch (error) {
       console.error(`FRED fetch error for ${mapping.indicatorId}:`, error);
@@ -255,7 +255,7 @@ export class UnifiedDataServiceFixed {
   private async fetchFromCoinbase(mapping: any, config: UnifiedIndicatorConfig): Promise<UniversalIndicatorData | null> {
     try {
       // Using binance service as coinbase equivalent for now
-      const data = await binanceService.fetchTicker(mapping.providerSymbol);
+      const data = await binanceService.fetchSymbolData(mapping.providerSymbol);
       return this.transformToUniversalData(data, mapping.indicatorId, 'coinbase', config);
     } catch (error) {
       console.error(`Coinbase fetch error for ${mapping.indicatorId}:`, error);
@@ -335,24 +335,28 @@ export class UnifiedDataServiceFixed {
   private async getFallbackData(indicatorId: string): Promise<UniversalIndicatorData | null> {
     try {
       const { data, error } = await supabase
-        .from('market_data_cache')
+        .from('indicator_data')
         .select('*')
         .eq('symbol', indicatorId)
-        .order('timestamp', { ascending: false })
-        .limit(1);
+        .order('date', { ascending: false })
+        .limit(2);
 
       if (error || !data || data.length === 0) {
         return null;
       }
 
-      const record = data[0];
+      const latest = data[0];
+      const previous = data[1];
+      const change = previous ? latest.value - previous.value : 0;
+      const changePercent = previous && previous.value !== 0 ? ((change / previous.value) * 100) : 0;
+      
       return {
-        symbol: record.symbol,
-        current: record.value,
-        previous: record.previous_value || record.value,
-        change: record.change || 0,
-        changePercent: record.change_percent || 0,
-        timestamp: new Date(record.timestamp),
+        symbol: indicatorId,
+        current: latest.value,
+        previous: previous?.value || latest.value,
+        change,
+        changePercent,
+        timestamp: new Date(latest.date),
         confidence: 0.7, // Lower confidence for cached data
         source: 'CACHE',
         provider: 'supabase',

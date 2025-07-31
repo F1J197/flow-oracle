@@ -89,17 +89,17 @@ export function useUnifiedIndicatorFixed(
   // Fetch from FRED
   const fetchFromFred = useCallback(async (symbol: string): Promise<IndicatorData | null> => {
     try {
-      const result = await fredServiceWrapper.fetchLatestObservation(symbol);
-      if (!result || !result.value) return null;
+      const result = await fredServiceWrapper.fetchSymbolData(symbol);
+      if (!result || !result.current) return null;
 
       return {
         symbol,
-        current: parseFloat(result.value),
-        previous: result.previousValue ? parseFloat(result.previousValue) : parseFloat(result.value),
+        current: result.current,
+        previous: result.previous || result.current,
         change: result.change || 0,
         changePercent: result.changePercent || 0,
-        timestamp: new Date(result.date),
-        confidence: 0.95,
+        timestamp: result.timestamp,
+        confidence: result.confidence || 0.95,
         source: 'FRED',
         provider: 'fred',
         metadata: { originalData: result }
@@ -113,17 +113,17 @@ export function useUnifiedIndicatorFixed(
   // Fetch from Binance (for crypto)
   const fetchFromBinance = useCallback(async (symbol: string): Promise<IndicatorData | null> => {
     try {
-      const result = await binanceService.fetchPrice(symbol);
-      if (!result || !result.price) return null;
+      const result = await binanceService.fetchSymbolData(symbol);
+      if (!result || !result.current) return null;
 
       return {
         symbol,
-        current: parseFloat(result.price),
-        previous: result.prevPrice ? parseFloat(result.prevPrice) : parseFloat(result.price),
-        change: result.change ? parseFloat(result.change) : 0,
-        changePercent: result.changePercent ? parseFloat(result.changePercent) : 0,
-        timestamp: new Date(),
-        confidence: 0.9,
+        current: result.current,
+        previous: result.previous || result.current,
+        change: result.change || 0,
+        changePercent: result.changePercent || 0,
+        timestamp: result.timestamp,
+        confidence: result.confidence || 0.9,
         source: 'BINANCE',
         provider: 'binance',
         metadata: { originalData: result }

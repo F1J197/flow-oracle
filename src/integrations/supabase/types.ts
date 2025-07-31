@@ -434,6 +434,48 @@ export type Database = {
           },
         ]
       }
+      market_data_cache: {
+        Row: {
+          change: number | null
+          change_percent: number | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          previous_value: number | null
+          provider: string
+          symbol: string
+          timestamp: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          change?: number | null
+          change_percent?: number | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          previous_value?: number | null
+          provider: string
+          symbol: string
+          timestamp?: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          change?: number | null
+          change_percent?: number | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          previous_value?: number | null
+          provider?: string
+          symbol?: string
+          timestamp?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       market_microstructure: {
         Row: {
           bid_ask_spread: number | null
