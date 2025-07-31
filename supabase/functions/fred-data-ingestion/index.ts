@@ -222,28 +222,41 @@ serve(async (req) => {
   }
 
   try {
-    const { action, seriesId, seriesIds } = await req.json();
+    const requestBody = await req.json();
     const fredService = new FREDDataIngestion();
 
     let result;
     
-    switch (action) {
-      case 'fetchSeries':
-        if (!seriesId) {
-          throw new Error('seriesId is required for fetchSeries action');
-        }
-        result = await fredService.fetchSeries(seriesId);
-        break;
-        
-      case 'fetchMultipleSeries':
-        if (!seriesIds || !Array.isArray(seriesIds)) {
-          throw new Error('seriesIds array is required for fetchMultipleSeries action');
-        }
-        result = await fredService.fetchMultipleSeries(seriesIds);
-        break;
-        
-      default:
-        throw new Error(`Unknown action: ${action}`);
+    // Handle both new format (with action) and legacy format (with series)
+    if (requestBody.action) {
+      // New format
+      const { action, seriesId, seriesIds } = requestBody;
+      
+      switch (action) {
+        case 'fetchSeries':
+          if (!seriesId) {
+            throw new Error('seriesId is required for fetchSeries action');
+          }
+          result = await fredService.fetchSeries(seriesId);
+          break;
+          
+        case 'fetchMultipleSeries':
+          if (!seriesIds || !Array.isArray(seriesIds)) {
+            throw new Error('seriesIds array is required for fetchMultipleSeries action');
+          }
+          result = await fredService.fetchMultipleSeries(seriesIds);
+          break;
+          
+        default:
+          throw new Error(`Unknown action: ${action}`);
+      }
+    } else if (requestBody.series) {
+      // Legacy format - single series fetch
+      const { series } = requestBody;
+      console.log(`Processing legacy format request for series: ${series}`);
+      result = await fredService.fetchSeries(series);
+    } else {
+      throw new Error('Invalid request format. Expected either action/seriesId or series field');
     }
 
     return new Response(JSON.stringify({ 
