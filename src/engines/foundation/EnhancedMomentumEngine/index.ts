@@ -4,6 +4,7 @@
  */
 
 export { EnhancedMomentumEngine } from './EnhancedMomentumEngine';
+export { MasterPromptEnhancedMomentumEngine } from './MasterPromptEnhancedMomentumEngine';
 export { EnhancedMomentumDashboardTile } from './DashboardTile';
 export { EnhancedMomentumIntelligenceView } from './IntelligenceView';
 

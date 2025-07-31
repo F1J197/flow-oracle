@@ -6,7 +6,7 @@ import { NetLiquidityEngine } from '@/engines/NetLiquidityEngine';
 import { CreditStressEngineV6 } from '@/engines/CreditStressEngineV6';
 import { CUSIPStealthQEEngine } from '@/engines/CUSIPStealthQEEngine';
 import { DataIntegrityEngine } from '@/engines/foundation/DataIntegrityEngine';
-import { EnhancedMomentumEngine } from '@/engines/EnhancedMomentumEngine';
+import { EnhancedMomentumEngine } from '@/engines/foundation/EnhancedMomentumEngine';
 import { PrimaryDealerPositionsEngineV6 } from '@/engines/PrimaryDealerPositionsEngineV6';
 import { EnhancedZScoreEngine } from '@/engines/foundation/EnhancedZScoreEngine';
 import { GlobalFinancialPlumbingEngine } from '@/engines/pillar1/GlobalFinancialPlumbingEngine';

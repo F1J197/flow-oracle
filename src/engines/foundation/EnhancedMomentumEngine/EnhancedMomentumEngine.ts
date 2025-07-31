@@ -508,16 +508,22 @@ export class EnhancedMomentumEngine extends BaseEngine {
     return 'STABLE';
   }
 
+  // BaseEngine compliance - Override base methods
   getMetrics(): EngineMetrics {
-    const executionTime = this.lastExecution ? 
-      Date.now() - this.lastExecution.getTime() : 0;
-    
+    const baseMetrics = super.getMetrics();
     return {
-      executionTime,
+      ...baseMetrics,
+      executionTime: this.lastExecution ? Date.now() - this.lastExecution.getTime() : 0,
       successRate: this.momentumMetrics.confidence / 100,
-      totalExecutions: 1,
       averageConfidence: this.momentumMetrics.confidence / 100
     };
+  }
+
+  getStatus(): 'running' | 'idle' | 'error' | 'loading' {
+    if (this.isExecuting) return 'running';
+    if (this.metrics.lastError) return 'error';
+    if (!this.momentumMetrics || this.metrics.totalExecutions === 0) return 'loading';
+    return 'idle';
   }
 
   getDetailedModal(): DetailedModalData {

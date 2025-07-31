@@ -473,18 +473,6 @@ export class DataIntegrityEngine extends BaseEngine {
     return alerts;
   }
 
-  // Required base engine methods
-  getMetrics(): EngineMetrics {
-    const executionTime = this.lastExecution ? 
-      Date.now() - this.lastExecution.getTime() : 0;
-    
-    return {
-      executionTime,
-      successRate: this.dataIntegrityMetrics.integrityScore / 100,
-      totalExecutions: this.validationHistory.length,
-      averageConfidence: this.dataIntegrityMetrics.integrityScore / 100
-    };
-  }
 
   getDetailedModal(): DetailedModalData {
     return {
@@ -546,5 +534,23 @@ export class DataIntegrityEngine extends BaseEngine {
 
   getValidationHistory(): ValidationResult[] {
     return [...this.validationHistory];
+  }
+
+  // BaseEngine compliance - Override base methods  
+  getMetrics(): EngineMetrics {
+    const baseMetrics = super.getMetrics();
+    return {
+      ...baseMetrics,
+      successRate: this.dataIntegrityMetrics.activeSources / this.dataIntegrityMetrics.totalSources,
+      averageConfidence: this.dataIntegrityMetrics.integrityScore / 100
+    };
+  }
+
+  getStatus(): 'running' | 'idle' | 'error' | 'loading' {
+    if (this.isExecuting) return 'running';
+    if (this.metrics.lastError) return 'error';
+    if (this.dataIntegrityMetrics.activeSources === 0) return 'error';
+    if (this.metrics.totalExecutions === 0) return 'loading';
+    return 'idle';
   }
 }
