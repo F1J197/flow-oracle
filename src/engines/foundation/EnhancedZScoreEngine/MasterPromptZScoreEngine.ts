@@ -574,10 +574,11 @@ export class MasterPromptZScoreEngine extends MasterPromptBaseEngine {
           }
         }
       ],
-      actions: [
+      actionItems: [
         {
-          label: 'Refresh Analysis',
-          action: () => console.log('Refresh triggered')
+          priority: 'medium' as const,
+          action: 'Refresh Analysis',
+          timeframe: 'within 1 hour'
         }
       ]
     };

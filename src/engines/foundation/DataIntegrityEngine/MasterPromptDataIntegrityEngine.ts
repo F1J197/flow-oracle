@@ -419,10 +419,11 @@ export class MasterPromptDataIntegrityEngine extends MasterPromptBaseEngine {
           }
         }
       ],
-      actions: [
+      actionItems: [
         {
-          label: 'Refresh Validation',
-          action: () => console.log('Validation refresh triggered')
+          priority: 'high' as const,
+          action: 'Refresh Validation',
+          timeframe: 'immediate'
         }
       ]
     };
