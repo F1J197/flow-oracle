@@ -15,13 +15,24 @@ export const UnifiedTerminalDashboard = React.memo(() => {
       isExecuting,
       executeAllEngines,
       engines,
-      errors
+      errors,
+      engineCount
     } = useUnifiedEngineManager({
-      autoExecute: true,
+      autoExecute: false, // Disable auto-execution to prevent loops
       refreshInterval: 30000
     });
 
-    const isRunning = !isExecuting;
+    // Trigger initial execution once engines are loaded
+    React.useEffect(() => {
+      if (engineCount > 0 && !isExecuting) {
+        const timer = setTimeout(() => {
+          executeAllEngines();
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }, [engineCount, executeAllEngines, isExecuting]);
+
+    const isRunning = engineCount > 0 && !isExecuting;
 
     console.log('🎛️ Unified orchestrator loaded:', { 
       isRunning, 
@@ -52,10 +63,10 @@ export const UnifiedTerminalDashboard = React.memo(() => {
     const marketStatus = getMarketStatus();
     console.log('📈 Market status:', marketStatus);
 
-    // Get engine statuses for display
-    const dataIntegrityEngine = engines.get('DIS');
-    const netLiquidityEngine = engines.get('NET_LIQ');
-    const creditStressEngine = engines.get('CREDIT_STRESS');
+    // Get engine statuses for display using correct IDs
+    const dataIntegrityEngine = engines.get('data-integrity-foundation');
+    const netLiquidityEngine = engines.get('kalman-net-liquidity') || engines.get('net-liquidity-foundation');
+    const creditStressEngine = engines.get('credit-stress-foundation') || engines.get('credit-stress-engine');
 
     if (!isRunning) {
       console.log('⏳ System starting...');

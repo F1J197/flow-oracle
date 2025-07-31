@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { UnifiedEngineRegistry } from '@/engines/base/UnifiedEngineRegistry';
 import { UnifiedEngineOrchestrator } from '@/engines/base/UnifiedEngineOrchestrator';
+import { engineInitializer } from '@/engines/EngineInitializer';
 import { IEngine, EngineState } from '@/types/engines';
 
 interface UseUnifiedEngineManagerOptions {
@@ -37,26 +38,6 @@ export function useUnifiedEngineManager(options: UseUnifiedEngineManagerOptions 
   const registryRef = useRef<UnifiedEngineRegistry | null>(null);
   const orchestratorRef = useRef<UnifiedEngineOrchestrator | null>(null);
 
-  // Initialize registry and orchestrator
-  useEffect(() => {
-    if (!registryRef.current) {
-      registryRef.current = UnifiedEngineRegistry.getInstance();
-    }
-    
-    if (!orchestratorRef.current) {
-      orchestratorRef.current = new UnifiedEngineOrchestrator();
-    }
-
-    // Load existing engines
-    updateEngineState();
-
-    return () => {
-      // Cleanup on unmount - orchestrator cleanup
-      registryRef.current = null;
-      orchestratorRef.current = null;
-    };
-  }, []);
-
   const updateEngineState = useCallback(() => {
     if (!registryRef.current) return;
 
@@ -65,11 +46,22 @@ export function useUnifiedEngineManager(options: UseUnifiedEngineManagerOptions 
     const engineStates = new Map<string, EngineState>();
     const errors = new Map<string, Error>();
 
-    // Get all registered engines - simplified approach for now
-    // TODO: Implement proper registry.getEngines() method
-    engines.set('DIS', { id: 'DIS' } as IEngine);
-    engines.set('NET_LIQ', { id: 'NET_LIQ' } as IEngine);
-    engines.set('CREDIT_STRESS', { id: 'CREDIT_STRESS' } as IEngine);
+  // Get all registered engines with proper IDs
+  const registeredEngines = registry.getAllMetadata();
+  
+  registeredEngines.forEach((metadata) => {
+    const engine = registry.getEngine(metadata.id);
+    if (engine) {
+      engines.set(metadata.id, engine);
+    }
+  });
+  
+  // Add fallback engines if registry is empty (for compatibility)
+  if (engines.size === 0) {
+    engines.set('data-integrity-foundation', { id: 'data-integrity-foundation' } as IEngine);
+    engines.set('enhanced-zscore-foundation', { id: 'enhanced-zscore-foundation' } as IEngine);
+    engines.set('kalman-net-liquidity', { id: 'kalman-net-liquidity' } as IEngine);
+  }
 
     // Get current states for all engines
     engines.forEach((engine, id) => {
@@ -123,6 +115,38 @@ export function useUnifiedEngineManager(options: UseUnifiedEngineManagerOptions 
       systemHealth
     }));
   }, []);
+
+  // Initialize registry, orchestrator, and engines
+  useEffect(() => {
+    const initializeSystem = async () => {
+      if (!registryRef.current) {
+        registryRef.current = UnifiedEngineRegistry.getInstance();
+      }
+      
+      if (!orchestratorRef.current) {
+        orchestratorRef.current = new UnifiedEngineOrchestrator();
+      }
+
+      // Initialize all engines through the standardized initializer
+      try {
+        await engineInitializer.initializeAllEngines();
+        console.log('🎉 Engine system initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to initialize engine system:', error);
+      }
+
+      // Load existing engines after initialization
+      updateEngineState();
+    };
+
+    initializeSystem();
+
+    return () => {
+      // Cleanup on unmount - orchestrator cleanup
+      registryRef.current = null;
+      orchestratorRef.current = null;
+    };
+  }, [updateEngineState]);
 
   const executeAllEngines = useCallback(async () => {
     if (state.isExecuting) return;
@@ -189,19 +213,51 @@ export function useUnifiedEngineManager(options: UseUnifiedEngineManagerOptions 
     return state.errors.get(engineId) || null;
   }, [state.errors]);
 
-  // Auto-execution effect
+  // Auto-execution effect with controlled initial execution
   useEffect(() => {
     if (!autoExecute) return;
 
+    // Create a stable reference to avoid re-creation loops
+    const executeEngines = async () => {
+      if (state.isExecuting) return;
+      
+      setState(prev => ({ ...prev, isExecuting: true }));
+      
+      try {
+        console.log('🚀 Executing all engines...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        setState(prev => ({
+          ...prev,
+          isExecuting: false,
+          lastExecution: new Date()
+        }));
+        
+        updateEngineState();
+      } catch (error) {
+        console.error('🚨 Engine execution failed:', error);
+        setState(prev => ({
+          ...prev,
+          isExecuting: false,
+          errors: new Map(prev.errors).set('orchestrator', error as Error)
+        }));
+      }
+    };
+
+    // Delay initial execution to prevent render loops
+    const initialTimeout = setTimeout(() => {
+      executeEngines();
+    }, 2000); // 2 second delay on mount
+
     const interval = setInterval(() => {
-      executeAllEngines();
+      executeEngines();
     }, refreshInterval);
 
-    // Execute immediately on mount
-    executeAllEngines();
-
-    return () => clearInterval(interval);
-  }, [autoExecute, refreshInterval, executeAllEngines]);
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
+  }, [autoExecute, refreshInterval, state.isExecuting, updateEngineState]); // Stable dependencies
 
   // Health check effect
   useEffect(() => {
