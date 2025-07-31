@@ -67,9 +67,9 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
           tile.engineId === engineId
             ? {
                 ...tile,
-                status: result?.status || 'active',
-                primaryMetric: formatPrimaryMetric(result),
-                secondaryMetric: formatSecondaryMetric(result),
+                status: determineTileStatus(result),
+                primaryMetric: formatPrimaryMetric(result, engineId),
+                secondaryMetric: formatSecondaryMetric(result, engineId),
                 trend: determineTrend(result),
                 importanceScore: calculateDynamicImportance(tile, result),
                 loading: false,
@@ -121,9 +121,30 @@ function calculateDynamicImportance(tile: TileData, result: any): number {
   return Math.min(100, score);
 }
 
-function formatPrimaryMetric(result: any): string {
+function formatPrimaryMetric(result: any, engineId: string): string {
   if (!result) return 'No Data';
   
+  // Try to get dashboard tile data from engine directly if available
+  if (result.success && result.data) {
+    try {
+      // Import the engine registry to get the engine instance
+      const { EngineRegistry } = require('@/engines/EngineRegistry');
+      const registry = EngineRegistry.getInstance();
+      const engine = registry.getEngine(engineId);
+      
+      if (engine && typeof engine.getDashboardTile === 'function') {
+        const tileData = engine.getDashboardTile();
+        if (tileData?.primaryMetric) {
+          console.log(`✅ EngineStore: Got dashboard tile data for ${engineId}:`, tileData.primaryMetric);
+          return tileData.primaryMetric;
+        }
+      }
+    } catch (error) {
+      console.warn(`⚠️ EngineStore: Could not get dashboard tile for ${engineId}:`, error);
+    }
+  }
+  
+  // Fallback to direct value extraction
   if (result.primaryValue !== undefined) {
     return formatValue(result.primaryValue, result.unit);
   }
@@ -132,16 +153,49 @@ function formatPrimaryMetric(result: any): string {
     return formatValue(result.value, result.unit);
   }
   
+  // Try nested data structure
+  if (result.data?.composite?.value !== undefined) {
+    return formatValue(result.data.composite.value, 'σ');
+  }
+  
   return 'N/A';
 }
 
-function formatSecondaryMetric(result: any): string | undefined {
+function formatSecondaryMetric(result: any, engineId: string): string | undefined {
   if (!result) return undefined;
   
+  // Try to get dashboard tile data from engine directly if available
+  if (result.success && result.data) {
+    try {
+      const { EngineRegistry } = require('@/engines/EngineRegistry');
+      const registry = EngineRegistry.getInstance();
+      const engine = registry.getEngine(engineId);
+      
+      if (engine && typeof engine.getDashboardTile === 'function') {
+        const tileData = engine.getDashboardTile();
+        if (tileData?.secondaryMetric) {
+          console.log(`✅ EngineStore: Got secondary metric for ${engineId}:`, tileData.secondaryMetric);
+          return tileData.secondaryMetric;
+        }
+      }
+    } catch (error) {
+      console.warn(`⚠️ EngineStore: Could not get secondary metric for ${engineId}:`, error);
+    }
+  }
+  
+  // Fallback to direct value extraction
   const change = result.change || result.changePercent;
   if (change !== undefined) {
     const prefix = change >= 0 ? '+' : '';
     return `${prefix}${change.toFixed(2)}%`;
+  }
+  
+  // Try nested data for regime/confidence
+  if (result.data?.composite) {
+    const { regime, confidence } = result.data.composite;
+    if (regime && confidence !== undefined) {
+      return `${regime} • ${(confidence * 100).toFixed(0)}%`;
+    }
   }
   
   return result.secondaryValue ? String(result.secondaryValue) : undefined;
@@ -150,8 +204,38 @@ function formatSecondaryMetric(result: any): string | undefined {
 function determineTrend(result: any): 'up' | 'down' | 'neutral' {
   if (!result) return 'neutral';
   
+  // Check for direct trend value first
+  if (result.trend) return result.trend;
+  
+  // Check for change values
   const change = result.change || result.changePercent || 0;
-  return change > 0 ? 'up' : change < 0 ? 'down' : 'neutral';
+  if (change !== 0) {
+    return change > 0 ? 'up' : 'down';
+  }
+  
+  // For Z-Score engines, check composite value
+  if (result.data?.composite?.value !== undefined) {
+    const value = result.data.composite.value;
+    return value > 0.5 ? 'up' : value < -0.5 ? 'down' : 'neutral';
+  }
+  
+  return 'neutral';
+}
+
+function determineTileStatus(result: any): 'active' | 'warning' | 'critical' | 'offline' {
+  if (!result) return 'offline';
+  
+  if (!result.success) return 'critical';
+  
+  // For Z-Score engines, determine status based on magnitude
+  if (result.data?.composite?.value !== undefined) {
+    const absValue = Math.abs(result.data.composite.value);
+    if (absValue > 3) return 'critical';
+    if (absValue > 2) return 'warning';
+    return 'active';
+  }
+  
+  return result.status || 'active';
 }
 
 function formatValue(value: number, unit?: string): string {

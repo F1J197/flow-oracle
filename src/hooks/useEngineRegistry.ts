@@ -147,8 +147,25 @@ export const useEngineRegistry = (options: UseEngineRegistryOptions = {}) => {
   useEffect(() => {
     updateState();
     
+    console.log('🚀 useEngineRegistry: Hook initialized', {
+      autoExecute,
+      totalEngines: registry.getAllMetadata().length,
+      category,
+      pillar
+    });
+    
     if (autoExecute) {
-      executeEngines().catch(console.error);
+      console.log('🔄 useEngineRegistry: Auto-executing engines...');
+      executeEngines()
+        .then((results) => {
+          console.log('✅ useEngineRegistry: Auto-execution completed', {
+            resultCount: results?.size || 0,
+            resultKeys: results ? Array.from(results.keys()) : []
+          });
+        })
+        .catch((error) => {
+          console.error('❌ useEngineRegistry: Auto-execution failed:', error);
+        });
     }
   }, [autoExecute, updateState, executeEngines]);
 

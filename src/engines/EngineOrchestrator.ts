@@ -53,8 +53,26 @@ export class EngineOrchestrator {
   }
 
   async executeAll(): Promise<Map<string, ExecutionResult>> {
+    console.log('🚀 EngineOrchestrator: Starting execution of all engines...', {
+      totalEngines: this.engines.size,
+      engineIds: Array.from(this.engines.keys())
+    });
+    
     const plan = this.createExecutionPlan();
-    return this.executePlan(plan);
+    console.log('📋 EngineOrchestrator: Execution plan created', {
+      stageCount: plan.executionOrder.length,
+      totalEngines: plan.engines.length
+    });
+    
+    const results = await this.executePlan(plan);
+    
+    console.log('✅ EngineOrchestrator: All engines executed', {
+      resultCount: results.size,
+      successCount: Array.from(results.values()).filter(r => r.success).length,
+      failureCount: Array.from(results.values()).filter(r => !r.success).length
+    });
+    
+    return results;
   }
 
   async executeByPillar(pillar: 1 | 2 | 3): Promise<Map<string, ExecutionResult>> {

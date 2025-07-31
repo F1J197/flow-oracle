@@ -106,12 +106,14 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
       dependencies: ['MULTIPLE_INDICATORS']
     });
     
-    registry.register(enhancedZScoreEngine, {
+     console.log('📊 Registering Enhanced Z-Score Engine:', enhancedZScoreEngine.id);
+     registry.register(enhancedZScoreEngine, {
       description: 'Enhanced Z-score analysis with multi-timeframe statistical rigor',
       version: '6.0',
       category: 'foundation',
       dependencies: ['DGS10', 'DGS2', 'VIXCLS', 'T10Y2Y', 'BAMLH0A0HYM2']
     });
+    console.log('✅ Enhanced Z-Score Engine registered successfully');
     
     unifiedRegistry.register(enhancedZScoreEngine, {
       description: 'Enhanced Z-score analysis with multi-timeframe statistical rigor',
@@ -178,14 +180,20 @@ export const EngineRegistryProvider: React.FC<EngineRegistryProviderProps> = ({ 
       dependencies: ['DEALER_POSITIONS', 'MARKET_DATA']
     });
     
-    console.log(`✅ Unified engine registry initialized with ${unifiedRegistry.getAllMetadata().length} engines`);
-    
-    // Log all registered engines
-    unifiedRegistry.getAllMetadata().forEach(metadata => {
-      console.log(`📊 Registered: ${metadata.name} (${metadata.category}) - v${metadata.version}${metadata.isLegacy ? ' [LEGACY]' : ''}`);
-    });
-    
-        console.log('✅ All engines registered successfully');
+     console.log(`✅ Unified engine registry initialized with ${unifiedRegistry.getAllMetadata().length} engines`);
+     console.log(`✅ Classic engine registry initialized with ${registry.getAllMetadata().length} engines`);
+     
+     // Log all registered engines (classic registry)
+     registry.getAllMetadata().forEach(metadata => {
+       console.log(`📊 Classic Registry: ${metadata.name} (${metadata.category}) - ID: ${metadata.id}`);
+     });
+     
+     // Log all registered engines (unified registry)
+     unifiedRegistry.getAllMetadata().forEach(metadata => {
+       console.log(`📊 Unified Registry: ${metadata.name} (${metadata.category}) - v${metadata.version}${metadata.isLegacy ? ' [LEGACY]' : ''}`);
+     });
+     
+         console.log('✅ All engines registered successfully');
         
         setIsInitialized(true);
       } catch (error) {

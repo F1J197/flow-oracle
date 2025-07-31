@@ -72,7 +72,18 @@ export class EngineRegistry {
   }
 
   async executeAll(): Promise<Map<string, any>> {
+    console.log('🚀 EngineRegistry: Executing all engines...', {
+      totalRegistered: this.metadata.size,
+      engineIds: Array.from(this.metadata.keys())
+    });
+    
     const results = await this.orchestrator.executeAll();
+    
+    console.log('✅ EngineRegistry: Execution completed', {
+      resultCount: results.size,
+      resultEngines: Array.from(results.keys())
+    });
+    
     this.notifySubscribers(results);
     return results;
   }

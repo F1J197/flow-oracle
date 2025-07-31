@@ -9,6 +9,7 @@ import { EnhancedSmartTile } from '@/components/Dashboard/EnhancedSmartTile';
 import { ProgressiveLoader } from '@/components/Dashboard/ProgressiveLoader';
 import { ErrorBoundary } from '@/components/intelligence/ErrorBoundary';
 import { LoadingDiagnostics } from '@/components/debug/LoadingDiagnostics';
+import { EngineDebugger } from '@/components/dashboard/EngineDebugger';
 import SystemMonitor from '@/components/system/SystemMonitor';
 
 export const Dashboard = () => {
@@ -61,11 +62,24 @@ export const Dashboard = () => {
 
   // Update tiles when engine results change
   useEffect(() => {
+    console.log('🔄 Dashboard: Engine results changed, updating tiles...', {
+      resultCount: results.size,
+      engineIds: Array.from(results.keys()),
+      tilesCount: tiles.length
+    });
+    
     results.forEach((result, engineId) => {
+      console.log(`📊 Dashboard: Updating tile for engine ${engineId}:`, {
+        success: result?.success,
+        hasData: !!result?.data,
+        compositeValue: result?.data?.composite?.value
+      });
       updateTileFromEngineResult(engineId, result);
     });
+    
     if (results.size > 0) {
       setLastUpdate(new Date());
+      console.log('✅ Dashboard: Tiles updated successfully');
     }
   }, [results, updateTileFromEngineResult]);
 
@@ -123,6 +137,7 @@ export const Dashboard = () => {
   return (
     <>
       <LoadingDiagnostics />
+      <EngineDebugger />
       <ResponsiveLayout currentPage="dashboard">
         <ErrorBoundary
           onError={(error, errorInfo) => {
