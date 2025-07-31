@@ -53,12 +53,30 @@ function IntelligenceEngine() {
   const renderEngineView = (engineKey: string, title: string) => {
     switch (engineKey) {
       case 'dataIntegrity':
+        // Create compatible EngineOutput from DataIntegrityMetrics
+        const engineOutput = dataIntegrityMetrics ? {
+          primaryMetric: {
+            value: dataIntegrityMetrics.integrityScore,
+            change24h: 0,
+            changePercent: 0
+          },
+          signal: dataIntegrityMetrics.systemStatus === 'OPTIMAL' ? 'RISK_ON' as const : 
+                 dataIntegrityMetrics.systemStatus === 'GOOD' ? 'NEUTRAL' as const : 'RISK_OFF' as const,
+          confidence: dataIntegrityMetrics.integrityScore,
+          analysis: `System integrity at ${dataIntegrityMetrics.integrityScore.toFixed(1)}%. Status: ${dataIntegrityMetrics.systemStatus}`,
+          subMetrics: {
+            totalIndicators: dataIntegrityMetrics.totalSources,
+            healthyIndicators: dataIntegrityMetrics.activeSources,
+            criticalIssues: dataIntegrityMetrics.totalSources - dataIntegrityMetrics.activeSources,
+            warningIssues: 0,
+            healingAttempts: dataIntegrityMetrics.autoHealed24h
+          }
+        } : null;
+
         return (
           <DataIntegrityIntelligenceView 
-            data={dataIntegrityMetrics} 
-            sources={dataIntegritySources}
-            loading={dataIntegrityLoading}
-            error={dataIntegrityError}
+            data={engineOutput} 
+            historicalData={[]}
           />
         );
       case 'netLiquidity':
