@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { ResponsiveLayout } from '@/components/layout/ResponsiveLayout';
+import { Header } from '@/components/layout/Header';
 import { TerminalContainer, TerminalHeader } from "@/components/Terminal";
 import { ChartGrid } from '@/components/charts/ChartGrid';
 import { ChartSelector } from '@/components/charts/ChartSelector';
@@ -37,8 +37,10 @@ const ChartsView = () => {
   }, []);
 
   return (
-    <ResponsiveLayout currentPage="charts">
-      <TerminalContainer className="min-h-screen">
+    <div className="min-h-screen bg-bg-primary">
+      <Header currentPage="charts" />
+      <main>
+        <TerminalContainer className="min-h-screen">
         <TerminalHeader 
           title="CHART ANALYSIS SYSTEM"
           subtitle="Advanced visualization of global liquidity indicators"
@@ -109,7 +111,8 @@ const ChartsView = () => {
           </div>
         </div>
       </TerminalContainer>
-    </ResponsiveLayout>
+      </main>
+    </div>
   );
 };
 

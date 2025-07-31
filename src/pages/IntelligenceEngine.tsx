@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ResponsiveLayout } from '@/components/layout/ResponsiveLayout';
+import { Header } from '@/components/layout/Header';
 import { TerminalGrid, TerminalContainer, TerminalHeader } from "@/components/Terminal";
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { useResilientEngine } from "@/hooks/useResilientEngine";
@@ -87,8 +87,10 @@ function IntelligenceEngine() {
   };
 
   return (
-    <ResponsiveLayout currentPage="intelligence">
-      <TerminalContainer className="min-h-screen">
+    <div className="min-h-screen bg-bg-primary">
+      <Header currentPage="intelligence" />
+      <main>
+        <TerminalContainer className="min-h-screen">
         <TerminalHeader 
           title="INTELLIGENCE ENGINE"
           subtitle="ENGINE EXECUTION MATRIX"
@@ -129,7 +131,8 @@ function IntelligenceEngine() {
           </ErrorBoundary>
         </TerminalGrid>
       </TerminalContainer>
-    </ResponsiveLayout>
+      </main>
+    </div>
   );
 }
 

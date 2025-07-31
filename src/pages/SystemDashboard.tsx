@@ -22,8 +22,8 @@ export const SystemDashboard: React.FC = () => {
   const systemHealth = getSystemHealth();
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-bg-primary">
+      <Header currentPage="system" />
       
       <StandardLayout variant="intelligence" maxWidth="full" className="pt-8">
         {/* System Overview */}
