@@ -16,7 +16,7 @@ export const Header = ({ currentPage = 'dashboard' }: HeaderProps) => {
               LIQUIDITY²
             </h1>
             <div className="text-xs text-text-secondary font-mono tracking-wider">
-              GLOBAL LIQUIDITY INTELLIGENCE TERMINAL
+              LIQUIDO MOVET MUNDUM
             </div>
           </div>
           <div className="text-neon-teal">│</div>
