@@ -17,67 +17,56 @@ export const EnhancedMomentumIntelligenceView: React.FC<Props> = ({ data }) => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '16px',
-        padding: '16px'
+        gap: '24px',
+        padding: '24px',
+        color: '#EAEAEA',
+        fontFamily: 'monospace'
       }}>
         {/* Column 1: Core Metrics */}
         <div>
           <h3 style={{ 
-            color: '#F7931A',
-            marginBottom: '12px',
-            fontSize: '1rem'
+            color: '#00BFFF',
+            marginBottom: '16px',
+            fontSize: '1.125rem'
           }}>
             MOMENTUM METRICS
           </h3>
           
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ color: '#CCCCCC' }}>
-              Composite Score
-            </div>
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ color: '#999999' }}>Composite Score</div>
             <div style={{ 
               fontSize: '1.5rem',
-              color: data.primaryMetric.value > 0 ? '#80FF00' : '#FF4500'
+              color: data.primaryMetric.value > 0 ? '#32CD32' : '#FF4500'
             }}>
               {data.primaryMetric.value.toFixed(2)}
             </div>
           </div>
           
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ color: '#CCCCCC' }}>
-              Velocity (RoC)
-            </div>
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ color: '#999999' }}>Velocity (RoC)</div>
             <div style={{ fontSize: '1.125rem' }}>
               {data.subMetrics?.velocity?.toFixed(2)}%
             </div>
           </div>
           
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ color: '#CCCCCC' }}>
-              Acceleration (Jerk)
-            </div>
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ color: '#999999' }}>Acceleration</div>
             <div style={{ fontSize: '1.125rem' }}>
               {data.subMetrics?.acceleration?.toFixed(2)}%
             </div>
           </div>
           
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ color: '#CCCCCC' }}>
-              Market Regime
-            </div>
-            <div style={{ 
-              fontSize: '1rem',
-              color: '#FFD700'
-            }}>
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ color: '#999999' }}>Market Regime</div>
+            <div style={{ color: '#FFD700' }}>
               {regime.replace(/_/g, ' ')}
             </div>
           </div>
           
           <div>
-            <div style={{ color: '#CCCCCC' }}>
-              Volatility (Jerk Factor)
-            </div>
+            <div style={{ color: '#999999' }}>Jerk Factor</div>
             <div style={{ 
-              color: jerkFactor > 10 ? '#FFD700' : '#FFFFFF'
+              color: jerkFactor > 10 ? '#FFD700' : '#EAEAEA'
             }}>
               {jerkFactor.toFixed(2)}
             </div>
@@ -87,16 +76,16 @@ export const EnhancedMomentumIntelligenceView: React.FC<Props> = ({ data }) => {
         {/* Column 2: Indicator Breakdown */}
         <div>
           <h3 style={{ 
-            color: '#F7931A',
-            marginBottom: '12px',
-            fontSize: '1rem'
+            color: '#00BFFF',
+            marginBottom: '16px',
+            fontSize: '1.125rem'
           }}>
             INDICATOR ANALYSIS
           </h3>
           
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <h4 style={{ 
-              color: '#80FF00',
+              color: '#32CD32',
               marginBottom: '8px'
             }}>
               TOP BULLISH
@@ -104,13 +93,10 @@ export const EnhancedMomentumIntelligenceView: React.FC<Props> = ({ data }) => {
             {data.subMetrics?.topBullish?.map((item: any, idx: number) => (
               <div key={idx} style={{
                 marginBottom: '4px',
-                fontSize: '0.75rem',
-                fontFamily: '"JetBrains Mono", monospace'
+                fontSize: '0.875rem'
               }}>
-                <span style={{ color: '#CCCCCC' }}>
-                  {item.indicator}:
-                </span>
-                <span style={{ color: '#80FF00' }}>
+                <span style={{ color: '#999999' }}>{item.indicator}:</span>
+                <span style={{ color: '#32CD32' }}>
                   {' '}V:{item.velocity}% A:{item.acceleration}%
                 </span>
               </div>
@@ -127,11 +113,9 @@ export const EnhancedMomentumIntelligenceView: React.FC<Props> = ({ data }) => {
             {data.subMetrics?.topBearish?.map((item: any, idx: number) => (
               <div key={idx} style={{
                 marginBottom: '4px',
-                fontSize: '0.75rem'
+                fontSize: '0.875rem'
               }}>
-                <span style={{ color: '#CCCCCC' }}>
-                  {item.indicator}:
-                </span>
+                <span style={{ color: '#999999' }}>{item.indicator}:</span>
                 <span style={{ color: '#FF4500' }}>
                   {' '}V:{item.velocity}% A:{item.acceleration}%
                 </span>
@@ -143,100 +127,46 @@ export const EnhancedMomentumIntelligenceView: React.FC<Props> = ({ data }) => {
         {/* Column 3: Signal Analysis */}
         <div>
           <h3 style={{ 
-            color: '#F7931A',
-            marginBottom: '12px',
-            fontSize: '1rem'
+            color: '#00BFFF',
+            marginBottom: '16px',
+            fontSize: '1.125rem'
           }}>
             SIGNAL BREAKDOWN
           </h3>
           
-          <TerminalTable
-            headers={['Metric', 'Count', 'Percent']}
-            rows={[
-              ['Bullish', data.subMetrics?.bullishIndicators || 0, `${((data.subMetrics?.bullishIndicators || 0) / 50 * 100).toFixed(0)}%`],
-              ['Bearish', data.subMetrics?.bearishIndicators || 0, `${((data.subMetrics?.bearishIndicators || 0) / 50 * 100).toFixed(0)}%`],
-              ['Accelerating', data.subMetrics?.acceleratingIndicators || 0, `${((data.subMetrics?.acceleratingIndicators || 0) / 50 * 100).toFixed(0)}%`],
-              ['Critical', data.subMetrics?.criticalSignals || 0, 'N/A'],
-              ['Extreme', data.subMetrics?.extremeMomentum || 0, 'N/A']
-            ]}
-          />
+          <div style={{ marginBottom: '16px' }}>
+            <div>Bullish: {data.subMetrics?.bullishIndicators || 0}</div>
+            <div>Bearish: {data.subMetrics?.bearishIndicators || 0}</div>
+            <div>Accelerating: {data.subMetrics?.acceleratingIndicators || 0}</div>
+            <div>Critical: {data.subMetrics?.criticalSignals || 0}</div>
+            <div>Extreme: {data.subMetrics?.extremeMomentum || 0}</div>
+          </div>
           
-          {/* Divergences */}
-          {data.subMetrics?.divergences && data.subMetrics.divergences.length > 0 && (
-            <div style={{ marginTop: '16px' }}>
-              <h4 style={{ 
-                color: '#FFD700',
-                marginBottom: '8px'
-              }}>
-                DIVERGENCES DETECTED
-              </h4>
-              {data.subMetrics.divergences.map((div: string, idx: number) => (
-                <div key={idx} style={{
-                  color: '#FFD700',
-                  fontSize: '0.75rem',
-                  marginBottom: '4px',
-                  padding: '8px',
-                  border: '1px solid #FFD700'
-                }}>
-                  {div}
-                </div>
-              ))}
+          <div>
+            <h4 style={{ color: '#00BFFF' }}>CONFIDENCE</h4>
+            <div style={{ 
+              color: '#EAEAEA',
+              fontSize: '1.125rem'
+            }}>
+              {data.confidence}%
             </div>
-          )}
+          </div>
         </div>
       </div>
       
       {/* Full Analysis */}
       <div style={{
-        borderTop: '1px solid hsl(180 100% 50% / 0.3)',
-        marginTop: '16px',
-        paddingTop: '16px',
-        paddingLeft: '16px',
-        paddingRight: '16px'
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+        marginTop: '24px',
+        paddingTop: '24px',
+        paddingLeft: '24px',
+        paddingRight: '24px'
       }}>
-        <h3 style={{ 
-          color: '#F7931A',
-          marginBottom: '12px' 
-        }}>
-          MOMENTUM ANALYSIS
-        </h3>
         <div style={{ 
-          fontFamily: '"JetBrains Mono", monospace',
-          lineHeight: 1.6,
-          color: '#FFFFFF'
+          fontFamily: 'monospace',
+          color: '#EAEAEA'
         }}>
           {data.analysis}
-        </div>
-        
-        {/* Confidence Meter */}
-        <div style={{ 
-          marginTop: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          <span style={{ color: '#CCCCCC' }}>
-            Confidence:
-          </span>
-          <div style={{ 
-            flex: 1,
-            height: '20px',
-            backgroundColor: '#000000',
-            border: '1px solid hsl(180 100% 50% / 0.3)'
-          }}>
-            <div style={{
-              width: `${data.confidence}%`,
-              height: '100%',
-              backgroundColor: data.confidence > 80 
-                ? '#80FF00'
-                : data.confidence > 60 
-                  ? '#FFD700'
-                  : '#FF4500'
-            }} />
-          </div>
-          <span style={{ color: '#FFFFFF' }}>
-            {data.confidence}%
-          </span>
         </div>
       </div>
     </TerminalBox>

@@ -12,11 +12,11 @@ export const EnhancedMomentumTile: React.FC<Props> = ({ data, importance }) => {
   const acceleration = data.subMetrics?.acceleration || 0;
   
   const getRegimeColor = () => {
-    if (regime.includes('EXPLOSIVE')) return '#FFD700'; // Gold/Warning
-    if (regime.includes('BULLISH')) return '#80FF00'; // Lime/Positive
-    if (regime.includes('BEARISH')) return '#FF4500'; // Orange/Negative
-    if (regime === 'CHAOTIC') return '#FFD700'; // Gold/Warning
-    return '#FFFFFF'; // White/Primary
+    if (regime.includes('EXPLOSIVE')) return '#FFD700';
+    if (regime.includes('BULLISH')) return '#32CD32';
+    if (regime.includes('BEARISH')) return '#FF4500';
+    if (regime === 'CHAOTIC') return '#FFD700';
+    return '#EAEAEA';
   };
   
   const getArrow = () => {
@@ -28,44 +28,24 @@ export const EnhancedMomentumTile: React.FC<Props> = ({ data, importance }) => {
   };
   
   const getBorderColor = () => {
-    if (importance > 85) return '#FF4500'; // Orange/Negative
-    if (importance > 60) return '#F7931A'; // BTC Orange
-    return 'hsl(180 100% 50% / 0.3)'; // Cyan border
+    if (importance > 85) return '#FF4500';
+    if (importance > 60) return '#00BFFF';
+    return 'rgba(255, 255, 255, 0.1)';
   };
-  
-  // Create velocity visualization
-  const velocityBars = Array.from({ length: 10 }, (_, i) => {
-    const threshold = (i + 1) * 10;
-    const absVelocity = Math.abs(velocity);
-    const isActive = absVelocity >= threshold;
-    const color = velocity > 0 ? '#80FF00' : '#FF4500'; // Lime or Orange
-    
-    return (
-      <div
-        key={i}
-        style={{
-          width: '8px',
-          height: '20px',
-          backgroundColor: isActive ? color : 'hsl(180 100% 50% / 0.3)',
-          marginRight: '2px',
-          display: 'inline-block'
-        }}
-      />
-    );
-  });
   
   return (
     <div style={{
       border: `1px solid ${getBorderColor()}`,
-      padding: '12px',
+      padding: '16px',
       height: '200px',
-      backgroundColor: '#050505',
-      fontFamily: '"JetBrains Mono", monospace'
+      backgroundColor: '#1A1A1A',
+      fontFamily: 'monospace',
+      color: '#EAEAEA'
     }}>
       {/* Header */}
       <div style={{
-        color: '#F7931A',
-        fontSize: '0.75rem',
+        color: '#00BFFF',
+        fontSize: '0.875rem',
         marginBottom: '8px',
         textTransform: 'uppercase'
       }}>
@@ -81,7 +61,7 @@ export const EnhancedMomentumTile: React.FC<Props> = ({ data, importance }) => {
         <div style={{
           fontSize: '1.5rem',
           color: getRegimeColor(),
-          fontWeight: 700
+          fontWeight: 'bold'
         }}>
           {data.primaryMetric.value.toFixed(1)}
         </div>
@@ -94,25 +74,20 @@ export const EnhancedMomentumTile: React.FC<Props> = ({ data, importance }) => {
         </div>
       </div>
       
-      {/* Velocity Visualization */}
-      <div style={{ marginBottom: '8px' }}>
-        {velocityBars}
-      </div>
-      
       {/* Regime Label */}
       <div style={{
-        fontSize: '0.75rem',
+        fontSize: '0.875rem',
         color: getRegimeColor(),
         marginBottom: '4px',
-        fontWeight: 700
+        fontWeight: 'bold'
       }}>
         {regime.replace(/_/g, ' ')}
       </div>
       
       {/* Sub Metrics */}
       <div style={{
-        fontSize: '0.625rem',
-        color: '#CCCCCC'
+        fontSize: '0.75rem',
+        color: '#999999'
       }}>
         <div>VEL: {velocity.toFixed(1)}% | ACC: {acceleration.toFixed(1)}%</div>
         <div>
@@ -122,10 +97,10 @@ export const EnhancedMomentumTile: React.FC<Props> = ({ data, importance }) => {
       
       {/* Analysis (truncated) */}
       <div style={{
-        fontSize: '0.625rem',
-        color: '#FFFFFF',
+        fontSize: '0.75rem',
+        color: '#EAEAEA',
         marginTop: '8px',
-        borderTop: '1px solid hsl(180 100% 50% / 0.3)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
         paddingTop: '8px',
         overflow: 'hidden',
         textOverflow: 'ellipsis',

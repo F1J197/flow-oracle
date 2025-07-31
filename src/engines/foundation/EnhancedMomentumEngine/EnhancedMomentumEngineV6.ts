@@ -461,4 +461,98 @@ export class EnhancedMomentumEngineV6 extends BaseEngine {
   public getDetailedModal(): any {
     return this.getIntelligenceView();
   }
+  
+  public getDetailedView(): any {
+    const output = this.generateMockOutput();
+    return {
+      title: 'Enhanced Momentum Engine - Detailed Analysis',
+      sections: [
+        {
+          title: 'Core Momentum Metrics',
+          data: [
+            { label: 'Composite Score', value: output.primaryMetric.value.toFixed(2), trend: output.primaryMetric.changePercent > 0 ? 'up' : 'down' },
+            { label: 'Velocity (Rate of Change)', value: `${output.subMetrics.velocity.toFixed(2)}%`, unit: 'percent' },
+            { label: 'Acceleration (2nd Derivative)', value: `${output.subMetrics.acceleration.toFixed(2)}%`, unit: 'percent' },
+            { label: 'Jerk Factor (3rd Derivative)', value: output.subMetrics.jerkFactor.toFixed(2), unit: 'volatility' }
+          ]
+        },
+        {
+          title: 'Market Regime Analysis',
+          data: [
+            { label: 'Current Regime', value: output.subMetrics.regime.replace(/_/g, ' ') },
+            { label: 'Signal Strength', value: output.signal },
+            { label: 'Confidence Level', value: `${output.confidence}%` },
+            { label: 'Critical Signals', value: output.subMetrics.criticalSignals }
+          ]
+        },
+        {
+          title: 'Indicator Breakdown',
+          data: [
+            { label: 'Bullish Indicators', value: output.subMetrics.bullishIndicators, color: 'positive' },
+            { label: 'Bearish Indicators', value: output.subMetrics.bearishIndicators, color: 'negative' },
+            { label: 'Accelerating', value: output.subMetrics.acceleratingIndicators, color: 'accent' },
+            { label: 'Extreme Momentum', value: output.subMetrics.extremeMomentum, color: 'warning' }
+          ]
+        }
+      ],
+      analysis: output.analysis,
+      alerts: output.alerts || [],
+      timestamp: new Date()
+    };
+  }
+  
+  // Methods required by useFoundationMomentum hook
+  public getMomentumMetrics(): any {
+    const output = this.generateMockOutput();
+    return {
+      composite: output.primaryMetric.value,
+      velocity: output.subMetrics.velocity,
+      acceleration: output.subMetrics.acceleration,
+      jerkFactor: output.subMetrics.jerkFactor,
+      regime: output.subMetrics.regime,
+      confidence: output.confidence,
+      bullishCount: output.subMetrics.bullishIndicators,
+      bearishCount: output.subMetrics.bearishIndicators,
+      acceleratingCount: output.subMetrics.acceleratingIndicators,
+      criticalSignals: output.subMetrics.criticalSignals,
+      extremeMomentum: output.subMetrics.extremeMomentum,
+      lastUpdated: new Date()
+    };
+  }
+  
+  public getCompositeScore(): any {
+    const output = this.generateMockOutput();
+    return {
+      value: output.primaryMetric.value,
+      change24h: output.primaryMetric.change24h,
+      changePercent: output.primaryMetric.changePercent,
+      signal: output.signal,
+      confidence: output.confidence,
+      regime: output.subMetrics.regime,
+      components: {
+        velocity: output.subMetrics.velocity,
+        acceleration: output.subMetrics.acceleration,
+        jerkFactor: output.subMetrics.jerkFactor
+      },
+      breakdown: {
+        bullish: output.subMetrics.topBullish,
+        bearish: output.subMetrics.topBearish
+      }
+    };
+  }
+  
+  public getAlerts(): any {
+    const output = this.generateMockOutput();
+    return {
+      alerts: output.alerts || [],
+      criticalCount: output.subMetrics.criticalSignals,
+      extremeCount: output.subMetrics.extremeMomentum,
+      divergences: output.subMetrics.divergences || [],
+      summary: {
+        total: (output.alerts || []).length,
+        critical: (output.alerts || []).filter(a => a.level === 'critical').length,
+        warnings: (output.alerts || []).filter(a => a.level === 'warning').length
+      }
+    };
+  }
 }
