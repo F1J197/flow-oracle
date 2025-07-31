@@ -1,4 +1,8 @@
 import React from 'react';
+import { TerminalLayout } from '@/components/intelligence/TerminalLayout';
+import { TerminalMetricGrid } from '@/components/intelligence/TerminalMetricGrid';
+import { TerminalDataSection } from '@/components/intelligence/TerminalDataSection';
+import { TerminalDataRow } from '@/components/intelligence/TerminalDataRow';
 import { EngineOutput } from '@/engines/BaseEngine';
 
 interface Props {
@@ -6,230 +10,163 @@ interface Props {
   historicalData?: any[];
   loading?: boolean;
   error?: string | null;
+  className?: string;
 }
 
-export const DataIntegrityIntelligenceView: React.FC<Props> = ({ data, historicalData, loading, error }) => {
-  // Handle loading state
+export const DataIntegrityIntelligenceView: React.FC<Props> = ({ 
+  data, 
+  historicalData, 
+  loading = false, 
+  error = null,
+  className 
+}) => {
   if (loading) {
     return (
-      <div style={{
-        backgroundColor: 'hsl(0, 0%, 5%)',
-        border: '1px solid hsl(0, 0%, 25%)',
-        padding: '2rem',
-        fontFamily: '"JetBrains Mono", monospace',
-        textAlign: 'center',
-        color: 'hsl(0, 0%, 60%)'
-      }}>
-        <div>Loading data integrity metrics...</div>
-      </div>
+      <TerminalLayout 
+        title="DATA INTEGRITY ENGINE" 
+        status="offline" 
+        className={className}
+      >
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-glass-bg terminal-panel rounded"></div>
+          <div className="h-4 bg-glass-bg w-3/4 terminal-panel rounded"></div>
+          <div className="h-4 bg-glass-bg w-1/2 terminal-panel rounded"></div>
+        </div>
+      </TerminalLayout>
     );
   }
 
-  // Handle error state
-  if (error) {
+  if (error || !data) {
     return (
-      <div style={{
-        backgroundColor: 'hsl(0, 0%, 5%)',
-        border: '1px solid hsl(14, 100%, 55%)',
-        padding: '2rem',
-        fontFamily: '"JetBrains Mono", monospace',
-        textAlign: 'center'
-      }}>
-        <div style={{ color: 'hsl(14, 100%, 55%)', marginBottom: '0.5rem' }}>
-          [ERROR]
+      <TerminalLayout 
+        title="DATA INTEGRITY ENGINE" 
+        status="critical" 
+        className={className}
+      >
+        <div className="text-center text-neon-orange">
+          {error || "No data available"}
         </div>
-        <div style={{ color: 'hsl(0, 0%, 60%)' }}>
-          Failed to load data integrity metrics: {error}
-        </div>
-      </div>
+      </TerminalLayout>
     );
   }
 
-  // Handle null data state
-  if (!data) {
-    return (
-      <div style={{
-        backgroundColor: 'hsl(0, 0%, 5%)',
-        border: '1px solid hsl(50, 100%, 50%)',
-        padding: '2rem',
-        fontFamily: '"JetBrains Mono", monospace',
-        textAlign: 'center'
-      }}>
-        <div style={{ color: 'hsl(50, 100%, 50%)', marginBottom: '0.5rem' }}>
-          [WARNING]
-        </div>
-        <div style={{ color: 'hsl(0, 0%, 60%)' }}>
-          Data integrity metrics unavailable. Initializing engine...
-        </div>
-      </div>
-    );
-  }
+  // Determine overall status
+  const status = (data.primaryMetric?.value ?? 0) >= 95 ? 'active' : 
+                 (data.primaryMetric?.value ?? 0) >= 80 ? 'warning' : 'critical';
+
+  // Key metrics for the grid display
+  const keyMetrics = [
+    {
+      label: "Overall Score",
+      value: `${(data.primaryMetric?.value ?? 0).toFixed(1)}%`,
+      status: (data.primaryMetric?.value ?? 0) >= 95 ? 'positive' as const : 
+              (data.primaryMetric?.value ?? 0) >= 80 ? 'neutral' as const : 'negative' as const
+    },
+    {
+      label: "24h Change",
+      value: `${(data.primaryMetric?.change24h ?? 0) >= 0 ? '+' : ''}${(data.primaryMetric?.changePercent ?? 0).toFixed(2)}%`,
+      status: (data.primaryMetric?.change24h ?? 0) >= 0 ? 'positive' as const : 'negative' as const
+    },
+    {
+      label: "Confidence",
+      value: `${(data.confidence ?? 0).toFixed(1)}%`,
+      status: (data.confidence ?? 0) >= 95 ? 'positive' as const : 'neutral' as const
+    },
+    {
+      label: "Active Alerts",
+      value: `${data.alerts?.length || 0}`,
+      status: (data.alerts?.length || 0) === 0 ? 'positive' as const : 'warning' as const
+    }
+  ];
 
   return (
-    <div style={{
-      backgroundColor: 'hsl(0, 0%, 5%)',
-      border: '1px solid hsl(0, 0%, 25%)',
-      padding: '1rem',
-      fontFamily: '"JetBrains Mono", monospace'
-    }}>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '1.5rem',
-        padding: '1.5rem'
-      }}>
-        {/* Column 1: Overview */}
-        <div>
-          <h3 style={{ 
-            color: 'hsl(300, 100%, 50%)',
-            marginBottom: '1rem' 
-          }}>
-            SYSTEM OVERVIEW
-          </h3>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <div style={{ color: 'hsl(0, 0%, 60%)' }}>
-              Overall Score
-            </div>
-            <div style={{ 
-              fontSize: '1.5rem',
-              color: (data.primaryMetric?.value ?? 0) >= 80 
-                ? 'hsl(180, 100%, 50%)'
-                : 'hsl(14, 100%, 55%)'
-            }}>
-              {(data.primaryMetric?.value ?? 0).toFixed(2)}%
-            </div>
-          </div>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <div style={{ color: 'hsl(0, 0%, 60%)' }}>
-              24h Change
-            </div>
-            <div style={{ 
-              color: (data.primaryMetric?.change24h ?? 0) >= 0
-                ? 'hsl(180, 100%, 50%)'
-                : 'hsl(14, 100%, 55%)'
-            }}>
-              {(data.primaryMetric?.change24h ?? 0) >= 0 ? '+' : ''}
-              {(data.primaryMetric?.changePercent ?? 0).toFixed(2)}%
-            </div>
-          </div>
-          
-          <div>
-            <div style={{ color: 'hsl(0, 0%, 60%)' }}>
-              Confidence Level
-            </div>
-            <div>{(data.confidence ?? 0).toFixed(1)}%</div>
-          </div>
-        </div>
+    <TerminalLayout 
+      title="DATA INTEGRITY ENGINE" 
+      status={status} 
+      className={className}
+    >
+      <div className="space-y-6">
+        {/* Key Metrics Grid */}
+        <TerminalMetricGrid metrics={keyMetrics} columns={2} />
         
-        {/* Column 2: Health Metrics */}
-        <div>
-          <h3 style={{ 
-            color: 'hsl(300, 100%, 50%)',
-            marginBottom: '1rem' 
-          }}>
-            HEALTH METRICS
-          </h3>
-          
-          <div style={{
-            border: '1px solid hsl(0, 0%, 25%)',
-            padding: '0.5rem'
-          }}>
-            <div style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              <span>Total Indicators: </span>
-              <span style={{ color: 'hsl(180, 100%, 50%)' }}>{data.subMetrics?.totalIndicators || 0}</span>
-            </div>
-            <div style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              <span>Healthy: </span>
-              <span style={{ color: 'hsl(90, 100%, 50%)' }}>{data.subMetrics?.healthyIndicators || 0}</span>
-            </div>
-            <div style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              <span>Warnings: </span>
-              <span style={{ color: 'hsl(50, 100%, 50%)' }}>{data.subMetrics?.warningIssues || 0}</span>
-            </div>
-            <div style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              <span>Critical: </span>
-              <span style={{ color: 'hsl(14, 100%, 55%)' }}>{data.subMetrics?.criticalIssues || 0}</span>
-            </div>
-            <div style={{ fontSize: '0.875rem' }}>
-              <span>Healing Attempts: </span>
-              <span style={{ color: 'hsl(240, 100%, 60%)' }}>{data.subMetrics?.healingAttempts || 0}</span>
-            </div>
+        {/* System Overview Section */}
+        <TerminalDataSection title="SYSTEM OVERVIEW">
+          <TerminalDataRow 
+            label="Overall Score" 
+            value={`${(data.primaryMetric?.value ?? 0).toFixed(2)}%`}
+            status={(data.primaryMetric?.value ?? 0) >= 95 ? 'positive' : 
+                   (data.primaryMetric?.value ?? 0) >= 80 ? 'neutral' : 'negative'}
+          />
+          <TerminalDataRow 
+            label="24h Change" 
+            value={`${(data.primaryMetric?.change24h ?? 0) >= 0 ? '+' : ''}${(data.primaryMetric?.changePercent ?? 0).toFixed(2)}%`}
+            status={(data.primaryMetric?.change24h ?? 0) >= 0 ? 'positive' : 'negative'}
+          />
+          <TerminalDataRow 
+            label="Confidence Level" 
+            value={`${(data.confidence ?? 0).toFixed(1)}%`}
+            status={(data.confidence ?? 0) >= 95 ? 'positive' : 'neutral'}
+          />
+          <TerminalDataRow 
+            label="Last Updated" 
+            value={new Date().toLocaleTimeString()}
+            status="neutral"
+          />
+        </TerminalDataSection>
+
+        {/* Health Metrics Section */}
+        <TerminalDataSection title="HEALTH METRICS">
+          <TerminalDataRow 
+            label="Total Indicators" 
+            value={data.subMetrics?.totalIndicators || 0}
+            status="neutral"
+          />
+          <TerminalDataRow 
+            label="Healthy Indicators" 
+            value={data.subMetrics?.healthyIndicators || 0}
+            status="positive"
+          />
+          <TerminalDataRow 
+            label="Warning Issues" 
+            value={data.subMetrics?.warningIssues || 0}
+            status={(data.subMetrics?.warningIssues || 0) === 0 ? 'positive' : 'warning'}
+          />
+          <TerminalDataRow 
+            label="Critical Issues" 
+            value={data.subMetrics?.criticalIssues || 0}
+            status={(data.subMetrics?.criticalIssues || 0) === 0 ? 'positive' : 'critical'}
+          />
+          <TerminalDataRow 
+            label="Healing Attempts" 
+            value={data.subMetrics?.healingAttempts || 0}
+            status="neutral"
+          />
+        </TerminalDataSection>
+
+        {/* Active Alerts Section */}
+        {data.alerts && data.alerts.length > 0 && (
+          <TerminalDataSection title="ACTIVE ALERTS">
+            {data.alerts.map((alert, idx) => (
+              <TerminalDataRow 
+                key={idx}
+                label={`[${alert.level.toUpperCase()}]`}
+                value={`${alert.message} (${new Date(alert.timestamp).toLocaleTimeString()})`}
+                status={
+                  alert.level === 'critical' ? 'critical' :
+                  alert.level === 'warning' ? 'warning' : 'neutral'
+                }
+              />
+            ))}
+          </TerminalDataSection>
+        )}
+
+        {/* System Analysis Section */}
+        <TerminalDataSection title="SYSTEM ANALYSIS">
+          <div className="terminal-analysis-text">
+            {data.analysis || 'Analysis not available'}
           </div>
-        </div>
-        
-        {/* Column 3: Alerts & Issues */}
-        <div>
-          <h3 style={{ 
-            color: 'hsl(300, 100%, 50%)',
-            marginBottom: '1rem' 
-          }}>
-            ACTIVE ALERTS
-          </h3>
-          
-          {data.alerts && data.alerts.length > 0 ? (
-            <div>
-              {data.alerts.map((alert, idx) => (
-                <div 
-                  key={idx}
-                  style={{
-                    marginBottom: '0.5rem',
-                    padding: '0.5rem',
-                    border: `1px solid ${
-                      alert.level === 'critical' 
-                        ? 'hsl(14, 100%, 55%)'
-                        : 'hsl(50, 100%, 50%)'
-                    }`,
-                    fontSize: '0.875rem'
-                  }}
-                >
-                  <div style={{ 
-                    color: alert.level === 'critical'
-                      ? 'hsl(14, 100%, 55%)'
-                      : 'hsl(50, 100%, 50%)'
-                  }}>
-                    [{alert.level.toUpperCase()}]
-                  </div>
-                  <div>{alert.message}</div>
-                  <div style={{ 
-                    color: 'hsl(0, 0%, 50%)',
-                    fontSize: '0.75rem'
-                  }}>
-                    {new Date(alert.timestamp).toLocaleTimeString()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ color: 'hsl(0, 0%, 60%)' }}>
-              No active alerts
-            </div>
-          )}
-        </div>
+        </TerminalDataSection>
       </div>
-      
-      {/* Analysis Section */}
-      <div style={{
-        borderTop: '1px solid hsl(0, 0%, 25%)',
-        marginTop: '1.5rem',
-        paddingTop: '1.5rem',
-        paddingLeft: '1.5rem',
-        paddingRight: '1.5rem'
-      }}>
-        <h3 style={{ 
-          color: 'hsl(300, 100%, 50%)',
-          marginBottom: '1rem' 
-        }}>
-          SYSTEM ANALYSIS
-        </h3>
-        <div style={{ 
-          fontFamily: '"JetBrains Mono", monospace',
-          lineHeight: '1.5'
-        }}>
-          {data.analysis || 'Analysis not available'}
-        </div>
-      </div>
-    </div>
+    </TerminalLayout>
   );
 };
