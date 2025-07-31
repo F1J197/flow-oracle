@@ -9,7 +9,7 @@ import { SafeZScoreTile } from '@/components/dashboard/SafeZScoreTile';
 import { GlobalPlumbingTile } from '@/engines/pillar1/GlobalFinancialPlumbingEngine';
 import { KalmanNetLiquidityDashboardTile } from '@/engines/pillar1/KalmanNetLiquidityEngine';
 
-export const TerminalDashboard = () => {
+export const TerminalDashboard = React.memo(() => {
   console.log('🖥️ TerminalDashboard component initializing...');
   
   try {
@@ -22,7 +22,12 @@ export const TerminalDashboard = () => {
     const { efficiency, systemicRisk, trend, loading: plumbingLoading } = useGlobalPlumbingEngine({ autoRefresh: true });
     console.log('🔧 Global plumbing loaded:', { efficiency, systemicRisk, trend, loading: plumbingLoading });
     
-    const { metrics: netLiquidityMetrics, dashboardData: netLiquidityDashboard, isLoading: netLiquidityLoading, error: netLiquidityError } = useKalmanNetLiquidity();
+    // ✅ OPTIMIZED: Destructure only what we need to prevent unnecessary re-renders
+    const { 
+      metrics: netLiquidityMetrics, 
+      isLoading: netLiquidityLoading, 
+      error: netLiquidityError 
+    } = useKalmanNetLiquidity();
     console.log('💧 Kalman Net liquidity loaded:', { loading: netLiquidityLoading, hasMetrics: !!netLiquidityMetrics, error: netLiquidityError });
     
     console.log('🎨 TerminalDashboard rendering with data:', { 
@@ -293,4 +298,4 @@ export const TerminalDashboard = () => {
       </div>
     );
   }
-};
+});

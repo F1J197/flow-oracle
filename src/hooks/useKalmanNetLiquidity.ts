@@ -38,9 +38,13 @@ export function useKalmanNetLiquidity(): UseKalmanNetLiquidityReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
   const executeEngine = useCallback(async () => {
-    if (isLoading) return;
+    if (isLoading) {
+      console.log('💧 Execution already in progress, skipping...');
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
@@ -220,27 +224,33 @@ export function useKalmanNetLiquidity(): UseKalmanNetLiquidityReturn {
         error 
       });
     }
-  }, [engine, isLoading, metrics, error]);
+  }, [engine]); // ✅ FIXED: Only depend on engine instance
 
   const refresh = useCallback(async () => {
     await executeEngine();
   }, [executeEngine]);
 
-  // Initial execution
+  // Initial execution - only once
   useEffect(() => {
-    executeEngine();
-  }, [executeEngine]);
+    if (!hasInitialLoad) {
+      setHasInitialLoad(true);
+      executeEngine();
+    }
+  }, []); // ✅ FIXED: Empty dependency array for one-time execution
 
-  // Set up periodic refresh (30 seconds)
+  // Set up periodic refresh (30 seconds) - stable reference
   useEffect(() => {
+    if (!hasInitialLoad) return; // Wait for initial load
+    
     const interval = setInterval(() => {
       if (!isLoading) {
+        console.log('💧 Periodic refresh triggered');
         executeEngine();
       }
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [executeEngine, isLoading]);
+  }, [hasInitialLoad, executeEngine, isLoading]); // Minimal dependencies
 
   return {
     report,

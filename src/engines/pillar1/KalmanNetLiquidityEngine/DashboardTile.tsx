@@ -11,7 +11,7 @@ interface KalmanNetLiquidityDashboardTileProps {
   className?: string;
 }
 
-export const KalmanNetLiquidityDashboardTile: React.FC<KalmanNetLiquidityDashboardTileProps> = ({
+export const KalmanNetLiquidityDashboardTile: React.FC<KalmanNetLiquidityDashboardTileProps> = React.memo(({
   data,
   loading = false,
   error,
@@ -168,4 +168,4 @@ export const KalmanNetLiquidityDashboardTile: React.FC<KalmanNetLiquidityDashboa
       </div>
     </BaseTile>
   );
-};
+});
