@@ -120,3 +120,29 @@ export const getValueColor = (value: number, threshold?: { positive?: number; ne
   }
   return 'text-text-data';
 };
+
+// Generic value formatter - automatically chooses the best format
+export const formatValue = (value: number | string, options?: {
+  type?: 'currency' | 'percentage' | 'number' | 'basis-points' | 'z-score';
+  decimals?: number;
+  compact?: boolean;
+  showSign?: boolean;
+}): string => {
+  if (typeof value === 'string') return value;
+  
+  const { type = 'number', decimals, compact, showSign } = options || {};
+  
+  switch (type) {
+    case 'currency':
+      return formatCurrency(value, { decimals, compact, showSign });
+    case 'percentage':
+      return formatPercentage(value, { decimals, showSign });
+    case 'basis-points':
+      return formatBasisPoints(value);
+    case 'z-score':
+      return formatZScore(value);
+    case 'number':
+    default:
+      return formatNumber(value, { decimals, compact, showSign });
+  }
+};
