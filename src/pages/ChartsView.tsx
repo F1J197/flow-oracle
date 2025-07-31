@@ -3,6 +3,7 @@ import { Header } from '@/components/layout/Header';
 import { TerminalContainer, TerminalHeader } from "@/components/Terminal";
 import { ChartGrid } from '@/components/charts/ChartGrid';
 import { ChartSelector } from '@/components/charts/ChartSelector';
+import { UnifiedChartsViewFixed } from '@/components/charts/UnifiedChartsViewFixed';
 import { getChartConfig } from '@/config/charts.config';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -48,12 +49,18 @@ const ChartsView = () => {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger 
               value="charts" 
               className="text-xs font-mono bg-transparent data-[state=active]:bg-neon-teal data-[state=active]:text-bg-primary"
             >
               CHART ANALYSIS
+            </TabsTrigger>
+            <TabsTrigger 
+              value="unified" 
+              className="text-xs font-mono bg-transparent data-[state=active]:bg-neon-teal data-[state=active]:text-bg-primary"
+            >
+              UNIFIED CHARTS
             </TabsTrigger>
             <TabsTrigger 
               value="selector" 
@@ -81,6 +88,10 @@ const ChartsView = () => {
                 </div>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="unified" className="space-y-6">
+            <UnifiedChartsViewFixed />
           </TabsContent>
 
           <TabsContent value="selector" className="space-y-6">

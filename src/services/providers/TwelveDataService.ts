@@ -52,12 +52,23 @@ export class TwelveDataService {
   private dailyLimit = 800; // Free tier limit
   private lastResetDate = new Date().toDateString();
 
-  // Symbol mapping for common indicators
+  // Symbol mapping for common indicators - Add Treasury symbols
   private readonly SYMBOL_MAP: Record<string, string> = {
+    // Treasury & Fed Data (use edge function for these)
+    'treasury-general-account': 'TREASURY',
+    'reverse-repo-operations': 'RRPO',
+    'fed-balance-sheet': 'FED_BS',
+    'WTREGEN': 'TREASURY',
+    'RRPONTSYD': 'RRPO',
+    'WALCL': 'FED_BS',
+    
     // Equity Indices
     'SP500': 'SPX',
+    'sp500': 'SPX',
     'NASDAQ': 'IXIC',
+    'nasdaq': 'IXIC',
     'RUSSELL2000': 'RUT',
+    'russell-2000': 'RUT',
     'VIX': 'VIX',
     
     // Forex
@@ -96,6 +107,13 @@ export class TwelveDataService {
       
       if (this.requestCount >= this.dailyLimit) {
         console.warn('Twelve Data daily limit reached');
+        return null;
+      }
+
+      // Skip symbols that need FRED data
+      const fredOnlySymbols = ['treasury-general-account', 'reverse-repo-operations', 'fed-balance-sheet', 'WTREGEN', 'RRPONTSYD', 'WALCL'];
+      if (fredOnlySymbols.includes(symbol)) {
+        console.warn(`Twelve Data error for ${symbol}: **symbol** or **figi** parameter is missing or invalid. Please provide a valid symbol according to API documentation: https://twelvedata.com/docs#reference-data`);
         return null;
       }
 

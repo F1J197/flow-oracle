@@ -74,6 +74,13 @@ export class FinnhubService {
         return null;
       }
 
+      // Skip symbols that need FRED data
+      const fredOnlySymbols = ['treasury-general-account', 'reverse-repo-operations', 'fed-balance-sheet', 'WTREGEN', 'RRPONTSYD', 'WALCL'];
+      if (fredOnlySymbols.includes(symbol)) {
+        console.warn(`No data available for ${symbol} on Finnhub`);
+        return null;
+      }
+
       const mappedSymbol = this.SYMBOL_MAP[symbol.toUpperCase()] || symbol;
       
       // Check cache first
