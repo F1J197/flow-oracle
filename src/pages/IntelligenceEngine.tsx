@@ -4,6 +4,7 @@ import { TerminalGrid, TerminalContainer, TerminalHeader } from "@/components/Te
 import { ErrorBoundary } from "@/components/intelligence/ErrorBoundary";
 import { useResilientEngine } from "@/hooks/useResilientEngine";
 import { useFoundationDataIntegrity } from "@/hooks/useFoundationDataIntegrity";
+import { useUnifiedNetLiquidity } from "@/hooks/useUnifiedNetLiquidity";
 
 // Engine implementations
 import { DataIntegrityEngine } from "@/engines/foundation/DataIntegrityEngine";
@@ -17,7 +18,6 @@ import { GlobalFinancialPlumbingEngine } from "@/engines/pillar1/GlobalFinancial
 
 // Engine Views
 import { 
-  NetLiquidityView,
   CreditStressView,
   MomentumView
 } from "@/components/intelligence";
@@ -25,6 +25,7 @@ import { DataIntegrityIntelligenceView } from "@/engines/foundation/DataIntegrit
 import { ZScoreFoundationIntelligence } from "@/engines/foundation/EnhancedZScoreEngine";
 import { PrimaryDealerPositionsView } from "@/components/intelligence/PrimaryDealerPositionsView";
 import { GlobalPlumbingIntelligence } from "@/engines/pillar1/GlobalFinancialPlumbingEngine";
+import { KalmanNetLiquidityIntelligenceView } from "@/engines/pillar1/KalmanNetLiquidityEngine";
 // Testing components removed
 
 // Import intelligence styles
@@ -39,6 +40,9 @@ function IntelligenceEngine() {
   
   // Foundation Data Integrity hook
   const { metrics: dataIntegrityMetrics, sources: dataIntegritySources, loading: dataIntegrityLoading, error: dataIntegrityError } = useFoundationDataIntegrity();
+  
+  // Unified Net Liquidity hook
+  const { report: netLiquidityReport, intelligenceData: netLiquidityIntelligence, isLoading: netLiquidityLoading, error: netLiquidityError } = useUnifiedNetLiquidity();
   
   const loading = false;
   const systemHealth = 'healthy' as const;
@@ -58,7 +62,13 @@ function IntelligenceEngine() {
           />
         );
       case 'netLiquidity':
-        return <NetLiquidityView loading={loading} />;
+        return (
+          <KalmanNetLiquidityIntelligenceView 
+            data={netLiquidityReport?.data}
+            loading={netLiquidityLoading}
+            error={netLiquidityError}
+          />
+        );
       case 'creditStress':
         return <CreditStressView loading={loading} />;
       case 'momentum':
