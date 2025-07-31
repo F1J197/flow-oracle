@@ -111,11 +111,17 @@ export class TwelveDataService {
       this.requestCount++;
 
       const response = await fetch(
-        `${this.baseUrl}/quote?symbol=${mappedSymbol}&apikey=demo`, // Using demo key for free tier
+        'https://gotlitraitdvltnjdnni.supabase.co/functions/v1/twelve-data-proxy',
         {
+          method: 'POST',
           headers: {
-            'Accept': 'application/json'
-          }
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdGxpdHJhaXRkdmx0bmpkbm5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2ODc2NDksImV4cCI6MjA2OTI2MzY0OX0._6eCm4Vj0oRUThRPDekpHmd5Dq9DlqNvRlPkQ-czWlQ'
+          },
+          body: JSON.stringify({
+            symbol: mappedSymbol,
+            endpoint: 'quote'
+          })
         }
       );
 
@@ -180,7 +186,20 @@ export class TwelveDataService {
       this.requestCount++;
 
       const response = await fetch(
-        `${this.baseUrl}/time_series?symbol=${mappedSymbol}&interval=${interval}&outputsize=${outputSize}&apikey=demo`
+        'https://gotlitraitdvltnjdnni.supabase.co/functions/v1/twelve-data-proxy',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdGxpdHJhaXRkdmx0bmpkbm5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2ODc2NDksImV4cCI6MjA2OTI2MzY0OX0._6eCm4Vj0oRUThRPDekpHmd5Dq9DlqNvRlPkQ-czWlQ'
+          },
+          body: JSON.stringify({
+            symbol: mappedSymbol,
+            interval,
+            outputsize: outputSize,
+            endpoint: 'time_series'
+          })
+        }
       );
 
       if (!response.ok) {

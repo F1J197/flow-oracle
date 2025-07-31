@@ -86,11 +86,17 @@ export class FinnhubService {
       this.recordRequest();
 
       const response = await fetch(
-        `${this.baseUrl}/quote?symbol=${mappedSymbol}&token=demo`, // Using demo token for free tier
+        'https://gotlitraitdvltnjdnni.supabase.co/functions/v1/finnhub-proxy',
         {
+          method: 'POST',
           headers: {
-            'Accept': 'application/json'
-          }
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdGxpdHJhaXRkdmx0bmpkbm5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2ODc2NDksImV4cCI6MjA2OTI2MzY0OX0._6eCm4Vj0oRUThRPDekpHmd5Dq9DlqNvRlPkQ-czWlQ'
+          },
+          body: JSON.stringify({
+            symbol: mappedSymbol,
+            endpoint: 'quote'
+          })
         }
       );
 
@@ -135,7 +141,19 @@ export class FinnhubService {
       this.recordRequest();
 
       const response = await fetch(
-        `${this.baseUrl}/forex/rates?base=${base}&token=demo`
+        'https://gotlitraitdvltnjdnni.supabase.co/functions/v1/finnhub-proxy',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdGxpdHJhaXRkdmx0bmpkbm5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2ODc2NDksImV4cCI6MjA2OTI2MzY0OX0._6eCm4Vj0oRUThRPDekpHmd5Dq9DlqNvRlPkQ-czWlQ'
+          },
+          body: JSON.stringify({
+            base,
+            quote,
+            endpoint: 'forex'
+          })
+        }
       );
 
       if (!response.ok) {
