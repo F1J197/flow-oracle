@@ -15,6 +15,14 @@ export interface KalmanConfig {
   measurementNoise: number;  // R - how much we trust observations
   initialEstimate: number;   // Initial state estimate
   initialCovariance: number; // Initial error covariance
+  // Add spec-compatible properties
+  R?: number; // Measurement noise (alternative)
+  Q?: number; // Process noise (alternative)
+  A?: number; // State transition
+  B?: number; // Control input
+  C?: number; // Measurement
+  x?: number; // Initial state
+  P?: number; // Initial covariance
 }
 
 export class KalmanFilter {
@@ -23,13 +31,34 @@ export class KalmanFilter {
   private isInitialized: boolean = false;
 
   constructor(config: KalmanConfig) {
-    this.config = config;
+    // Support both interface styles for specification compliance
+    this.config = {
+      processNoise: config.Q || config.processNoise || 0.01,
+      measurementNoise: config.R || config.measurementNoise || 0.01,
+      initialEstimate: config.x || config.initialEstimate || 0,
+      initialCovariance: config.P || config.initialCovariance || 1,
+      ...config
+    };
     this.state = {
-      estimate: config.initialEstimate,
-      errorCovariance: config.initialCovariance,
+      estimate: this.config.initialEstimate,
+      errorCovariance: this.config.initialCovariance,
       timestamp: new Date(),
       confidence: 0.5
     };
+  }
+
+  /**
+   * Get current state (for spec compliance)
+   */
+  getState(): number {
+    return this.state.estimate;
+  }
+
+  /**
+   * Get full state object
+   */
+  getFullState(): KalmanState {
+    return { ...this.state };
   }
 
   /**
@@ -73,12 +102,6 @@ export class KalmanFilter {
     return Math.max(0, 1 - normalizedCovariance);
   }
 
-  /**
-   * Get current state
-   */
-  getState(): KalmanState {
-    return { ...this.state };
-  }
 
   /**
    * Reset the filter
@@ -152,7 +175,7 @@ export class MultiKalmanFilter {
   getAllStates(): Map<string, KalmanState> {
     const states = new Map<string, KalmanState>();
     for (const [id, filter] of this.filters) {
-      states.set(id, filter.getState());
+      states.set(id, filter.getFullState());
     }
     return states;
   }

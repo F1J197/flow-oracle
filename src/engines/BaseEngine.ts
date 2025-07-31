@@ -1,5 +1,34 @@
 import { IEngine, EngineReport, ActionableInsight, DashboardTileData, DetailedEngineView, IntelligenceViewData, DetailedModalData } from '@/types/engines';
 
+// Add missing interfaces for specification compliance
+export interface EngineConfig {
+  id: string;
+  name: string;
+  pillar: string;
+  updateInterval: number;
+  requiredIndicators: string[];
+  dependencies: string[];
+}
+
+export interface EngineOutput {
+  primaryMetric: {
+    value: number;
+    change24h: number;
+    changePercent: number;
+  };
+  signal: 'RISK_ON' | 'RISK_OFF' | 'WARNING' | 'NEUTRAL';
+  confidence: number;
+  analysis: string;
+  subMetrics: Record<string, any>;
+  alerts?: Alert[];
+}
+
+export interface Alert {
+  level: 'info' | 'warning' | 'critical';
+  message: string;
+  timestamp: number;
+}
+
 export interface BaseEngineConfig {
   refreshInterval: number;
   retryAttempts: number;

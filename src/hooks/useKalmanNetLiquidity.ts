@@ -52,11 +52,11 @@ export function useKalmanNetLiquidity(): UseKalmanNetLiquidityReturn {
       // Get dashboard and intelligence data
       const dashboard = engine.getDashboardData();
       const intelligence = engine.getIntelligenceView();
-      const netLiquidityMetrics = engine.getNetLiquidityMetrics();
+      // Note: Engine now uses BaseEngine interface, metrics integrated into dashboard data
       
       setDashboardData(dashboard);
       setIntelligenceData(intelligence);
-      setMetrics(netLiquidityMetrics);
+      // Remove setMetrics since getNetLiquidityMetrics doesn't exist in spec-compliant version
       setLastUpdated(new Date());
       
     } catch (err) {
