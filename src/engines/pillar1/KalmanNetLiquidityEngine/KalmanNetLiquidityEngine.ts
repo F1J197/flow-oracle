@@ -411,15 +411,14 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
   // BaseEngine implementation - Fetch real data from UnifiedDataService
   protected async performExecution(): Promise<EngineReport> {
     try {
-      // Import UnifiedDataService to fetch real data
-      const { UnifiedDataService } = await import('@/services/UnifiedDataService');
-      const dataService = UnifiedDataService.getInstance();
+      // Import enhanced UnifiedDataService to fetch real data
+      const { UnifiedDataService } = await import('@/services/UnifiedDataServiceV3');
       
       // Fetch real data for required indicators using correct IDs from registry
       const [walclData, wtregen, rrpData] = await Promise.all([
-        dataService.refreshIndicator('fed-balance-sheet'),    // WALCL
-        dataService.refreshIndicator('treasury-general-account'), // WTREGEN 
-        dataService.refreshIndicator('reverse-repo-operations')   // RRPONTSYD
+        UnifiedDataService.refreshIndicator('fed-balance-sheet'),    // WALCL
+        UnifiedDataService.refreshIndicator('treasury-general-account'), // WTREGEN 
+        UnifiedDataService.refreshIndicator('reverse-repo-operations')   // RRPONTSYD
       ]);
       
       // Validate we have the required data
