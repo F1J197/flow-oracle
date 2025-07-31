@@ -167,7 +167,7 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
         data: this.netLiquidityMetrics,
         confidence: this.netLiquidityMetrics.kalmanMetrics.overallConfidence,
         signal: this.determineSignal(),
-        executionTime: Date.now() - this.lastExecutionStart
+        lastUpdated: new Date()
       };
 
     } catch (error) {
@@ -337,8 +337,8 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
       data: this.netLiquidityMetrics,
       confidence: 0,
       signal: 'neutral',
-      executionTime: Date.now() - this.lastExecutionStart,
-      error: error.message
+      lastUpdated: new Date(),
+      errors: [error.message]
     };
   }
 
@@ -350,16 +350,11 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
       actionText: adaptiveSignal.direction === 'bullish' ? 'Consider risk-on positioning' : 
                   adaptiveSignal.direction === 'bearish' ? 'Consider defensive positioning' : 
                   'Monitor for regime change',
-      signalStrength: adaptiveSignal.strength,
+      signalStrength: adaptiveSignal.strength * 100,
       marketAction: adaptiveSignal.direction === 'bullish' ? 'BUY' : 
                    adaptiveSignal.direction === 'bearish' ? 'SELL' : 'HOLD',
       confidence: adaptiveSignal.strength > 0.7 ? 'HIGH' : adaptiveSignal.strength > 0.4 ? 'MED' : 'LOW',
-      timeframe: 'MEDIUM_TERM',
-      data: {
-        netLiquidity: total,
-        regime: adaptiveSignal.regime,
-        signalStrength: adaptiveSignal.strength
-      }
+      timeframe: 'MEDIUM_TERM'
     };
   }
 
@@ -369,13 +364,10 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
     return {
       title: 'Kalman Net Liquidity',
       primaryMetric: `$${(total / 1000000).toFixed(1)}T`,
-      secondaryMetrics: [
-        { label: 'Signal Strength', value: `${(adaptiveSignal.strength * 100).toFixed(0)}%` },
-        { label: 'Confidence', value: `${(kalmanMetrics.overallConfidence * 100).toFixed(0)}%` },
-        { label: 'Regime', value: adaptiveSignal.regime }
-      ],
+      secondaryMetric: `${adaptiveSignal.regime} • ${(adaptiveSignal.strength * 100).toFixed(0)}%`,
       status: kalmanMetrics.convergenceStatus === 'converged' ? 'normal' : 'warning',
-      lastUpdated: this.netLiquidityMetrics.lastCalculation,
+      trend: adaptiveSignal.direction === 'bullish' ? 'up' : adaptiveSignal.direction === 'bearish' ? 'down' : 'neutral',
+      color: adaptiveSignal.direction === 'bullish' ? 'success' : adaptiveSignal.direction === 'bearish' ? 'critical' : 'neutral',
       loading: false
     };
   }
@@ -386,27 +378,56 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
     return {
       title: 'Kalman-Adaptive Net Liquidity Intelligence',
       status: kalmanMetrics.convergenceStatus === 'converged' ? 'active' : 'warning',
-      primaryMetric: {
-        label: 'Net Liquidity',
-        value: `$${(this.netLiquidityMetrics.total / 1000000).toFixed(2)}T`,
-        unit: 'USD',
-        color: adaptiveSignal.direction === 'bullish' ? 'lime' : 
-               adaptiveSignal.direction === 'bearish' ? 'orange' : 'teal'
+      primaryMetrics: {
+        'Net Liquidity': {
+          value: `$${(this.netLiquidityMetrics.total / 1000000).toFixed(2)}T`,
+          label: 'Total Net Liquidity',
+          status: kalmanMetrics.convergenceStatus === 'converged' ? 'normal' : 'warning',
+          trend: adaptiveSignal.direction === 'bullish' ? 'up' : adaptiveSignal.direction === 'bearish' ? 'down' : 'neutral'
+        }
       },
-      keyMetrics: [
-        { label: 'Fed Balance Sheet', value: `$${(components.fedBalanceSheet.value / 1000000).toFixed(1)}T`, status: components.fedBalanceSheet.trend === 'expanding' ? 'good' : 'warning' },
-        { label: 'Treasury GA', value: `$${(components.treasuryGeneralAccount.value / 1000).toFixed(0)}B`, status: components.treasuryGeneralAccount.trend === 'contracting' ? 'good' : 'warning' },
-        { label: 'Reverse Repo', value: `$${(components.reverseRepo.value / 1000000).toFixed(1)}T`, status: components.reverseRepo.trend === 'contracting' ? 'good' : 'warning' },
-        { label: 'Signal Strength', value: `${(adaptiveSignal.strength * 100).toFixed(0)}%` },
-        { label: 'Overall Confidence', value: `${(kalmanMetrics.overallConfidence * 100).toFixed(0)}%` }
+      sections: [
+        {
+          title: 'Liquidity Components',
+          data: {
+            'Fed Balance Sheet': {
+              value: `$${(components.fedBalanceSheet.value / 1000000).toFixed(1)}T`,
+              label: 'Fed Balance Sheet',
+              unit: 'USD',
+              status: components.fedBalanceSheet.trend === 'expanding' ? 'normal' : 'warning'
+            },
+            'Treasury GA': {
+              value: `$${(components.treasuryGeneralAccount.value / 1000).toFixed(0)}B`,
+              label: 'Treasury General Account',
+              unit: 'USD',
+              status: components.treasuryGeneralAccount.trend === 'contracting' ? 'normal' : 'warning'
+            },
+            'Reverse Repo': {
+              value: `$${(components.reverseRepo.value / 1000000).toFixed(1)}T`,
+              label: 'Reverse Repo Operations',
+              unit: 'USD',
+              status: components.reverseRepo.trend === 'contracting' ? 'normal' : 'warning'
+            }
+          }
+        },
+        {
+          title: 'Signal Analytics',
+          data: {
+            'Signal Strength': {
+              value: `${(adaptiveSignal.strength * 100).toFixed(0)}%`,
+              label: 'Adaptive Signal Strength',
+              status: adaptiveSignal.strength > 0.7 ? 'normal' : 'warning'
+            },
+            'Overall Confidence': {
+              value: `${(kalmanMetrics.overallConfidence * 100).toFixed(0)}%`,
+              label: 'Overall Confidence',
+              status: kalmanMetrics.overallConfidence > 0.7 ? 'normal' : 'warning'
+            }
+          }
+        }
       ],
-      insights: [
-        `Liquidity regime: ${adaptiveSignal.regime}`,
-        `Adaptive signal: ${adaptiveSignal.direction.toUpperCase()} with ${(adaptiveSignal.strength * 100).toFixed(0)}% strength`,
-        `Kalman filters: ${kalmanMetrics.convergenceStatus}`,
-        `Model adaptation rate: ${(kalmanMetrics.adaptationRate * 100).toFixed(1)}%`
-      ],
-      lastUpdated: this.netLiquidityMetrics.lastCalculation
+      confidence: kalmanMetrics.overallConfidence,
+      lastUpdate: this.netLiquidityMetrics.lastCalculation
     };
   }
 
@@ -440,22 +461,54 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
             'Signal-to-Noise': `${(this.netLiquidityMetrics.kalmanMetrics.signalNoise * 100).toFixed(1)}%`
           }
         }
-      ],
-      lastUpdated: this.netLiquidityMetrics.lastCalculation,
-      confidence: this.netLiquidityMetrics.kalmanMetrics.overallConfidence,
-      status: this.netLiquidityMetrics.kalmanMetrics.convergenceStatus === 'converged' ? 'active' : 'warning'
+      ]
     };
   }
 
   public getDetailedModal(): DetailedModalData {
     return {
       title: 'Kalman-Adaptive Net Liquidity Engine',
-      subtitle: 'Advanced liquidity analysis with adaptive filtering',
-      content: this.getDetailedView(),
-      actions: [
-        { label: 'Export Data', action: 'export' },
-        { label: 'Reset Filters', action: 'reset' },
-        { label: 'Adjust Sensitivity', action: 'configure' }
+      description: 'Advanced liquidity analysis with adaptive filtering',
+      keyInsights: [
+        `Liquidity regime: ${this.netLiquidityMetrics.adaptiveSignal.regime}`,
+        `Adaptive signal: ${this.netLiquidityMetrics.adaptiveSignal.direction.toUpperCase()} with ${(this.netLiquidityMetrics.adaptiveSignal.strength * 100).toFixed(0)}% strength`,
+        `Kalman filters: ${this.netLiquidityMetrics.kalmanMetrics.convergenceStatus}`,
+        `Model adaptation rate: ${(this.netLiquidityMetrics.kalmanMetrics.adaptationRate * 100).toFixed(1)}%`
+      ],
+      detailedMetrics: [
+        {
+          category: 'Liquidity Components',
+          metrics: Object.fromEntries(
+            Object.entries(this.netLiquidityMetrics.components).map(([id, component]) => [
+              component.name,
+              {
+                value: `$${(component.value / 1000000).toFixed(2)}T`,
+                description: `${component.trend} trend with ${(component.confidence * 100).toFixed(0)}% confidence`,
+                significance: component.confidence > 0.7 ? 'high' : component.confidence > 0.4 ? 'medium' : 'low'
+              }
+            ])
+          )
+        },
+        {
+          category: 'Kalman Analytics',
+          metrics: {
+            'Overall Confidence': {
+              value: `${(this.netLiquidityMetrics.kalmanMetrics.overallConfidence * 100).toFixed(1)}%`,
+              description: 'Combined confidence across all Kalman filters',
+              significance: 'high'
+            },
+            'Adaptation Rate': {
+              value: `${(this.netLiquidityMetrics.kalmanMetrics.adaptationRate * 100).toFixed(1)}%`,
+              description: 'Rate at which filters adapt to new data',
+              significance: 'medium'
+            },
+            'Signal-to-Noise': {
+              value: `${(this.netLiquidityMetrics.kalmanMetrics.signalNoise * 100).toFixed(1)}%`,
+              description: 'Quality of signal vs background noise',
+              significance: 'medium'
+            }
+          }
+        }
       ]
     };
   }

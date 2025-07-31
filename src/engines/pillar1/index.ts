@@ -10,6 +10,11 @@ export {
   GlobalPlumbingTile,
   GlobalPlumbingIntelligence
 } from './GlobalFinancialPlumbingEngine';
+export {
+  KalmanNetLiquidityEngine,
+  KalmanNetLiquidityDashboardTile,
+  KalmanNetLiquidityIntelligenceView
+} from './KalmanNetLiquidityEngine';
 
 // Placeholder for additional Pillar 1 engines
 // TODO: Implement remaining engines:

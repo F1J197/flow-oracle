@@ -7,6 +7,7 @@ import React, { useEffect } from 'react';
 import { useMasterPromptsRegistry } from '@/hooks/useMasterPromptsRegistry';
 import { MasterPromptZScoreEngine } from '@/engines/foundation/EnhancedZScoreEngine/MasterPromptZScoreEngine';
 import { MasterPromptDataIntegrityEngine } from '@/engines/foundation/DataIntegrityEngine/MasterPromptDataIntegrityEngine';
+import { KalmanNetLiquidityEngine } from '@/engines/pillar1';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -21,6 +22,7 @@ export function MasterPromptDashboard() {
     systemHealth,
     executeEngines,
     registerMasterPromptEngine,
+    registerUnifiedEngine,
     getEngineResult
   } = useMasterPromptsRegistry({
     autoExecute: true,
@@ -32,16 +34,19 @@ export function MasterPromptDashboard() {
   useEffect(() => {
     const zscoreEngine = new MasterPromptZScoreEngine();
     const dataIntegrityEngine = new MasterPromptDataIntegrityEngine();
+    const kalmanLiquidityEngine = new KalmanNetLiquidityEngine();
     
     registerMasterPromptEngine(zscoreEngine);
     registerMasterPromptEngine(dataIntegrityEngine);
+    registerUnifiedEngine(kalmanLiquidityEngine);
     
     console.log('✅ Master Prompt engines registered successfully');
-  }, [registerMasterPromptEngine]);
+  }, [registerMasterPromptEngine, registerUnifiedEngine]);
 
   // Get specific engine results
   const zscoreResult = getEngineResult('master-prompt-zscore-foundation');
   const dataIntegrityResult = getEngineResult('master-prompt-data-integrity-foundation');
+  const kalmanLiquidityResult = getEngineResult('kalman-net-liquidity-engine');
 
   const getStatusIcon = (success?: boolean) => {
     if (success === undefined) return <Loader2 className="h-4 w-4 animate-spin" />;
@@ -150,7 +155,7 @@ export function MasterPromptDashboard() {
         </div>
 
         {/* Engine Results */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Z-Score Engine */}
           <Card className="glass-tile">
             <CardHeader>
@@ -247,6 +252,62 @@ export function MasterPromptDashboard() {
                       <div className="text-sm font-mono text-muted-foreground">Auto-Healed (24h)</div>
                       <div className="text-lg font-mono font-bold text-success">
                         {dataIntegrityResult.data?.autoHealed24h || 0}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  <span className="ml-2 text-muted-foreground font-mono">Initializing...</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Kalman Net Liquidity Engine */}
+          <Card className="glass-tile">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-mono text-lg">Kalman Net Liquidity Engine</CardTitle>
+                <Badge variant={getStatusColor(kalmanLiquidityResult?.success)} className="font-mono">
+                  {getStatusIcon(kalmanLiquidityResult?.success)}
+                  {kalmanLiquidityResult?.success ? 'ACTIVE' : kalmanLiquidityResult === null ? 'PENDING' : 'ERROR'}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {kalmanLiquidityResult ? (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm font-mono text-muted-foreground">Net Liquidity</div>
+                      <div className="text-xl font-mono font-bold text-primary">
+                        ${(kalmanLiquidityResult.data?.total / 1000000).toFixed(1) || 'N/A'}T
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-mono text-muted-foreground">Regime</div>
+                      <div className="text-xl font-mono font-bold text-accent">
+                        {kalmanLiquidityResult.data?.adaptiveSignal?.regime || 'Unknown'}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm font-mono text-muted-foreground">Signal</div>
+                      <Badge variant={
+                        kalmanLiquidityResult.signal === 'bullish' ? 'default' :
+                        kalmanLiquidityResult.signal === 'bearish' ? 'destructive' : 'secondary'
+                      } className="font-mono">
+                        {kalmanLiquidityResult.signal?.toUpperCase()}
+                      </Badge>
+                    </div>
+                    <div>
+                      <div className="text-sm font-mono text-muted-foreground">Confidence</div>
+                      <div className="text-lg font-mono font-bold">
+                        {(kalmanLiquidityResult.confidence * 100).toFixed(0)}%
                       </div>
                     </div>
                   </div>
