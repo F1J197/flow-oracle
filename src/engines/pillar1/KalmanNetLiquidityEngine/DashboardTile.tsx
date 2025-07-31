@@ -1,6 +1,6 @@
 import React from 'react';
-import { TerminalTile } from '../../../components/Terminal/TerminalTile';
-import { formatCurrency } from '../../../utils/formatting';
+import { BaseTile } from '../../../components/tiles/BaseTile';
+import { formatCurrency, formatPercentage, getStatusColor } from '../../../utils/formatting';
 import type { NetLiquidityMetrics } from './types';
 
 interface KalmanNetLiquidityDashboardTileProps {
@@ -18,10 +18,10 @@ export const KalmanNetLiquidityDashboardTile: React.FC<KalmanNetLiquidityDashboa
   onClick,
   className
 }) => {
-  const getStatus = (signal?: string, confidence?: number) => {
+  const getStatus = () => {
     if (error) return 'critical';
-    if (!data || loading) return 'offline';
-    if (confidence && confidence < 0.4) return 'warning';
+    if (loading || !data) return 'loading';
+    if (data.kalmanMetrics.overallConfidence < 0.4) return 'warning';
     return 'normal';
   };
 
@@ -33,113 +33,139 @@ export const KalmanNetLiquidityDashboardTile: React.FC<KalmanNetLiquidityDashboa
     }
   };
 
-  const getRegimeEmoji = (regime?: string) => {
-    switch (regime) {
-      case 'EXPANSION': return '📈';
-      case 'CONTRACTION': return '📉';
-      case 'TRANSITION': return '🔄';
-      default: return '⚪';
-    }
+  const getVariant = () => {
+    if (error) return 'critical';
+    if (!data || loading) return 'default';
+    if (data.adaptiveSignal.direction === 'bullish') return 'positive';
+    if (data.adaptiveSignal.direction === 'bearish') return 'negative';
+    return 'default';
   };
 
   return (
-    <TerminalTile
-      title="KALMAN NET LIQUIDITY"
-      status={getStatus(data?.adaptiveSignal.direction, data?.kalmanMetrics.overallConfidence)}
+    <BaseTile
+      size="md"
+      variant={getVariant()}
+      status={getStatus()}
+      interactive={onClick ? 'clickable' : 'hover'}
       onClick={onClick}
       className={className}
     >
-      <div className="space-y-3">
-        {/* Primary Metric */}
-        <div className="text-center">
-          <div className="text-2xl font-bold text-data">
+      {/* Header */}
+      <div className="tile-header">
+        <div className="tile-title">KALMAN NET LIQUIDITY</div>
+        <div className={`terminal-status ${
+          getStatus() === 'normal' ? 'text-neon-lime' :
+          getStatus() === 'warning' ? 'text-neon-gold' :
+          getStatus() === 'critical' ? 'text-neon-orange' :
+          'text-text-muted'
+        }`}>
+          {getStatus() === 'normal' ? '█' :
+           getStatus() === 'warning' ? '▲' :
+           getStatus() === 'critical' ? '✕' :
+           '○'}
+        </div>
+      </div>
+
+      {/* Primary Metric */}
+      <div className="tile-content">
+        <div className="text-center mb-4">
+          <div className="metric-display text-text-data">
             {loading ? (
-              <div className="animate-pulse">Loading...</div>
+              <div className="animate-pulse opacity-60">---</div>
             ) : error ? (
-              <div className="text-neon-orange">Error</div>
+              <div className="text-neon-orange">ERR</div>
             ) : data ? (
-              formatCurrency(data.total, { 
-                compact: true, 
-                decimals: 1 
-              })
+              formatCurrency(data.total, { compact: true, decimals: 1 })
             ) : (
-              '--'
+              '---'
             )}
           </div>
-          <div className="text-xs text-secondary mt-1">Net Liquidity</div>
+          <div className="text-xs text-text-secondary mt-1 terminal-label">
+            NET LIQUIDITY
+          </div>
         </div>
 
-        {/* Signal & Regime */}
+        {/* Signal Status */}
         {data && !loading && !error && (
-          <div className="flex justify-between items-center text-sm">
-            <div className="flex items-center space-x-2">
-              <span className={getSignalColor(data.adaptiveSignal.direction)}>
-                {data.adaptiveSignal.direction.toUpperCase()}
-              </span>
-              <span className="text-secondary">
-                {(data.adaptiveSignal.strength * 100).toFixed(0)}%
-              </span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <span>{getRegimeEmoji(data.adaptiveSignal.regime)}</span>
-              <span className="text-secondary text-xs">
+          <>
+            <div className="flex justify-between items-center mb-3 text-sm">
+              <div className="flex items-center space-x-2">
+                <span className={`font-mono font-semibold ${getSignalColor(data.adaptiveSignal.direction)}`}>
+                  {data.adaptiveSignal.direction.toUpperCase()}
+                </span>
+                <span className="text-text-secondary terminal-data">
+                  {formatPercentage(data.adaptiveSignal.strength * 100, { decimals: 0 })}
+                </span>
+              </div>
+              <div className="text-text-secondary terminal-data">
                 {data.adaptiveSignal.regime}
-              </span>
+              </div>
             </div>
-          </div>
+
+            {/* Component Grid */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs terminal-text">
+              <div className="flex justify-between">
+                <span className="text-text-secondary">FED BS:</span>
+                <span className={`terminal-data ${
+                  data.components.fedBalanceSheet.trend === 'expanding' ? 'text-neon-lime' : 
+                  data.components.fedBalanceSheet.trend === 'contracting' ? 'text-neon-orange' : 
+                  'text-neon-teal'
+                }`}>
+                  {data.components.fedBalanceSheet.trend === 'expanding' ? '↗' : 
+                   data.components.fedBalanceSheet.trend === 'contracting' ? '↘' : '→'}
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-text-secondary">TGA:</span>
+                <span className={`terminal-data ${
+                  data.components.treasuryGeneralAccount.trend === 'expanding' ? 'text-neon-orange' : 
+                  data.components.treasuryGeneralAccount.trend === 'contracting' ? 'text-neon-lime' : 
+                  'text-neon-teal'
+                }`}>
+                  {data.components.treasuryGeneralAccount.trend === 'expanding' ? '↗' : 
+                   data.components.treasuryGeneralAccount.trend === 'contracting' ? '↘' : '→'}
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-text-secondary">RRP:</span>
+                <span className={`terminal-data ${
+                  data.components.reverseRepo.trend === 'expanding' ? 'text-neon-orange' : 
+                  data.components.reverseRepo.trend === 'contracting' ? 'text-neon-lime' : 
+                  'text-neon-teal'
+                }`}>
+                  {data.components.reverseRepo.trend === 'expanding' ? '↗' : 
+                   data.components.reverseRepo.trend === 'contracting' ? '↘' : '→'}
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-text-secondary">CONF:</span>
+                <span className="text-text-data terminal-data">
+                  {formatPercentage(data.kalmanMetrics.overallConfidence * 100, { decimals: 0 })}
+                </span>
+              </div>
+            </div>
+          </>
         )}
 
-        {/* Component Status */}
-        {data && !loading && !error && (
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-secondary">Fed BS:</span>
-              <span className={`${data.components.fedBalanceSheet.trend === 'expanding' ? 'text-neon-lime' : 
-                data.components.fedBalanceSheet.trend === 'contracting' ? 'text-neon-orange' : 'text-neon-teal'}`}>
-                {data.components.fedBalanceSheet.trend === 'expanding' ? '↗' : 
-                 data.components.fedBalanceSheet.trend === 'contracting' ? '↘' : '→'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-secondary">TGA:</span>
-              <span className={`${data.components.treasuryGeneralAccount.trend === 'expanding' ? 'text-neon-orange' : 
-                data.components.treasuryGeneralAccount.trend === 'contracting' ? 'text-neon-lime' : 'text-neon-teal'}`}>
-                {data.components.treasuryGeneralAccount.trend === 'expanding' ? '↗' : 
-                 data.components.treasuryGeneralAccount.trend === 'contracting' ? '↘' : '→'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-secondary">RRP:</span>
-              <span className={`${data.components.reverseRepo.trend === 'expanding' ? 'text-neon-orange' : 
-                data.components.reverseRepo.trend === 'contracting' ? 'text-neon-lime' : 'text-neon-teal'}`}>
-                {data.components.reverseRepo.trend === 'expanding' ? '↗' : 
-                 data.components.reverseRepo.trend === 'contracting' ? '↘' : '→'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-secondary">Conf:</span>
-              <span className="text-data">
-                {(data.kalmanMetrics.overallConfidence * 100).toFixed(0)}%
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Status Indicator */}
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-secondary">
-            {loading ? 'Updating...' : 
-             error ? 'Connection Error' :
-             data ? `Kalman: ${data.kalmanMetrics.convergenceStatus}` : 'No Data'}
+        {/* Status Footer */}
+        <div className="flex justify-between items-center mt-4 pt-2 border-t border-glass-border text-xs">
+          <span className="text-text-secondary terminal-text">
+            {loading ? 'UPDATING...' : 
+             error ? 'CONNECTION ERROR' :
+             data ? `KALMAN: ${data.kalmanMetrics.convergenceStatus?.toUpperCase()}` : 
+             'NO DATA'}
           </span>
-          <div className={`w-2 h-2 rounded-full ${
-            getStatus(data?.adaptiveSignal.direction, data?.kalmanMetrics.overallConfidence) === 'normal' ? 'bg-neon-lime' :
-            getStatus(data?.adaptiveSignal.direction, data?.kalmanMetrics.overallConfidence) === 'warning' ? 'bg-neon-gold' :
-            getStatus(data?.adaptiveSignal.direction, data?.kalmanMetrics.overallConfidence) === 'critical' ? 'bg-neon-orange' :
-            'bg-glass-border animate-pulse'
+          <div className={`w-2 h-2 status-indicator ${
+            getStatus() === 'normal' ? 'status-active' :
+            getStatus() === 'warning' ? 'status-warning' :
+            getStatus() === 'critical' ? 'status-critical' :
+            'status-offline'
           }`} />
         </div>
       </div>
-    </TerminalTile>
+    </BaseTile>
   );
 };
