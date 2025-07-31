@@ -407,17 +407,33 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
     });
   }
 
-  // BaseEngine implementation - Mock data execution for spec compliance
+  // BaseEngine implementation - Fetch real data from UnifiedDataService
   protected async performExecution(): Promise<EngineReport> {
     try {
-      // Mock data for demonstration
-      const mockData = new Map([
-        ['WALCL', 8500000], // $8.5T
-        ['WTREGEN', 750000], // $750B  
-        ['RRPONTSYD', 2200] // $2.2T (in billions)
+      // Import UnifiedDataService to fetch real data
+      const { UnifiedDataService } = await import('@/services/UnifiedDataService');
+      const dataService = UnifiedDataService.getInstance();
+      
+      // Fetch real data for required indicators
+      const [walclData, wtregen, rrpData] = await Promise.all([
+        dataService.refreshIndicator('WALCL'),
+        dataService.refreshIndicator('WTREGEN'),  
+        dataService.refreshIndicator('RRPONTSYD')
       ]);
       
-      const output = this.calculate(mockData);
+      // Validate we have the required data
+      if (!walclData || !wtregen || !rrpData) {
+        throw new Error('Missing required liquidity data: WALCL, WTREGEN, or RRPONTSYD not available');
+      }
+      
+      // Convert the data to the format expected by the engine
+      const dataMap = new Map([
+        ['WALCL', walclData.current], // Fed Balance Sheet (millions)
+        ['WTREGEN', wtregen.current], // Treasury General Account (millions)
+        ['RRPONTSYD', rrpData.current] // Reverse Repo (billions)
+      ]);
+      
+      const output = this.calculate(dataMap);
       
       return {
         success: true,
@@ -427,6 +443,7 @@ export class KalmanNetLiquidityEngine extends BaseEngine {
         lastUpdated: new Date()
       };
     } catch (error) {
+      console.error('KalmanNetLiquidityEngine execution failed:', error);
       return {
         success: false,
         data: null,

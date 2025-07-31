@@ -485,16 +485,22 @@ export class UnifiedDataService {
         return null;
       }
 
-      if (data?.value !== undefined) {
-        const timestamp = new Date(data.timestamp || Date.now());
+      // Handle the correct response format from FRED function
+      if (data?.success && data?.data && Array.isArray(data.data) && data.data.length > 0) {
+        // Get the latest data point
+        const latest = data.data[data.data.length - 1];
+        const timestamp = new Date(latest.date || data.timestamp || Date.now());
+        
         return {
-          current: parseFloat(data.value),
+          current: parseFloat(latest.value),
           timestamp,
-          confidence: data.confidence || 1.0,
-          quality: data.quality || 1.0
+          confidence: 0.95, // FRED data is highly reliable
+          quality: 0.98
         };
       }
 
+      // If no data found, log for debugging
+      console.warn(`No data returned from FRED for ${metadata.symbol}:`, data);
       return null;
     } catch (error) {
       console.error(`Error fetching FRED data for ${metadata.symbol}:`, error);
