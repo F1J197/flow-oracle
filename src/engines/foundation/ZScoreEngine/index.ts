@@ -217,7 +217,7 @@ export class ZScoreEngine extends BaseEngine {
     return maxCount / zScores.length;
   }
 
-  private calculateDataQuality(): number {
+  protected calculateDataQuality(): number {
     let totalQuality = 0;
     let count = 0;
     

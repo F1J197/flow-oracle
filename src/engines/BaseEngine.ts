@@ -59,25 +59,54 @@ export abstract class BaseEngine {
   abstract calculate(data: Map<string, any>): EngineOutput;
   abstract validateData(data: Map<string, any>): boolean;
   
-  // 3-TIER PROGRESSIVE DEPTH - DEFAULT IMPLEMENTATIONS
-  getTier1Data(): TierData {  // 30-second decision view
+  // 3-TIER PROGRESSIVE DEPTH - PHASE 1 SPECIFICATION
+  getTier1Data(): TierData {  // 30-second executive decision view
+    const latestOutput = this.getLatestOutput();
     return {
-      summary: `${this.config.name} Summary`,
-      metrics: { status: 'active' }
+      summary: `${this.config.name}: ${latestOutput?.signal || 'NEUTRAL'}`,
+      metrics: {
+        primaryValue: latestOutput?.primaryMetric.value || 0,
+        signal: latestOutput?.signal || 'NEUTRAL',
+        confidence: latestOutput?.confidence || 0,
+        lastUpdate: new Date().toISOString()
+      },
+      insights: latestOutput ? [latestOutput.analysis] : ['No data available']
     };
   }
   
-  getTier2Data(): TierData {  // Supporting calculations  
+  getTier2Data(): TierData {  // Supporting calculations & context
+    const latestOutput = this.getLatestOutput();
     return {
       summary: `${this.config.name} Detailed Analysis`,
-      metrics: { status: 'active', details: 'Available' }
+      metrics: {
+        ...latestOutput?.subMetrics || {},
+        change24h: latestOutput?.primaryMetric.change24h || 0,
+        changePercent: latestOutput?.primaryMetric.changePercent || 0,
+        dataQuality: this.calculateDataQuality(),
+        updateFrequency: `${this.config.updateInterval / 1000}s`
+      },
+      charts: this.generateTier2Charts(),
+      insights: this.generateTier2Insights()
     };
   }
   
-  getTier3Data(): TierData {  // Full transparency
+  getTier3Data(): TierData {  // Full transparency with formulas
+    const latestOutput = this.getLatestOutput();
     return {
-      summary: `${this.config.name} Complete Breakdown`,
-      metrics: { status: 'active', fullData: 'Available' }
+      summary: `${this.config.name} Complete Technical Breakdown`,
+      metrics: {
+        ...this.getAllCalculationMetrics(),
+        rawInputs: this.getRawInputData(),
+        historicalDataPoints: this.historicalData.size,
+        dependencies: this.config.dependencies || [],
+        algorithmParameters: this.getAlgorithmParameters()
+      },
+      charts: this.generateTier3Charts(),
+      insights: [
+        ...this.generateTechnicalExplanation(),
+        ...this.generateFormulaBreakdown(),
+        ...this.generateDataSourceInfo()
+      ]
     };
   }
   
@@ -149,6 +178,124 @@ export abstract class BaseEngine {
     return isNaN(num) || !isFinite(num) ? fallback : num;
   }
   
+  // 3-TIER PROGRESSIVE DEPTH - HELPER METHODS
+  protected getLatestOutput(): EngineOutput | null {
+    return this.engineOutputs.get(this.config.id) || null;
+  }
+  
+  protected calculateDataQuality(): number {
+    // Calculate data quality based on freshness, completeness, consistency
+    const requiredDataPresent = this.config.requiredIndicators.length;
+    const actualDataPresent = Array.from(this.historicalData.keys()).length;
+    const completeness = actualDataPresent / requiredDataPresent;
+    
+    // Factor in data freshness (last update time)
+    const timeSinceUpdate = Date.now() - this.lastUpdate;
+    const freshnessScore = Math.max(0, 1 - (timeSinceUpdate / (this.config.updateInterval * 2)));
+    
+    return Math.round((completeness * 0.7 + freshnessScore * 0.3) * 100);
+  }
+  
+  protected generateTier2Charts(): any[] {
+    // Override in subclasses to provide specific chart data
+    return [{
+      type: 'line',
+      data: this.getHistoricalValues(),
+      title: `${this.config.name} Trend`
+    }];
+  }
+  
+  protected generateTier3Charts(): any[] {
+    // Override in subclasses for detailed technical charts
+    return [
+      ...this.generateTier2Charts(),
+      {
+        type: 'correlation',
+        data: this.getCorrelationMatrix(),
+        title: 'Input Correlation Matrix'
+      }
+    ];
+  }
+  
+  protected generateTier2Insights(): string[] {
+    const output = this.getLatestOutput();
+    if (!output) return ['No analysis available'];
+    
+    return [
+      output.analysis,
+      `Confidence Level: ${output.confidence}%`,
+      `Current Signal: ${output.signal}`,
+      `Data Quality: ${this.calculateDataQuality()}%`
+    ];
+  }
+  
+  protected generateTechnicalExplanation(): string[] {
+    return [
+      `Engine Type: ${this.constructor.name}`,
+      `Update Frequency: Every ${this.config.updateInterval / 1000} seconds`,
+      `Required Indicators: ${this.config.requiredIndicators.join(', ')}`,
+      `Dependencies: ${this.config.dependencies?.join(', ') || 'None'}`
+    ];
+  }
+  
+  protected generateFormulaBreakdown(): string[] {
+    // Override in subclasses to provide specific formula explanations
+    return [`Formula details available in ${this.constructor.name} implementation`];
+  }
+  
+  protected generateDataSourceInfo(): string[] {
+    return [
+      `Data Sources: ${this.config.requiredIndicators.length} indicators`,
+      `Historical Data Points: ${Array.from(this.historicalData.values()).reduce((sum, arr) => sum + arr.length, 0)}`,
+      `Last Updated: ${new Date(this.lastUpdate).toISOString()}`
+    ];
+  }
+  
+  protected getAllCalculationMetrics(): Record<string, any> {
+    // Override in subclasses to expose all calculation intermediates
+    return {
+      engineId: this.config.id,
+      lastCalculation: this.lastUpdate,
+      dataQuality: this.calculateDataQuality()
+    };
+  }
+  
+  protected getRawInputData(): Record<string, any> {
+    const rawData: Record<string, any> = {};
+    this.historicalData.forEach((values, key) => {
+      rawData[key] = values.slice(-10); // Last 10 data points
+    });
+    return rawData;
+  }
+  
+  protected getAlgorithmParameters(): Record<string, any> {
+    // Override in subclasses to expose algorithm-specific parameters
+    return {
+      updateInterval: this.config.updateInterval,
+      priority: this.config.priority
+    };
+  }
+  
+  protected getHistoricalValues(): Array<{timestamp: number, value: number}> {
+    // Get historical values for trending
+    const output = this.getLatestOutput();
+    if (!output) return [];
+    
+    // Simulate historical data - override in subclasses with real data
+    return Array.from({length: 50}, (_, i) => ({
+      timestamp: Date.now() - (50 - i) * this.config.updateInterval,
+      value: output.primaryMetric.value * (0.95 + Math.random() * 0.1)
+    }));
+  }
+  
+  protected getCorrelationMatrix(): Array<{indicator: string, correlation: number}> {
+    // Calculate correlations between indicators - override in subclasses
+    return this.config.requiredIndicators.map(indicator => ({
+      indicator,
+      correlation: 0.5 + Math.random() * 0.5 // Placeholder
+    }));
+  }
+
   // Getters
   get id(): string { return this.config.id; }
   get name(): string { return this.config.name; }

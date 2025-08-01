@@ -11,20 +11,22 @@
 
 @layer base {
   :root {
-    /* TERMINAL COLOR PALETTE - EXACT HSL VALUES */
-    --bg-primary: 0 0% 0%;           /* Pure black */
-    --bg-secondary: 0 0% 4%;         /* Slightly lighter */
-    --bg-tile: 0 0% 6%;              /* Tile background */
+    /* NOIR & NEON DESIGN SYSTEM - Phase 1 Specification */
+    --bg-primary: 0 0% 7%;           /* Deep charcoal #121212 */
+    --bg-secondary: 0 0% 12%;        /* Secondary background #1E1E1E */
+    --bg-tile: 0 0% 14%;             /* Cards/panels */
+    --bg-elevated: 0 0% 16%;         /* Modal backgrounds */
     
-    --text-primary: 0 0% 100%;       /* Pure white */
-    --text-secondary: 0 0% 53%;      /* Gray labels */
-    --text-muted: 0 0% 33%;          /* Dark gray */
+    --text-primary: 0 0% 92%;        /* Off-white #EAEAEA */
+    --text-secondary: 0 0% 70%;      /* Gray labels */
+    --text-muted: 0 0% 50%;          /* Dark gray */
     
-    --bitcoin-orange: 28 94% 54%;    /* Headers #F7931A */
-    --neon-lime: 120 100% 63%;       /* Positive #00FF41 */
-    --neon-orange: 8 100% 60%;       /* Negative #FF3737 */
-    --neon-gold: 42 100% 50%;        /* Warning #FFB800 */
-    --neon-teal: 196 100% 50%;       /* Info #00D4FF */
+    /* NEON PALETTE - Core Colors */
+    --neon-teal: 195 100% 50%;       /* #00BFFF Risk-On/Positive */
+    --neon-orange: 16 100% 55%;      /* #FF4500 Risk-Off/Negative */
+    --neon-lime: 90 100% 60%;        /* #32CD32 Success states */
+    --neon-fuchsia: 300 100% 50%;    /* #FF00FF User customization */
+    --neon-gold: 45 100% 55%;        /* Gold warning */
     
     --glass-border: 0 0% 20%;        /* Dark gray border */
     --glass-border-important: 28 94% 54%; /* Orange 60-85 importance */
@@ -363,14 +365,14 @@
     --bg-elevated: 0 0% 6%;         /* #0F0F0F Modal backgrounds */
     --bg-console: 0 0% 1%;          /* #030303 Deep console black */
     
-    /* Terminal Color Palette - Neon on Black */
-    --neon-teal: 180 100% 50%;      /* #00FFFF Cyan/Teal */
-    --neon-orange: 14 100% 55%;     /* #FF4500 OrangeRed */
-    --neon-lime: 90 100% 50%;       /* #80FF00 Lime Green */
-    --neon-gold: 50 100% 50%;       /* #FFD700 Gold */
-    --neon-fuchsia: 300 100% 50%;   /* #FF00FF Magenta */
-    --neon-blue: 240 100% 60%;      /* #3366FF Blue */
-    --neon-amber: 45 100% 55%;      /* #FFAA00 Amber */
+    /* NOIR & NEON Enhanced Palette */
+    --neon-teal: 195 100% 50%;      /* #00BFFF Risk-On/Positive */
+    --neon-orange: 16 100% 55%;     /* #FF4500 Risk-Off/Negative */
+    --neon-lime: 90 100% 60%;       /* #32CD32 Success states */
+    --neon-fuchsia: 300 100% 50%;   /* #FF00FF User customization */
+    --neon-gold: 45 100% 55%;       /* Gold warning */
+    --neon-blue: 240 100% 60%;      /* #3366FF Blue info */
+    --neon-amber: 42 100% 50%;      /* #FFB800 Amber alerts */
     
     /* BTC Orange Professional Accent */
     --btc-primary: 28 100% 54%;     /* #F7931A Bitcoin Orange */
