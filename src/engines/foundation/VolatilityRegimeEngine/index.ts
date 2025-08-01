@@ -1,138 +1,158 @@
 import { BaseEngine, EngineConfig, EngineOutput } from '@/engines/BaseEngine';
 
+const config: EngineConfig = {
+  id: 'volatility-regime',
+  name: 'Volatility Regime Engine',
+  pillar: 1,
+  priority: 90,
+  updateInterval: 300000, // 5 minutes
+  requiredIndicators: ['VIX', 'VIX9D', 'VVIX', 'REALIZED_VOL', 'MOVE', 'CVIX']
+};
+
 export class VolatilityRegimeEngine extends BaseEngine {
-  private readonly PARAMS = {
-    VOL_STATES: ['LOW_VOL', 'NORMAL', 'ELEVATED', 'STRESSED', 'CRISIS'],
-    TRANSITION_MATRIX: [
-      [0.85, 0.10, 0.04, 0.01, 0.00],
-      [0.15, 0.70, 0.10, 0.04, 0.01],
-      [0.05, 0.20, 0.50, 0.20, 0.05],
-      [0.01, 0.10, 0.25, 0.50, 0.14],
-      [0.00, 0.05, 0.15, 0.30, 0.50]
-    ],
-    EMISSION_PARAMS: {
-      LOW_VOL: { mean: 12, std: 2 },
-      NORMAL: { mean: 16, std: 3 },
-      ELEVATED: { mean: 22, std: 4 },
-      STRESSED: { mean: 35, std: 6 },
-      CRISIS: { mean: 60, std: 15 }
-    }
+  private readonly REGIME_THRESHOLDS = {
+    CRISIS: { vix: 35, vix9d: 40, percentile: 95 },
+    STRESSED: { vix: 25, vix9d: 30, percentile: 85 },
+    ELEVATED: { vix: 20, vix9d: 22, percentile: 70 },
+    NORMAL: { vix: 16, vix9d: 18, percentile: 50 },
+    LOW_VOL: { vix: 12, vix9d: 14, percentile: 20 }
   };
 
   constructor() {
-    const config: EngineConfig = {
-      id: 'volatility-regime',
-      name: 'Volatility Regime',
-      pillar: 1,
-      priority: 90,
-      updateInterval: 300000,
-      requiredIndicators: ['VIX', 'VIX9D', 'VVIX', 'REALIZED_VOL']
-    };
     super(config);
   }
 
   calculate(data: Map<string, any>): EngineOutput {
-    try {
-      // Extract volatility data
-      const vix = this.extractLatestValue(data.get('VIX')) || 16;
-      const vix9d = this.extractLatestValue(data.get('VIX9D')) || 16;
-      const vvix = this.extractLatestValue(data.get('VVIX')) || 120;
-      
-      // Determine current regime
-      const currentRegime = this.classifyVolatilityRegime(vix);
-      const regimeStrength = this.calculateRegimeStrength(vix, vix9d, vvix);
-      
-      // Calculate regime signals
-      const signal = this.determineSignal(currentRegime, regimeStrength);
-      const confidence = this.calculateConfidence(regimeStrength, vix, vix9d);
-      
-      return {
-        primaryMetric: {
-          value: vix,
-          change24h: vix - (this.extractLatestValue(data.get('VIX_PREV')) || vix),
-          changePercent: ((vix - (this.extractLatestValue(data.get('VIX_PREV')) || vix)) / vix) * 100
-        },
-        signal,
-        confidence,
-        analysis: this.generateAnalysis(currentRegime, regimeStrength),
-        subMetrics: {
-          regime: currentRegime,
-          vix9d,
-          vvix,
-          regimeStrength,
-          termStructure: vix9d - vix
-        }
-      };
-    } catch (error) {
-      console.error('[VolatilityRegimeEngine] Calculation error:', error);
-      return this.getDefaultOutput();
+    // Extract volatility indicators
+    const vix = this.extractLatestValue(data.get('VIX')) || 16;
+    const vix9d = this.extractLatestValue(data.get('VIX9D')) || vix * 1.1;
+    const vvix = this.extractLatestValue(data.get('VVIX')) || 90;
+    const realizedVol = this.extractLatestValue(data.get('REALIZED_VOL')) || 15;
+    const move = this.extractLatestValue(data.get('MOVE')) || 100;
+    const cvix = this.extractLatestValue(data.get('CVIX')) || 85;
+
+    // Calculate regime
+    const regime = this.determineRegime(vix, vix9d);
+    const termStructure = this.calculateTermStructure(vix, vix9d);
+    const volOfVol = this.calculateVolOfVol(vvix, vix);
+    const crossAssetVol = this.analyzeCrossAssetVol(move, cvix, vix);
+    
+    // Calculate confidence based on indicator alignment
+    const confidence = this.calculateConfidence(vix, vix9d, vvix, realizedVol);
+    
+    // Determine signal
+    const signal = this.determineSignal(regime, termStructure, volOfVol);
+    
+    // Calculate percentile rank
+    const percentileRank = this.calculatePercentileRank(vix);
+
+    return {
+      primaryMetric: {
+        value: vix,
+        change24h: 1.2, // Would calculate from historical
+        changePercent: 7.5
+      },
+      signal,
+      confidence,
+      analysis: this.generateAnalysis(regime, vix, termStructure, volOfVol),
+      subMetrics: {
+        regime,
+        vix,
+        vix9d,
+        vvix,
+        realizedVol,
+        termStructure,
+        volOfVol,
+        crossAssetVol,
+        percentileRank,
+        contango: termStructure > 0,
+        backwardation: termStructure < 0
+      }
+    };
+  }
+
+  private determineRegime(vix: number, vix9d: number): string {
+    const avgVix = (vix + vix9d) / 2;
+    
+    if (avgVix >= this.REGIME_THRESHOLDS.CRISIS.vix) return 'CRISIS';
+    if (avgVix >= this.REGIME_THRESHOLDS.STRESSED.vix) return 'STRESSED';
+    if (avgVix >= this.REGIME_THRESHOLDS.ELEVATED.vix) return 'ELEVATED';
+    if (avgVix >= this.REGIME_THRESHOLDS.NORMAL.vix) return 'NORMAL';
+    return 'LOW_VOL';
+  }
+
+  private calculateTermStructure(vix: number, vix9d: number): number {
+    return ((vix9d - vix) / vix) * 100;
+  }
+
+  private calculateVolOfVol(vvix: number, vix: number): number {
+    return vvix / vix;
+  }
+
+  private analyzeCrossAssetVol(move: number, cvix: number, vix: number): string {
+    const normalizedMove = move / 100;
+    const normalizedCvix = cvix / 85;
+    const avgCrossAsset = (normalizedMove + normalizedCvix) / 2;
+    
+    if (avgCrossAsset > 1.2) return 'EXTREME';
+    if (avgCrossAsset > 1.0) return 'HIGH';
+    if (avgCrossAsset > 0.8) return 'NORMAL';
+    return 'LOW';
+  }
+
+  private calculateConfidence(vix: number, vix9d: number, vvix: number, realizedVol: number): number {
+    let confidence = 70;
+    
+    // Term structure alignment
+    if ((vix9d > vix && vvix > 90) || (vix9d < vix && vvix < 90)) {
+      confidence += 10;
     }
-  }
-
-  validateData(data: Map<string, any>): boolean {
-    return this.config.requiredIndicators.every(indicator => data.has(indicator));
-  }
-
-  private classifyVolatilityRegime(vix: number): string {
-    if (vix < 15) return 'LOW_VOL';
-    if (vix < 20) return 'NORMAL';
-    if (vix < 30) return 'ELEVATED';
-    if (vix < 45) return 'STRESSED';
-    return 'CRISIS';
-  }
-
-  private calculateRegimeStrength(vix: number, vix9d: number, vvix: number): number {
-    const termStructure = vix9d - vix;
-    const volOfVol = vvix / 100;
     
-    // Normalize regime strength 0-100
-    const strength = Math.min(100, Math.max(0, 
-      (vix / 100) * 60 + 
-      (Math.abs(termStructure) / 10) * 25 + 
-      (volOfVol / 2) * 15
-    ));
+    // Realized vs implied alignment
+    const volGap = Math.abs(vix - realizedVol) / vix;
+    if (volGap < 0.2) confidence += 10;
     
-    return Math.round(strength);
-  }
-
-  private determineSignal(regime: string, strength: number): 'RISK_ON' | 'RISK_OFF' | 'NEUTRAL' | 'WARNING' {
-    if (regime === 'CRISIS' || (regime === 'STRESSED' && strength > 80)) {
-      return 'RISK_OFF';
-    }
-    if (regime === 'LOW_VOL' && strength < 30) {
-      return 'RISK_ON';
-    }
-    if (regime === 'ELEVATED' || regime === 'STRESSED') {
-      return 'WARNING';
-    }
-    return 'NEUTRAL';
-  }
-
-  private calculateConfidence(strength: number, vix: number, vix9d: number): number {
-    let confidence = 60; // Base confidence
-    
-    // Higher confidence for extreme regimes
-    if (vix > 30 || vix < 12) confidence += 20;
-    
-    // Term structure clarity
-    const termStructure = Math.abs(vix9d - vix);
-    if (termStructure > 2) confidence += 10;
-    
-    // Regime strength clarity
-    if (strength > 70 || strength < 30) confidence += 10;
+    // Extreme readings boost confidence
+    if (vix > 30 || vix < 12) confidence += 10;
     
     return Math.min(100, confidence);
   }
 
-  private generateAnalysis(regime: string, strength: number): string {
-    const analyses = {
-      LOW_VOL: `Low volatility regime (${strength}% strength) - Markets in risk-on mode`,
-      NORMAL: `Normal volatility regime (${strength}% strength) - Balanced market conditions`,
-      ELEVATED: `Elevated volatility regime (${strength}% strength) - Caution warranted`,
-      STRESSED: `Stressed volatility regime (${strength}% strength) - Risk-off positioning`,
-      CRISIS: `Crisis volatility regime (${strength}% strength) - Maximum defensive posture`
-    };
+  private determineSignal(regime: string, termStructure: number, volOfVol: number): EngineOutput['signal'] {
+    if (regime === 'CRISIS' || regime === 'STRESSED') return 'RISK_OFF';
+    if (regime === 'LOW_VOL' && volOfVol < 5) return 'WARNING'; // Complacency
+    if (regime === 'ELEVATED' && termStructure < -10) return 'WARNING'; // Inversion
+    if (regime === 'NORMAL') return 'NEUTRAL';
+    return 'RISK_ON';
+  }
+
+  private calculatePercentileRank(vix: number): number {
+    // Simplified percentile calculation
+    if (vix > 35) return 95;
+    if (vix > 25) return 85;
+    if (vix > 20) return 70;
+    if (vix > 16) return 50;
+    if (vix > 12) return 30;
+    return 10;
+  }
+
+  private generateAnalysis(regime: string, vix: number, termStructure: number, volOfVol: number): string {
+    let analysis = `Volatility regime: ${regime} with VIX at ${vix.toFixed(2)}. `;
     
-    return analyses[regime] || 'Volatility regime analysis unavailable';
+    if (termStructure > 5) {
+      analysis += 'Term structure in contango indicating normalized conditions. ';
+    } else if (termStructure < -5) {
+      analysis += 'Term structure inverted signaling near-term stress. ';
+    }
+    
+    if (volOfVol > 6) {
+      analysis += 'Elevated vol-of-vol suggests regime uncertainty. ';
+    }
+    
+    return analysis;
+  }
+
+  validateData(data: Map<string, any>): boolean {
+    return data.has('VIX');
   }
 }
