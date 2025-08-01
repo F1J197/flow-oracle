@@ -67,6 +67,46 @@ export const ENGINE_REGISTRY: Record<string, EngineConfig> = {
     dependencies: ['enhanced-momentum', 'volatility-regime', 'net-liquidity', 'credit-stress', 'market-regime', 'signal-aggregator']
   },
 
+  'funding-stress': {
+    id: 'funding-stress',
+    name: 'Funding Stress Engine',
+    pillar: 1,
+    priority: 80,
+    updateInterval: 300000,
+    requiredIndicators: ['SOFR', 'EFFR', 'DGS3MO', 'DGS10', 'BAMLH0A0HYM2'],
+    dependencies: ['credit-stress']
+  },
+
+  'options-flow': {
+    id: 'options-flow',
+    name: 'Smart Money Options Flow',
+    pillar: 2,
+    priority: 75,
+    updateInterval: 180000,
+    requiredIndicators: ['VIX', 'VIX9D', 'VVIX', 'SPX'],
+    dependencies: ['volatility-regime']
+  },
+
+  'business-cycle': {
+    id: 'business-cycle',
+    name: 'Business Cycle Engine',
+    pillar: 3,
+    priority: 70,
+    updateInterval: 900000,
+    requiredIndicators: ['DGS10', 'DGS3MO', 'SOFR', 'SPX', 'BTCUSD'],
+    dependencies: ['market-regime', 'credit-stress']
+  },
+
+  'performance-attribution': {
+    id: 'performance-attribution',
+    name: 'Performance Attribution Engine',
+    pillar: 4,
+    priority: 60,
+    updateInterval: 600000,
+    requiredIndicators: [],
+    dependencies: ['master-control', 'signal-aggregator', 'market-regime', 'enhanced-momentum', 'volatility-regime']
+  },
+
   // ===== PILLAR 1: LIQUIDITY (7 Engines) =====
   'net-liquidity': {
     id: 'net-liquidity',
@@ -317,9 +357,9 @@ export const ENGINE_REGISTRY: Record<string, EngineConfig> = {
     ]
   },
   
-  'performance-attribution': {
-    id: 'performance-attribution',
-    name: 'Performance Attribution',
+  'tail-risk': {
+    id: 'tail-risk',
+    name: 'Tail Risk Engine',
     pillar: 4,
     priority: 70,
     updateInterval: 3600000,
