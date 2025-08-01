@@ -1,3 +1,7 @@
+/**
+ * LIQUIDITY² Terminal Theme - Single Source of Truth
+ * Bloomberg Terminal Aesthetic
+ */
 export const TERMINAL_THEME = {
   colors: {
     background: {
@@ -9,15 +13,15 @@ export const TERMINAL_THEME = {
       secondary: '#888888'
     },
     headers: {
-      primary: '#F7931A',
+      primary: '#F7931A',  // Bitcoin Orange
       secondary: '#F7931A'
     },
     semantic: {
-      positive: '#00FF41',
-      negative: '#FF3737',
-      warning: '#FFB800',
-      info: '#00D4FF',
-      accent: '#F7931A'
+      positive: '#00FF41',  // Bright Green
+      negative: '#FF3737',  // Bright Red
+      warning: '#FFB800',   // Amber
+      info: '#00D4FF',      // Cyan
+      accent: '#F7931A'     // Orange
     },
     border: {
       default: '#333333',
@@ -27,7 +31,7 @@ export const TERMINAL_THEME = {
   },
   typography: {
     fontFamily: {
-      mono: "'Roboto Mono', monospace"
+      mono: "'Roboto Mono', 'Courier New', monospace"
     },
     sizes: {
       micro: '10px',
@@ -52,4 +56,4 @@ export const TERMINAL_THEME = {
     lg: '16px',
     xl: '24px'
   }
-};
+} as const;
