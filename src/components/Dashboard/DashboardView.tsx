@@ -1,14 +1,18 @@
 import { TERMINAL_THEME } from '@/config/theme';
 import { EnhancedMomentumEngine } from '@/engines/foundation/EnhancedMomentumEngine';
 import { EnhancedMomentumTile } from '@/engines/foundation/EnhancedMomentumEngine/components/DashboardTile';
+import { VolatilityRegimeEngine } from '@/engines/foundation/VolatilityRegimeEngine';
+import { VolatilityRegimeTile } from '@/engines/foundation/VolatilityRegimeEngine/components/DashboardTile';
 import { TestEngineTile } from '@/engines/TestEngine/components/DashboardTile';
 import { useEffect, useState } from 'react';
 
 export function DashboardView() {
   const [momentumData, setMomentumData] = useState<any>(null);
+  const [volatilityData, setVolatilityData] = useState<any>(null);
   
   useEffect(() => {
     const momentumEngine = new EnhancedMomentumEngine();
+    const volatilityEngine = new VolatilityRegimeEngine();
     const mockData = new Map();
     
     // Add sufficient mock data for calculations
@@ -16,8 +20,18 @@ export function DashboardView() {
       mockData.set(`INDICATOR_${i}`, Array.from({length: 150}, (_, j) => 100 + Math.sin(j * 0.1) * 10 + Math.random() * 5));
     }
     
-    const output = momentumEngine.calculate(mockData);
-    setMomentumData(output);
+    // Add volatility-specific mock data
+    mockData.set('VIX', 18.7);
+    mockData.set('VIX9D', 19.2);
+    mockData.set('VVIX', 115.3);
+    mockData.set('REALIZED_VOL', 16.8);
+    mockData.set('VIX_PREV', 18.4);
+    
+    const momentumOutput = momentumEngine.calculate(mockData);
+    const volatilityOutput = volatilityEngine.calculate(mockData);
+    
+    setMomentumData(momentumOutput);
+    setVolatilityData(volatilityOutput);
   }, []);
 
   const engineTiles = Array.from({ length: 8 }, (_, i) => i + 2);
@@ -54,6 +68,11 @@ export function DashboardView() {
           <EnhancedMomentumTile data={momentumData} importance={90} />
         )}
         
+        {/* Volatility Regime Engine */}
+        {volatilityData && (
+          <VolatilityRegimeTile data={volatilityData} importance={85} />
+        )}
+        
         {/* Test Engine */}
         <TestEngineTile 
           data={{
@@ -67,7 +86,7 @@ export function DashboardView() {
         />
         
         {/* Additional placeholder tiles */}
-        {Array.from({ length: 13 }, (_, i) => (
+        {Array.from({ length: 12 }, (_, i) => (
           <div key={i} style={{
             border: `1px dotted ${TERMINAL_THEME.colors.border.default}`,
             backgroundColor: TERMINAL_THEME.colors.background.primary,

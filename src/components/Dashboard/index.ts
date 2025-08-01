@@ -4,7 +4,7 @@
  */
 
 // Core theme
-export { TERMINAL_THEME } from './theme';
+export { TERMINAL_THEME } from '@/config/theme';
 
 // Base configuration
 export const CONFIG = {
@@ -24,6 +24,3 @@ export const CONFIG = {
     TILE_HEIGHT: 250,
   }
 } as const;
-
-// Re-export other configs if they exist
-export * from './indicators.config';

@@ -3,13 +3,16 @@ import { TERMINAL_THEME } from '@/config/theme';
 import { TestEngine } from '@/engines/TestEngine';
 import { EnhancedMomentumEngine } from '@/engines/foundation/EnhancedMomentumEngine';
 import { EnhancedMomentumIntelligenceView } from '@/engines/foundation/EnhancedMomentumEngine/components/IntelligenceView';
+import { VolatilityRegimeEngine } from '@/engines/foundation/VolatilityRegimeEngine';
+import { VolatilityRegimeIntelligenceView } from '@/engines/foundation/VolatilityRegimeEngine/components/IntelligenceView';
 
 export function IntelligenceView() {
   const [selectedEngine, setSelectedEngine] = useState<string | null>(null);
   
   const engines = [
     { id: 'test-engine', name: 'TEST ENGINE', description: 'System validation engine' },
-    { id: 'enhanced-momentum', name: 'ENHANCED MOMENTUM ENGINE', description: 'Critical foundation engine - velocity & acceleration analysis' }
+    { id: 'enhanced-momentum', name: 'ENHANCED MOMENTUM ENGINE', description: 'Critical foundation engine - velocity & acceleration analysis' },
+    { id: 'volatility-regime', name: 'VOLATILITY REGIME ENGINE', description: 'Market volatility classification and regime detection' }
   ];
 
   const getEngineDetailedView = (engineId: string) => {
@@ -88,6 +91,10 @@ export function IntelligenceView() {
       
       const output = momentumEngine.calculate(mockData);
       return <EnhancedMomentumIntelligenceView data={output} />;
+    }
+    
+    if (selectedEngine === 'volatility-regime') {
+      return <VolatilityRegimeIntelligenceView />;
     }
     
     const engineData = getEngineDetailedView(selectedEngine);
