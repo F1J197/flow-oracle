@@ -151,7 +151,7 @@ class FREDDataService {
         return this.generateMockTrend(periods);
       }
 
-      return data?.map(d => parseFloat(d.value)) || this.generateMockTrend(periods);
+      return data?.map(d => parseFloat(String(d.value))) || this.generateMockTrend(periods);
     } catch (error: any) {
       debugLogger.error('NET_LIQUIDITY', 'Net liquidity trend error', error?.message || 'Unknown error');
       return this.generateMockTrend(periods);

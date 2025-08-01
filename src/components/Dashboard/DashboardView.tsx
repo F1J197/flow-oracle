@@ -1,138 +1,287 @@
-import { TERMINAL_THEME } from '@/config/theme';
-import { EnhancedMomentumEngine } from '@/engines/foundation/EnhancedMomentumEngine';
-import { EnhancedMomentumTile } from '@/engines/foundation/EnhancedMomentumEngine/components/DashboardTile';
-import { VolatilityRegimeEngine } from '@/engines/foundation/VolatilityRegimeEngine';
-import { VolatilityRegimeTile } from '@/engines/foundation/VolatilityRegimeEngine/components/DashboardTile';
-import { TestEngineTile } from '@/engines/TestEngine/components/DashboardTile';
-import { useEffect, useState } from 'react';
+/**
+ * Enhanced Dashboard View with Smart Grid System
+ * Dynamic tile repositioning based on importance scores
+ */
 
-export function DashboardView() {
-  const [momentumData, setMomentumData] = useState<any>(null);
-  const [volatilityData, setVolatilityData] = useState<any>(null);
-  
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TERMINAL_THEME } from '@/config/terminal.theme';
+import { SmartGrid } from './SmartGrid';
+import { TerminalDataService } from '@/services/TerminalDataService';
+import { EngineOutput } from '@/engines/BaseEngine';
+import { debugLogger } from '@/utils/debugLogger';
+
+export const DashboardView: React.FC = () => {
+  const [engineOutputs, setEngineOutputs] = useState<Map<string, EngineOutput>>(new Map());
+  const [selectedEngine, setSelectedEngine] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+
   useEffect(() => {
-    const momentumEngine = new EnhancedMomentumEngine();
-    const volatilityEngine = new VolatilityRegimeEngine();
-    const mockData = new Map();
+    const terminalService = TerminalDataService.getInstance();
     
-    // Add sufficient mock data for calculations
-    for (let i = 0; i < 25; i++) {
-      mockData.set(`INDICATOR_${i}`, Array.from({length: 150}, (_, j) => 100 + Math.sin(j * 0.1) * 10 + Math.random() * 5));
-    }
+    // Initialize service and get initial data
+    const initializeDashboard = async () => {
+      try {
+        debugLogger.info('DASHBOARD', 'Initializing terminal dashboard');
+        await terminalService.initialize();
+        
+        // Get initial engine outputs
+        const initialOutputs = terminalService.getAllEngineOutputs();
+        setEngineOutputs(initialOutputs);
+        setIsLoading(false);
+        setLastUpdate(new Date());
+        
+        debugLogger.info('DASHBOARD', `Loaded ${initialOutputs.size} engine outputs`);
+      } catch (error: any) {
+        debugLogger.error('DASHBOARD', 'Failed to initialize dashboard', error?.message);
+        setIsLoading(false);
+      }
+    };
     
-    // Add volatility-specific mock data
-    mockData.set('VIX', 18.7);
-    mockData.set('VIX9D', 19.2);
-    mockData.set('VVIX', 115.3);
-    mockData.set('REALIZED_VOL', 16.8);
-    mockData.set('VIX_PREV', 18.4);
+    // Subscribe to real-time updates
+    const handleDataUpdate = (newOutputs: Map<string, EngineOutput>) => {
+      setEngineOutputs(new Map(newOutputs));
+      setLastUpdate(new Date());
+      debugLogger.info('DASHBOARD', `Updated ${newOutputs.size} engine outputs`);
+    };
     
-    const momentumOutput = momentumEngine.calculate(mockData);
-    const volatilityOutput = volatilityEngine.calculate(mockData);
+    terminalService.subscribe(handleDataUpdate);
+    initializeDashboard();
     
-    setMomentumData(momentumOutput);
-    setVolatilityData(volatilityOutput);
+    return () => {
+      terminalService.unsubscribe(handleDataUpdate);
+    };
   }, []);
 
-  const engineTiles = Array.from({ length: 8 }, (_, i) => i + 2);
+  /**
+   * Handle tile click for detailed view
+   */
+  const handleTileClick = (engineId: string) => {
+    setSelectedEngine(selectedEngine === engineId ? null : engineId);
+    debugLogger.info('DASHBOARD', `${selectedEngine === engineId ? 'Closed' : 'Opened'} engine details`, engineId);
+  };
 
-  return (
-    <div style={{
-      backgroundColor: TERMINAL_THEME.colors.background.primary,
-      minHeight: '100vh',
-      padding: '0',
-      fontFamily: TERMINAL_THEME.typography.fontFamily.mono
-    }}>
-      {/* Terminal Header */}
-      <div style={{
-        backgroundColor: TERMINAL_THEME.colors.background.secondary,
-        color: TERMINAL_THEME.colors.headers.primary,
-        fontSize: '14px',
-        fontWeight: TERMINAL_THEME.typography.weights.bold,
-        padding: '8px 12px',
-        borderBottom: `2px solid ${TERMINAL_THEME.colors.headers.primary}`,
-        letterSpacing: '1px'
-      }}>
-        LIQUIDITY² TERMINAL │ LIVE FEED │ {new Date().toLocaleTimeString('en-US', { hour12: false })} EDT
-      </div>
-      
-      {/* 3x3 Bloomberg Terminal Grid - EXACT SPECIFICATION */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gridTemplateRows: 'repeat(3, 200px)',
-        gap: TERMINAL_THEME.spacing.md,
-        maxWidth: '1400px',
-        margin: '0 auto',
-        padding: TERMINAL_THEME.spacing.lg
-      }}>
-        {momentumData && (
-          <EnhancedMomentumTile data={momentumData} importance={90} />
-        )}
-        
-        {/* Volatility Regime Engine */}
-        {volatilityData && (
-          <VolatilityRegimeTile data={volatilityData} importance={85} />
-        )}
-        
-        {/* Test Engine */}
-        <TestEngineTile 
-          data={{
-            primaryMetric: { value: 0.247, change24h: 0.03, changePercent: 2.1 },
-            signal: 'RISK_ON',
-            confidence: 82,
-            analysis: 'Risk metrics stable - momentum building',
-            subMetrics: { confidence: 82 }
-          }} 
-          importance={75} 
-        />
-        
-        {/* Additional placeholder tiles - 6 more to complete 3x3 grid */}
-        {Array.from({ length: 6 }, (_, i) => (
-          <div key={i} style={{
-            height: TERMINAL_THEME.tile.height,
-            padding: TERMINAL_THEME.tile.padding,
-            border: `${TERMINAL_THEME.tile.borderWidth} solid ${TERMINAL_THEME.colors.border.default}`,
-            backgroundColor: TERMINAL_THEME.colors.background.secondary,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            color: TERMINAL_THEME.colors.text.secondary,
-            fontSize: TERMINAL_THEME.typography.sizes.small,
-            fontFamily: TERMINAL_THEME.typography.fontFamily.mono
-          }}>
-            <div style={{
-              color: TERMINAL_THEME.colors.headers.primary,
-              fontSize: TERMINAL_THEME.typography.sizes.small,
-              fontWeight: TERMINAL_THEME.typography.weights.semibold,
-              textTransform: 'uppercase',
-              borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-              paddingBottom: '4px',
-              marginBottom: '8px'
-            }}>
-              ENGINE-{String(i + 4).padStart(2, '0')} │ OFFLINE
-            </div>
-            <div style={{
-              fontSize: TERMINAL_THEME.typography.sizes.xxlarge,
-              color: TERMINAL_THEME.colors.text.secondary,
-              textAlign: 'center',
-              marginTop: 'auto',
-              marginBottom: 'auto'
-            }}>
-              ---
-            </div>
-            <div style={{
-              fontSize: TERMINAL_THEME.typography.sizes.micro,
-              color: TERMINAL_THEME.colors.text.secondary,
-              textAlign: 'center',
-              borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-              paddingTop: '4px'
-            }}>
-              INITIALIZING...
+  /**
+   * Trigger manual data refresh
+   */
+  const handleRefresh = async () => {
+    const terminalService = TerminalDataService.getInstance();
+    try {
+      await terminalService.triggerDataUpdate();
+      debugLogger.info('DASHBOARD', 'Manual refresh triggered');
+    } catch (error: any) {
+      debugLogger.error('DASHBOARD', 'Manual refresh failed', error?.message);
+    }
+  };
+
+  /**
+   * Calculate system health metrics
+   */
+  const calculateSystemHealth = () => {
+    if (engineOutputs.size === 0) return 0;
+    
+    let totalConfidence = 0;
+    engineOutputs.forEach(output => {
+      totalConfidence += output.confidence || 0;
+    });
+    
+    return totalConfidence / engineOutputs.size;
+  };
+
+  if (isLoading) {
+    return (
+      <div 
+        className="flex items-center justify-center min-h-screen"
+        style={{
+          backgroundColor: TERMINAL_THEME.colors.background.primary,
+          color: TERMINAL_THEME.colors.text.primary,
+          fontFamily: TERMINAL_THEME.typography.fontFamily.mono
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div 
+            className="text-4xl font-bold mb-4"
+            style={{ color: TERMINAL_THEME.colors.headers.primary }}
+          >
+            LIQUIDITY² TERMINAL
+          </div>
+          <div className="text-lg">
+            INITIALIZING ENGINES...
+          </div>
+          <div className="mt-4">
+            <div 
+              className="w-16 h-1 rounded"
+              style={{ backgroundColor: TERMINAL_THEME.colors.border.default }}
+            >
+              <motion.div
+                className="h-full rounded"
+                style={{ backgroundColor: TERMINAL_THEME.colors.headers.primary }}
+                initial={{ width: '0%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
             </div>
           </div>
-        ))}
+        </motion.div>
       </div>
+    );
+  }
+
+  return (
+    <div 
+      className="min-h-screen p-6"
+      style={{
+        backgroundColor: TERMINAL_THEME.colors.background.primary,
+        fontFamily: TERMINAL_THEME.typography.fontFamily.mono
+      }}
+    >
+      {/* Terminal Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h1 
+            className="text-4xl font-bold tracking-wider"
+            style={{ 
+              color: TERMINAL_THEME.colors.headers.primary,
+              textShadow: `0 0 10px ${TERMINAL_THEME.colors.headers.primary}40`
+            }}
+          >
+            LIQUIDITY² TERMINAL
+          </h1>
+          
+          <div className="flex items-center space-x-6">
+            {/* System Health */}
+            <div className="text-center">
+              <div 
+                className="text-xs uppercase tracking-wider"
+                style={{ color: TERMINAL_THEME.colors.text.secondary }}
+              >
+                System Health
+              </div>
+              <div 
+                className="text-xl font-bold"
+                style={{ 
+                  color: calculateSystemHealth() > 70 ? 
+                    TERMINAL_THEME.colors.semantic.positive : 
+                    calculateSystemHealth() > 40 ? 
+                    TERMINAL_THEME.colors.semantic.warning : 
+                    TERMINAL_THEME.colors.semantic.negative
+                }}
+              >
+                {calculateSystemHealth().toFixed(0)}%
+              </div>
+            </div>
+            
+            {/* Last Update */}
+            <div className="text-center">
+              <div 
+                className="text-xs uppercase tracking-wider"
+                style={{ color: TERMINAL_THEME.colors.text.secondary }}
+              >
+                Last Update
+              </div>
+              <div 
+                className="text-sm font-semibold"
+                style={{ color: TERMINAL_THEME.colors.text.primary }}
+              >
+                {lastUpdate.toLocaleTimeString()}
+              </div>
+            </div>
+            
+            {/* Refresh Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleRefresh}
+              className="px-4 py-2 border text-sm font-semibold uppercase tracking-wider"
+              style={{
+                backgroundColor: 'transparent',
+                color: TERMINAL_THEME.colors.headers.primary,
+                borderColor: TERMINAL_THEME.colors.headers.primary
+              }}
+            >
+              REFRESH
+            </motion.button>
+          </div>
+        </div>
+        
+        {/* Status Bar */}
+        <div 
+          className="h-px w-full"
+          style={{ backgroundColor: TERMINAL_THEME.colors.border.default }}
+        />
+      </motion.div>
+
+      {/* Smart Grid */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <SmartGrid 
+          engineOutputs={engineOutputs}
+          onTileClick={handleTileClick}
+        />
+      </motion.div>
+
+      {/* Selected Engine Detail Modal */}
+      <AnimatePresence>
+        {selectedEngine && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => setSelectedEngine(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="max-w-4xl w-full mx-4 p-6 border"
+              style={{
+                backgroundColor: TERMINAL_THEME.colors.background.secondary,
+                borderColor: TERMINAL_THEME.colors.border.important
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 
+                  className="text-2xl font-bold uppercase tracking-wider"
+                  style={{ color: TERMINAL_THEME.colors.headers.primary }}
+                >
+                  {selectedEngine} DETAILS
+                </h2>
+                <button
+                  onClick={() => setSelectedEngine(null)}
+                  className="text-2xl"
+                  style={{ color: TERMINAL_THEME.colors.text.secondary }}
+                >
+                  ×
+                </button>
+              </div>
+              
+              {/* Engine details would go here */}
+              <div 
+                className="text-sm"
+                style={{ color: TERMINAL_THEME.colors.text.primary }}
+              >
+                <pre className="whitespace-pre-wrap">
+                  {JSON.stringify(engineOutputs.get(selectedEngine), null, 2)}
+                </pre>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
-}
+};

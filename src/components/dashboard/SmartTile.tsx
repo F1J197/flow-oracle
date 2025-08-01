@@ -11,14 +11,18 @@ interface SmartTileProps {
   engineId: string;
   data: EngineOutput;
   importance: number;
-  size: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large';
+  onClick?: () => void;
+  rank?: number;
 }
 
 export const SmartTile: React.FC<SmartTileProps> = ({
   engineId,
   data,
   importance,
-  size
+  size = 'medium',
+  onClick,
+  rank
 }) => {
   const config = ENGINE_REGISTRY[engineId];
   if (!config) return null;
@@ -74,11 +78,21 @@ export const SmartTile: React.FC<SmartTileProps> = ({
   };
 
   return (
-    <div className={`h-full bg-card border ${getBorderStyle()} p-3 font-mono transition-all duration-300`}>
+    <div 
+      className={`h-full bg-card border ${getBorderStyle()} p-3 font-mono transition-all duration-300 cursor-pointer hover:shadow-lg relative`}
+      onClick={onClick}
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <div className="text-xs font-bold uppercase tracking-wider text-primary">
-          {config.name}
+        <div className="flex items-center space-x-2">
+          {rank && (
+            <div className="text-xs font-bold text-primary bg-secondary px-1 rounded">
+              #{rank}
+            </div>
+          )}
+          <div className="text-xs font-bold uppercase tracking-wider text-primary">
+            {config.name}
+          </div>
         </div>
         <div 
           className="text-xs font-bold px-2 py-1 border"
