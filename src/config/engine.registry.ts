@@ -30,11 +30,41 @@ export const ENGINE_REGISTRY: Record<string, EngineConfig> = {
   'enhanced-momentum': {
     id: 'enhanced-momentum',
     name: 'Enhanced Momentum Engine',
-    pillar: 0,
+    pillar: 1,
+    priority: 85,
+    updateInterval: 30000,
+    requiredIndicators: ['*'],
+    dependencies: []
+  },
+
+  'fed-balance-sheet': {
+    id: 'fed-balance-sheet',
+    name: 'Fed Balance Sheet Engine',
+    pillar: 1,
     priority: 90,
     updateInterval: 300000,
-    requiredIndicators: ['SPX', 'NDX', 'BTCUSD', 'DXY'],
-    dependencies: ['enhanced-zscore']
+    requiredIndicators: ['WALCL', 'WTREGEN', 'RRPONTSYD', 'SOFR', 'EFFR'],
+    dependencies: []
+  },
+
+  'market-regime': {
+    id: 'market-regime',
+    name: 'Market Regime Engine',
+    pillar: 2,
+    priority: 85,
+    updateInterval: 300000,
+    requiredIndicators: ['VIX', 'SPX', 'BTCUSD', 'DXY', 'DGS10', 'WALCL'],
+    dependencies: ['volatility-regime', 'enhanced-momentum']
+  },
+
+  'master-control': {
+    id: 'master-control',
+    name: 'Master Control Engine',
+    pillar: 4,
+    priority: 100,
+    updateInterval: 60000,
+    requiredIndicators: [],
+    dependencies: ['enhanced-momentum', 'volatility-regime', 'net-liquidity', 'credit-stress', 'market-regime', 'signal-aggregator']
   },
 
   // ===== PILLAR 1: LIQUIDITY (7 Engines) =====
@@ -109,6 +139,7 @@ export const ENGINE_REGISTRY: Record<string, EngineConfig> = {
   },
 
   // ===== PILLAR 2: NETWORK & MARKET (6 Engines) =====
+
   'cusip-anomaly': {
     id: 'cusip-anomaly',
     name: 'CUSIP Anomaly Detection',

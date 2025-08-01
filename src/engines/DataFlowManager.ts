@@ -198,28 +198,65 @@ export class DataFlowManager {
   private getMockMarketData(): Map<string, any> {
     const data = new Map<string, any>();
     
-    // Mock real-time market data
-    data.set('VIX', 18.5 + Math.random() * 5);
-    data.set('VIX9D', 17.2 + Math.random() * 4);
-    data.set('VVIX', 90 + Math.random() * 20);
-    data.set('SPX', 4500 + Math.random() * 200);
-    data.set('NDX', 15000 + Math.random() * 1000);
-    data.set('BTCUSD', 45000 + Math.random() * 10000);
-    data.set('DXY', 104 + Math.random() * 3);
-    data.set('DGS10', 4.5 + Math.random() * 0.5);
-    data.set('MOVE', 100 + Math.random() * 30);
-    data.set('CVIX', 85 + Math.random() * 15);
+    // Generate historical data arrays for momentum calculations
+    const generateTimeSeries = (baseValue: number, volatility: number, length: number = 200) => {
+      const series = [];
+      let current = baseValue;
+      for (let i = 0; i < length; i++) {
+        current += (Math.random() - 0.5) * volatility;
+        series.push({
+          value: current,
+          timestamp: Date.now() - (length - i) * 60000 // 1 minute intervals
+        });
+      }
+      return series;
+    };
+    
+    // Mock real-time market data with historical series
+    data.set('VIX', generateTimeSeries(18.5, 1.5));
+    data.set('VIX9D', generateTimeSeries(17.2, 1.2));
+    data.set('VVIX', generateTimeSeries(90, 8));
+    data.set('SPX', generateTimeSeries(4500, 50));
+    data.set('NDX', generateTimeSeries(15000, 200));
+    data.set('BTCUSD', generateTimeSeries(45000, 2000));
+    data.set('DXY', generateTimeSeries(104, 0.8));
+    data.set('DGS10', generateTimeSeries(4.5, 0.1));
+    data.set('MOVE', generateTimeSeries(100, 8));
+    data.set('CVIX', generateTimeSeries(85, 5));
     
     // Fed data
-    data.set('WALCL', 7.5 + Math.random() * 0.5); // Trillions
-    data.set('WTREGEN', 0.5 + Math.random() * 0.2);
-    data.set('RRPONTSYD', 2.0 + Math.random() * 0.5);
-    data.set('SOFR', 5.3 + Math.random() * 0.2);
-    data.set('EFFR', 5.35 + Math.random() * 0.1);
+    data.set('WALCL', generateTimeSeries(7.5, 0.05));
+    data.set('WTREGEN', generateTimeSeries(0.5, 0.02));
+    data.set('RRPONTSYD', generateTimeSeries(2.0, 0.1));
+    data.set('SOFR', generateTimeSeries(5.3, 0.05));
+    data.set('EFFR', generateTimeSeries(5.35, 0.02));
     
     // Credit spreads
-    data.set('BAMLH0A0HYM2', 350 + Math.random() * 100);
-    data.set('BAMLC0A0CM', 120 + Math.random() * 30);
+    data.set('BAMLH0A0HYM2', generateTimeSeries(350, 20));
+    data.set('BAMLC0A0CM', generateTimeSeries(120, 8));
+    
+    // Additional indicators for momentum engine validation
+    data.set('GOLD', generateTimeSeries(2000, 50));
+    data.set('OIL_WTI', generateTimeSeries(80, 5));
+    data.set('EURUSD', generateTimeSeries(1.08, 0.02));
+    data.set('GBPUSD', generateTimeSeries(1.25, 0.03));
+    data.set('USDJPY', generateTimeSeries(150, 3));
+    data.set('USDCAD', generateTimeSeries(1.35, 0.02));
+    data.set('AUDUSD', generateTimeSeries(0.67, 0.02));
+    data.set('NZDUSD', generateTimeSeries(0.62, 0.02));
+    data.set('EURGBP', generateTimeSeries(0.86, 0.01));
+    data.set('EURCHF', generateTimeSeries(0.97, 0.01));
+    data.set('USDCHF', generateTimeSeries(0.90, 0.02));
+    data.set('TLT', generateTimeSeries(95, 3));
+    data.set('HYG', generateTimeSeries(78, 2));
+    data.set('LQD', generateTimeSeries(110, 1.5));
+    data.set('GLD', generateTimeSeries(180, 5));
+    data.set('QQQ', generateTimeSeries(380, 15));
+    data.set('IWM', generateTimeSeries(190, 8));
+    data.set('EEM', generateTimeSeries(40, 2));
+    data.set('VTI', generateTimeSeries(240, 8));
+    data.set('ARKK', generateTimeSeries(45, 5));
+    data.set('TSLA', generateTimeSeries(240, 20));
     
     return data;
   }
