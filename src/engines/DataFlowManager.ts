@@ -14,6 +14,8 @@ export interface DataFlowState {
 }
 
 export class DataFlowManager {
+  private static instance: DataFlowManager | null = null;
+
   private state: DataFlowState = {
     engineOutputs: new Map(),
     engineInstances: new Map(),
@@ -25,6 +27,13 @@ export class DataFlowManager {
 
   constructor() {
     this.initializeEngines();
+  }
+
+  static getInstance(): DataFlowManager {
+    if (!DataFlowManager.instance) {
+      DataFlowManager.instance = new DataFlowManager();
+    }
+    return DataFlowManager.instance;
   }
 
   private async initializeEngines() {
@@ -276,6 +285,38 @@ export class DataFlowManager {
 
   isEngineRunning(): boolean {
     return this.state.isRunning;
+  }
+
+  getRegisteredEngines(): Array<{ id: string; name: string }> {
+    const availableEngines = [
+      'enhanced-momentum',
+      'volatility-regime', 
+      'net-liquidity',
+      'credit-stress',
+      'signal-aggregator',
+      'tail-risk',
+      'enhanced-zscore',
+      'data-integrity'
+    ];
+
+    return availableEngines.map(id => ({
+      id,
+      name: this.getEngineDisplayName(id)
+    }));
+  }
+
+  private getEngineDisplayName(engineId: string): string {
+    const nameMapping: Record<string, string> = {
+      'enhanced-momentum': 'Enhanced Momentum',
+      'volatility-regime': 'Volatility Regime',
+      'net-liquidity': 'Net Liquidity',
+      'credit-stress': 'Credit Stress',
+      'signal-aggregator': 'Signal Aggregator',
+      'tail-risk': 'Tail Risk',
+      'enhanced-zscore': 'Enhanced Z-Score',
+      'data-integrity': 'Data Integrity'
+    };
+    return nameMapping[engineId] || engineId;
   }
 }
 

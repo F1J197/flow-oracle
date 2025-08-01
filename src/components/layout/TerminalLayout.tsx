@@ -3,14 +3,25 @@
  * Dashboard | Intelligence | Charts architecture
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardView } from './DashboardView';
 import { IntelligenceView } from './IntelligenceView';
 import { ChartsView } from './ChartsView';
+import { DataFlowManager } from '@/engines/DataFlowManager';
 
 export const TerminalLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  useEffect(() => {
+    // Initialize and start the DataFlowManager
+    const dataFlowManager = DataFlowManager.getInstance();
+    dataFlowManager.start();
+
+    return () => {
+      dataFlowManager.stop();
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background font-mono">
