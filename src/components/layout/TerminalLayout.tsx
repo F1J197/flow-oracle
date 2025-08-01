@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardView } from './DashboardView';
 import { IntelligenceView } from './IntelligenceView';
 import { ChartsView } from './ChartsView';
+import { BitcoinDashboard } from '@/components/bitcoin/BitcoinDashboard';
 import { DataFlowManager } from '@/engines/DataFlowManager';
 
 export const TerminalLayout: React.FC = () => {
@@ -61,7 +62,7 @@ export const TerminalLayout: React.FC = () => {
       {/* Tab Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
         <div className="border-b border-border bg-card">
-          <TabsList className="grid w-full grid-cols-3 bg-transparent h-12">
+          <TabsList className="grid w-full grid-cols-4 bg-transparent h-12">
             <TabsTrigger 
               value="dashboard" 
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-mono text-sm tracking-wider"
@@ -80,6 +81,12 @@ export const TerminalLayout: React.FC = () => {
             >
               CHARTS
             </TabsTrigger>
+            <TabsTrigger 
+              value="bitcoin" 
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-mono text-sm tracking-wider"
+            >
+              BITCOIN
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -95,6 +102,10 @@ export const TerminalLayout: React.FC = () => {
           
           <TabsContent value="charts" className="mt-0 h-full">
             <ChartsView />
+          </TabsContent>
+          
+          <TabsContent value="bitcoin" className="mt-0 h-full">
+            <BitcoinDashboard />
           </TabsContent>
         </div>
       </Tabs>

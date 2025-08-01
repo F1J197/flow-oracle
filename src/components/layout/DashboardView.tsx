@@ -9,6 +9,9 @@ import { dataFlowManager } from '@/engines/DataFlowManager';
 import { ENGINE_REGISTRY } from '@/config/engine.registry';
 import { SmartTile } from '@/components/dashboard/SmartTile';
 import { NetLiquidityGauge } from '@/engines/liquidity/NetLiquidityEngine/components/GaugeVisualization';
+import { LiquidityGauge } from '@/components/dashboard/LiquidityGauge';
+import { CreditStressHeatmap } from '@/components/dashboard/CreditStressHeatmap';
+import { MarketRegimeIndicator } from '@/components/dashboard/MarketRegimeIndicator';
 
 interface TileData {
   engineId: string;
@@ -207,6 +210,21 @@ export const DashboardView: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Featured Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <LiquidityGauge 
+          value={75} 
+          trend="up" 
+          status="expanding" 
+        />
+        <MarketRegimeIndicator 
+          regime="SUMMER" 
+          confidence={85} 
+          duration={45} 
+        />
+        <CreditStressHeatmap data={[]} />
       </div>
 
       {/* Dynamic Engine Grid */}

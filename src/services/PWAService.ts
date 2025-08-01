@@ -203,8 +203,13 @@ export class PWAService {
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      await registration.sync.register(tag);
-      console.log(`[PWA] Background sync scheduled: ${tag}`);
+      // Background sync support check with proper typing
+      if ('sync' in registration && (registration as any).sync) {
+        await (registration as any).sync.register(tag);
+        console.log(`[PWA] Background sync scheduled: ${tag}`);
+      } else {
+        console.warn('[PWA] Background sync not available on this registration');
+      }
     } catch (error) {
       console.error('[PWA] Failed to schedule background sync:', error);
     }
