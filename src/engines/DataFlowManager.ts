@@ -28,8 +28,75 @@ export class DataFlowManager {
   }
 
   private async initializeEngines() {
-    // Dynamic engine loading will be implemented per engine
     console.log('DataFlowManager: Initializing engines...');
+    
+    // Load available engines dynamically
+    const availableEngines = [
+      'enhanced-momentum',
+      'volatility-regime', 
+      'net-liquidity',
+      'credit-stress',
+      'signal-aggregator',
+      'tail-risk',
+      'enhanced-zscore',
+      'data-integrity'
+    ];
+    
+    for (const engineId of availableEngines) {
+      try {
+        const engineModule = await this.loadEngine(engineId);
+        if (engineModule) {
+          this.state.engineInstances.set(engineId, engineModule);
+          console.log(`✅ Loaded engine: ${engineId}`);
+        }
+      } catch (error) {
+        console.warn(`⚠️ Failed to load engine ${engineId}:`, error);
+      }
+    }
+  }
+  
+  private async loadEngine(engineId: string): Promise<BaseEngine | null> {
+    try {
+      switch (engineId) {
+        case 'enhanced-momentum': {
+          const { EnhancedMomentumEngine } = await import('@/engines/foundation/EnhancedMomentumEngine');
+          return new EnhancedMomentumEngine();
+        }
+        case 'volatility-regime': {
+          const { VolatilityRegimeEngine } = await import('@/engines/foundation/VolatilityRegimeEngine');
+          return new VolatilityRegimeEngine();
+        }
+        case 'net-liquidity': {
+          const { NetLiquidityEngine } = await import('@/engines/liquidity/NetLiquidityEngine');
+          return new NetLiquidityEngine();
+        }
+        case 'credit-stress': {
+          const { CreditStressEngine } = await import('@/engines/liquidity/CreditStressEngine');
+          return new CreditStressEngine();
+        }
+        case 'signal-aggregator': {
+          const { SignalAggregatorEngine } = await import('@/engines/synthesis/SignalAggregatorEngine');
+          return new SignalAggregatorEngine();
+        }
+        case 'tail-risk': {
+          const { TailRiskEngine } = await import('@/engines/systemic/TailRiskEngine');
+          return new TailRiskEngine();
+        }
+        case 'enhanced-zscore': {
+          const { ZScoreEngine } = await import('@/engines/foundation/ZScoreEngine');
+          return new ZScoreEngine();
+        }
+        case 'data-integrity': {
+          const { DataIntegrityEngine } = await import('@/engines/foundation/DataIntegrityEngine');
+          return new DataIntegrityEngine();
+        }
+        default:
+          return null;
+      }
+    } catch (error) {
+      console.error(`Failed to load engine ${engineId}:`, error);
+      return null;
+    }
   }
 
   async start() {
@@ -125,9 +192,7 @@ export class DataFlowManager {
   }
 
   private getEngineInstance(engineId: string): BaseEngine | null {
-    // For now, return mock instances
-    // Real implementation will use dynamic imports
-    return null;
+    return this.state.engineInstances.get(engineId) || null;
   }
 
   private getMockMarketData(): Map<string, any> {

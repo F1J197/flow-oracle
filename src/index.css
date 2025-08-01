@@ -4,6 +4,346 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * LIQUIDITY² Terminal - Bloomberg Terminal Aesthetic
+ * EXACT SPECIFICATION COMPLIANCE - DO NOT MODIFY
+ */
+
+@layer base {
+  :root {
+    /* TERMINAL COLOR PALETTE - EXACT HSL VALUES */
+    --bg-primary: 0 0% 0%;           /* Pure black */
+    --bg-secondary: 0 0% 4%;         /* Slightly lighter */
+    --bg-tile: 0 0% 6%;              /* Tile background */
+    
+    --text-primary: 0 0% 100%;       /* Pure white */
+    --text-secondary: 0 0% 53%;      /* Gray labels */
+    --text-muted: 0 0% 33%;          /* Dark gray */
+    
+    --bitcoin-orange: 28 94% 54%;    /* Headers #F7931A */
+    --neon-lime: 120 100% 63%;       /* Positive #00FF41 */
+    --neon-orange: 8 100% 60%;       /* Negative #FF3737 */
+    --neon-gold: 42 100% 50%;        /* Warning #FFB800 */
+    --neon-teal: 196 100% 50%;       /* Info #00D4FF */
+    
+    --glass-border: 0 0% 20%;        /* Dark gray border */
+    --glass-border-important: 28 94% 54%; /* Orange 60-85 importance */
+    --glass-border-critical: 8 100% 60%;  /* Red >85 importance */
+    
+    --terminal-shadow: 0 0% 0% / 0.3;
+    --terminal-glow: 28 94% 54% / 0.4;
+    
+    /* CHART COLORS */
+    --chart-line: 196 100% 50%;
+    --chart-area: 196 100% 50% / 0.1;
+    --chart-grid: 0 0% 20%;
+    
+    /* ANIMATION CONSTANTS */
+    --transition-terminal: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --pulse-duration: 2s;
+  }
+  
+  /* TERMINAL MODE BODY STYLES */
+  .terminal-mode {
+    background: hsl(var(--bg-primary));
+    color: hsl(var(--text-primary));
+    font-family: 'Roboto Mono', 'Courier New', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em;
+  }
+  
+  /* ROBOTO MONO FONT IMPORT */
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap');
+}
+
+@layer components {
+  /* TERMINAL TYPOGRAPHY SYSTEM */
+  .terminal-text {
+    font-family: 'Roboto Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em;
+  }
+  
+  .terminal-header {
+    color: hsl(var(--bitcoin-orange));
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: 'Roboto Mono', monospace;
+  }
+  
+  .terminal-metric {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'Roboto Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  
+  .terminal-label {
+    color: hsl(var(--text-secondary));
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'Roboto Mono', monospace;
+  }
+  
+  /* TERMINAL PANEL SYSTEM */
+  .terminal-panel {
+    background: hsl(var(--bg-tile));
+    border: 1px solid hsl(var(--glass-border));
+    font-family: 'Roboto Mono', monospace;
+    transition: var(--transition-terminal);
+  }
+  
+  .terminal-tile {
+    @apply terminal-panel;
+    height: 200px;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .terminal-tile:hover {
+    border-color: hsl(var(--neon-teal) / 0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px hsl(var(--terminal-shadow));
+  }
+  
+  /* IMPORTANCE-BASED BORDERS */
+  .terminal-tile[data-importance="critical"] {
+    border-color: hsl(var(--glass-border-critical));
+    box-shadow: 0 0 8px hsl(var(--glass-border-critical) / 0.3);
+  }
+  
+  .terminal-tile[data-importance="important"] {
+    border-color: hsl(var(--glass-border-important));
+    box-shadow: 0 0 6px hsl(var(--glass-border-important) / 0.2);
+  }
+  
+  /* SEMANTIC COLOR SYSTEM */
+  .text-positive {
+    color: hsl(var(--neon-lime));
+  }
+  
+  .text-negative {
+    color: hsl(var(--neon-orange));
+  }
+  
+  .text-warning {
+    color: hsl(var(--neon-gold));
+  }
+  
+  .text-info {
+    color: hsl(var(--neon-teal));
+  }
+  
+  .text-accent {
+    color: hsl(var(--bitcoin-orange));
+  }
+  
+  /* STATUS INDICATORS */
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 0;
+    background: currentColor;
+    animation: pulse var(--pulse-duration) cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .status-active {
+    color: hsl(var(--neon-lime));
+  }
+  
+  .status-warning {
+    color: hsl(var(--neon-gold));
+  }
+  
+  .status-critical {
+    color: hsl(var(--neon-orange));
+  }
+  
+  .status-offline {
+    color: hsl(var(--text-muted));
+    animation: none;
+  }
+  
+  /* TERMINAL BUTTONS */
+  .terminal-button {
+    background: transparent;
+    border: 1px solid hsl(var(--glass-border));
+    color: hsl(var(--text-primary));
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 16px;
+    transition: var(--transition-terminal);
+  }
+  
+  .terminal-button:hover {
+    border-color: hsl(var(--bitcoin-orange));
+    color: hsl(var(--bitcoin-orange));
+    box-shadow: 0 0 8px hsl(var(--bitcoin-orange) / 0.3);
+  }
+  
+  .terminal-button:active {
+    transform: translateY(1px);
+  }
+  
+  /* TERMINAL INPUTS */
+  .terminal-input {
+    background: hsl(var(--bg-tile));
+    border: 1px solid hsl(var(--glass-border));
+    color: hsl(var(--text-primary));
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.875rem;
+    padding: 8px 12px;
+    transition: var(--transition-terminal);
+  }
+  
+  .terminal-input:focus {
+    outline: none;
+    border-color: hsl(var(--bitcoin-orange));
+    box-shadow: 0 0 0 1px hsl(var(--bitcoin-orange) / 0.3);
+  }
+  
+  /* TERMINAL CHARTS */
+  .terminal-chart {
+    background: hsl(var(--bg-tile));
+    border: 1px solid hsl(var(--glass-border));
+  }
+  
+  .terminal-chart .recharts-cartesian-grid line {
+    stroke: hsl(var(--chart-grid));
+  }
+  
+  .terminal-chart .recharts-text {
+    fill: hsl(var(--text-secondary));
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.75rem;
+  }
+  
+  /* GLOW EFFECTS */
+  .terminal-glow {
+    box-shadow: 0 0 20px hsl(var(--terminal-glow));
+  }
+  
+  .terminal-glow-orange {
+    box-shadow: 0 0 20px hsl(var(--bitcoin-orange) / 0.4);
+  }
+  
+  .terminal-glow-lime {
+    box-shadow: 0 0 20px hsl(var(--neon-lime) / 0.4);
+  }
+  
+  .terminal-glow-teal {
+    box-shadow: 0 0 20px hsl(var(--neon-teal) / 0.4);
+  }
+}
+
+@layer utilities {
+  /* TERMINAL UTILITY CLASSES */
+  .font-terminal {
+    font-family: 'Roboto Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .bg-terminal {
+    background: hsl(var(--bg-primary));
+  }
+  
+  .bg-terminal-tile {
+    background: hsl(var(--bg-tile));
+  }
+  
+  .border-terminal {
+    border-color: hsl(var(--glass-border));
+  }
+  
+  .border-terminal-important {
+    border-color: hsl(var(--glass-border-important));
+  }
+  
+  .border-terminal-critical {
+    border-color: hsl(var(--glass-border-critical));
+  }
+  
+  /* ANIMATION UTILITIES */
+  .animate-terminal-pulse {
+    animation: terminal-pulse var(--pulse-duration) ease-in-out infinite;
+  }
+  
+  .animate-terminal-glow {
+    animation: terminal-glow 3s ease-in-out infinite alternate;
+  }
+  
+  /* NO ROUNDED CORNERS - BLOOMBERG COMPLIANCE */
+  .rounded-none {
+    border-radius: 0 !important;
+  }
+  
+  .no-blur {
+    backdrop-filter: none !important;
+    filter: none !important;
+  }
+}
+
+/* TERMINAL ANIMATIONS */
+@keyframes terminal-pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 0.7; 
+    transform: scale(1.05); 
+  }
+}
+
+@keyframes terminal-glow {
+  0% { 
+    box-shadow: 0 0 5px hsl(var(--bitcoin-orange) / 0.3); 
+  }
+  100% { 
+    box-shadow: 0 0 20px hsl(var(--bitcoin-orange) / 0.6); 
+  }
+}
+
+/* SCROLLBAR STYLING */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--bg-secondary));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--glass-border));
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--bitcoin-orange));
+}
+
+/* SELECTION STYLING */
+::selection {
+  background: hsl(var(--bitcoin-orange) / 0.3);
+  color: hsl(var(--text-primary));
+}
+
+/* FOCUS VISIBLE STYLING */
+*:focus-visible {
+  outline: 2px solid hsl(var(--bitcoin-orange));
+  outline-offset: 2px;
+}
+
 /* Import tile-specific animations and effects */
 @import './styles/tiles.css';
 @import './styles/intelligence.css';
