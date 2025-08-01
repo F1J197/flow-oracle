@@ -38,7 +38,7 @@ export class NetLiquidityEngine extends BaseEngine {
       initialEstimate: this.ALPHA_BASE,
       processNoise: 0.001,
       measurementNoise: 0.01,
-      initialUncertainty: 0.1
+      initialCovariance: 0.1
     });
   }
 
