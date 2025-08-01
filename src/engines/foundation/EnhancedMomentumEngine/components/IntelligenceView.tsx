@@ -9,282 +9,376 @@ interface Props {
 
 export const EnhancedMomentumIntelligenceView: React.FC<Props> = ({ data }) => {
   const regime = data.subMetrics?.regime || 'NEUTRAL';
+  const velocity = data.subMetrics?.velocity || 0;
+  const acceleration = data.subMetrics?.acceleration || 0;
   const jerkFactor = data.subMetrics?.jerkFactor || 0;
+  const compositeScore = data.primaryMetric.value;
+  
+  // Mock momentum indicators data for Bloomberg-style display
+  const momentumIndicators = [
+    { name: 'MOCS_26', value: 84.2, percentile: 78 },
+    { name: 'MOCS_52', value: 91.7, percentile: 85 },
+    { name: 'MOCS_126', value: 67.3, percentile: 45 },
+    { name: 'MOCS_252', value: 23.1, percentile: 12 },
+    { name: 'ADX_14', value: 45.8, percentile: 62 },
+    { name: 'RSI_21', value: 72.4, percentile: 81 },
+    { name: 'STOCH_14', value: 38.9, percentile: 28 },
+    { name: 'CCI_20', value: 156.2, percentile: 89 },
+    { name: 'WILLR_14', value: -18.5, percentile: 73 },
+    { name: 'ROC_21', value: 8.7, percentile: 76 }
+  ];
+  
+  const getIndicatorColor = (percentile: number) => {
+    if (percentile > 70) return TERMINAL_THEME.colors.semantic.positive;
+    if (percentile < 30) return TERMINAL_THEME.colors.semantic.negative;
+    return TERMINAL_THEME.colors.text.primary;
+  };
+  
+  const getPrimaryColor = () => {
+    if (compositeScore > 0.5) return TERMINAL_THEME.colors.semantic.positive;
+    if (compositeScore < -0.5) return TERMINAL_THEME.colors.semantic.negative;
+    return TERMINAL_THEME.colors.text.primary;
+  };
+  
+  const getSignal = () => {
+    if (compositeScore > 1) return 'BULLISH';
+    if (compositeScore < -1) return 'BEARISH';
+    return 'NEUTRAL';
+  };
+  
+  // Generate ASCII confidence bar
+  const generateConfidenceBar = (confidence: number) => {
+    const bars = 20;
+    const filled = Math.round((confidence / 100) * bars);
+    return '█'.repeat(filled) + '░'.repeat(bars - filled);
+  };
+  
+  // Calculate signal distribution
+  const bullishCount = data.subMetrics?.bullishIndicators || 8;
+  const bearishCount = data.subMetrics?.bearishIndicators || 3;
+  const neutralCount = 25 - bullishCount - bearishCount;
+  const totalSignals = bullishCount + bearishCount + neutralCount;
   
   return (
     <div style={{
-      backgroundColor: TERMINAL_THEME.colors.background.secondary,
-      border: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-      padding: TERMINAL_THEME.spacing.lg
+      backgroundColor: TERMINAL_THEME.colors.background.primary,
+      color: TERMINAL_THEME.colors.text.primary,
+      fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
+      fontSize: '12px',
+      padding: '16px',
+      height: '100vh',
+      overflow: 'auto'
     }}>
       {/* Header */}
       <div style={{
         color: TERMINAL_THEME.colors.headers.primary,
-        fontSize: TERMINAL_THEME.typography.sizes.xlarge,
-        fontWeight: TERMINAL_THEME.typography.weights.bold,
-        fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
-        marginBottom: TERMINAL_THEME.spacing.lg,
-        letterSpacing: '1px'
+        fontSize: '18px',
+        fontWeight: 'bold',
+        marginBottom: '24px',
+        letterSpacing: '2px',
+        textAlign: 'center',
+        borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+        paddingBottom: '8px'
       }}>
-        ENHANCED MOMENTUM ENGINE
+        ENHANCED MOMENTUM ENGINE - INTELLIGENCE VIEW
       </div>
 
+      {/* 3-Column Layout */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: TERMINAL_THEME.spacing.lg,
-        padding: TERMINAL_THEME.spacing.lg
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gap: '24px',
+        marginBottom: '32px',
+        height: '60vh'
       }}>
-        {/* Column 1: Core Metrics */}
-        <div>
-          <h3 style={{ 
+        
+        {/* LEFT COLUMN - MOMENTUM METRICS */}
+        <div style={{
+          border: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+          padding: '12px'
+        }}>
+          <div style={{
             color: TERMINAL_THEME.colors.headers.primary,
-            marginBottom: TERMINAL_THEME.spacing.md,
-            fontSize: TERMINAL_THEME.typography.sizes.medium
+            fontSize: '14px',
+            fontWeight: 'bold',
+            marginBottom: '16px',
+            textAlign: 'center',
+            borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+            paddingBottom: '4px'
           }}>
             MOMENTUM METRICS
-          </h3>
+          </div>
           
-          <div style={{ marginBottom: TERMINAL_THEME.spacing.md }}>
-            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
-              Composite Score
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontSize: '10px' }}>
+              COMPOSITE SCORE
             </div>
             <div style={{ 
-              fontSize: TERMINAL_THEME.typography.sizes.xlarge,
-              color: data.primaryMetric.value > 0 
-                ? TERMINAL_THEME.colors.semantic.positive
-                : TERMINAL_THEME.colors.semantic.negative
+              fontSize: '32px',
+              color: getPrimaryColor(),
+              fontWeight: 'bold',
+              lineHeight: '1'
             }}>
-              {data.primaryMetric.value.toFixed(2)}
+              {compositeScore >= 0 ? '+' : ''}{compositeScore.toFixed(2)}
             </div>
           </div>
           
-          <div style={{ marginBottom: TERMINAL_THEME.spacing.md }}>
-            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
-              Velocity (RoC)
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontSize: '10px' }}>
+              VELOCITY (RoC)
             </div>
-            <div style={{ fontSize: TERMINAL_THEME.typography.sizes.large }}>
-              {data.subMetrics?.velocity?.toFixed(2)}%
-            </div>
-          </div>
-          
-          <div style={{ marginBottom: TERMINAL_THEME.spacing.md }}>
-            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
-              Acceleration (Jerk)
-            </div>
-            <div style={{ fontSize: TERMINAL_THEME.typography.sizes.large }}>
-              {data.subMetrics?.acceleration?.toFixed(2)}%
+            <div style={{ fontSize: '18px', color: TERMINAL_THEME.colors.text.primary }}>
+              {velocity >= 0 ? '+' : ''}{velocity.toFixed(1)}%
             </div>
           </div>
           
-          <div style={{ marginBottom: TERMINAL_THEME.spacing.md }}>
-            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
-              Market Regime
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontSize: '10px' }}>
+              ACCELERATION (JERK)
+            </div>
+            <div style={{ fontSize: '18px', color: TERMINAL_THEME.colors.text.primary }}>
+              {acceleration >= 0 ? '+' : ''}{acceleration.toFixed(1)}%
+            </div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontSize: '10px' }}>
+              MARKET REGIME
             </div>
             <div style={{ 
-              fontSize: TERMINAL_THEME.typography.sizes.medium,
-              color: TERMINAL_THEME.colors.semantic.warning
+              fontSize: '14px', 
+              color: TERMINAL_THEME.colors.semantic.warning,
+              fontWeight: 'bold'
             }}>
               {regime.replace(/_/g, ' ')}
             </div>
           </div>
           
           <div>
-            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
-              Volatility (Jerk Factor)
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontSize: '10px' }}>
+              VOLATILITY FACTOR
             </div>
             <div style={{ 
-              color: jerkFactor > 10 
-                ? TERMINAL_THEME.colors.semantic.warning 
-                : TERMINAL_THEME.colors.text.primary
+              fontSize: '14px',
+              color: jerkFactor > 10 ? TERMINAL_THEME.colors.semantic.warning : TERMINAL_THEME.colors.text.primary
             }}>
               {jerkFactor.toFixed(2)}
             </div>
           </div>
         </div>
         
-        {/* Column 2: Indicator Breakdown */}
-        <div>
-          <h3 style={{ 
+        {/* MIDDLE COLUMN - INDICATOR ANALYSIS */}
+        <div style={{
+          border: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+          padding: '12px'
+        }}>
+          <div style={{
             color: TERMINAL_THEME.colors.headers.primary,
-            marginBottom: TERMINAL_THEME.spacing.md,
-            fontSize: TERMINAL_THEME.typography.sizes.medium
+            fontSize: '14px',
+            fontWeight: 'bold',
+            marginBottom: '16px',
+            textAlign: 'center',
+            borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+            paddingBottom: '4px'
           }}>
             INDICATOR ANALYSIS
-          </h3>
-          
-          <div style={{ marginBottom: TERMINAL_THEME.spacing.lg }}>
-            <h4 style={{ 
-              color: TERMINAL_THEME.colors.semantic.positive,
-              marginBottom: TERMINAL_THEME.spacing.sm
-            }}>
-              TOP BULLISH
-            </h4>
-            {data.subMetrics?.topBullish?.map((item: any, idx: number) => (
-              <div key={idx} style={{
-                marginBottom: TERMINAL_THEME.spacing.xs,
-                fontSize: TERMINAL_THEME.typography.sizes.small,
-                fontFamily: TERMINAL_THEME.typography.fontFamily.mono
-              }}>
-                <span style={{ color: TERMINAL_THEME.colors.text.secondary }}>
-                  {item.indicator}:
-                </span>
-                <span style={{ color: TERMINAL_THEME.colors.semantic.positive }}>
-                  {' '}V:{item.velocity}% A:{item.acceleration}%
-                </span>
-              </div>
-            ))}
           </div>
-          
-          <div>
-            <h4 style={{ 
-              color: TERMINAL_THEME.colors.semantic.negative,
-              marginBottom: TERMINAL_THEME.spacing.sm
-            }}>
-              TOP BEARISH
-            </h4>
-            {data.subMetrics?.topBearish?.map((item: any, idx: number) => (
-              <div key={idx} style={{
-                marginBottom: TERMINAL_THEME.spacing.xs,
-                fontSize: TERMINAL_THEME.typography.sizes.small
-              }}>
-                <span style={{ color: TERMINAL_THEME.colors.text.secondary }}>
-                  {item.indicator}:
-                </span>
-                <span style={{ color: TERMINAL_THEME.colors.semantic.negative }}>
-                  {' '}V:{item.velocity}% A:{item.acceleration}%
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Column 3: Signal Analysis */}
-        <div>
-          <h3 style={{ 
-            color: TERMINAL_THEME.colors.headers.primary,
-            marginBottom: TERMINAL_THEME.spacing.md,
-            fontSize: TERMINAL_THEME.typography.sizes.medium
-          }}>
-            SIGNAL BREAKDOWN
-          </h3>
           
           <div style={{
-            backgroundColor: TERMINAL_THEME.colors.background.primary,
-            border: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-            padding: TERMINAL_THEME.spacing.sm,
-            marginBottom: TERMINAL_THEME.spacing.md
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: '8px',
+            fontSize: '10px',
+            marginBottom: '8px'
+          }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontWeight: 'bold' }}>SYMBOL</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontWeight: 'bold' }}>VALUE</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontWeight: 'bold' }}>%ILE</div>
+          </div>
+          
+          {momentumIndicators.map((indicator, idx) => (
+            <div key={idx} style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gap: '8px',
+              fontSize: '11px',
+              marginBottom: '4px',
+              padding: '2px 0'
+            }}>
+              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>
+                {indicator.name}
+              </div>
+              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>
+                {indicator.value.toFixed(1)}
+              </div>
+              <div style={{ color: getIndicatorColor(indicator.percentile), fontWeight: 'bold' }}>
+                {indicator.percentile}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* RIGHT COLUMN - SIGNAL BREAKDOWN */}
+        <div style={{
+          border: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+          padding: '12px'
+        }}>
+          <div style={{
+            color: TERMINAL_THEME.colors.headers.primary,
+            fontSize: '14px',
+            fontWeight: 'bold',
+            marginBottom: '16px',
+            textAlign: 'center',
+            borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+            paddingBottom: '4px'
+          }}>
+            SIGNAL BREAKDOWN
+          </div>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: '8px',
+            fontSize: '10px',
+            marginBottom: '8px'
+          }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontWeight: 'bold' }}>TYPE</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontWeight: 'bold' }}>COUNT</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontWeight: 'bold' }}>PCT</div>
+          </div>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: '8px',
+            fontSize: '11px',
+            marginBottom: '4px'
+          }}>
+            <div style={{ color: TERMINAL_THEME.colors.semantic.positive }}>BULLISH</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{bullishCount}</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{((bullishCount / totalSignals) * 100).toFixed(0)}%</div>
+          </div>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: '8px',
+            fontSize: '11px',
+            marginBottom: '4px'
+          }}>
+            <div style={{ color: TERMINAL_THEME.colors.semantic.negative }}>BEARISH</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{bearishCount}</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{((bearishCount / totalSignals) * 100).toFixed(0)}%</div>
+          </div>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: '8px',
+            fontSize: '11px',
+            marginBottom: '4px'
+          }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>NEUTRAL</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{neutralCount}</div>
+            <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{((neutralCount / totalSignals) * 100).toFixed(0)}%</div>
+          </div>
+          
+          <div style={{
+            borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+            marginTop: '12px',
+            paddingTop: '8px'
           }}>
             <div style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr 1fr',
-              gap: TERMINAL_THEME.spacing.sm,
-              fontSize: TERMINAL_THEME.typography.sizes.small
+              gap: '8px',
+              fontSize: '11px',
+              marginBottom: '4px'
             }}>
-              {/* Headers */}
-              <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontWeight: 'bold' }}>Metric</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontWeight: 'bold' }}>Count</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontWeight: 'bold' }}>Percent</div>
-              
-              {/* Data Rows */}
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>Bullish</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{data.subMetrics?.bullishIndicators || 0}</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{((data.subMetrics?.bullishIndicators || 0) / 50 * 100).toFixed(0)}%</div>
-              
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>Bearish</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{data.subMetrics?.bearishIndicators || 0}</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{((data.subMetrics?.bearishIndicators || 0) / 50 * 100).toFixed(0)}%</div>
-              
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>Accelerating</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{data.subMetrics?.acceleratingIndicators || 0}</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{((data.subMetrics?.acceleratingIndicators || 0) / 50 * 100).toFixed(0)}%</div>
-              
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>Critical</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{data.subMetrics?.criticalSignals || 0}</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>N/A</div>
-              
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>Extreme</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{data.subMetrics?.extremeMomentum || 0}</div>
-              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>N/A</div>
+              <div style={{ color: TERMINAL_THEME.colors.semantic.warning }}>CRITICAL</div>
+              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{data.subMetrics?.criticalSignals || 2}</div>
+              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>--</div>
+            </div>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gap: '8px',
+              fontSize: '11px',
+              marginBottom: '4px'
+            }}>
+              <div style={{ color: TERMINAL_THEME.colors.semantic.warning }}>EXTREME</div>
+              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>{data.subMetrics?.extremeMomentum || 1}</div>
+              <div style={{ color: TERMINAL_THEME.colors.text.primary }}>--</div>
             </div>
           </div>
           
-          {/* Divergences */}
-          {data.subMetrics?.divergences && data.subMetrics.divergences.length > 0 && (
-            <div style={{ marginTop: TERMINAL_THEME.spacing.lg }}>
-              <h4 style={{ 
-                color: TERMINAL_THEME.colors.semantic.warning,
-                marginBottom: TERMINAL_THEME.spacing.sm
-              }}>
-                DIVERGENCES DETECTED
-              </h4>
-              {data.subMetrics.divergences.map((div: string, idx: number) => (
-                <div key={idx} style={{
-                  color: TERMINAL_THEME.colors.semantic.warning,
-                  fontSize: TERMINAL_THEME.typography.sizes.small,
-                  marginBottom: TERMINAL_THEME.spacing.xs,
-                  padding: TERMINAL_THEME.spacing.sm,
-                  border: `1px solid ${TERMINAL_THEME.colors.semantic.warning}`
-                }}>
-                  {div}
-                </div>
-              ))}
+          <div style={{
+            marginTop: '16px',
+            padding: '8px',
+            border: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+            backgroundColor: TERMINAL_THEME.colors.background.secondary
+          }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontSize: '10px', marginBottom: '4px' }}>
+              CURRENT SIGNAL
             </div>
-          )}
+            <div style={{
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: getSignal() === 'BULLISH' ? TERMINAL_THEME.colors.semantic.positive :
+                     getSignal() === 'BEARISH' ? TERMINAL_THEME.colors.semantic.negative :
+                     TERMINAL_THEME.colors.text.secondary
+            }}>
+              {getSignal()}
+            </div>
+          </div>
         </div>
       </div>
       
-      {/* Full Analysis */}
+      {/* BOTTOM SECTION - FULL WIDTH ANALYSIS */}
       <div style={{
-        borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-        marginTop: TERMINAL_THEME.spacing.lg,
-        paddingTop: TERMINAL_THEME.spacing.lg,
-        paddingLeft: TERMINAL_THEME.spacing.lg,
-        paddingRight: TERMINAL_THEME.spacing.lg
+        border: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+        padding: '16px'
       }}>
-        <h3 style={{ 
+        <div style={{
           color: TERMINAL_THEME.colors.headers.primary,
-          marginBottom: TERMINAL_THEME.spacing.md 
+          fontSize: '14px',
+          fontWeight: 'bold',
+          marginBottom: '12px',
+          letterSpacing: '1px'
         }}>
           MOMENTUM ANALYSIS
-        </h3>
-        <div style={{ 
-          fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
-          lineHeight: '1.6',
-          color: TERMINAL_THEME.colors.text.primary
+        </div>
+        
+        <div style={{
+          color: TERMINAL_THEME.colors.text.primary,
+          lineHeight: '1.5',
+          fontSize: '12px',
+          marginBottom: '16px'
         }}>
           {data.analysis}
         </div>
         
-        {/* Confidence Meter */}
-        <div style={{ 
-          marginTop: TERMINAL_THEME.spacing.lg,
+        <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: TERMINAL_THEME.spacing.md
+          gap: '12px'
         }}>
-          <span style={{ color: TERMINAL_THEME.colors.text.secondary }}>
-            Confidence:
-          </span>
-          <div style={{ 
-            flex: 1,
-            height: '20px',
-            backgroundColor: TERMINAL_THEME.colors.background.primary,
-            border: `1px solid ${TERMINAL_THEME.colors.border.default}`
-          }}>
-            <div style={{
-              width: `${data.confidence}%`,
-              height: '100%',
-              backgroundColor: data.confidence > 80 
-                ? TERMINAL_THEME.colors.semantic.positive
-                : data.confidence > 60 
-                  ? TERMINAL_THEME.colors.semantic.warning
-                  : TERMINAL_THEME.colors.semantic.negative
-            }} />
+          <div style={{ color: TERMINAL_THEME.colors.text.secondary, fontSize: '11px' }}>
+            CONFIDENCE:
           </div>
-          <span style={{ color: TERMINAL_THEME.colors.text.primary }}>
+          <div style={{ 
+            fontFamily: 'monospace',
+            fontSize: '12px',
+            color: data.confidence > 80 ? TERMINAL_THEME.colors.semantic.positive :
+                   data.confidence > 60 ? TERMINAL_THEME.colors.semantic.warning :
+                   TERMINAL_THEME.colors.semantic.negative
+          }}>
+            {generateConfidenceBar(data.confidence)}
+          </div>
+          <div style={{ color: TERMINAL_THEME.colors.text.primary, fontSize: '11px' }}>
             {data.confidence}%
-          </span>
+          </div>
         </div>
       </div>
     </div>
