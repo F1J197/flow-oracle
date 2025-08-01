@@ -6,6 +6,7 @@
 
 // Primary implementation - Use this for new code
 export { DataIntegrityEngineV6 as DataIntegrityEngine } from './DataIntegrityEngineV6';
+export { DataIntegrityEngineV6 } from './DataIntegrityEngineV6';
 
 // Component exports
 export { DataIntegrityTile } from './components/DashboardTile';

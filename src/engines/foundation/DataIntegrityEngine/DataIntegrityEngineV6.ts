@@ -1,5 +1,6 @@
 import { BaseEngine, EngineConfig, EngineOutput, Alert } from '@/engines/BaseEngine';
 import { ActionableInsight, DashboardTileData, IntelligenceViewData, DetailedEngineView, DetailedModalData } from '@/types/engines';
+import { BrowserEventEmitter } from '@/utils/BrowserEventEmitter';
 
 const config: EngineConfig = {
   id: 'data-integrity',
@@ -14,8 +15,10 @@ export class DataIntegrityEngineV6 extends BaseEngine {
   private dataQualityScores: Map<string, number> = new Map();
   private missingDataCounts: Map<string, number> = new Map();
   private healingAttempts: Map<string, number> = new Map();
+  private historicalScores: number[] = [];
+  private eventEmitter = new BrowserEventEmitter();
   
-  readonly id = 'DIS';
+  readonly id = 'data-integrity-v6';
   readonly name = 'Data Integrity & Self-Healing Engine';
   readonly priority = 1;
   readonly pillar = 1 as const;
@@ -168,17 +171,68 @@ export class DataIntegrityEngineV6 extends BaseEngine {
   }
   
   private checkConsistency(data: any[]): number {
-    // Implementation for checking data consistency
-    // Returns a score from 0-100 where 0 is perfectly consistent
-    return 0; // Placeholder
+    if (!Array.isArray(data) || data.length < 3) return 0;
+    
+    // Check for sudden value jumps or inconsistent patterns
+    const values = data.map(d => d.value).filter(v => !isNaN(v));
+    let inconsistencyScore = 0;
+    
+    for (let i = 1; i < values.length - 1; i++) {
+      const prev = values[i - 1];
+      const curr = values[i];
+      const next = values[i + 1];
+      
+      // Check for anomalous spikes (value very different from neighbors)
+      const avgNeighbor = (prev + next) / 2;
+      const deviation = Math.abs(curr - avgNeighbor) / avgNeighbor;
+      
+      if (deviation > 0.5) { // 50% deviation threshold
+        inconsistencyScore += 10;
+      }
+    }
+    
+    return Math.min(100, inconsistencyScore);
   }
   
   private attemptHealing(indicator: string): void {
     const attempts = this.healingAttempts.get(indicator) || 0;
     this.healingAttempts.set(indicator, attempts + 1);
     
-    // Emit healing request
-    console.log(`Data Integrity Engine: Healing attempt ${attempts + 1} for ${indicator}`);
+    // Emit healing request through event system
+    this.eventEmitter.emit('data:healing_required', {
+      indicator,
+      attempts: attempts + 1,
+      timestamp: Date.now(),
+      severity: attempts > 2 ? 'critical' : attempts > 0 ? 'high' : 'medium'
+    });
+    
+    // Log for debugging
+    console.warn(`[DATA INTEGRITY] Healing attempt ${attempts + 1} for ${indicator}`);
+    
+    // Attempt self-healing strategies
+    this.performSelfHealing(indicator, attempts + 1);
+  }
+  
+  private performSelfHealing(indicator: string, attemptCount: number): void {
+    // Implement self-healing strategies based on attempt count
+    switch (attemptCount) {
+      case 1:
+        // First attempt: Request data refresh
+        this.eventEmitter.emit('data:refresh_request', { indicator });
+        break;
+      case 2:
+        // Second attempt: Try alternative data source
+        this.eventEmitter.emit('data:fallback_source', { indicator });
+        break;
+      case 3:
+        // Third attempt: Interpolate missing values
+        this.eventEmitter.emit('data:interpolate', { indicator });
+        break;
+      default:
+        // Circuit breaker: Disable indicator temporarily
+        this.eventEmitter.emit('data:circuit_breaker', { indicator });
+        break;
+    }
   }
   
   private generateAnalysis(score: number, critical: number, warnings: number): string {
@@ -198,13 +252,28 @@ export class DataIntegrityEngineV6 extends BaseEngine {
   }
   
   private calculateChange24h(currentValue: number): number {
-    // Store historical values and calculate
-    return 0; // Placeholder
+    // Store current value in historical array
+    this.historicalScores.push(currentValue);
+    
+    // Keep only last 24 hours of data (assuming 30s intervals = 2880 data points)
+    if (this.historicalScores.length > 2880) {
+      this.historicalScores = this.historicalScores.slice(-2880);
+    }
+    
+    // Calculate 24h change if we have enough data
+    if (this.historicalScores.length < 2) return 0;
+    
+    const previous24h = this.historicalScores[Math.max(0, this.historicalScores.length - 2880)];
+    return currentValue - previous24h;
   }
   
   private calculateChangePercent(currentValue: number): number {
-    // Store historical values and calculate
-    return 0; // Placeholder
+    const change24h = this.calculateChange24h(currentValue);
+    const previous24h = this.historicalScores.length >= 2 
+      ? this.historicalScores[Math.max(0, this.historicalScores.length - 2880)]
+      : currentValue;
+    
+    return previous24h !== 0 ? (change24h / previous24h) * 100 : 0;
   }
   
   // Legacy compatibility methods for existing integrations

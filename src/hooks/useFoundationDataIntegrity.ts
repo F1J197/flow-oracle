@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DataIntegrityEngine } from '@/engines/foundation/DataIntegrityEngine';
+import { DataIntegrityEngineV6 } from '@/engines/foundation/DataIntegrityEngine';
 import type { DataIntegrityMetrics, SourceHealth } from '@/engines/foundation/DataIntegrityEngine/types';
+import type { EngineOutput } from '@/engines/BaseEngine';
 
 export interface UseFoundationDataIntegrityOptions {
   autoRefresh?: boolean;
@@ -10,10 +11,11 @@ export interface UseFoundationDataIntegrityOptions {
 export interface UseFoundationDataIntegrityResult {
   metrics: DataIntegrityMetrics | null;
   sources: SourceHealth[];
+  engineOutput: EngineOutput | null;
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
-  engine: DataIntegrityEngine | null;
+  engine: DataIntegrityEngineV6 | null;
 }
 
 export const useFoundationDataIntegrity = (
@@ -24,9 +26,10 @@ export const useFoundationDataIntegrity = (
     refreshInterval = 30000
   } = options;
 
-  const [engine] = useState(() => new DataIntegrityEngine());
+  const [engine] = useState(() => new DataIntegrityEngineV6());
   const [metrics, setMetrics] = useState<DataIntegrityMetrics | null>(null);
   const [sources, setSources] = useState<SourceHealth[]>([]);
+  const [engineOutput, setEngineOutput] = useState<EngineOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,14 +41,22 @@ export const useFoundationDataIntegrity = (
     
     try {
       // Execute the engine
-      await engine.execute();
+      const report = await engine.execute();
       
-      // Get the updated metrics and sources
-      const newMetrics = engine.getDataIntegrityMetrics();
-      const newSources = engine.getSources();
-      
-      setMetrics(newMetrics);
-      setSources(newSources);
+      if (report.success && report.data) {
+        // Extract engine output from the report
+        const output = report.data as EngineOutput;
+        setEngineOutput(output);
+        
+        // Get the updated metrics and sources (legacy compatibility)
+        const newMetrics = engine.getDataIntegrityMetrics();
+        const newSources = engine.getSources();
+        
+        setMetrics(newMetrics);
+        setSources(newSources);
+      } else {
+        throw new Error(report.errors?.[0] || 'Engine execution failed');
+      }
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -75,6 +86,7 @@ export const useFoundationDataIntegrity = (
   return {
     metrics,
     sources,
+    engineOutput,
     loading,
     error,
     refresh,
