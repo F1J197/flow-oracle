@@ -1,172 +1,163 @@
 import React from 'react';
-import { TerminalLayout } from '@/components/intelligence/TerminalLayout';
-import { TerminalMetricGrid } from '@/components/intelligence/TerminalMetricGrid';
-import { TerminalDataSection } from '@/components/intelligence/TerminalDataSection';
-import { TerminalDataRow } from '@/components/intelligence/TerminalDataRow';
-import { EngineOutput } from '@/engines/BaseEngine';
+import { TerminalBox } from '@/components/Terminal/TerminalBox';
+import { TerminalTable } from '@/components/Terminal/TerminalTable';
+import { EngineOutput } from '@/engines/base/BaseEngine';
+import { TERMINAL_THEME } from '@/config/terminal.theme';
 
 interface Props {
-  data: EngineOutput | null;
+  data: EngineOutput;
   historicalData?: any[];
-  loading?: boolean;
-  error?: string | null;
-  className?: string;
 }
 
-export const DataIntegrityIntelligenceView: React.FC<Props> = ({ 
-  data, 
-  historicalData, 
-  loading = false, 
-  error = null,
-  className 
-}) => {
-  if (loading) {
-    return (
-      <TerminalLayout 
-        title="DATA INTEGRITY ENGINE" 
-        status="offline" 
-        className={className}
-      >
-        <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-glass-bg terminal-panel rounded"></div>
-          <div className="h-4 bg-glass-bg w-3/4 terminal-panel rounded"></div>
-          <div className="h-4 bg-glass-bg w-1/2 terminal-panel rounded"></div>
-        </div>
-      </TerminalLayout>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <TerminalLayout 
-        title="DATA INTEGRITY ENGINE" 
-        status="critical" 
-        className={className}
-      >
-        <div className="text-center text-neon-orange">
-          {error || "No data available"}
-        </div>
-      </TerminalLayout>
-    );
-  }
-
-  // Determine overall status
-  const status = (data.primaryMetric?.value ?? 0) >= 95 ? 'active' : 
-                 (data.primaryMetric?.value ?? 0) >= 80 ? 'warning' : 'critical';
-
-  // Key metrics for the grid display
-  const keyMetrics = [
-    {
-      label: "Overall Score",
-      value: `${(data.primaryMetric?.value ?? 0).toFixed(1)}%`,
-      status: (data.primaryMetric?.value ?? 0) >= 95 ? 'positive' as const : 
-              (data.primaryMetric?.value ?? 0) >= 80 ? 'neutral' as const : 'negative' as const
-    },
-    {
-      label: "24h Change",
-      value: `${(data.primaryMetric?.change24h ?? 0) >= 0 ? '+' : ''}${(data.primaryMetric?.changePercent ?? 0).toFixed(2)}%`,
-      status: (data.primaryMetric?.change24h ?? 0) >= 0 ? 'positive' as const : 'negative' as const
-    },
-    {
-      label: "Confidence",
-      value: `${(data.confidence ?? 0).toFixed(1)}%`,
-      status: (data.confidence ?? 0) >= 95 ? 'positive' as const : 'neutral' as const
-    },
-    {
-      label: "Active Alerts",
-      value: `${data.alerts?.length || 0}`,
-      status: (data.alerts?.length || 0) === 0 ? 'positive' as const : 'warning' as const
-    }
-  ];
-
+export const DataIntegrityIntelligenceView: React.FC<Props> = ({ data, historicalData }) => {
   return (
-    <TerminalLayout 
+    <TerminalBox 
       title="DATA INTEGRITY ENGINE" 
-      status={status} 
-      className={className}
+      status={data.signal === 'RISK_OFF' ? 'error' : 'active'}
     >
-      <div className="space-y-6">
-        {/* Key Metrics Grid */}
-        <TerminalMetricGrid metrics={keyMetrics} columns={2} />
-        
-        {/* System Overview Section */}
-        <TerminalDataSection title="SYSTEM OVERVIEW">
-          <TerminalDataRow 
-            label="Overall Score" 
-            value={`${(data.primaryMetric?.value ?? 0).toFixed(2)}%`}
-            status={(data.primaryMetric?.value ?? 0) >= 95 ? 'positive' : 
-                   (data.primaryMetric?.value ?? 0) >= 80 ? 'neutral' : 'negative'}
-          />
-          <TerminalDataRow 
-            label="24h Change" 
-            value={`${(data.primaryMetric?.change24h ?? 0) >= 0 ? '+' : ''}${(data.primaryMetric?.changePercent ?? 0).toFixed(2)}%`}
-            status={(data.primaryMetric?.change24h ?? 0) >= 0 ? 'positive' : 'negative'}
-          />
-          <TerminalDataRow 
-            label="Confidence Level" 
-            value={`${(data.confidence ?? 0).toFixed(1)}%`}
-            status={(data.confidence ?? 0) >= 95 ? 'positive' : 'neutral'}
-          />
-          <TerminalDataRow 
-            label="Last Updated" 
-            value={new Date().toLocaleTimeString()}
-            status="neutral"
-          />
-        </TerminalDataSection>
-
-        {/* Health Metrics Section */}
-        <TerminalDataSection title="HEALTH METRICS">
-          <TerminalDataRow 
-            label="Total Indicators" 
-            value={data.subMetrics?.totalIndicators || 0}
-            status="neutral"
-          />
-          <TerminalDataRow 
-            label="Healthy Indicators" 
-            value={data.subMetrics?.healthyIndicators || 0}
-            status="positive"
-          />
-          <TerminalDataRow 
-            label="Warning Issues" 
-            value={data.subMetrics?.warningIssues || 0}
-            status={(data.subMetrics?.warningIssues || 0) === 0 ? 'positive' : 'warning'}
-          />
-          <TerminalDataRow 
-            label="Critical Issues" 
-            value={data.subMetrics?.criticalIssues || 0}
-            status={(data.subMetrics?.criticalIssues || 0) === 0 ? 'positive' : 'critical'}
-          />
-          <TerminalDataRow 
-            label="Healing Attempts" 
-            value={data.subMetrics?.healingAttempts || 0}
-            status="neutral"
-          />
-        </TerminalDataSection>
-
-        {/* Active Alerts Section */}
-        {data.alerts && data.alerts.length > 0 && (
-          <TerminalDataSection title="ACTIVE ALERTS">
-            {data.alerts.map((alert, idx) => (
-              <TerminalDataRow 
-                key={idx}
-                label={`[${alert.level.toUpperCase()}]`}
-                value={`${alert.message} (${new Date(alert.timestamp).toLocaleTimeString()})`}
-                status={
-                  alert.level === 'critical' ? 'critical' :
-                  alert.level === 'warning' ? 'warning' : 'neutral'
-                }
-              />
-            ))}
-          </TerminalDataSection>
-        )}
-
-        {/* System Analysis Section */}
-        <TerminalDataSection title="SYSTEM ANALYSIS">
-          <div className="terminal-analysis-text">
-            {data.analysis || 'Analysis not available'}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: TERMINAL_THEME.spacing.lg,
+        padding: TERMINAL_THEME.spacing.lg
+      }}>
+        {/* Column 1: Overview */}
+        <div>
+          <h3 style={{ 
+            color: TERMINAL_THEME.colors.semantic.accent,
+            marginBottom: TERMINAL_THEME.spacing.md 
+          }}>
+            SYSTEM OVERVIEW
+          </h3>
+          
+          <div style={{ marginBottom: TERMINAL_THEME.spacing.md }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
+              Overall Score
+            </div>
+            <div style={{ 
+              fontSize: TERMINAL_THEME.typography.sizes.xlarge,
+              color: data.primaryMetric.value >= 80 
+                ? TERMINAL_THEME.colors.semantic.positive
+                : TERMINAL_THEME.colors.semantic.negative
+            }}>
+              {data.primaryMetric.value.toFixed(2)}%
+            </div>
           </div>
-        </TerminalDataSection>
+          
+          <div style={{ marginBottom: TERMINAL_THEME.spacing.md }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
+              24h Change
+            </div>
+            <div style={{ 
+              color: data.primaryMetric.change24h >= 0
+                ? TERMINAL_THEME.colors.semantic.positive
+                : TERMINAL_THEME.colors.semantic.negative
+            }}>
+              {data.primaryMetric.change24h >= 0 ? '+' : ''}
+              {data.primaryMetric.changePercent.toFixed(2)}%
+            </div>
+          </div>
+          
+          <div>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
+              Confidence Level
+            </div>
+            <div>{data.confidence}%</div>
+          </div>
+        </div>
+        
+        {/* Column 2: Health Metrics */}
+        <div>
+          <h3 style={{ 
+            color: TERMINAL_THEME.colors.semantic.accent,
+            marginBottom: TERMINAL_THEME.spacing.md 
+          }}>
+            HEALTH METRICS
+          </h3>
+          
+          <TerminalTable
+            headers={['Metric', 'Value', 'Status']}
+            rows={[
+              ['Total Indicators', data.subMetrics?.totalIndicators || 0, 'MONITORING'],
+              ['Healthy', data.subMetrics?.healthyIndicators || 0, 'GOOD'],
+              ['Warnings', data.subMetrics?.warningIssues || 0, 'WATCH'],
+              ['Critical', data.subMetrics?.criticalIssues || 0, 'ALERT'],
+              ['Healing Attempts', data.subMetrics?.healingAttempts || 0, 'ACTIVE']
+            ]}
+          />
+        </div>
+        
+        {/* Column 3: Alerts & Issues */}
+        <div>
+          <h3 style={{ 
+            color: TERMINAL_THEME.colors.semantic.accent,
+            marginBottom: TERMINAL_THEME.spacing.md 
+          }}>
+            ACTIVE ALERTS
+          </h3>
+          
+          {data.alerts && data.alerts.length > 0 ? (
+            <div>
+              {data.alerts.map((alert, idx) => (
+                <div 
+                  key={idx}
+                  style={{
+                    marginBottom: TERMINAL_THEME.spacing.sm,
+                    padding: TERMINAL_THEME.spacing.sm,
+                    border: `1px solid ${
+                      alert.level === 'critical' 
+                        ? TERMINAL_THEME.colors.semantic.negative
+                        : TERMINAL_THEME.colors.semantic.warning
+                    }`,
+                    fontSize: TERMINAL_THEME.typography.sizes.small
+                  }}
+                >
+                  <div style={{ 
+                    color: alert.level === 'critical'
+                      ? TERMINAL_THEME.colors.semantic.negative
+                      : TERMINAL_THEME.colors.semantic.warning
+                  }}>
+                    [{alert.level.toUpperCase()}]
+                  </div>
+                  <div>{alert.message}</div>
+                  <div style={{ 
+                    color: TERMINAL_THEME.colors.text.muted,
+                    fontSize: TERMINAL_THEME.typography.sizes.micro
+                  }}>
+                    {new Date(alert.timestamp).toLocaleTimeString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
+              No active alerts
+            </div>
+          )}
+        </div>
       </div>
-    </TerminalLayout>
+      
+      {/* Analysis Section */}
+      <div style={{
+        borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+        marginTop: TERMINAL_THEME.spacing.lg,
+        paddingTop: TERMINAL_THEME.spacing.lg,
+        paddingLeft: TERMINAL_THEME.spacing.lg,
+        paddingRight: TERMINAL_THEME.spacing.lg
+      }}>
+        <h3 style={{ 
+          color: TERMINAL_THEME.colors.semantic.accent,
+          marginBottom: TERMINAL_THEME.spacing.md 
+        }}>
+          SYSTEM ANALYSIS
+        </h3>
+        <div style={{ 
+          fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
+          lineHeight: TERMINAL_THEME.typography.lineHeight.relaxed
+        }}>
+          {data.analysis}
+        </div>
+      </div>
+    </TerminalBox>
   );
 };
