@@ -1,6 +1,7 @@
 import { TERMINAL_THEME } from '@/config/theme';
 import { EnhancedMomentumEngine } from '@/engines/foundation/EnhancedMomentumEngine';
 import { EnhancedMomentumTile } from '@/engines/foundation/EnhancedMomentumEngine/components/DashboardTile';
+import { TestEngineTile } from '@/engines/TestEngine/components/DashboardTile';
 import { useEffect, useState } from 'react';
 
 export function DashboardView() {
@@ -23,52 +24,91 @@ export function DashboardView() {
 
   return (
     <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gridTemplateRows: 'repeat(3, 200px)',
-      gap: TERMINAL_THEME.spacing.md,
-      maxWidth: '1400px',
-      margin: '0 auto'
+      backgroundColor: TERMINAL_THEME.colors.background.primary,
+      minHeight: '100vh',
+      padding: '0',
+      fontFamily: TERMINAL_THEME.typography.fontFamily.mono
     }}>
-      {/* Enhanced Momentum Engine - First tile */}
-      {momentumData && (
-        <EnhancedMomentumTile data={momentumData} importance={95} />
-      )}
+      {/* Terminal Header */}
+      <div style={{
+        backgroundColor: TERMINAL_THEME.colors.background.secondary,
+        color: TERMINAL_THEME.colors.headers.primary,
+        fontSize: '14px',
+        fontWeight: TERMINAL_THEME.typography.weights.bold,
+        padding: '8px 12px',
+        borderBottom: `2px solid ${TERMINAL_THEME.colors.headers.primary}`,
+        letterSpacing: '1px'
+      }}>
+        LIQUIDITY² TERMINAL │ LIVE FEED │ {new Date().toLocaleTimeString('en-US', { hour12: false })} EDT
+      </div>
       
-      {/* Remaining placeholder tiles */}
-      {engineTiles.map(engineNum => (
-        <div
-          key={engineNum}
-          style={{
-            height: '200px',
-            padding: TERMINAL_THEME.spacing.md,
-            border: `1px solid ${TERMINAL_THEME.colors.headers.primary}`,
-            backgroundColor: TERMINAL_THEME.colors.background.secondary,
+      {/* Main Grid - No gaps, information dense */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(5, 1fr)',
+        gridTemplateRows: 'repeat(3, 180px)',
+        gap: '0',
+        height: 'calc(100vh - 50px)'
+      }}>
+        {momentumData && (
+          <EnhancedMomentumTile data={momentumData} importance={90} />
+        )}
+        
+        {/* Test Engine */}
+        <TestEngineTile 
+          data={{
+            primaryMetric: { value: 0.247, change24h: 0.03, changePercent: 2.1 },
+            signal: 'RISK_ON',
+            confidence: 82,
+            analysis: 'Risk metrics stable - momentum building',
+            subMetrics: { confidence: 82 }
+          }} 
+          importance={75} 
+        />
+        
+        {/* Additional placeholder tiles */}
+        {Array.from({ length: 13 }, (_, i) => (
+          <div key={i} style={{
+            border: `1px dotted ${TERMINAL_THEME.colors.border.default}`,
+            backgroundColor: TERMINAL_THEME.colors.background.primary,
+            padding: '6px',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}
-        >
-          <div style={{
-            color: TERMINAL_THEME.colors.headers.primary,
-            fontSize: TERMINAL_THEME.typography.sizes.large,
-            fontWeight: TERMINAL_THEME.typography.weights.bold,
-            fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
-            textAlign: 'center'
-          }}>
-            ENGINE {engineNum}
-          </div>
-          <div style={{
+            justifyContent: 'space-between',
             color: TERMINAL_THEME.colors.text.secondary,
-            fontSize: TERMINAL_THEME.typography.sizes.small,
-            fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
-            marginTop: TERMINAL_THEME.spacing.sm
+            fontSize: '8px'
           }}>
-            PLACEHOLDER
+            <div style={{
+              color: TERMINAL_THEME.colors.headers.primary,
+              fontSize: '8px',
+              fontWeight: TERMINAL_THEME.typography.weights.bold,
+              borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+              paddingBottom: '2px',
+              marginBottom: '4px'
+            }}>
+              ENGINE-{String(i + 3).padStart(2, '0')} │ OFFLINE
+            </div>
+            <div style={{
+              fontSize: '16px',
+              color: TERMINAL_THEME.colors.text.secondary,
+              textAlign: 'center',
+              marginTop: 'auto',
+              marginBottom: 'auto'
+            }}>
+              ---
+            </div>
+            <div style={{
+              fontSize: '6px',
+              color: TERMINAL_THEME.colors.text.secondary,
+              textAlign: 'center',
+              borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+              paddingTop: '2px'
+            }}>
+              INITIALIZING...
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

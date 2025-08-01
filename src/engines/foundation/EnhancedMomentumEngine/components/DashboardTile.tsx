@@ -8,19 +8,28 @@ interface Props {
 }
 
 export const EnhancedMomentumTile: React.FC<Props> = ({ data, importance }) => {
-  const regime = data.subMetrics?.regime || 'NEUTRAL';
+  const compositeScore = data.primaryMetric.value;
   const velocity = data.subMetrics?.velocity || 0;
   const acceleration = data.subMetrics?.acceleration || 0;
-  const compositeScore = data.primaryMetric.value;
+  const regime = data.subMetrics?.regime || 'NEUTRAL';
+  const confidence = data.subMetrics?.confidence || 85;
   
-  // Primary metric color coding
-  const getPrimaryColor = () => {
-    if (compositeScore > 0.5) return TERMINAL_THEME.colors.semantic.positive;
-    if (compositeScore < -0.5) return TERMINAL_THEME.colors.semantic.negative;
+  // Momentum indicators simulation (would come from real data)
+  const indicators = [
+    { name: 'RSI_14', value: 67.3, percentile: 78 },
+    { name: 'MACD', value: 0.45, percentile: 82 },
+    { name: 'STOCH_K', value: 74.2, percentile: 76 },
+    { name: 'CCI', value: 112.5, percentile: 84 },
+    { name: 'ROC_20', value: 8.7, percentile: 89 },
+    { name: 'ADX', value: 34.8, percentile: 71 }
+  ];
+  
+  const getMetricColor = (value: number) => {
+    if (value > 0.5) return TERMINAL_THEME.colors.semantic.positive;
+    if (value < -0.5) return TERMINAL_THEME.colors.semantic.negative;
     return TERMINAL_THEME.colors.text.primary;
   };
   
-  // Signal determination
   const getSignal = () => {
     if (compositeScore > 1) return 'BULLISH';
     if (compositeScore < -1) return 'BEARISH';
@@ -34,97 +43,159 @@ export const EnhancedMomentumTile: React.FC<Props> = ({ data, importance }) => {
     return TERMINAL_THEME.colors.text.secondary;
   };
   
-  // ASCII trend chart generation
-  const generateTrendChart = () => {
-    const bars = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
-    const trendData = Array.from({ length: 8 }, (_, i) => {
-      // Simulate trend data based on velocity and some variation
-      const baseLevel = Math.max(0, Math.min(7, 4 + velocity * 0.1 + Math.sin(i * 0.5) * 2));
-      return Math.floor(baseLevel);
-    });
-    return trendData.map(level => bars[level]).join('');
+  const getBorderStyle = () => {
+    if (importance > 85) return `2px dotted ${TERMINAL_THEME.colors.headers.primary}`;
+    if (importance > 60) return `1px dotted ${TERMINAL_THEME.colors.headers.primary}`;
+    return `1px dotted ${TERMINAL_THEME.colors.border.default}`;
   };
   
-  const getBorderColor = () => {
-    if (importance > 85) return TERMINAL_THEME.colors.semantic.negative;
-    if (importance > 60) return TERMINAL_THEME.colors.headers.primary;
-    return TERMINAL_THEME.colors.border.default;
+  const generateConfidenceBar = (confidence: number) => {
+    const bars = Math.floor(confidence / 10);
+    return '█'.repeat(bars) + '░'.repeat(10 - bars);
   };
   
   return (
     <div style={{
-      border: `1px solid ${getBorderColor()}`,
-      padding: '8px',
-      height: '200px',
-      backgroundColor: TERMINAL_THEME.colors.background.secondary,
+      border: getBorderStyle(),
+      height: '180px',
+      backgroundColor: TERMINAL_THEME.colors.background.primary,
       fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
+      padding: '6px',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between'
+      fontSize: '9px',
+      lineHeight: '1.1'
     }}>
       {/* Header */}
       <div style={{
         color: TERMINAL_THEME.colors.headers.primary,
-        fontSize: '10px',
-        fontWeight: TERMINAL_THEME.typography.weights.semibold,
+        fontSize: '8px',
+        fontWeight: TERMINAL_THEME.typography.weights.bold,
         textTransform: 'uppercase',
         letterSpacing: '0.5px',
-        marginBottom: '6px'
+        borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+        paddingBottom: '2px',
+        marginBottom: '4px'
       }}>
-        MOMENTUM ANALYSIS
+        ENH-MOMENTUM │ {regime}
       </div>
       
-      {/* Primary Metric */}
+      {/* Primary Score */}
       <div style={{
-        fontSize: '28px',
-        fontWeight: TERMINAL_THEME.typography.weights.bold,
-        color: getPrimaryColor(),
-        lineHeight: '1',
-        marginBottom: '8px'
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '4px'
       }}>
-        {compositeScore >= 0 ? '+' : ''}{compositeScore.toFixed(2)}
-      </div>
-      
-      {/* ASCII Trend Chart */}
-      <div style={{
-        fontSize: '14px',
-        color: getPrimaryColor(),
-        fontFamily: 'monospace',
-        letterSpacing: '1px',
-        marginBottom: '8px'
-      }}>
-        {generateTrendChart()}
-      </div>
-      
-      {/* Sub-metrics Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '4px',
-        fontSize: '9px',
-        color: TERMINAL_THEME.colors.text.secondary,
-        marginBottom: '8px'
-      }}>
-        <div>VEL: {velocity.toFixed(1)}%</div>
-        <div>ACC: {acceleration.toFixed(1)}%</div>
-        <div style={{ color: getSignalColor(), fontWeight: TERMINAL_THEME.typography.weights.semibold }}>
+        <div style={{
+          fontSize: '16px',
+          fontWeight: TERMINAL_THEME.typography.weights.bold,
+          color: getMetricColor(compositeScore)
+        }}>
+          {compositeScore >= 0 ? '+' : ''}{compositeScore.toFixed(2)}σ
+        </div>
+        <div style={{
+          fontSize: '7px',
+          color: getSignalColor(),
+          fontWeight: TERMINAL_THEME.typography.weights.bold
+        }}>
           {getSignal()}
         </div>
-        <div>{Math.abs(velocity) > 10 ? 'HIGH' : 'NORM'} VOL</div>
       </div>
       
-      {/* Analysis Line */}
+      {/* Momentum Indicators Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gap: '2px',
+        fontSize: '7px',
+        marginBottom: '4px'
+      }}>
+        {indicators.slice(0, 6).map((indicator, i) => (
+          <div key={i} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
+            <div style={{ color: TERMINAL_THEME.colors.text.secondary }}>
+              {indicator.name}
+            </div>
+            <div style={{
+              color: indicator.percentile > 70 
+                ? TERMINAL_THEME.colors.semantic.positive 
+                : indicator.percentile < 30 
+                ? TERMINAL_THEME.colors.semantic.negative 
+                : TERMINAL_THEME.colors.text.primary,
+              fontWeight: TERMINAL_THEME.typography.weights.semibold
+            }}>
+              {indicator.value.toFixed(1)}
+            </div>
+            <div style={{ 
+              color: TERMINAL_THEME.colors.text.secondary,
+              fontSize: '6px'
+            }}>
+              {indicator.percentile}%
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Velocity/Acceleration */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        fontSize: '8px',
+        marginBottom: '4px',
+        borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+        paddingTop: '2px'
+      }}>
+        <div>
+          <span style={{ color: TERMINAL_THEME.colors.text.secondary }}>VEL:</span>
+          <span style={{ 
+            color: velocity > 0 ? TERMINAL_THEME.colors.semantic.positive : TERMINAL_THEME.colors.semantic.negative,
+            marginLeft: '3px'
+          }}>
+            {velocity >= 0 ? '+' : ''}{velocity.toFixed(1)}%
+          </span>
+        </div>
+        <div>
+          <span style={{ color: TERMINAL_THEME.colors.text.secondary }}>ACC:</span>
+          <span style={{ 
+            color: acceleration > 0 ? TERMINAL_THEME.colors.semantic.positive : TERMINAL_THEME.colors.semantic.negative,
+            marginLeft: '3px'
+          }}>
+            {acceleration >= 0 ? '+' : ''}{acceleration.toFixed(1)}%
+          </span>
+        </div>
+      </div>
+      
+      {/* Confidence Bar */}
+      <div style={{
+        fontSize: '6px',
+        color: TERMINAL_THEME.colors.text.secondary,
+        marginBottom: '2px'
+      }}>
+        CONF: {confidence}%
+      </div>
       <div style={{
         fontSize: '8px',
-        color: TERMINAL_THEME.colors.text.primary,
-        borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-        paddingTop: '4px',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        opacity: 0.9
+        color: TERMINAL_THEME.colors.headers.primary,
+        fontFamily: 'monospace',
+        letterSpacing: '0.5px'
       }}>
-        {data.analysis}
+        {generateConfidenceBar(confidence)}
+      </div>
+      
+      {/* Bottom Status */}
+      <div style={{
+        fontSize: '6px',
+        color: TERMINAL_THEME.colors.text.secondary,
+        textAlign: 'center',
+        marginTop: 'auto',
+        borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+        paddingTop: '2px'
+      }}>
+        {new Date().toLocaleTimeString('en-US', { hour12: false })} EDT
       </div>
     </div>
   );
