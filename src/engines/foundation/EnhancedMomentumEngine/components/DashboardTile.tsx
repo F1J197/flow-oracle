@@ -11,21 +11,38 @@ export const EnhancedMomentumTile: React.FC<Props> = ({ data, importance }) => {
   const regime = data.subMetrics?.regime || 'NEUTRAL';
   const velocity = data.subMetrics?.velocity || 0;
   const acceleration = data.subMetrics?.acceleration || 0;
+  const compositeScore = data.primaryMetric.value;
   
-  const getRegimeColor = () => {
-    if (regime.includes('EXPLOSIVE')) return TERMINAL_THEME.colors.semantic.warning;
-    if (regime.includes('BULLISH')) return TERMINAL_THEME.colors.semantic.positive;
-    if (regime.includes('BEARISH')) return TERMINAL_THEME.colors.semantic.negative;
-    if (regime === 'CHAOTIC') return TERMINAL_THEME.colors.semantic.warning;
+  // Primary metric color coding
+  const getPrimaryColor = () => {
+    if (compositeScore > 0.5) return TERMINAL_THEME.colors.semantic.positive;
+    if (compositeScore < -0.5) return TERMINAL_THEME.colors.semantic.negative;
     return TERMINAL_THEME.colors.text.primary;
   };
   
-  const getArrow = () => {
-    if (acceleration > 2) return '↑↑';
-    if (acceleration > 0) return '↑';
-    if (acceleration < -2) return '↓↓';
-    if (acceleration < 0) return '↓';
-    return '→';
+  // Signal determination
+  const getSignal = () => {
+    if (compositeScore > 1) return 'BULLISH';
+    if (compositeScore < -1) return 'BEARISH';
+    return 'NEUTRAL';
+  };
+  
+  const getSignalColor = () => {
+    const signal = getSignal();
+    if (signal === 'BULLISH') return TERMINAL_THEME.colors.semantic.positive;
+    if (signal === 'BEARISH') return TERMINAL_THEME.colors.semantic.negative;
+    return TERMINAL_THEME.colors.text.secondary;
+  };
+  
+  // ASCII trend chart generation
+  const generateTrendChart = () => {
+    const bars = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
+    const trendData = Array.from({ length: 8 }, (_, i) => {
+      // Simulate trend data based on velocity and some variation
+      const baseLevel = Math.max(0, Math.min(7, 4 + velocity * 0.1 + Math.sin(i * 0.5) * 2));
+      return Math.floor(baseLevel);
+    });
+    return trendData.map(level => bars[level]).join('');
   };
   
   const getBorderColor = () => {
@@ -34,105 +51,78 @@ export const EnhancedMomentumTile: React.FC<Props> = ({ data, importance }) => {
     return TERMINAL_THEME.colors.border.default;
   };
   
-  // Create velocity visualization
-  const velocityBars = Array.from({ length: 10 }, (_, i) => {
-    const threshold = (i + 1) * 10;
-    const absVelocity = Math.abs(velocity);
-    const isActive = absVelocity >= threshold;
-    const color = velocity > 0 
-      ? TERMINAL_THEME.colors.semantic.positive 
-      : TERMINAL_THEME.colors.semantic.negative;
-    
-    return (
-      <div
-        key={i}
-        style={{
-          width: '8px',
-          height: '20px',
-          backgroundColor: isActive ? color : TERMINAL_THEME.colors.border.default,
-          marginRight: '2px',
-          display: 'inline-block'
-        }}
-      />
-    );
-  });
-  
   return (
     <div style={{
       border: `1px solid ${getBorderColor()}`,
-      padding: TERMINAL_THEME.spacing.md,
+      padding: '8px',
       height: '200px',
       backgroundColor: TERMINAL_THEME.colors.background.secondary,
-      fontFamily: TERMINAL_THEME.typography.fontFamily.mono
+      fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between'
     }}>
       {/* Header */}
       <div style={{
         color: TERMINAL_THEME.colors.headers.primary,
-        fontSize: TERMINAL_THEME.typography.sizes.small,
-        marginBottom: TERMINAL_THEME.spacing.sm,
-        textTransform: 'uppercase'
+        fontSize: '10px',
+        fontWeight: TERMINAL_THEME.typography.weights.semibold,
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px',
+        marginBottom: '6px'
       }}>
-        Momentum Analysis
+        MOMENTUM ANALYSIS
       </div>
       
-      {/* Primary Metric with Arrow */}
+      {/* Primary Metric */}
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: TERMINAL_THEME.spacing.sm
+        fontSize: '28px',
+        fontWeight: TERMINAL_THEME.typography.weights.bold,
+        color: getPrimaryColor(),
+        lineHeight: '1',
+        marginBottom: '8px'
       }}>
-        <div style={{
-          fontSize: TERMINAL_THEME.typography.sizes.xlarge,
-          color: getRegimeColor(),
-          fontWeight: TERMINAL_THEME.typography.weights.bold
-        }}>
-          {data.primaryMetric.value.toFixed(1)}
+        {compositeScore >= 0 ? '+' : ''}{compositeScore.toFixed(2)}
+      </div>
+      
+      {/* ASCII Trend Chart */}
+      <div style={{
+        fontSize: '14px',
+        color: getPrimaryColor(),
+        fontFamily: 'monospace',
+        letterSpacing: '1px',
+        marginBottom: '8px'
+      }}>
+        {generateTrendChart()}
+      </div>
+      
+      {/* Sub-metrics Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '4px',
+        fontSize: '9px',
+        color: TERMINAL_THEME.colors.text.secondary,
+        marginBottom: '8px'
+      }}>
+        <div>VEL: {velocity.toFixed(1)}%</div>
+        <div>ACC: {acceleration.toFixed(1)}%</div>
+        <div style={{ color: getSignalColor(), fontWeight: TERMINAL_THEME.typography.weights.semibold }}>
+          {getSignal()}
         </div>
-        <div style={{
-          fontSize: TERMINAL_THEME.typography.sizes.large,
-          color: getRegimeColor(),
-          marginLeft: TERMINAL_THEME.spacing.sm
-        }}>
-          {getArrow()}
-        </div>
+        <div>{Math.abs(velocity) > 10 ? 'HIGH' : 'NORM'} VOL</div>
       </div>
       
-      {/* Velocity Visualization */}
-      <div style={{ marginBottom: TERMINAL_THEME.spacing.sm }}>
-        {velocityBars}
-      </div>
-      
-      {/* Regime Label */}
+      {/* Analysis Line */}
       <div style={{
-        fontSize: TERMINAL_THEME.typography.sizes.small,
-        color: getRegimeColor(),
-        marginBottom: TERMINAL_THEME.spacing.xs,
-        fontWeight: TERMINAL_THEME.typography.weights.bold
-      }}>
-        {regime.replace(/_/g, ' ')}
-      </div>
-      
-      {/* Sub Metrics */}
-      <div style={{
-        fontSize: TERMINAL_THEME.typography.sizes.micro,
-        color: TERMINAL_THEME.colors.text.secondary
-      }}>
-        <div>VEL: {velocity.toFixed(1)}% | ACC: {acceleration.toFixed(1)}%</div>
-        <div>
-          {data.subMetrics?.bullishIndicators || 0}↑ / {data.subMetrics?.bearishIndicators || 0}↓
-        </div>
-      </div>
-      
-      {/* Analysis (truncated) */}
-      <div style={{
-        fontSize: TERMINAL_THEME.typography.sizes.micro,
+        fontSize: '8px',
         color: TERMINAL_THEME.colors.text.primary,
-        marginTop: TERMINAL_THEME.spacing.sm,
         borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-        paddingTop: TERMINAL_THEME.spacing.sm,
+        paddingTop: '4px',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        opacity: 0.9
       }}>
         {data.analysis}
       </div>
