@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_history: {
+        Row: {
+          acknowledged: boolean | null
+          alert_level: string
+          created_at: string | null
+          engine_id: string
+          id: string
+          message: string
+          user_id: string | null
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          alert_level: string
+          created_at?: string | null
+          engine_id: string
+          id?: string
+          message: string
+          user_id?: string | null
+        }
+        Update: {
+          acknowledged?: boolean | null
+          alert_level?: string
+          created_at?: string | null
+          engine_id?: string
+          id?: string
+          message?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       cusip_anomalies: {
         Row: {
           anomaly_details: Json | null
@@ -255,6 +285,51 @@ export type Database = {
         }
         Relationships: []
       }
+      engine_outputs: {
+        Row: {
+          alerts: Json | null
+          analysis: string | null
+          calculated_at: string
+          confidence: number
+          created_at: string | null
+          engine_id: string
+          id: string
+          importance_score: number | null
+          pillar: number
+          primary_value: number
+          signal: string
+          sub_metrics: Json | null
+        }
+        Insert: {
+          alerts?: Json | null
+          analysis?: string | null
+          calculated_at?: string
+          confidence: number
+          created_at?: string | null
+          engine_id: string
+          id?: string
+          importance_score?: number | null
+          pillar: number
+          primary_value: number
+          signal: string
+          sub_metrics?: Json | null
+        }
+        Update: {
+          alerts?: Json | null
+          analysis?: string | null
+          calculated_at?: string
+          confidence?: number
+          created_at?: string | null
+          engine_id?: string
+          id?: string
+          importance_score?: number | null
+          pillar?: number
+          primary_value?: number
+          signal?: string
+          sub_metrics?: Json | null
+        }
+        Relationships: []
+      }
       h41_validation: {
         Row: {
           central_bank_liquidity_swaps: number | null
@@ -476,6 +551,36 @@ export type Database = {
         }
         Relationships: []
       }
+      market_indicators: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          source: string
+          symbol: string
+          timestamp: string
+          value: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          source: string
+          symbol: string
+          timestamp?: string
+          value: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          source?: string
+          symbol?: string
+          timestamp?: string
+          value?: number
+        }
+        Relationships: []
+      }
       market_microstructure: {
         Row: {
           bid_ask_spread: number | null
@@ -512,6 +617,75 @@ export type Database = {
           trade_volume?: number | null
           trading_date?: string
           volatility?: number | null
+        }
+        Relationships: []
+      }
+      master_signals: {
+        Row: {
+          conflict_level: string
+          consensus_score: number
+          created_at: string | null
+          engine_count: number
+          id: string
+          market_regime: string
+          master_signal: string
+          regime_confidence: number
+          signal_strength: number
+        }
+        Insert: {
+          conflict_level: string
+          consensus_score: number
+          created_at?: string | null
+          engine_count: number
+          id?: string
+          market_regime: string
+          master_signal: string
+          regime_confidence: number
+          signal_strength: number
+        }
+        Update: {
+          conflict_level?: string
+          consensus_score?: number
+          created_at?: string | null
+          engine_count?: number
+          id?: string
+          market_regime?: string
+          master_signal?: string
+          regime_confidence?: number
+          signal_strength?: number
+        }
+        Relationships: []
+      }
+      performance_metrics: {
+        Row: {
+          avg_confidence: number | null
+          correct_signals: number | null
+          created_at: string | null
+          date: string
+          false_positives: number | null
+          id: string
+          regime_accuracy: number | null
+          total_signals: number | null
+        }
+        Insert: {
+          avg_confidence?: number | null
+          correct_signals?: number | null
+          created_at?: string | null
+          date: string
+          false_positives?: number | null
+          id?: string
+          regime_accuracy?: number | null
+          total_signals?: number | null
+        }
+        Update: {
+          avg_confidence?: number | null
+          correct_signals?: number | null
+          created_at?: string | null
+          date?: string
+          false_positives?: number | null
+          id?: string
+          regime_accuracy?: number | null
+          total_signals?: number | null
         }
         Relationships: []
       }
@@ -632,12 +806,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          alert_settings: Json | null
+          created_at: string | null
+          dashboard_layout: Json | null
+          engine_weights: Json | null
+          id: string
+          theme_settings: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          alert_settings?: Json | null
+          created_at?: string | null
+          dashboard_layout?: Json | null
+          engine_weights?: Json | null
+          id?: string
+          theme_settings?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          alert_settings?: Json | null
+          created_at?: string | null
+          dashboard_layout?: Json | null
+          engine_weights?: Json | null
+          id?: string
+          theme_settings?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_old_market_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
