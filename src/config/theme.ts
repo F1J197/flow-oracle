@@ -31,7 +31,8 @@ export const TERMINAL_THEME = {
   },
   typography: {
     fontFamily: {
-      mono: "'Roboto Mono', 'Courier New', monospace"
+      mono: "'Roboto Mono', 'Courier New', monospace",
+      sans: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
     },
     sizes: {
       micro: '10px',
@@ -54,6 +55,13 @@ export const TERMINAL_THEME = {
     sm: '8px',
     md: '12px',
     lg: '16px',
-    xl: '24px'
+    xl: '24px',
+    xxl: '32px'
+  },
+  tile: {
+    height: '200px',           // Fixed height per blueprint
+    padding: '12px',
+    borderWidth: '1px',
+    borderRadius: '0px'        // Sharp corners
   }
 } as const;

@@ -56,13 +56,15 @@ export function DashboardView() {
         LIQUIDITY² TERMINAL │ LIVE FEED │ {new Date().toLocaleTimeString('en-US', { hour12: false })} EDT
       </div>
       
-      {/* Main Grid - No gaps, information dense */}
+      {/* 3x3 Bloomberg Terminal Grid - EXACT SPECIFICATION */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
-        gridTemplateRows: 'repeat(3, 180px)',
-        gap: '0',
-        height: 'calc(100vh - 50px)'
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateRows: 'repeat(3, 200px)',
+        gap: TERMINAL_THEME.spacing.md,
+        maxWidth: '1400px',
+        margin: '0 auto',
+        padding: TERMINAL_THEME.spacing.lg
       }}>
         {momentumData && (
           <EnhancedMomentumTile data={momentumData} importance={90} />
@@ -85,30 +87,33 @@ export function DashboardView() {
           importance={75} 
         />
         
-        {/* Additional placeholder tiles */}
-        {Array.from({ length: 12 }, (_, i) => (
+        {/* Additional placeholder tiles - 6 more to complete 3x3 grid */}
+        {Array.from({ length: 6 }, (_, i) => (
           <div key={i} style={{
-            border: `1px dotted ${TERMINAL_THEME.colors.border.default}`,
-            backgroundColor: TERMINAL_THEME.colors.background.primary,
-            padding: '6px',
+            height: TERMINAL_THEME.tile.height,
+            padding: TERMINAL_THEME.tile.padding,
+            border: `${TERMINAL_THEME.tile.borderWidth} solid ${TERMINAL_THEME.colors.border.default}`,
+            backgroundColor: TERMINAL_THEME.colors.background.secondary,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
             color: TERMINAL_THEME.colors.text.secondary,
-            fontSize: '8px'
+            fontSize: TERMINAL_THEME.typography.sizes.small,
+            fontFamily: TERMINAL_THEME.typography.fontFamily.mono
           }}>
             <div style={{
               color: TERMINAL_THEME.colors.headers.primary,
-              fontSize: '8px',
-              fontWeight: TERMINAL_THEME.typography.weights.bold,
+              fontSize: TERMINAL_THEME.typography.sizes.small,
+              fontWeight: TERMINAL_THEME.typography.weights.semibold,
+              textTransform: 'uppercase',
               borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-              paddingBottom: '2px',
-              marginBottom: '4px'
+              paddingBottom: '4px',
+              marginBottom: '8px'
             }}>
-              ENGINE-{String(i + 3).padStart(2, '0')} │ OFFLINE
+              ENGINE-{String(i + 4).padStart(2, '0')} │ OFFLINE
             </div>
             <div style={{
-              fontSize: '16px',
+              fontSize: TERMINAL_THEME.typography.sizes.xxlarge,
               color: TERMINAL_THEME.colors.text.secondary,
               textAlign: 'center',
               marginTop: 'auto',
@@ -117,11 +122,11 @@ export function DashboardView() {
               ---
             </div>
             <div style={{
-              fontSize: '6px',
+              fontSize: TERMINAL_THEME.typography.sizes.micro,
               color: TERMINAL_THEME.colors.text.secondary,
               textAlign: 'center',
               borderTop: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-              paddingTop: '2px'
+              paddingTop: '4px'
             }}>
               INITIALIZING...
             </div>

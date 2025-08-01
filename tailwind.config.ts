@@ -164,8 +164,8 @@ export default {
 				'neon-flicker': 'neon-flicker 0.15s ease-in-out infinite alternate'
 			},
 			fontFamily: {
-				mono: ['JetBrains Mono', 'IBM Plex Mono', 'Roboto Mono', 'monospace'],
-				terminal: ['JetBrains Mono', 'monospace']
+				mono: ['Roboto Mono', 'Courier New', 'monospace'],
+				terminal: ['Roboto Mono', 'monospace']
 			},
 			// Bloomberg Terminal Extensions  
 			backdropBlur: {
