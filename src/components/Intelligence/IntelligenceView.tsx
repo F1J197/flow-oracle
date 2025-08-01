@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { TERMINAL_THEME } from '@/config/theme';
 import { TestEngine } from '@/engines/TestEngine';
+import { EnhancedMomentumEngine } from '@/engines/foundation/EnhancedMomentumEngine';
+import { EnhancedMomentumIntelligenceView } from '@/engines/foundation/EnhancedMomentumEngine/components/IntelligenceView';
 
 export function IntelligenceView() {
   const [selectedEngine, setSelectedEngine] = useState<string | null>(null);
   
   const engines = [
-    { id: 'test-engine', name: 'TEST ENGINE', description: 'System validation engine' }
+    { id: 'test-engine', name: 'TEST ENGINE', description: 'System validation engine' },
+    { id: 'enhanced-momentum', name: 'ENHANCED MOMENTUM ENGINE', description: 'Critical foundation engine - velocity & acceleration analysis' }
   ];
 
   const getEngineDetailedView = (engineId: string) => {
@@ -70,6 +73,23 @@ export function IntelligenceView() {
   };
 
   if (selectedEngine) {
+    if (selectedEngine === 'enhanced-momentum') {
+      const momentumEngine = new EnhancedMomentumEngine();
+      const mockData = new Map([
+        ['VIX', [18.5, 19.2, 17.8, 18.5, 19.1]],
+        ['WALCL', [8500000, 8520000, 8510000, 8530000, 8540000]],
+        ['BTCUSD', [45000, 46200, 44800, 45500, 46000]]
+      ]);
+      
+      // Add more mock historical data for proper calculation
+      for (let i = 0; i < 130; i++) {
+        mockData.set(`MOCK_${i}`, Array.from({length: 150}, (_, j) => 100 + Math.sin(j * 0.1) * 10 + Math.random() * 5));
+      }
+      
+      const output = momentumEngine.calculate(mockData);
+      return <EnhancedMomentumIntelligenceView data={output} />;
+    }
+    
     const engineData = getEngineDetailedView(selectedEngine);
     if (!engineData) return null;
 
