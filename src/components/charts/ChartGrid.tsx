@@ -49,9 +49,9 @@ export const ChartGrid: React.FC<ChartGridProps> = ({
   const gridStyle = useMemo(() => ({
     display: 'grid',
     gridTemplateColumns: `repeat(${currentLayout.columns}, 1fr)`,
-    gap: theme.layout.spacing.md,
+    gap: theme.spacing.md,
     width: '100%'
-  }), [currentLayout.columns, theme.layout.spacing.md]);
+  }), [currentLayout.columns, theme.spacing.md]);
 
   // Handle crosshair synchronization
   const handleCrosshairChange = useCallback((value: number | null) => {

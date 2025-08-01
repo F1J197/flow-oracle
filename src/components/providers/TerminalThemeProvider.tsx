@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useEffect } from 'react';
-import { TERMINAL_THEME, globalStyles } from '@/config/terminal.theme';
+import { TERMINAL_THEME } from '@/config/theme';
 import { initializeTerminalCompliance } from '@/utils/terminalCompliance';
 
 interface TerminalThemeContextType {
@@ -25,19 +25,6 @@ export const TerminalThemeProvider = ({
   
   useEffect(() => {
     if (enabled) {
-      // Inject global terminal styles
-      const styleElement = document.createElement('style');
-      styleElement.id = 'terminal-theme-globals';
-      styleElement.textContent = globalStyles;
-      
-      // Remove existing if present
-      const existing = document.getElementById('terminal-theme-globals');
-      if (existing) {
-        existing.remove();
-      }
-      
-      document.head.appendChild(styleElement);
-      
       // Add terminal mode class to body
       document.body.classList.add('terminal-mode');
       
@@ -45,7 +32,6 @@ export const TerminalThemeProvider = ({
       // initializeTerminalCompliance();
       
       return () => {
-        styleElement.remove();
         document.body.classList.remove('terminal-mode');
       };
     }

@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { TERMINAL_THEME } from "@/config/terminal.theme";
+import { TERMINAL_THEME } from "@/config/theme";
 
 interface TerminalLayoutProps {
   title: string;

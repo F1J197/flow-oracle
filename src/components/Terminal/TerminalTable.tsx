@@ -1,4 +1,4 @@
-import { TERMINAL_THEME } from "@/config/terminal.theme";
+import { TERMINAL_THEME } from "@/config/theme";
 
 interface TerminalTableProps {
   headers: string[];
@@ -14,8 +14,8 @@ export const TerminalTable = ({
   className = ''
 }: TerminalTableProps) => {
   const tableStyle: React.CSSProperties = {
-    fontFamily: TERMINAL_THEME.typography.terminal.mono.fontFamily,
-    fontSize: TERMINAL_THEME.typography.scale.sm,
+    fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
+    fontSize: TERMINAL_THEME.typography.sizes.small,
     color: TERMINAL_THEME.colors.text.primary,
     borderCollapse: 'collapse' as const,
     width: '100%',
@@ -25,16 +25,16 @@ export const TerminalTable = ({
   const headerStyle: React.CSSProperties = {
     backgroundColor: TERMINAL_THEME.colors.background.primary,
     color: TERMINAL_THEME.colors.text.primary,
-    fontWeight: TERMINAL_THEME.fonts.weights.semibold,
-    padding: TERMINAL_THEME.layout.spacing.sm,
+    fontWeight: TERMINAL_THEME.typography.weights.semibold,
+    padding: TERMINAL_THEME.spacing.sm,
     borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
     textAlign: 'left' as const,
   };
 
   const cellStyle: React.CSSProperties = {
-    padding: TERMINAL_THEME.layout.spacing.sm,
-    borderBottom: `1px solid ${TERMINAL_THEME.colors.border.muted}`,
-    borderRight: `1px solid ${TERMINAL_THEME.colors.border.muted}`,
+    padding: TERMINAL_THEME.spacing.sm,
+    borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
+    borderRight: `1px solid ${TERMINAL_THEME.colors.border.default}`,
   };
 
   const getHighlightedCellStyle = (rowIndex: number, cellValue: string): React.CSSProperties => {
@@ -43,7 +43,7 @@ export const TerminalTable = ({
         ...cellStyle,
         backgroundColor: `${TERMINAL_THEME.colors.semantic.warning}20`,
         color: TERMINAL_THEME.colors.semantic.warning,
-        fontWeight: TERMINAL_THEME.fonts.weights.semibold,
+        fontWeight: TERMINAL_THEME.typography.weights.semibold,
       };
     }
     return cellStyle;

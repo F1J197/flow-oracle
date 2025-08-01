@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { TERMINAL_THEME } from "@/config/terminal.theme";
+import { TERMINAL_THEME } from "@/config/theme";
 
 interface TerminalBoxProps {
   children: ReactNode;
@@ -34,11 +34,11 @@ export const TerminalBox = ({
 
   const getStatusColor = () => {
     switch (status) {
-      case 'active': return TERMINAL_THEME.colors.semantic.success;
+      case 'active': return TERMINAL_THEME.colors.semantic.positive;
       case 'warning': return TERMINAL_THEME.colors.semantic.warning;
-      case 'critical': return TERMINAL_THEME.colors.semantic.critical;
-      case 'offline': return TERMINAL_THEME.colors.text.muted;
-      default: return TERMINAL_THEME.colors.neon.teal;
+      case 'critical': return TERMINAL_THEME.colors.semantic.negative;
+      case 'offline': return TERMINAL_THEME.colors.text.secondary;
+      default: return TERMINAL_THEME.colors.semantic.info;
     }
   };
 
@@ -47,8 +47,8 @@ export const TerminalBox = ({
     height: typeof height === 'number' ? `${height}px` : height,
     backgroundColor: TERMINAL_THEME.colors.background.secondary,
     border: border ? `1px solid ${TERMINAL_THEME.colors.border.default}` : 'none',
-    fontFamily: TERMINAL_THEME.typography.terminal.mono.fontFamily,
-    fontSize: TERMINAL_THEME.typography.scale.base,
+    fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
+    fontSize: TERMINAL_THEME.typography.sizes.medium,
     color: TERMINAL_THEME.colors.text.primary,
     position: 'relative' as const,
     overflow: 'hidden' as const,
@@ -58,11 +58,11 @@ export const TerminalBox = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: TERMINAL_THEME.layout.spacing.xs,
+    padding: TERMINAL_THEME.spacing.xs,
     backgroundColor: TERMINAL_THEME.colors.background.primary,
     borderBottom: `1px solid ${TERMINAL_THEME.colors.border.default}`,
-    fontSize: TERMINAL_THEME.typography.scale.xs,
-    fontWeight: TERMINAL_THEME.fonts.weights.semibold,
+    fontSize: TERMINAL_THEME.typography.sizes.small,
+    fontWeight: TERMINAL_THEME.typography.weights.semibold,
   };
 
   const statusStyle: React.CSSProperties = {
@@ -74,7 +74,7 @@ export const TerminalBox = ({
   };
 
   const contentStyle: React.CSSProperties = {
-    padding: padding ? TERMINAL_THEME.layout.spacing.md : '0',
+    padding: padding ? TERMINAL_THEME.spacing.md : '0',
     height: title ? 'calc(100% - 40px)' : '100%',
     overflow: 'auto' as const,
   };

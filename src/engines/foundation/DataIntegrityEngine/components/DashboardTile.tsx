@@ -1,7 +1,7 @@
 import React from 'react';
 import { TerminalBox } from '@/components/Terminal/TerminalBox';
 import { EngineOutput } from '@/engines/base/BaseEngine';
-import { TERMINAL_THEME } from '@/config/terminal.theme';
+import { TERMINAL_THEME } from '@/config/theme';
 
 interface Props {
   data: EngineOutput;

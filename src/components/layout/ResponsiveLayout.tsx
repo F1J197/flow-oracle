@@ -15,7 +15,7 @@ export const ResponsiveLayout = ({ children, currentPage = 'dashboard' }: Respon
       className="min-h-screen flex flex-col"
       style={{ 
         backgroundColor: theme.colors.background.primary,
-        fontFamily: theme.typography.terminal.mono.fontFamily,
+        fontFamily: theme.typography.fontFamily.mono,
       }}
     >
       {/* Fixed Header */}

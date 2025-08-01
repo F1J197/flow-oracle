@@ -1,4 +1,4 @@
-import { TERMINAL_THEME } from '@/config/terminal.theme';
+import { TERMINAL_THEME } from '@/config/theme';
 import { useMemo } from 'react';
 
 /**
@@ -13,17 +13,17 @@ export const useTerminalTheme = () => {
     switch (status) {
       case 'active':
       case 'success':
-        return theme.colors.semantic.success;
+        return theme.colors.semantic.positive;
       case 'warning':
         return theme.colors.semantic.warning;
       case 'critical':
-        return theme.colors.semantic.critical;
+        return theme.colors.semantic.negative;
       case 'offline':
-        return theme.colors.text.muted;
+        return theme.colors.text.secondary;
       case 'info':
         return theme.colors.semantic.info;
       default:
-        return theme.colors.neon.teal;
+        return theme.colors.semantic.info;
     }
   };
 
@@ -38,12 +38,12 @@ export const useTerminalTheme = () => {
     }
   };
 
-  const getSpacing = (size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl') => {
-    return theme.layout.spacing[size];
+  const getSpacing = (size: 'xs' | 'sm' | 'md' | 'lg' | 'xl') => {
+    return theme.spacing[size];
   };
 
-  const getTypography = (type: 'mono' | 'data' | 'label') => {
-    return theme.typography.terminal[type];
+  const getTypography = (variant: 'micro' | 'tiny' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge') => {
+    return theme.typography.sizes[variant];
   };
 
   return {
@@ -53,9 +53,8 @@ export const useTerminalTheme = () => {
     getSpacing,
     getTypography,
     colors: theme.colors,
-    layout: theme.layout,
+    spacing: theme.spacing,
     typography: theme.typography,
-    animations: theme.animations,
   };
 };
 

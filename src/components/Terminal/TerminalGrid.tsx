@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
-import { TERMINAL_THEME } from "@/config/terminal.theme";
+import { TERMINAL_THEME } from "@/config/theme";
 
-type SpacingKey = keyof typeof TERMINAL_THEME.layout.spacing;
+type SpacingKey = keyof typeof TERMINAL_THEME.spacing;
 
 interface TerminalGridProps {
   children: ReactNode;
@@ -19,8 +19,8 @@ export const TerminalGrid = ({
   const gridStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: `repeat(${columns}, 1fr)`,
-    gap: TERMINAL_THEME.layout.spacing[gap],
-    fontFamily: TERMINAL_THEME.typography.terminal.mono.fontFamily,
+    gap: TERMINAL_THEME.spacing[gap],
+    fontFamily: TERMINAL_THEME.typography.fontFamily.mono,
     color: TERMINAL_THEME.colors.text.primary,
   };
 
