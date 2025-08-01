@@ -1,9 +1,14 @@
 import { TERMINAL_THEME } from "@/config/theme";
 import { TestEngine } from "@/engines/TestEngine";
 import { useEffect, useState } from "react";
+import { TerminalNav } from "@/components/Navigation/TerminalNav";
+import { DashboardView } from "@/components/Dashboard/DashboardView";
+import { IntelligenceView } from "@/components/Intelligence/IntelligenceView";
+import { ChartsView } from "@/components/Charts/ChartsView";
 
 const Index = () => {
   const [engineOutput, setEngineOutput] = useState<any>(null);
+  const [activeView, setActiveView] = useState('dashboard');
 
   useEffect(() => {
     // Initialize test engine
@@ -18,6 +23,19 @@ const Index = () => {
     setEngineOutput(output);
   }, []);
 
+  const renderActiveView = () => {
+    switch (activeView) {
+      case 'dashboard':
+        return <DashboardView />;
+      case 'intelligence':
+        return <IntelligenceView />;
+      case 'charts':
+        return <ChartsView />;
+      default:
+        return <DashboardView />;
+    }
+  };
+
   return (
     <div style={{
       backgroundColor: TERMINAL_THEME.colors.background.primary,
@@ -29,13 +47,18 @@ const Index = () => {
       <h1 style={{
         color: TERMINAL_THEME.colors.headers.primary,
         fontSize: TERMINAL_THEME.typography.sizes.xxlarge,
-        marginBottom: TERMINAL_THEME.spacing.xl,
-        textAlign: 'center'
+        marginBottom: TERMINAL_THEME.spacing.lg,
+        textAlign: 'center',
+        letterSpacing: '2px'
       }}>
         LIQUIDITY² TERMINAL
       </h1>
       
-      {engineOutput && (
+      <TerminalNav onTabChange={setActiveView} />
+      
+      {renderActiveView()}
+      
+      {engineOutput && activeView === 'dashboard' && (
         <div style={{
           backgroundColor: TERMINAL_THEME.colors.background.secondary,
           border: `1px solid ${TERMINAL_THEME.colors.border.default}`,
