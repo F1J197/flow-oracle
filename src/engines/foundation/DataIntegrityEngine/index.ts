@@ -8,62 +8,6 @@ import { BaseEngine, EngineConfig, EngineOutput } from '../../BaseEngine';
 const config: EngineConfig = {
   id: 'data-integrity',
   name: 'Data Integrity & Self-Healing',
-  pillar: 0,
-  priority: 100,
-  updateInterval: 30000,
-  requiredIndicators: ['VIX', 'SPX', 'TNX', 'DXY'],
-  dependencies: []
-};
-
-export class DataIntegrityEngine extends BaseEngine {
-  private readonly CONSENSUS_THRESHOLD = 0.6; // 60% consensus requirement
-  
-  constructor() {
-    super(config);
-  }
-
-  calculate(data: Map<string, any>): EngineOutput {
-    const integrityScore = this.calculateIntegrityScore(data);
-    const consensus = this.calculateConsensus(data);
-    
-    return {
-      primaryMetric: {
-        value: integrityScore,
-        change24h: 0,
-        changePercent: 0
-      },
-      signal: integrityScore > 80 ? 'RISK_ON' : integrityScore > 60 ? 'NEUTRAL' : 'RISK_OFF',
-      confidence: consensus * 100,
-      analysis: `Data integrity: ${integrityScore}%. ${consensus > this.CONSENSUS_THRESHOLD ? 'Sources aligned' : 'Source conflicts detected'}.`,
-      subMetrics: {
-        consensus: Math.round(consensus * 100),
-        sourceCount: data.size
-      }
-    };
-  }
-
-  private calculateIntegrityScore(data: Map<string, any>): number {
-    const validSources = Array.from(data.values()).filter(v => this.validateIndicator(v));
-    return (validSources.length / Math.max(data.size, 1)) * 100;
-  }
-
-  private calculateConsensus(data: Map<string, any>): number {
-    const validSources = Array.from(data.values()).filter(v => this.validateIndicator(v));
-    return validSources.length / Math.max(data.size, 1);
-  }
-
-  private validateIndicator(value: any): boolean {
-    return value !== null && value !== undefined && !isNaN(Number(value));
-  }
-
-  validateData(data: Map<string, any>): boolean {
-    return data.size >= 2;
-  }
-}
-
-const config = {
-  id: 'data-integrity',
-  name: 'Data Integrity & Self-Healing',
   pillar: 1,
   priority: 100,
   updateInterval: 30000,
