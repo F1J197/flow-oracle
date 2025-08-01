@@ -37,9 +37,9 @@ export const NetLiquidityGauge: React.FC<NetLiquidityGaugeProps> = ({
   
   // Get colors based on score and trend
   const getGaugeColor = () => {
-    if (compositeScore > 70) return 'hsl(var(--neon-lime))'; // Green zone
-    if (compositeScore > 40) return 'hsl(var(--neon-amber))'; // Amber zone
-    return 'hsl(var(--neon-orange))'; // Red zone
+    if (compositeScore > 70) return 'hsl(var(--semantic-positive))'; // Green zone
+    if (compositeScore > 40) return 'hsl(var(--semantic-warning))'; // Amber zone
+    return 'hsl(var(--semantic-negative))'; // Red zone
   };
   
   const getGlowEffect = () => {
