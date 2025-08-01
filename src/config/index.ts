@@ -103,5 +103,5 @@ export * from './charts.config';
 export * from './environment';
 export { FRED_SYMBOL_MAP as MasterPromptsFREDSymbolMap } from './fredSymbolMapping';
 export * from './fredSymbols';
-export { TERMINAL_THEME } from './theme';
+export { TERMINAL_THEME } from './terminal.theme';
 export * from './terminal.tokens';

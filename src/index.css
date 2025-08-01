@@ -67,7 +67,7 @@
   }
   
   .terminal-header {
-    color: hsl(var(--bitcoin-orange));
+    color: hsl(var(--btc-primary));
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -143,9 +143,15 @@
   }
   
   .text-accent {
-    color: hsl(var(--bitcoin-orange));
+    color: hsl(var(--btc-primary));
   }
   
+  /* TAB NAVIGATION STYLES */
+  [data-state="active"] {
+    background: hsl(var(--btc-primary)) !important;
+    color: hsl(var(--bg-primary)) !important;
+  }
+
   /* STATUS INDICATORS */
   .status-indicator {
     width: 8px;
@@ -187,9 +193,9 @@
   }
   
   .terminal-button:hover {
-    border-color: hsl(var(--bitcoin-orange));
-    color: hsl(var(--bitcoin-orange));
-    box-shadow: 0 0 8px hsl(var(--bitcoin-orange) / 0.3);
+    border-color: hsl(var(--btc-primary));
+    color: hsl(var(--btc-primary));
+    box-shadow: 0 0 8px hsl(var(--btc-primary) / 0.3);
   }
   
   .terminal-button:active {
@@ -209,8 +215,8 @@
   
   .terminal-input:focus {
     outline: none;
-    border-color: hsl(var(--bitcoin-orange));
-    box-shadow: 0 0 0 1px hsl(var(--bitcoin-orange) / 0.3);
+    border-color: hsl(var(--btc-primary));
+    box-shadow: 0 0 0 1px hsl(var(--btc-primary) / 0.3);
   }
   
   /* TERMINAL CHARTS */
@@ -235,7 +241,7 @@
   }
   
   .terminal-glow-orange {
-    box-shadow: 0 0 20px hsl(var(--bitcoin-orange) / 0.4);
+    box-shadow: 0 0 20px hsl(var(--btc-primary) / 0.4);
   }
   
   .terminal-glow-lime {
@@ -308,10 +314,10 @@
 
 @keyframes terminal-glow {
   0% { 
-    box-shadow: 0 0 5px hsl(var(--bitcoin-orange) / 0.3); 
+    box-shadow: 0 0 5px hsl(var(--btc-primary) / 0.3); 
   }
   100% { 
-    box-shadow: 0 0 20px hsl(var(--bitcoin-orange) / 0.6); 
+    box-shadow: 0 0 20px hsl(var(--btc-primary) / 0.6); 
   }
 }
 
@@ -331,18 +337,18 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--bitcoin-orange));
+  background: hsl(var(--btc-primary));
 }
 
 /* SELECTION STYLING */
 ::selection {
-  background: hsl(var(--bitcoin-orange) / 0.3);
+  background: hsl(var(--btc-primary) / 0.3);
   color: hsl(var(--text-primary));
 }
 
 /* FOCUS VISIBLE STYLING */
 *:focus-visible {
-  outline: 2px solid hsl(var(--bitcoin-orange));
+  outline: 2px solid hsl(var(--btc-primary));
   outline-offset: 2px;
 }
 

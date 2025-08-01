@@ -1,5 +1,5 @@
 import React from 'react';
-import { TERMINAL_THEME } from '@/config/theme';
+import { TERMINAL_THEME } from '@/config/terminal.theme';
 import { IntelligenceViewData } from '@/types/intelligenceView';
 
 export const VolatilityRegimeIntelligenceView: React.FC = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TERMINAL_THEME } from '@/config/theme';
+import { TERMINAL_THEME } from '@/config/terminal.theme';
 import { EngineOutput } from '@/engines/BaseEngine';
 
 interface VolatilityRegimeTileProps {

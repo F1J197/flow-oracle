@@ -39,17 +39,8 @@ export class DataFlowManager {
   private async initializeEngines() {
     console.log('DataFlowManager: Initializing engines...');
     
-    // Load available engines dynamically
-    const availableEngines = [
-      'enhanced-momentum',
-      'volatility-regime', 
-      'net-liquidity',
-      'credit-stress',
-      'signal-aggregator',
-      'tail-risk',
-      'enhanced-zscore',
-      'data-integrity'
-    ];
+    // Load all 28 engines as specified in the registry
+    const availableEngines = Object.keys(ENGINE_REGISTRY);
     
     for (const engineId of availableEngines) {
       try {
@@ -66,6 +57,7 @@ export class DataFlowManager {
   
   private async loadEngine(engineId: string): Promise<BaseEngine | null> {
     try {
+      // Foundation Layer
       switch (engineId) {
         case 'enhanced-momentum': {
           const { EnhancedMomentumEngine } = await import('@/engines/foundation/EnhancedMomentumEngine');
@@ -75,22 +67,6 @@ export class DataFlowManager {
           const { VolatilityRegimeEngine } = await import('@/engines/foundation/VolatilityRegimeEngine');
           return new VolatilityRegimeEngine();
         }
-        case 'net-liquidity': {
-          const { NetLiquidityEngine } = await import('@/engines/liquidity/NetLiquidityEngine');
-          return new NetLiquidityEngine();
-        }
-        case 'credit-stress': {
-          const { CreditStressEngine } = await import('@/engines/liquidity/CreditStressEngine');
-          return new CreditStressEngine();
-        }
-        case 'signal-aggregator': {
-          const { SignalAggregatorEngine } = await import('@/engines/synthesis/SignalAggregatorEngine');
-          return new SignalAggregatorEngine();
-        }
-        case 'tail-risk': {
-          const { TailRiskEngine } = await import('@/engines/systemic/TailRiskEngine');
-          return new TailRiskEngine();
-        }
         case 'enhanced-zscore': {
           const { ZScoreEngine } = await import('@/engines/foundation/ZScoreEngine');
           return new ZScoreEngine();
@@ -99,7 +75,87 @@ export class DataFlowManager {
           const { DataIntegrityEngine } = await import('@/engines/foundation/DataIntegrityEngine');
           return new DataIntegrityEngine();
         }
+
+        // Liquidity Engines
+        case 'net-liquidity': {
+          const { NetLiquidityEngine } = await import('@/engines/liquidity/NetLiquidityEngine');
+          return new NetLiquidityEngine();
+        }
+        case 'credit-stress': {
+          const { CreditStressEngine } = await import('@/engines/liquidity/CreditStressEngine');
+          return new CreditStressEngine();
+        }
+        case 'fed-balance-sheet': {
+          const { FedBalanceSheetEngine } = await import('@/engines/liquidity/FedBalanceSheetEngine');
+          return new FedBalanceSheetEngine();
+        }
+        case 'funding-stress': {
+          const { FundingStressEngine } = await import('@/engines/liquidity/FundingStressEngine');
+          return new FundingStressEngine();
+        }
+        case 'global-financial-plumbing': {
+          const { GlobalFinancialPlumbingEngine } = await import('@/engines/liquidity/GlobalFinancialPlumbingEngine');
+          return new GlobalFinancialPlumbingEngine();
+        }
+
+        // Systemic Risk Engines
+        case 'tail-risk': {
+          const { TailRiskEngine } = await import('@/engines/systemic/TailRiskEngine');
+          return new TailRiskEngine();
+        }
+        case 'market-regime': {
+          const { MarketRegimeEngine } = await import('@/engines/systemic/MarketRegimeEngine');
+          return new MarketRegimeEngine();
+        }
+
+        // Economic Context Engines
+        case 'business-cycle': {
+          const { BusinessCycleEngine } = await import('@/engines/economic/BusinessCycleEngine');
+          return new BusinessCycleEngine();
+        }
+
+        // Advanced Engines
+        case 'cusip-detection': {
+          const { CUSIPDetectionEngine } = await import('@/engines/advanced/CUSIPDetectionEngine');
+          return new CUSIPDetectionEngine();
+        }
+        case 'market-microstructure': {
+          const { MarketMicrostructureEngine } = await import('@/engines/advanced/MarketMicrostructureEngine');
+          return new MarketMicrostructureEngine();
+        }
+        case 'multi-central-bank': {
+          const { MultiCentralBankEngine } = await import('@/engines/advanced/MultiCentralBankEngine');
+          return new MultiCentralBankEngine();
+        }
+        case 'on-chain-analytics': {
+          const { OnChainAnalyticsEngine } = await import('@/engines/advanced/OnChainAnalyticsEngine');
+          return new OnChainAnalyticsEngine();
+        }
+
+        // Synthesis Engines
+        case 'signal-aggregator': {
+          const { SignalAggregatorEngine } = await import('@/engines/synthesis/SignalAggregatorEngine');
+          return new SignalAggregatorEngine();
+        }
+        case 'master-control': {
+          const { MasterControlEngine } = await import('@/engines/synthesis/MasterControlEngine');
+          return new MasterControlEngine();
+        }
+        case 'performance-attribution': {
+          const { PerformanceAttributionEngine } = await import('@/engines/synthesis/PerformanceAttributionEngine');
+          return new PerformanceAttributionEngine();
+        }
+        case 'regime-classifier': {
+          const { RegimeClassifierEngine } = await import('@/engines/synthesis/RegimeClassifierEngine');
+          return new RegimeClassifierEngine();
+        }
+        case 'alert-engine': {
+          const { AlertEngine } = await import('@/engines/synthesis/AlertEngine');
+          return new AlertEngine();
+        }
+
         default:
+          console.warn(`Engine ${engineId} not found in loadEngine switch`);
           return null;
       }
     } catch (error) {

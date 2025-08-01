@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { TerminalLayout } from "@/components/layout/TerminalLayout";
+import { EnhancedTerminalLayout } from "@/components/layout/EnhancedTerminalLayout";
 import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { TerminalThemeProvider } from "@/components/providers/TerminalThemeProvider";
 import { NoirNeonThemeProvider } from "@/components/providers/NoirNeonThemeProvider";
@@ -21,7 +21,7 @@ const App = () => (
               <Toaster />
               <BrowserRouter>
                 <Routes>
-                  <Route path="*" element={<TerminalLayout />} />
+                  <Route path="*" element={<EnhancedTerminalLayout />} />
                 </Routes>
               </BrowserRouter>
             </TooltipProvider>

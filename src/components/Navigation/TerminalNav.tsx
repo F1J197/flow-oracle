@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TERMINAL_THEME } from '@/config/theme';
+import { TERMINAL_THEME } from '@/config/terminal.theme';
 
 interface TerminalNavProps {
   onTabChange?: (tab: string) => void;

@@ -4,7 +4,7 @@
  */
 
 // Core theme
-export { TERMINAL_THEME } from '@/config/theme';
+export { TERMINAL_THEME } from '@/config/terminal.theme';
 
 // Base configuration
 export const CONFIG = {

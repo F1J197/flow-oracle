@@ -50,35 +50,35 @@ export const EnhancedTerminalLayout: React.FC = () => {
 
   const getSessionColor = () => {
     switch (marketSession) {
-      case 'open': return 'bg-green-500';
-      case 'pre': case 'after': return 'bg-yellow-500';
-      case 'close': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'open': return 'hsl(var(--neon-lime))';
+      case 'pre': case 'after': return 'hsl(var(--neon-gold))';
+      case 'close': return 'hsl(var(--neon-orange))';
+      default: return 'hsl(var(--text-secondary))';
     }
   };
 
   const getSystemStatusColor = () => {
     switch (systemStatus) {
-      case 'operational': return 'text-green-400';
-      case 'degraded': return 'text-yellow-400';
-      case 'offline': return 'text-red-400';
-      default: return 'text-gray-400';
+      case 'operational': return 'hsl(var(--neon-lime))';
+      case 'degraded': return 'hsl(var(--neon-gold))';
+      case 'offline': return 'hsl(var(--neon-orange))';
+      default: return 'hsl(var(--text-secondary))';
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen" style={{ background: 'hsl(var(--bg-primary))', color: 'hsl(var(--text-primary))' }}>
       {/* Enhanced Header */}
-      <Card className="bg-gray-900/50 border-orange-500 rounded-none border-x-0 border-t-0">
+      <Card className="terminal-panel border-0 rounded-none">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center space-x-6">
-            <h1 className="text-2xl font-bold text-orange-500 font-mono tracking-wider">
+            <h1 className="text-2xl font-bold font-mono tracking-wider" style={{ color: 'hsl(var(--btc-primary))' }}>
               LIQUIDITY² TERMINAL
             </h1>
             
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${getSessionColor()}`} />
-              <span className="text-sm text-gray-400 font-mono">
+              <div className="w-2 h-2" style={{ backgroundColor: getSessionColor() }} />
+              <span className="text-sm font-mono" style={{ color: 'hsl(var(--text-secondary))' }}>
                 {marketSession.toUpperCase()}
               </span>
             </div>
@@ -86,20 +86,24 @@ export const EnhancedTerminalLayout: React.FC = () => {
 
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
-              <Timer className="w-4 h-4 text-orange-500" />
-              <span className="font-mono text-sm">
+              <Timer className="w-4 h-4" style={{ color: 'hsl(var(--btc-primary))' }} />
+              <span className="font-mono text-sm" style={{ color: 'hsl(var(--text-primary))' }}>
                 {currentTime.toLocaleTimeString()}
               </span>
             </div>
 
             <div className="flex items-center space-x-2">
-              <Activity className={`w-4 h-4 ${getSystemStatusColor()}`} />
-              <span className={`text-sm font-mono ${getSystemStatusColor()}`}>
+              <Activity className="w-4 h-4" style={{ color: getSystemStatusColor() }} />
+              <span className="text-sm font-mono" style={{ color: getSystemStatusColor() }}>
                 {systemStatus.toUpperCase()}
               </span>
             </div>
 
-            <Badge variant="outline" className="border-orange-500 text-orange-500">
+            <Badge variant="outline" className="rounded-none border-0" style={{ 
+              borderColor: 'hsl(var(--btc-primary))', 
+              color: 'hsl(var(--btc-primary))',
+              border: '1px solid hsl(var(--btc-primary))'
+            }}>
               LIVE
             </Badge>
           </div>
@@ -108,10 +112,17 @@ export const EnhancedTerminalLayout: React.FC = () => {
 
       {/* Enhanced Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full h-12 bg-gray-900/50 rounded-none border-b border-gray-700">
+        <TabsList className="w-full h-12 terminal-panel rounded-none border-0" style={{ 
+          background: 'hsl(var(--bg-secondary))',
+          borderBottom: '1px solid hsl(var(--glass-border))'
+        }}>
           <TabsTrigger 
             value="dashboard" 
-            className="flex-1 h-full text-white data-[state=active]:bg-orange-500 data-[state=active]:text-black font-mono"
+            className="flex-1 h-full font-mono rounded-none border-0 data-[state=active]:text-black"
+            style={{
+              color: 'hsl(var(--text-primary))',
+              background: 'transparent'
+            }}
           >
             <div className="flex items-center space-x-2">
               <Zap className="w-4 h-4" />
@@ -121,7 +132,11 @@ export const EnhancedTerminalLayout: React.FC = () => {
           
           <TabsTrigger 
             value="intelligence" 
-            className="flex-1 h-full text-white data-[state=active]:bg-orange-500 data-[state=active]:text-black font-mono"
+            className="flex-1 h-full font-mono rounded-none border-0 data-[state=active]:text-black"
+            style={{
+              color: 'hsl(var(--text-primary))',
+              background: 'transparent'
+            }}
           >
             <div className="flex items-center space-x-2">
               <Activity className="w-4 h-4" />
@@ -131,7 +146,11 @@ export const EnhancedTerminalLayout: React.FC = () => {
           
           <TabsTrigger 
             value="charts" 
-            className="flex-1 h-full text-white data-[state=active]:bg-orange-500 data-[state=active]:text-black font-mono"
+            className="flex-1 h-full font-mono rounded-none border-0 data-[state=active]:text-black"
+            style={{
+              color: 'hsl(var(--text-primary))',
+              background: 'transparent'
+            }}
           >
             <div className="flex items-center space-x-2">
               <TrendingUp className="w-4 h-4" />
@@ -141,10 +160,14 @@ export const EnhancedTerminalLayout: React.FC = () => {
           
           <TabsTrigger 
             value="bitcoin" 
-            className="flex-1 h-full text-white data-[state=active]:bg-orange-500 data-[state=active]:text-black font-mono"
+            className="flex-1 h-full font-mono rounded-none border-0 data-[state=active]:text-black"
+            style={{
+              color: 'hsl(var(--text-primary))',
+              background: 'transparent'
+            }}
           >
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-orange-500 rounded-full" />
+              <div className="w-4 h-4" style={{ backgroundColor: 'hsl(var(--btc-primary))' }} />
               <span>BITCOIN</span>
             </div>
           </TabsTrigger>

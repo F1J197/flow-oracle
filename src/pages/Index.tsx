@@ -1,4 +1,4 @@
-import { TERMINAL_THEME } from "@/config/theme";
+import { TERMINAL_THEME } from "@/config/terminal.theme";
 import { TestEngine } from "@/engines/TestEngine";
 import { useEffect, useState } from "react";
 import { TerminalNav } from "@/components/Navigation/TerminalNav";

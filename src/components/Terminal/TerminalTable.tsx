@@ -1,4 +1,4 @@
-import { TERMINAL_THEME } from "@/config/theme";
+import { TERMINAL_THEME } from "@/config/terminal.theme";
 
 interface TerminalTableProps {
   headers: string[];

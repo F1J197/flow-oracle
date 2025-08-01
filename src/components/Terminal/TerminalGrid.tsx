@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { TERMINAL_THEME } from "@/config/theme";
+import { TERMINAL_THEME } from "@/config/terminal.theme";
 
 type SpacingKey = keyof typeof TERMINAL_THEME.spacing;
 

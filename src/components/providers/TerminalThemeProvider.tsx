@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useEffect } from 'react';
-import { TERMINAL_THEME } from '@/config/theme';
+import { TERMINAL_THEME } from '@/config/terminal.theme';
 import { initializeTerminalCompliance } from '@/utils/terminalCompliance';
 
 interface TerminalThemeContextType {

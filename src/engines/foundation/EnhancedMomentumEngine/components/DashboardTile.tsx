@@ -1,6 +1,6 @@
 import React from 'react';
 import { EngineOutput } from '@/engines/BaseEngine';
-import { TERMINAL_THEME } from '@/config/theme';
+import { TERMINAL_THEME } from '@/config/terminal.theme';
 
 interface Props {
   data: EngineOutput;
