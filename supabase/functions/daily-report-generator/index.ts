@@ -79,7 +79,9 @@ Keep language institutional-grade but accessible. Focus on actionable insights a
     });
 
     if (!response.ok) {
-      throw new Error(`Claude API error: ${response.statusText}`);
+      const errorBody = await response.text();
+      console.error('Claude API error details:', errorBody);
+      throw new Error(`Claude API error: ${response.status} ${response.statusText}`);
     }
 
     const aiResponse = await response.json();

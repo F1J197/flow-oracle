@@ -111,7 +111,7 @@ serve(async (req) => {
           timestamp: new Date().toISOString(),
         });
 
-        // Log execution to database
+        // Log execution to engine_executions table
         await supabaseClient
           .from('engine_executions')
           .insert({
@@ -121,6 +121,21 @@ serve(async (req) => {
             confidence: result.confidence,
             signal: result.signal,
             result_data: result.data,
+          });
+
+        // Also log to engine_outputs table for compatibility
+        await supabaseClient
+          .from('engine_outputs')
+          .insert({
+            engine_id: engine.id,
+            primary_value: result.data?.primaryValue || 0,
+            confidence: Math.round(result.confidence * 100),
+            signal: result.signal,
+            pillar: engine.pillar,
+            analysis: result.data?.analysis || `${engine.name} executed successfully`,
+            sub_metrics: result.data || {},
+            alerts: result.data?.alerts || [],
+            calculated_at: new Date().toISOString()
           });
 
         console.log(`✅ Engine ${engine.name} executed successfully in ${executionTime}ms`);
