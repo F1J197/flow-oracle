@@ -6,6 +6,8 @@ import { TerminalLayout } from "@/components/layout/TerminalLayout";
 import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { TerminalThemeProvider } from "@/components/providers/TerminalThemeProvider";
 import { MotionProvider } from "@/components/providers/MotionProvider";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import Auth from "@/pages/Auth";
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -19,7 +21,15 @@ const App = () => (
             <Toaster />
             <BrowserRouter>
               <Routes>
-                <Route path="*" element={<TerminalLayout />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route 
+                  path="*" 
+                  element={
+                    <ProtectedRoute>
+                      <TerminalLayout />
+                    </ProtectedRoute>
+                  } 
+                />
               </Routes>
             </BrowserRouter>
           </TooltipProvider>

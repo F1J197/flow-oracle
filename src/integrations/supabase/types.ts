@@ -22,7 +22,7 @@ export type Database = {
           engine_id: string
           id: string
           message: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           acknowledged?: boolean | null
@@ -31,7 +31,7 @@ export type Database = {
           engine_id: string
           id?: string
           message: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           acknowledged?: boolean | null
@@ -40,7 +40,7 @@ export type Database = {
           engine_id?: string
           id?: string
           message?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1028,7 +1028,7 @@ export type Database = {
           id: string
           theme_settings: Json | null
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           alert_settings?: Json | null
@@ -1038,7 +1038,7 @@ export type Database = {
           id?: string
           theme_settings?: Json | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           alert_settings?: Json | null
@@ -1048,7 +1048,7 @@ export type Database = {
           id?: string
           theme_settings?: Json | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }

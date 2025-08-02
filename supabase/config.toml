@@ -26,29 +26,5 @@ port = 54325
 enabled = true
 port = 54326
 
-[functions.universal-data-proxy]
-verify_jwt = false
-
-[functions.realtime-indicators]
-verify_jwt = false
-
-[functions.engine-execution]
-verify_jwt = false
-
-[functions.live-data-fetch]
-verify_jwt = false
-
-[functions.fred-data-ingestion]
-verify_jwt = false
-
-[functions.binance-proxy]
-verify_jwt = false
-
-[functions.coingecko-proxy]
-verify_jwt = false
-
-[functions.twelve-data-proxy]
-verify_jwt = false
-
-[functions.z-score-engine]
-verify_jwt = false
+# All edge functions now require JWT authentication for security
+# Only the daily-report-generator remains public for internal system use

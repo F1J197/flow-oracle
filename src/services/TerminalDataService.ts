@@ -133,17 +133,26 @@ export class TerminalDataService {
   }
 
   private startPeriodicUpdates() {
-    // Trigger live data fetch every 5 minutes
+    // Trigger live data fetch every 5 minutes with authentication
     setInterval(async () => {
       try {
-        const response = await fetch('https://gotlitraitdvltnjdnni.supabase.co/functions/v1/live-data-fetch', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ trigger: 'periodic_update' })
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.warn('No valid session for periodic update');
+          return;
+        }
+
+        const { error } = await supabase.functions.invoke('live-data-fetch', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          },
+          body: { trigger: 'periodic_update' }
         });
         
-        if (response.ok) {
+        if (!error) {
           console.log('✓ Periodic data update triggered');
+        } else {
+          console.error('Periodic update failed:', error);
         }
       } catch (error) {
         console.error('Periodic update failed:', error);
@@ -175,14 +184,20 @@ export class TerminalDataService {
 
   async triggerDataUpdate(): Promise<void> {
     try {
-      const response = await fetch('https://gotlitraitdvltnjdnni.supabase.co/functions/v1/live-data-fetch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trigger: 'manual_update' })
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No valid session for data update');
+      }
+
+      const { error } = await supabase.functions.invoke('live-data-fetch', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        },
+        body: { trigger: 'manual_update' }
       });
       
-      if (!response.ok) {
-        throw new Error(`Data update failed: ${response.status}`);
+      if (error) {
+        throw new Error(`Data update failed: ${error.message}`);
       }
       
       console.log('✓ Manual data update triggered');

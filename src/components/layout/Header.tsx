@@ -1,11 +1,20 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { TabNavigation } from './TabNavigation';
+import { useAuth } from '@/hooks/useAuth';
+import { LogOut } from 'lucide-react';
 
 interface HeaderProps {
   currentPage?: 'dashboard' | 'intelligence' | 'charts' | 'system' | 'master-prompts';
 }
 
 export const Header = ({ currentPage = 'dashboard' }: HeaderProps) => {
+  const { signOut, user } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <header className="w-full bg-bg-primary border-b border-neon-teal/30 px-6 py-3">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -38,8 +47,24 @@ export const Header = ({ currentPage = 'dashboard' }: HeaderProps) => {
           </div>
         </div>
 
-        {/* Terminal Status */}
+        {/* Terminal Status & Auth */}
         <div className="flex items-center space-x-3">
+          {user && (
+            <>
+              <div className="text-xs text-text-secondary font-mono">
+                {user.email}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                className="text-text-secondary hover:text-neon-teal"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+              <div className="text-neon-teal">│</div>
+            </>
+          )}
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-neon-lime animate-pulse terminal-panel"></div>
             <span className="text-xs text-neon-lime font-mono font-bold tracking-wider">LIVE</span>
