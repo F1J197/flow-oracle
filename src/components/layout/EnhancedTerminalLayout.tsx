@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Timer, Activity, Zap, TrendingUp } from 'lucide-react';
-import { DashboardView } from '@/components/layout/DashboardView';
+import { DailyIntelligenceCenter } from '@/components/command-center/DailyIntelligenceCenter';
 import { IntelligenceView } from '@/components/layout/IntelligenceView';
 import { ChartsView } from '@/components/layout/ChartsView';
 import { BitcoinDashboard } from '@/components/bitcoin/BitcoinDashboard';
@@ -66,6 +66,11 @@ export const EnhancedTerminalLayout: React.FC = () => {
     }
   };
 
+  // For dashboard tab, show the command center without navigation
+  if (activeTab === 'dashboard') {
+    return <DailyIntelligenceCenter onNavigate={setActiveTab} />;
+  }
+
   return (
     <div className="min-h-screen" style={{ background: 'hsl(var(--bg-primary))', color: 'hsl(var(--text-primary))' }}>
       {/* Enhanced Header */}
@@ -126,7 +131,7 @@ export const EnhancedTerminalLayout: React.FC = () => {
           >
             <div className="flex items-center space-x-2">
               <Zap className="w-4 h-4" />
-              <span>DASHBOARD</span>
+              <span>COMMAND CENTER</span>
             </div>
           </TabsTrigger>
           
@@ -175,10 +180,6 @@ export const EnhancedTerminalLayout: React.FC = () => {
 
         {/* Tab Content */}
         <div className="p-6">
-          <TabsContent value="dashboard" className="mt-0">
-            <DashboardView />
-          </TabsContent>
-
           <TabsContent value="intelligence" className="mt-0">
             <IntelligenceView />
           </TabsContent>
