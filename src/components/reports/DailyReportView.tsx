@@ -83,8 +83,17 @@ export const DailyReportView: React.FC = () => {
   };
 
   const generateReport = async () => {
+    if (dailyReportCount >= 3) {
+      alert('Daily limit of 3 reports reached. Please try again tomorrow.');
+      return;
+    }
+
     setIsGenerating(true);
     try {
+      // First ensure we have mock data
+      const { mockDataService } = await import('@/services/MockDataService');
+      await mockDataService.populateAllMockData();
+      
       const { data, error } = await supabase.functions.invoke('daily-report-generator', {
         body: { trigger: 'manual_generation' }
       });

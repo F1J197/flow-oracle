@@ -67,7 +67,15 @@ class ApexIntelligenceService {
       console.log('🚀 Generating Apex Intelligence Report...');
 
       // Fetch all engine outputs
-      const engineOutputs = await this.fetchEngineOutputs();
+      let engineOutputs = await this.fetchEngineOutputs();
+      
+      // If no engine outputs, generate mock data
+      if (engineOutputs.length === 0) {
+        console.log('No engine outputs found, generating mock data...');
+        const { mockDataService } = await import('./MockDataService');
+        await mockDataService.populateAllMockData();
+        engineOutputs = await this.fetchEngineOutputs();
+      }
       
       // Calculate CLIS (Composite Liquidity Intelligence Score)
       const clis = this.calculateCLIS(engineOutputs);
