@@ -2,7 +2,8 @@ import { TERMINAL_THEME } from "@/config/terminal.theme";
 import { TestEngine } from "@/engines/TestEngine";
 import { useEffect, useState } from "react";
 import { TerminalNav } from "@/components/Navigation/TerminalNav";
-import { DashboardView } from "@/components/Dashboard/DashboardView";
+import { ApexDashboard } from "@/components/apex/ApexDashboard";
+import { RealTimeDataPipeline } from "@/components/enhanced/RealTimeDataPipeline";
 import { IntelligenceView } from "@/components/Intelligence/IntelligenceView";
 import { ChartsView } from "@/components/Charts/ChartsView";
 
