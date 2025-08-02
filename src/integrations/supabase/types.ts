@@ -240,6 +240,57 @@ export type Database = {
           },
         ]
       }
+      engine_execution_history: {
+        Row: {
+          confidence_score: number | null
+          cpu_usage_percent: number | null
+          created_at: string | null
+          dependencies_count: number | null
+          duration_ms: number | null
+          engine_id: string
+          error_message: string | null
+          execution_end: string | null
+          execution_start: string | null
+          id: string
+          input_data_size: number | null
+          memory_peak_mb: number | null
+          output_data_size: number | null
+          success: boolean
+        }
+        Insert: {
+          confidence_score?: number | null
+          cpu_usage_percent?: number | null
+          created_at?: string | null
+          dependencies_count?: number | null
+          duration_ms?: number | null
+          engine_id: string
+          error_message?: string | null
+          execution_end?: string | null
+          execution_start?: string | null
+          id?: string
+          input_data_size?: number | null
+          memory_peak_mb?: number | null
+          output_data_size?: number | null
+          success: boolean
+        }
+        Update: {
+          confidence_score?: number | null
+          cpu_usage_percent?: number | null
+          created_at?: string | null
+          dependencies_count?: number | null
+          duration_ms?: number | null
+          engine_id?: string
+          error_message?: string | null
+          execution_end?: string | null
+          execution_start?: string | null
+          id?: string
+          input_data_size?: number | null
+          memory_peak_mb?: number | null
+          output_data_size?: number | null
+          success?: boolean
+        }
+        Relationships: []
+      }
       engine_execution_logs: {
         Row: {
           confidence_score: number | null
@@ -354,6 +405,39 @@ export type Database = {
           primary_value?: number
           signal?: string
           sub_metrics?: Json | null
+        }
+        Relationships: []
+      }
+      engine_performance_metrics: {
+        Row: {
+          calculated_at: string | null
+          created_at: string | null
+          data_quality_score: number | null
+          engine_id: string
+          execution_time_ms: number
+          id: string
+          memory_usage_mb: number | null
+          success_rate: number | null
+        }
+        Insert: {
+          calculated_at?: string | null
+          created_at?: string | null
+          data_quality_score?: number | null
+          engine_id: string
+          execution_time_ms: number
+          id?: string
+          memory_usage_mb?: number | null
+          success_rate?: number | null
+        }
+        Update: {
+          calculated_at?: string | null
+          created_at?: string | null
+          data_quality_score?: number | null
+          engine_id?: string
+          execution_time_ms?: number
+          id?: string
+          memory_usage_mb?: number | null
+          success_rate?: number | null
         }
         Relationships: []
       }
@@ -830,6 +914,48 @@ export type Database = {
         }
         Relationships: []
       }
+      system_alerts: {
+        Row: {
+          alert_type: string
+          component: string | null
+          created_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          component?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          component?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: []
+      }
       system_health_metrics: {
         Row: {
           component: string
@@ -854,6 +980,42 @@ export type Database = {
           metric_unit?: string | null
           metric_value?: number | null
           timestamp?: string | null
+        }
+        Relationships: []
+      }
+      system_health_status: {
+        Row: {
+          component: string
+          created_at: string | null
+          error_count: number | null
+          id: string
+          last_heartbeat: string | null
+          metadata: Json | null
+          status: string
+          updated_at: string | null
+          uptime_percentage: number | null
+        }
+        Insert: {
+          component: string
+          created_at?: string | null
+          error_count?: number | null
+          id?: string
+          last_heartbeat?: string | null
+          metadata?: Json | null
+          status: string
+          updated_at?: string | null
+          uptime_percentage?: number | null
+        }
+        Update: {
+          component?: string
+          created_at?: string | null
+          error_count?: number | null
+          id?: string
+          last_heartbeat?: string | null
+          metadata?: Json | null
+          status?: string
+          updated_at?: string | null
+          uptime_percentage?: number | null
         }
         Relationships: []
       }
