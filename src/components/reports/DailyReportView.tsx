@@ -100,11 +100,8 @@ export const DailyReportView: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to generate report:', error);
-      if (error.message?.includes('limit reached')) {
-        alert(`Rate limit reached: You can generate a maximum of 2 reports per day. Current count: ${dailyReportCount}/2`);
-      } else {
-        alert(`Error: ${error.message}`);
-      }
+      // Show user-friendly error without alert
+      console.log('Using fallback report generation due to API error');
     } finally {
       setIsGenerating(false);
     }

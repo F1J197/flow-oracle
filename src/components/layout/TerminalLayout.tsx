@@ -1,114 +1,184 @@
-/**
- * Terminal Layout - 3-Tab Bloomberg-Style Interface
- * Dashboard | Intelligence | Charts architecture
- */
-
 import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DashboardView } from './DashboardView';
-import { IntelligenceView } from './IntelligenceView';
-import { ChartsView } from './ChartsView';
-import { BitcoinDashboard } from '@/components/bitcoin/BitcoinDashboard';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Timer, Activity, TrendingUp, AlertTriangle } from 'lucide-react';
+import { DailyReportView } from '@/components/reports/DailyReportView';
+import { LiveDataSidebar } from './LiveDataSidebar';
+import { IntelligenceAlerts } from './IntelligenceAlerts';
 import { DataFlowManager } from '@/engines/DataFlowManager';
 
+/**
+ * LIQUIDITY² Terminal Layout - Bloomberg-Style Single Dashboard
+ * Clean, elegant design focused on real-time market insights
+ */
 export const TerminalLayout: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [systemStatus, setSystemStatus] = useState<'operational' | 'degraded' | 'offline'>('operational');
+  const [marketSession, setMarketSession] = useState<'pre' | 'open' | 'close' | 'after'>('open');
 
   useEffect(() => {
-    // Initialize and start the DataFlowManager
-    const dataFlowManager = DataFlowManager.getInstance();
-    dataFlowManager.start();
+    // Initialize DataFlowManager
+    const dataManager = DataFlowManager.getInstance();
+    dataManager.start();
+
+    // Update time every second
+    const timeInterval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    // Market session detection
+    const sessionInterval = setInterval(() => {
+      const now = new Date();
+      const hour = now.getHours();
+      
+      if (hour >= 4 && hour < 9.5) {
+        setMarketSession('pre');
+      } else if (hour >= 9.5 && hour < 16) {
+        setMarketSession('open');
+      } else if (hour >= 16 && hour < 20) {
+        setMarketSession('after');
+      } else {
+        setMarketSession('close');
+      }
+    }, 60000);
 
     return () => {
-      dataFlowManager.stop();
+      dataManager.stop();
+      clearInterval(timeInterval);
+      clearInterval(sessionInterval);
     };
   }, []);
 
+  const getSessionColor = () => {
+    switch (marketSession) {
+      case 'open': return 'neon-lime';
+      case 'pre': case 'after': return 'neon-gold';
+      case 'close': return 'neon-orange';
+      default: return 'text-secondary';
+    }
+  };
+
+  const getSystemStatusColor = () => {
+    switch (systemStatus) {
+      case 'operational': return 'neon-lime';
+      case 'degraded': return 'neon-gold';
+      case 'offline': return 'neon-orange';
+      default: return 'text-secondary';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background font-mono">
+    <div className="min-h-screen bg-background text-foreground font-mono">
       {/* Terminal Header */}
-      <div className="border-b border-border bg-secondary p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold tracking-wider" style={{ color: 'hsl(var(--btc-primary))' }}>
+      <header className="border-b border-border bg-card">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-6">
+            <h1 className="text-2xl font-bold text-primary tracking-wider">
               LIQUIDITY² TERMINAL
             </h1>
-            <div className="text-sm text-secondary font-mono">
-              {new Date().toLocaleString('en-US', {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                timeZoneName: 'short'
-              })}
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-4">
+            
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-neon-lime"></div>
-              <span className="text-xs text-secondary font-mono">DATA FEED ACTIVE</span>
-            </div>
-            <div className="text-xs text-secondary font-mono">
-              28 ENGINES OPERATIONAL
+              <div className={`w-2 h-2 rounded-none bg-${getSessionColor()}`} />
+              <span className="text-sm font-mono text-muted-foreground">
+                {marketSession.toUpperCase()}
+              </span>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Tab Navigation */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-        <div className="border-b border-border bg-card">
-          <TabsList className="grid w-full grid-cols-4 bg-transparent h-12">
-            <TabsTrigger 
-              value="dashboard" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-mono text-sm tracking-wider"
-            >
-              DASHBOARD
-            </TabsTrigger>
-            <TabsTrigger 
-              value="intelligence" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-mono text-sm tracking-wider"
-            >
-              INTELLIGENCE
-            </TabsTrigger>
-            <TabsTrigger 
-              value="charts" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-mono text-sm tracking-wider"
-            >
-              CHARTS
-            </TabsTrigger>
-            <TabsTrigger 
-              value="bitcoin" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-mono text-sm tracking-wider"
-            >
-              BITCOIN
-            </TabsTrigger>
-          </TabsList>
-        </div>
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <Timer className="w-4 h-4 text-primary" />
+              <span className="font-mono text-sm text-foreground">
+                {currentTime.toLocaleTimeString()}
+              </span>
+            </div>
 
-        {/* Tab Content */}
-        <div className="flex-1">
-          <TabsContent value="dashboard" className="mt-0 h-full">
-            <DashboardView />
-          </TabsContent>
-          
-          <TabsContent value="intelligence" className="mt-0 h-full">
-            <IntelligenceView />
-          </TabsContent>
-          
-          <TabsContent value="charts" className="mt-0 h-full">
-            <ChartsView />
-          </TabsContent>
-          
-          <TabsContent value="bitcoin" className="mt-0 h-full">
-            <BitcoinDashboard />
-          </TabsContent>
+            <div className="flex items-center space-x-2">
+              <Activity className={`w-4 h-4 text-${getSystemStatusColor()}`} />
+              <span className={`text-sm font-mono text-${getSystemStatusColor()}`}>
+                {systemStatus.toUpperCase()}
+              </span>
+            </div>
+
+            <Badge variant="outline" className="border-primary text-primary">
+              LIVE
+            </Badge>
+          </div>
         </div>
-      </Tabs>
+      </header>
+
+      {/* Main Dashboard Grid */}
+      <main className="p-6">
+        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-120px)]">
+          {/* Hero Dashboard - Daily Reports */}
+          <section className="col-span-8">
+            <Card className="h-full bg-card border-border">
+              <div className="p-6 h-full">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-bold text-primary">
+                    DAILY INTELLIGENCE
+                  </h2>
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="w-4 h-4 text-accent" />
+                    <span className="text-sm text-muted-foreground">
+                      Real-time analysis
+                    </span>
+                  </div>
+                </div>
+                <div className="h-[calc(100%-80px)] overflow-auto">
+                  <DailyReportView />
+                </div>
+              </div>
+            </Card>
+          </section>
+
+          {/* Real-time Data Sidebar */}
+          <section className="col-span-4 flex flex-col gap-6">
+            {/* Intelligence Alerts */}
+            <Card className="bg-card border-border">
+              <div className="p-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <AlertTriangle className="w-4 h-4 text-warning" />
+                  <h3 className="font-bold text-foreground">ALERTS</h3>
+                </div>
+                <IntelligenceAlerts />
+              </div>
+            </Card>
+
+            {/* Live Data Stream */}
+            <Card className="flex-1 bg-card border-border">
+              <div className="p-4 h-full">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Activity className="w-4 h-4 text-accent" />
+                  <h3 className="font-bold text-foreground">LIVE DATA</h3>
+                </div>
+                <div className="h-[calc(100%-60px)]">
+                  <LiveDataSidebar />
+                </div>
+              </div>
+            </Card>
+          </section>
+        </div>
+      </main>
+
+      {/* Status Bar */}
+      <footer className="border-t border-border bg-card/50">
+        <div className="flex items-center justify-between px-6 py-2">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-accent animate-pulse" />
+              <span className="text-xs text-muted-foreground">SYSTEMS OPERATIONAL</span>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              LAST UPDATE: {currentTime.toLocaleTimeString()}
+            </div>
+          </div>
+          
+          <div className="text-xs text-muted-foreground">
+            © 2024 LIQUIDITY² TERMINAL
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

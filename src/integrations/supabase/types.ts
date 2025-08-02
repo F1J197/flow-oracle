@@ -716,6 +716,30 @@ export type Database = {
         }
         Relationships: []
       }
+      report_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          expires_at: string
+          id: string
+          report_data: Json
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          report_data: Json
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          report_data?: Json
+        }
+        Relationships: []
+      }
       soma_holdings: {
         Row: {
           change_from_previous: number | null
@@ -871,6 +895,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_cache: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       cleanup_old_market_data: {
         Args: Record<PropertyKey, never>
         Returns: undefined
