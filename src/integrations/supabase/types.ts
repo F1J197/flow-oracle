@@ -1054,7 +1054,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      latest_engine_outputs: {
+        Row: {
+          analysis: string | null
+          calculated_at: string | null
+          confidence: number | null
+          engine_id: string | null
+          pillar: number | null
+          primary_value: number | null
+          signal: string | null
+          sub_metrics: Json | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_expired_cache: {
