@@ -4,12 +4,12 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { EngineOutput } from '@/engines/BaseEngine';
+import { DatabaseEngineOutput } from '@/types/database';
 
 export class TerminalDataService {
   private static instance: TerminalDataService;
-  private engineOutputs = new Map<string, EngineOutput>();
-  private subscribers = new Set<(data: Map<string, EngineOutput>) => void>();
+  private engineOutputs = new Map<string, DatabaseEngineOutput>();
+  private subscribers = new Set<(data: Map<string, DatabaseEngineOutput>) => void>();
 
   static getInstance(): TerminalDataService {
     if (!TerminalDataService.instance) {
@@ -42,18 +42,7 @@ export class TerminalDataService {
       const latestOutputs = new Map<string, any>();
       data?.forEach(output => {
         if (!latestOutputs.has(output.engine_id)) {
-          latestOutputs.set(output.engine_id, {
-            primaryMetric: {
-              value: output.primary_value,
-              change24h: 0, // TODO: Calculate from historical data
-              changePercent: 0
-            },
-            signal: output.signal,
-            confidence: output.confidence,
-            analysis: output.analysis,
-            subMetrics: output.sub_metrics || {},
-            alerts: output.alerts || []
-          });
+          latestOutputs.set(output.engine_id, output);
         }
       });
 
@@ -91,17 +80,17 @@ export class TerminalDataService {
   }
 
   private handleEngineOutputUpdate(newOutput: any) {
-    const engineOutput: EngineOutput = {
-      primaryMetric: {
-        value: newOutput.primary_value,
-        change24h: 0,
-        changePercent: 0
-      },
+    const engineOutput: DatabaseEngineOutput = {
+      id: newOutput.id,
+      engine_id: newOutput.engine_id,
       signal: newOutput.signal,
       confidence: newOutput.confidence,
+      primary_value: newOutput.primary_value,
+      pillar: newOutput.pillar,
       analysis: newOutput.analysis,
-      subMetrics: newOutput.sub_metrics || {},
-      alerts: newOutput.alerts || []
+      sub_metrics: newOutput.sub_metrics || {},
+      alerts: newOutput.alerts || [],
+      calculated_at: newOutput.calculated_at
     };
 
     this.engineOutputs.set(newOutput.engine_id, engineOutput);
@@ -110,22 +99,22 @@ export class TerminalDataService {
 
   private handleMasterSignalUpdate(newSignal: any) {
     // Update master signal in the aggregator engine output
-    const masterOutput: EngineOutput = {
-      primaryMetric: {
-        value: newSignal.signal_strength,
-        change24h: 0,
-        changePercent: 0
-      },
+    const masterOutput: DatabaseEngineOutput = {
+      id: newSignal.id,
+      engine_id: 'signal-aggregator',
       signal: newSignal.master_signal,
       confidence: newSignal.regime_confidence,
+      primary_value: newSignal.signal_strength,
+      pillar: 5,
       analysis: `Master signal: ${newSignal.master_signal} with ${newSignal.consensus_score}% consensus`,
-      subMetrics: {
+      sub_metrics: {
         signal_strength: newSignal.signal_strength,
         consensus_score: newSignal.consensus_score,
         conflict_level: newSignal.conflict_level,
         market_regime: newSignal.market_regime,
         engine_count: newSignal.engine_count
-      }
+      },
+      calculated_at: newSignal.created_at
     };
 
     this.engineOutputs.set('signal-aggregator', masterOutput);
@@ -160,13 +149,13 @@ export class TerminalDataService {
     }, 5 * 60 * 1000); // 5 minutes
   }
 
-  subscribe(callback: (data: Map<string, EngineOutput>) => void) {
+  subscribe(callback: (data: Map<string, DatabaseEngineOutput>) => void) {
     this.subscribers.add(callback);
     // Immediately notify with current data
     callback(this.engineOutputs);
   }
 
-  unsubscribe(callback: (data: Map<string, EngineOutput>) => void) {
+  unsubscribe(callback: (data: Map<string, DatabaseEngineOutput>) => void) {
     this.subscribers.delete(callback);
   }
 
@@ -174,11 +163,11 @@ export class TerminalDataService {
     this.subscribers.forEach(callback => callback(this.engineOutputs));
   }
 
-  getEngineOutput(engineId: string): EngineOutput | undefined {
+  getEngineOutput(engineId: string): DatabaseEngineOutput | undefined {
     return this.engineOutputs.get(engineId);
   }
 
-  getAllEngineOutputs(): Map<string, EngineOutput> {
+  getAllEngineOutputs(): Map<string, DatabaseEngineOutput> {
     return new Map(this.engineOutputs);
   }
 

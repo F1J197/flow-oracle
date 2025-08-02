@@ -8,11 +8,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TERMINAL_THEME } from '@/config/terminal.theme';
 import { SmartGrid } from './SmartGrid';
 import { TerminalDataService } from '@/services/TerminalDataService';
-import { EngineOutput } from '@/engines/BaseEngine';
+import { DatabaseEngineOutput } from '@/types/database';
 import { debugLogger } from '@/utils/debugLogger';
 
 export const DashboardView: React.FC = () => {
-  const [engineOutputs, setEngineOutputs] = useState<Map<string, EngineOutput>>(new Map());
+  const [engineOutputs, setEngineOutputs] = useState<Map<string, DatabaseEngineOutput>>(new Map());
   const [selectedEngine, setSelectedEngine] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
@@ -40,7 +40,7 @@ export const DashboardView: React.FC = () => {
     };
     
     // Subscribe to real-time updates
-    const handleDataUpdate = (newOutputs: Map<string, EngineOutput>) => {
+    const handleDataUpdate = (newOutputs: Map<string, DatabaseEngineOutput>) => {
       setEngineOutputs(new Map(newOutputs));
       setLastUpdate(new Date());
       debugLogger.info('DASHBOARD', `Updated ${newOutputs.size} engine outputs`);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ApexDashboard } from "@/components/apex/ApexDashboard";
 import { RealTimeDataPipeline } from "@/components/enhanced/RealTimeDataPipeline";
+import { DataPopulator } from "@/components/system/DataPopulator";
 import { motion } from "framer-motion";
 
 /**
@@ -73,6 +74,11 @@ const Index = () => {
             ELITE FINANCIAL INTELLIGENCE PLATFORM
           </div>
         </motion.div>
+
+        {/* System Data Population */}
+        <div className="mb-6">
+          <DataPopulator />
+        </div>
 
         <ApexDashboard />
       </div>

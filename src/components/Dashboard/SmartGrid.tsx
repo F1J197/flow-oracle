@@ -11,7 +11,7 @@ import { ENGINE_REGISTRY } from '@/config/engine.registry';
 import { SmartTile } from '@/components/dashboard/SmartTile';
 
 interface SmartGridProps {
-  engineOutputs: Map<string, EngineOutput>;
+  engineOutputs: Map<string, any>;
   onTileClick?: (engineId: string) => void;
 }
 
