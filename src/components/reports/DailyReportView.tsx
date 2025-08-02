@@ -44,10 +44,22 @@ export const DailyReportView: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState<DailyReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [dailyReportCount, setDailyReportCount] = useState(0);
 
   useEffect(() => {
     fetchReports();
+    checkDailyReportCount();
   }, []);
+
+  const checkDailyReportCount = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await supabase
+      .from('daily_reports')
+      .select('id')
+      .eq('report_date', today);
+    
+    setDailyReportCount(data?.length || 0);
+  };
 
   const fetchReports = async () => {
     try {
@@ -82,12 +94,17 @@ export const DailyReportView: React.FC = () => {
       if (data?.success) {
         console.log('Report generated successfully:', data.report);
         await fetchReports(); // Refresh the list
+        await checkDailyReportCount(); // Update count
       } else {
         throw new Error(data?.error || 'Failed to generate report');
       }
     } catch (error) {
       console.error('Failed to generate report:', error);
-      alert(`Error: ${error.message}`); // Show user-friendly error
+      if (error.message?.includes('limit reached')) {
+        alert(`Rate limit reached: You can generate a maximum of 2 reports per day. Current count: ${dailyReportCount}/2`);
+      } else {
+        alert(`Error: ${error.message}`);
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -139,24 +156,37 @@ export const DailyReportView: React.FC = () => {
         alignItems: 'center',
         marginBottom: TERMINAL_THEME.spacing.xl
       }}>
-        <h1 style={{
-          color: TERMINAL_THEME.colors.headers.primary,
-          fontSize: TERMINAL_THEME.typography.sizes.hero,
-          fontWeight: TERMINAL_THEME.typography.weights.bold,
-          letterSpacing: '2px'
-        }}>
-          DAILY MACRO RESEARCH
-        </h1>
+        <div>
+          <h1 style={{
+            color: TERMINAL_THEME.colors.headers.primary,
+            fontSize: TERMINAL_THEME.typography.sizes.hero,
+            fontWeight: TERMINAL_THEME.typography.weights.bold,
+            letterSpacing: '2px'
+          }}>
+            DAILY MACRO RESEARCH
+          </h1>
+          <div style={{
+            fontSize: TERMINAL_THEME.typography.sizes.small,
+            color: TERMINAL_THEME.colors.text.secondary,
+            marginTop: TERMINAL_THEME.spacing.xs
+          }}>
+            Reports generated today: {dailyReportCount}/2 • Auto-generated daily at 6 AM EST
+          </div>
+        </div>
         <Button
           onClick={generateReport}
-          disabled={isGenerating}
+          disabled={isGenerating || dailyReportCount >= 2}
           style={{
-            backgroundColor: TERMINAL_THEME.colors.headers.primary,
+            backgroundColor: dailyReportCount >= 2 
+              ? TERMINAL_THEME.colors.text.secondary 
+              : TERMINAL_THEME.colors.headers.primary,
             color: TERMINAL_THEME.colors.background.primary,
             border: 'none'
           }}
         >
-          {isGenerating ? 'GENERATING...' : 'GENERATE NEW REPORT'}
+          {isGenerating ? 'GENERATING...' : 
+           dailyReportCount >= 2 ? 'DAILY LIMIT REACHED' : 
+           'GENERATE NEW REPORT'}
         </Button>
       </div>
 
