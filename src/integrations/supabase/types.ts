@@ -131,6 +131,33 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_reports: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          report_date: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id?: string
+          report_date: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          report_date?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       data_points: {
         Row: {
           confidence_score: number | null
