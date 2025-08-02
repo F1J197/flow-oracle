@@ -79,10 +79,15 @@ export const DailyReportView: React.FC = () => {
 
       if (error) throw error;
 
-      console.log('Report generated:', data);
-      await fetchReports(); // Refresh the list
+      if (data?.success) {
+        console.log('Report generated successfully:', data.report);
+        await fetchReports(); // Refresh the list
+      } else {
+        throw new Error(data?.error || 'Failed to generate report');
+      }
     } catch (error) {
       console.error('Failed to generate report:', error);
+      alert(`Error: ${error.message}`); // Show user-friendly error
     } finally {
       setIsGenerating(false);
     }

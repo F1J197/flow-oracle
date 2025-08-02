@@ -12,6 +12,9 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
+// Rate limiting: max 2 reports per day
+const DAILY_REPORT_LIMIT = 2;
+
 interface DailyReport {
   id: string;
   date: string;
@@ -46,6 +49,28 @@ serve(async (req) => {
 
   try {
     console.log('🚀 Starting daily report generation...');
+
+    // Check rate limiting: max 2 reports per day
+    const today = new Date().toISOString().split('T')[0];
+    const { data: todaysReports, error: countError } = await supabase
+      .from('daily_reports')
+      .select('id')
+      .eq('report_date', today);
+
+    if (countError) {
+      console.error('Rate limit check error:', countError);
+      throw countError;
+    }
+
+    if (todaysReports && todaysReports.length >= DAILY_REPORT_LIMIT) {
+      return new Response(JSON.stringify({ 
+        error: `Daily report limit reached (${DAILY_REPORT_LIMIT} per day). Try again tomorrow.`,
+        success: false 
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Fetch latest engine outputs
     const { data: engineOutputs, error: engineError } = await supabase
@@ -94,10 +119,10 @@ serve(async (req) => {
       timestamp: indicator.timestamp
     }));
 
-    // Generate AI-powered insights using Perplexity
-    const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
-    if (!perplexityApiKey) {
-      throw new Error('PERPLEXITY_API_KEY not configured');
+    // Generate AI-powered insights using Claude
+    const claudeApiKey = Deno.env.get('ANTHROPIC_API_KEY');
+    if (!claudeApiKey) {
+      throw new Error('ANTHROPIC_API_KEY not configured');
     }
 
     const analysisPrompt = `
@@ -120,41 +145,36 @@ Generate a structured analysis with:
 Be data-driven, concise, and actionable. Focus on what institutional investors need to know.
 `;
 
-    console.log('📊 Sending analysis request to Perplexity...');
+    console.log('📊 Sending analysis request to Claude...');
 
-    const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${perplexityApiKey}`,
-        'Content-Type': 'application/json',
+        'x-api-key': claudeApiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-large-128k-online',
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 4000,
+        temperature: 0.3,
+        system: 'You are a senior macro strategist and financial analyst with 20+ years of experience at top investment banks. Provide structured, actionable insights based on quantitative data. Focus on contrarian insights and forward-looking analysis.',
         messages: [
-          {
-            role: 'system',
-            content: 'You are a senior macro strategist and financial analyst. Provide structured, actionable insights based on quantitative data.'
-          },
           {
             role: 'user',
             content: analysisPrompt
           }
-        ],
-        temperature: 0.3,
-        top_p: 0.9,
-        max_tokens: 2000,
-        return_images: false,
-        return_related_questions: false,
-        search_recency_filter: 'day'
+        ]
       }),
     });
 
-    if (!perplexityResponse.ok) {
-      throw new Error(`Perplexity API error: ${perplexityResponse.status}`);
+    if (!claudeResponse.ok) {
+      const errorText = await claudeResponse.text();
+      throw new Error(`Claude API error: ${claudeResponse.status} - ${errorText}`);
     }
 
-    const perplexityData = await perplexityResponse.json();
-    const aiAnalysis = perplexityData.choices[0].message.content;
+    const claudeData = await claudeResponse.json();
+    const aiAnalysis = claudeData.content[0].text;
 
     console.log('🤖 AI analysis completed');
 
