@@ -64,11 +64,13 @@ Keep language institutional-grade but accessible. Focus on actionable insights a
       headers: {
         'Authorization': `Bearer ${anthropicApiKey}`,
         'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
+        'x-api-key': anthropicApiKey
       },
       body: JSON.stringify({
         model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 1000,
+        max_tokens: 1500,
+        temperature: 0.3,
         messages: [{
           role: 'user',
           content: prompt
