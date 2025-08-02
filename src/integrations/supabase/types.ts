@@ -875,6 +875,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_active_cron_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          jobname: string
+          schedule: string
+          command: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
